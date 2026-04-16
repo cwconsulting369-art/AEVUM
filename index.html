@@ -1157,17 +1157,6 @@ details[open] summary { color:var(--acid) !important; }
   will-change:transform,opacity;
 }
 
-/* === CURSOR TRAIL === */
-#cursor-canvas {
-  position:fixed; top:0; left:0;
-  width:100%; height:100%;
-  pointer-events:none;
-  z-index:9999;
-}
-@media (hover:hover) {
-  body,a,button,.interval-btn,.quick-btn,details summary,
-  .module-card,.process-step,input,textarea { cursor:none !important; }
-}
 
 /* === HORIZONTAL MODULE SCROLL (Desktop) === */
 @media (min-width:769px) {
@@ -1926,8 +1915,8 @@ details[open] summary { color:var(--acid) !important; }
 if (typeof Lenis !== 'undefined' && typeof gsap !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
   window.__lenis = new Lenis({
-    duration: 2.4,
-    easing: t => 1 - Math.pow(1 - t, 5),
+    duration: 1.5,
+    easing: t => 1 - Math.pow(1 - t, 4),
     smoothWheel: true,
   });
   const lenis = window.__lenis;
@@ -2307,37 +2296,6 @@ document.querySelectorAll('a, button, .interval-btn, .quick-btn, details summary
   })();
 })();
 
-/* ===================== CUSTOM CURSOR TRAIL ===================== */
-(function initCursor() {
-  if (window.matchMedia('(hover:none)').matches) return;
-  const canvas = document.createElement('canvas');
-  canvas.id = 'cursor-canvas';
-  document.body.appendChild(canvas);
-  const ctx = canvas.getContext('2d');
-  const trail = [], MAX = 30;
-  let mx = -200, my = -200;
-  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-  resize();
-  window.addEventListener('resize', resize, { passive: true });
-  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
-  (function draw() {
-    requestAnimationFrame(draw);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    trail.push({ x: mx, y: my });
-    if (trail.length > MAX) trail.shift();
-    trail.forEach((p, i) => {
-      const t = i / MAX;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, t * 5, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(200,255,0,${t * 0.55})`;
-      ctx.fill();
-    });
-    ctx.beginPath();
-    ctx.arc(mx, my, 5.5, 0, Math.PI * 2);
-    ctx.fillStyle = '#c8ff00';
-    ctx.fill();
-  })();
-})();
 
 /* ===================== SPLITTEXT HERO HEADLINE ===================== */
 (function initSplitText() {
@@ -2373,58 +2331,6 @@ document.querySelectorAll('a, button, .interval-btn, .quick-btn, details summary
   }, 200);
 })();
 
-/* ===================== EDGE SCROLL — Cursor-Nähe zum Rand scrollt die Seite ===================== */
-(function initEdgeScroll() {
-  if (window.matchMedia('(hover:none)').matches) return;
-
-  const ZONE     = 0.14;  // Trigger-Zone: 14% vom Rand
-  const MAX_SPD  = 22;    // Max px/frame ganz am Rand
-  const DEADZONE = 0.04;  // 4% Puffer — kein Scrollen in der Mitte
-
-  let mouseY = -1;
-  let active = true;
-
-  window.addEventListener('mousemove', e => { mouseY = e.clientY; }, { passive: true });
-  document.addEventListener('mouseleave', () => { mouseY = -1; });
-
-  // Pause wenn User selbst scrollt (Wheel), kurz danach wieder aktivieren
-  let pauseTimer;
-  window.addEventListener('wheel', () => {
-    active = false;
-    clearTimeout(pauseTimer);
-    pauseTimer = setTimeout(() => { active = true; }, 800);
-  }, { passive: true });
-
-  function tick() {
-    requestAnimationFrame(tick);
-    const lenis = window.__lenis;
-    if (!lenis || mouseY < 0 || !active) return;
-
-    const h = window.innerHeight;
-    const maxScroll = document.documentElement.scrollHeight - h;
-    const topEdge   = h * ZONE;
-    const botEdge   = h * (1 - ZONE);
-    const deadTop   = h * DEADZONE;
-    const deadBot   = h * (1 - DEADZONE);
-
-    let v = 0;
-
-    if (mouseY < topEdge && mouseY < deadTop === false) {
-      // Nähe zum oberen Rand → scroll up
-      const t = 1 - mouseY / topEdge;          // 0..1, 1 = ganz oben
-      v = -(Math.pow(t, 1.6) * MAX_SPD);
-    } else if (mouseY > botEdge && mouseY > deadBot === false) {
-      // Nähe zum unteren Rand → scroll down
-      const t = (mouseY - botEdge) / (h - botEdge);
-      v = Math.pow(t, 1.6) * MAX_SPD;
-    }
-
-    if (Math.abs(v) > 0.3) {
-      lenis.targetScroll = Math.max(0, Math.min(lenis.targetScroll + v, maxScroll));
-    }
-  }
-  tick();
-})();
 
 </script>
 
