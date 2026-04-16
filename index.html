@@ -1143,6 +1143,12 @@ details[open] summary { color:var(--acid) !important; }
   .reveal { opacity:1 !important; transform:none !important; }
 }
 </style>
+
+<!-- Animation Stack -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
 </head>
 <body>
 
@@ -1865,6 +1871,22 @@ details[open] summary { color:var(--acid) !important; }
 </footer>
 
 <script>
+/* ===================== LENIS SMOOTH SCROLL + GSAP ===================== */
+if (typeof Lenis !== 'undefined' && typeof gsap !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+  const lenis = new Lenis({ duration: 1.2, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(time => lenis.raf(time * 1000));
+  gsap.ticker.lagSmoothing(0);
+  // Scroll-In Animationen
+  gsap.utils.toArray('.reveal').forEach(el => {
+    gsap.from(el, {
+      scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' },
+      y: 40, opacity: 0, duration: 0.9, ease: 'power3.out'
+    });
+  });
+}
+
 /* ===================== REVEAL ===================== */
 const reveals = document.querySelectorAll('.reveal');
 const revObs = new IntersectionObserver((entries) => {
@@ -2035,7 +2057,7 @@ setInterval(() => {
 
 /* ===================== CONFIG — HIER DEINE WERTE EINTRAGEN ===================== */
 const CONFIG = {
-  N8N_WEBHOOK: 'https://DEINE-N8N-INSTANZ.app.n8n.cloud/webhook/aevum-lead',
+  N8N_WEBHOOK: 'https://iamcarlostheone.app.n8n.cloud/webhook/aevum-lead',
   AIRTABLE_TOKEN: '',
   AIRTABLE_BASE: '',
   WHATSAPP: '49XXXXXXXXXX',
