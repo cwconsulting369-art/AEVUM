@@ -1929,13 +1929,7 @@ if (typeof Lenis !== 'undefined' && typeof gsap !== 'undefined') {
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add(time => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
-  // Scroll-In Animationen
-  gsap.utils.toArray('.reveal').forEach(el => {
-    gsap.from(el, {
-      scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' },
-      y: 40, opacity: 0, duration: 0.9, ease: 'power3.out'
-    });
-  });
+  // Reveal per CSS IntersectionObserver — kein GSAP from-Tween (würde opacity:0 als inline-style setzen und CSS überschreiben)
 }
 
 /* ===================== REVEAL ===================== */
