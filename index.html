@@ -930,7 +930,7 @@ footer { background:var(--black); border-top:1px solid var(--mid); padding:36px 
 .footer-copy { font-family:'DM Mono',monospace; font-size:10px; color:var(--dim2); }
 
 /* REVEAL */
-.reveal { opacity:0; transform:translateY(28px); transition:opacity 0.7s ease,transform 0.7s ease; }
+.reveal { opacity:0; transform:translateY(44px); transition:opacity 1.1s cubic-bezier(0.16,1,0.3,1), transform 1.1s cubic-bezier(0.16,1,0.3,1); }
 .reveal.visible { opacity:1; transform:translateY(0); }
 
 /* SCROLLBAR */
@@ -1925,23 +1925,43 @@ details[open] summary { color:var(--acid) !important; }
 /* ===================== LENIS SMOOTH SCROLL + GSAP ===================== */
 if (typeof Lenis !== 'undefined' && typeof gsap !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
-  const lenis = new Lenis({ duration: 1.2, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+  const lenis = new Lenis({
+    duration: 2.4,
+    easing: t => 1 - Math.pow(1 - t, 5),
+    smoothWheel: true,
+  });
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add(time => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
-  // Reveal per CSS IntersectionObserver — kein GSAP from-Tween (würde opacity:0 als inline-style setzen und CSS überschreiben)
+
+  /* Sanfter Parallax — Hero-Hintergrund scrollt langsamer als Content */
+  gsap.to('#hero-webgl, .hero-bg-grid', {
+    y: '30%',
+    ease: 'none',
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 2 },
+  });
+
+  /* Section-Titles: leicht verzögerter Float-In via GSAP wenn Lenis aktiv */
+  gsap.utils.toArray('.section-title').forEach(el => {
+    gsap.fromTo(el,
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1.4, ease: 'power4.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' } }
+    );
+    el.classList.add('gsap-handled');
+  });
 }
 
 /* ===================== REVEAL ===================== */
-const reveals = document.querySelectorAll('.reveal');
+const reveals = document.querySelectorAll('.reveal:not(.gsap-handled)');
 const revObs = new IntersectionObserver((entries) => {
   entries.forEach((e, i) => {
-    if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 70);
+    if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 90);
   });
-}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+}, { threshold: 0.06, rootMargin: '0px 0px -20px 0px' });
 reveals.forEach(el => revObs.observe(el));
 document.querySelectorAll('.hero .reveal').forEach((el, i) => {
-  setTimeout(() => el.classList.add('visible'), 300 + i * 150);
+  setTimeout(() => el.classList.add('visible'), 400 + i * 180);
 });
 
 /* ===================== COUNT UP ===================== */
@@ -2341,10 +2361,15 @@ document.querySelectorAll('a, button, .interval-btn, .quick-btn, details summary
   }
   [...hl.childNodes].forEach(splitChars);
   const chars = hl.querySelectorAll('.char');
-  gsap.set(chars, { opacity: 0, y: 55 });
+  gsap.set(chars, { opacity: 0, y: 70 });
   setTimeout(() => {
-    gsap.to(chars, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: 0.028 });
-  }, 150);
+    gsap.to(chars, {
+      opacity: 1, y: 0,
+      duration: 1.0,
+      ease: 'power4.out',
+      stagger: { each: 0.038, ease: 'power2.inOut' },
+    });
+  }, 200);
 })();
 
 </script>
