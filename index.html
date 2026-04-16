@@ -1925,11 +1925,12 @@ details[open] summary { color:var(--acid) !important; }
 /* ===================== LENIS SMOOTH SCROLL + GSAP ===================== */
 if (typeof Lenis !== 'undefined' && typeof gsap !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
-  const lenis = new Lenis({
+  window.__lenis = new Lenis({
     duration: 2.4,
     easing: t => 1 - Math.pow(1 - t, 5),
     smoothWheel: true,
   });
+  const lenis = window.__lenis;
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add(time => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
@@ -2370,6 +2371,59 @@ document.querySelectorAll('a, button, .interval-btn, .quick-btn, details summary
       stagger: { each: 0.038, ease: 'power2.inOut' },
     });
   }, 200);
+})();
+
+/* ===================== EDGE SCROLL — Cursor-Nähe zum Rand scrollt die Seite ===================== */
+(function initEdgeScroll() {
+  if (window.matchMedia('(hover:none)').matches) return;
+
+  const ZONE     = 0.14;  // Trigger-Zone: 14% vom Rand
+  const MAX_SPD  = 22;    // Max px/frame ganz am Rand
+  const DEADZONE = 0.04;  // 4% Puffer — kein Scrollen in der Mitte
+
+  let mouseY = -1;
+  let active = true;
+
+  window.addEventListener('mousemove', e => { mouseY = e.clientY; }, { passive: true });
+  document.addEventListener('mouseleave', () => { mouseY = -1; });
+
+  // Pause wenn User selbst scrollt (Wheel), kurz danach wieder aktivieren
+  let pauseTimer;
+  window.addEventListener('wheel', () => {
+    active = false;
+    clearTimeout(pauseTimer);
+    pauseTimer = setTimeout(() => { active = true; }, 800);
+  }, { passive: true });
+
+  function tick() {
+    requestAnimationFrame(tick);
+    const lenis = window.__lenis;
+    if (!lenis || mouseY < 0 || !active) return;
+
+    const h = window.innerHeight;
+    const maxScroll = document.documentElement.scrollHeight - h;
+    const topEdge   = h * ZONE;
+    const botEdge   = h * (1 - ZONE);
+    const deadTop   = h * DEADZONE;
+    const deadBot   = h * (1 - DEADZONE);
+
+    let v = 0;
+
+    if (mouseY < topEdge && mouseY < deadTop === false) {
+      // Nähe zum oberen Rand → scroll up
+      const t = 1 - mouseY / topEdge;          // 0..1, 1 = ganz oben
+      v = -(Math.pow(t, 1.6) * MAX_SPD);
+    } else if (mouseY > botEdge && mouseY > deadBot === false) {
+      // Nähe zum unteren Rand → scroll down
+      const t = (mouseY - botEdge) / (h - botEdge);
+      v = Math.pow(t, 1.6) * MAX_SPD;
+    }
+
+    if (Math.abs(v) > 0.3) {
+      lenis.targetScroll = Math.max(0, Math.min(lenis.targetScroll + v, maxScroll));
+    }
+  }
+  tick();
 })();
 
 </script>
