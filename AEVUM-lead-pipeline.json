@@ -1,0 +1,190 @@
+{
+  "name": "AEVUM — Lead Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aevum-lead",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-intake",
+      "name": "📥 Lead Webhook Intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "aevum-lead-intake"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// AEVUM — Lead Enrichment & Normalization\n// ============================================\nconst body = $input.first().json.body || $input.first().json;\n\n// Timestamp\nconst now = new Date();\nconst timestamp = now.toISOString();\nconst dateOnly = now.toISOString().split('T')[0];\nconst timeOnly = now.toTimeString().split(' ')[0];\n\n// Lead-ID generieren\nconst leadId = 'AV-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();\n\n// UTM Parameter extrahieren\nconst utm_source = body.utm_source || 'direct';\nconst utm_medium = body.utm_medium || 'none';\nconst utm_campaign = body.utm_campaign || 'unknown';\nconst utm_content = body.utm_content || '';\nconst utm_term = body.utm_term || '';\n\n// Creative ID aus utm_content\nconst creative_id = body.creative_id || utm_content || 'unknown';\n\n// Funnel Stage\nconst funnel_stage = 'NEW_LEAD';\n\n// Normalisiertes Lead-Objekt\nreturn [{\n  json: {\n    // IDs\n    lead_id: leadId,\n    \n    // Kontakt\n    name: body.name || '',\n    email: body.email || '',\n    phone: body.phone || '',\n    company: body.company || '',\n    \n    // UTM\n    utm_source,\n    utm_medium,\n    utm_campaign,\n    utm_content,\n    utm_term,\n    creative_id,\n    \n    // Meta\n    fbclid: body.fbclid || '',\n    fbp: body.fbp || '',\n    fbc: body.fbc || body.fbclid ? 'fb.1.' + Date.now() + '.' + body.fbclid : '',\n    \n    // Journey\n    funnel_stage,\n    source_page: body.source_page || body.page_url || '',\n    \n    // Zeitstempel\n    timestamp,\n    date: dateOnly,\n    time: timeOnly,\n    \n    // IP (für CAPI)\n    ip_address: body.ip_address || '',\n    user_agent: body.user_agent || '',\n    \n    // Status\n    status: 'Neu',\n    priority: 'Normal',\n    \n    // Notizen\n    notes: body.message || body.notes || ''\n  }\n}];"
+      },
+      "id": "lead-enrichment",
+      "name": "🔧 Lead Enrichment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "DEINE_AIRTABLE_BASE_ID",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Lead ID": "={{ $json.lead_id }}",
+            "Name": "={{ $json.name }}",
+            "Email": "={{ $json.email }}",
+            "Phone": "={{ $json.phone }}",
+            "Company": "={{ $json.company }}",
+            "Status": "={{ $json.status }}",
+            "Funnel Stage": "={{ $json.funnel_stage }}",
+            "UTM Source": "={{ $json.utm_source }}",
+            "UTM Campaign": "={{ $json.utm_campaign }}",
+            "Creative ID": "={{ $json.creative_id }}",
+            "FBCLID": "={{ $json.fbclid }}",
+            "FBP": "={{ $json.fbp }}",
+            "FBC": "={{ $json.fbc }}",
+            "Source Page": "={{ $json.source_page }}",
+            "Date": "={{ $json.date }}",
+            "Timestamp": "={{ $json.timestamp }}",
+            "IP Address": "={{ $json.ip_address }}",
+            "Notes": "={{ $json.notes }}"
+          },
+          "schema": []
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "airtable-create",
+      "name": "📊 Airtable — Lead speichern",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [680, 200],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "DEINE_AIRTABLE_CREDENTIAL_ID",
+          "name": "Airtable API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/DEIN_META_PIXEL_ID/events",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "DEIN_META_CAPI_TOKEN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "data": [
+            {
+              "event_name": "Lead",
+              "event_time": "={{ Math.floor(new Date($json.timestamp).getTime() / 1000) }}",
+              "event_id": "={{ $json.lead_id }}",
+              "action_source": "website",
+              "event_source_url": "={{ $json.source_page }}",
+              "user_data": {
+                "em": "={{ $json.email ? require('crypto').createHash('sha256').update($json.email.toLowerCase().trim()).digest('hex') : '' }}",
+                "ph": "={{ $json.phone ? require('crypto').createHash('sha256').update($json.phone.replace(/\\D/g,'')).digest('hex') : '' }}",
+                "fbp": "={{ $json.fbp }}",
+                "fbc": "={{ $json.fbc }}",
+                "client_ip_address": "={{ $json.ip_address }}",
+                "client_user_agent": "={{ $json.user_agent }}"
+              },
+              "custom_data": {
+                "lead_id": "={{ $json.lead_id }}",
+                "utm_source": "={{ $json.utm_source }}",
+                "utm_campaign": "={{ $json.utm_campaign }}",
+                "creative_id": "={{ $json.creative_id }}",
+                "content_name": "AEVUM Demo Anfrage",
+                "content_category": "Lead Generation"
+              }
+            }
+          ],
+          "test_event_code": "TEST12345"
+        }
+      },
+      "id": "meta-capi",
+      "name": "📡 Meta CAPI — Lead Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.whatsapp.com/send",
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "phone": "DEINE_WHATSAPP_NUMMER",
+          "text": "🔥 NEUER AEVUM LEAD!\n\n👤 Name: {{ $('🔧 Lead Enrichment').item.json.name }}\n📧 Email: {{ $('🔧 Lead Enrichment').item.json.email }}\n📱 Phone: {{ $('🔧 Lead Enrichment').item.json.phone }}\n🏢 Company: {{ $('🔧 Lead Enrichment').item.json.company }}\n\n📊 Quelle: {{ $('🔧 Lead Enrichment').item.json.utm_source }} / {{ $('🔧 Lead Enrichment').item.json.utm_campaign }}\n🎨 Creative: {{ $('🔧 Lead Enrichment').item.json.creative_id }}\n\n🆔 Lead ID: {{ $('🔧 Lead Enrichment').item.json.lead_id }}\n⏰ Zeit: {{ $('🔧 Lead Enrichment').item.json.timestamp }}"
+        }
+      },
+      "id": "whatsapp-notify",
+      "name": "💬 WhatsApp Benachrichtigung",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 600],
+      "notes": "Optional: Ersetze mit deinem bevorzugten Notification-System (Telegram, Slack, etc.)"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, lead_id: $('🔧 Lead Enrichment').item.json.lead_id, message: 'Lead erfolgreich erfasst. Wir melden uns in Kürze.' }) }}"
+      },
+      "id": "webhook-response",
+      "name": "✅ Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "📥 Lead Webhook Intake": {
+      "main": [
+        [{ "node": "🔧 Lead Enrichment", "type": "main", "index": 0 }]
+      ]
+    },
+    "🔧 Lead Enrichment": {
+      "main": [
+        [
+          { "node": "📊 Airtable — Lead speichern", "type": "main", "index": 0 },
+          { "node": "📡 Meta CAPI — Lead Event", "type": "main", "index": 0 },
+          { "node": "💬 WhatsApp Benachrichtigung", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "📊 Airtable — Lead speichern": {
+      "main": [
+        [{ "node": "✅ Response", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["aevum", "leads", "capi"],
+  "triggerCount": 1,
+  "updatedAt": "2025-04-16T00:00:00.000Z",
+  "versionId": "1"
+}
