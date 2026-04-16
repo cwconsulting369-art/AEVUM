@@ -1151,6 +1151,12 @@ details[open] summary { color:var(--acid) !important; }
   z-index:0;
 }
 
+/* === CURSOR TRAIL === */
+#cursor-canvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; }
+@media (hover:hover) {
+  * { cursor:none !important; }
+}
+
 /* === SPLITTEXT CHARS === */
 .hero-headline .char {
   display:inline-block;
@@ -1906,44 +1912,11 @@ details[open] summary { color:var(--acid) !important; }
 
 <!-- Animation Stack — bottom of body for better LCP -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
 
 <script>
-/* ===================== LENIS SMOOTH SCROLL + GSAP ===================== */
-if (typeof Lenis !== 'undefined' && typeof gsap !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-  window.__lenis = new Lenis({
-    duration: 1.5,
-    easing: t => 1 - Math.pow(1 - t, 4),
-    smoothWheel: true,
-  });
-  const lenis = window.__lenis;
-  lenis.on('scroll', ScrollTrigger.update);
-  gsap.ticker.add(time => lenis.raf(time * 1000));
-  gsap.ticker.lagSmoothing(0);
-
-  /* Sanfter Parallax — Hero-Hintergrund scrollt langsamer als Content */
-  gsap.to('#hero-webgl, .hero-bg-grid', {
-    y: '30%',
-    ease: 'none',
-    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 2 },
-  });
-
-  /* Section-Titles: leicht verzögerter Float-In via GSAP wenn Lenis aktiv */
-  gsap.utils.toArray('.section-title').forEach(el => {
-    gsap.fromTo(el,
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1.4, ease: 'power4.out',
-        scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' } }
-    );
-    el.classList.add('gsap-handled');
-  });
-}
-
 /* ===================== REVEAL ===================== */
-const reveals = document.querySelectorAll('.reveal:not(.gsap-handled)');
+const reveals = document.querySelectorAll('.reveal');
 const revObs = new IntersectionObserver((entries) => {
   entries.forEach((e, i) => {
     if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 90);
@@ -2329,6 +2302,44 @@ document.querySelectorAll('a, button, .interval-btn, .quick-btn, details summary
       stagger: { each: 0.038, ease: 'power2.inOut' },
     });
   }, 200);
+})();
+
+/* ===================== CURSOR GLOW TRAIL ===================== */
+(function initCursor() {
+  if (window.matchMedia('(hover:none)').matches) return;
+  const canvas = document.createElement('canvas');
+  canvas.id = 'cursor-canvas';
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  const trail = [], MAX = 32;
+  let mx = -300, my = -300;
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
+  (function draw() {
+    requestAnimationFrame(draw);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    trail.push({ x: mx, y: my });
+    if (trail.length > MAX) trail.shift();
+    trail.forEach((p, i) => {
+      const t = i / MAX;
+      const r = t * 6;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200,255,0,${t * 0.45})`;
+      ctx.fill();
+    });
+    /* Leuchtender Kern mit Glow */
+    const grd = ctx.createRadialGradient(mx, my, 0, mx, my, 12);
+    grd.addColorStop(0, 'rgba(200,255,0,0.9)');
+    grd.addColorStop(0.4, 'rgba(200,255,0,0.4)');
+    grd.addColorStop(1, 'rgba(200,255,0,0)');
+    ctx.beginPath();
+    ctx.arc(mx, my, 12, 0, Math.PI * 2);
+    ctx.fillStyle = grd;
+    ctx.fill();
+  })();
 })();
 
 
