@@ -2036,8 +2036,8 @@ setInterval(() => {
 /* ===================== CONFIG — HIER DEINE WERTE EINTRAGEN ===================== */
 const CONFIG = {
   N8N_WEBHOOK: 'https://DEINE-N8N-INSTANZ.app.n8n.cloud/webhook/aevum-lead',
-  AIRTABLE_TOKEN: 'patXXXXXXXXXXXXXX',
-  AIRTABLE_BASE: 'appcAH9ORvsSz2EcQ',
+  AIRTABLE_TOKEN: '',
+  AIRTABLE_BASE: '',
   WHATSAPP: '49XXXXXXXXXX',
 };
 
@@ -2107,12 +2107,8 @@ if(stickyMobile) stickyMobile.href = waLink;
 
 /* ===================== AIRTABLE LIVE DASHBOARD ===================== */
 async function loadDashboardData(hours = 6) {
-  if (!CONFIG.AIRTABLE_TOKEN.startsWith('pat') || CONFIG.AIRTABLE_TOKEN.includes('XXXX')) return;
   try {
-    const since = new Date(Date.now() - hours*60*60*1000).toISOString();
-    const url = `https://api.airtable.com/v0/${CONFIG.AIRTABLE_BASE}/Leads?` +
-      `filterByFormula=IS_AFTER({Timestamp},'${since}')&fields[]=Status&fields[]=Revenue&fields[]=Creative+ID&fields[]=Timestamp&fields[]=Name`;
-    const res = await fetch(url, { headers:{ Authorization:`Bearer ${CONFIG.AIRTABLE_TOKEN}` }});
+    const res = await fetch(`/api/dashboard?hours=${hours}`);
     if(!res.ok) return;
     const { records=[] } = await res.json();
     const leads = records.length;
