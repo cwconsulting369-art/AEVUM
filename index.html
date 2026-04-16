@@ -1142,13 +1142,57 @@ details[open] summary { color:var(--acid) !important; }
   }
   .reveal { opacity:1 !important; transform:none !important; }
 }
+
+/* === WEBGL CANVAS === */
+#hero-webgl {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* === SPLITTEXT CHARS === */
+.hero-headline .char {
+  display:inline-block;
+  will-change:transform,opacity;
+}
+
+/* === CURSOR TRAIL === */
+#cursor-canvas {
+  position:fixed; top:0; left:0;
+  width:100%; height:100%;
+  pointer-events:none;
+  z-index:9999;
+}
+@media (hover:hover) {
+  body,a,button,.interval-btn,.quick-btn,details summary,
+  .module-card,.process-step,input,textarea { cursor:none !important; }
+}
+
+/* === HORIZONTAL MODULE SCROLL (Desktop) === */
+@media (min-width:769px) {
+  .modules-section { overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .modules-section::-webkit-scrollbar { display:none; }
+  .modules-grid {
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    width:max-content;
+    grid-template-columns:unset;
+    scroll-snap-type:x mandatory;
+  }
+  .module-card {
+    width:min(420px,80vw);
+    flex-shrink:0;
+    scroll-snap-align:start;
+  }
+}
 </style>
 
-<!-- Animation Stack -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<!-- Performance: Preconnect CDN domains -->
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 </head>
 <body>
 
@@ -1176,6 +1220,7 @@ details[open] summary { color:var(--acid) !important; }
 
 <!-- HERO -->
 <section class="hero">
+  <canvas id="hero-webgl" aria-hidden="true"></canvas>
   <div class="hero-bg-grid"></div>
   <div class="hero-number">∞</div>
   <div class="hero-eyebrow reveal" aria-hidden="true">01 — Das Tracking Betriebssystem</div>
@@ -1870,6 +1915,12 @@ details[open] summary { color:var(--acid) !important; }
   </div>
 </footer>
 
+<!-- Animation Stack — bottom of body for better LCP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+
 <script>
 /* ===================== LENIS SMOOTH SCROLL + GSAP ===================== */
 if (typeof Lenis !== 'undefined' && typeof gsap !== 'undefined') {
@@ -2184,6 +2235,125 @@ document.querySelectorAll('a, button, .interval-btn, .quick-btn, details summary
 
 <!-- Sticky mobile CTA (only visible on mobile via CSS) -->
 <a href="#cta" class="sticky-cta-mobile" onclick="closeMobileNav()">Demo anfragen →</a>
+
+<script>
+/* ===================== WEBGL ORBITAL RINGS ===================== */
+(function initWebGL() {
+  if (typeof THREE === 'undefined') return;
+  const canvas = document.getElementById('hero-webgl');
+  if (!canvas) return;
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
+  camera.position.z = 5.5;
+  const ringDefs = [
+    { r: 2.2, tube: 0.012, rx: 0.4, ry: 0,   rz: 0.2, spd:  0.0025 },
+    { r: 1.7, tube: 0.008, rx: 1.1, ry: 0.3,  rz: 0,   spd: -0.004  },
+    { r: 3.1, tube: 0.006, rx: 0.2, ry: 0.8,  rz: 0.5, spd:  0.0015 },
+  ];
+  const rings = ringDefs.map(d => {
+    const m = new THREE.Mesh(
+      new THREE.TorusGeometry(d.r, d.tube, 16, 120),
+      new THREE.MeshBasicMaterial({ color: 0xc8ff00, transparent: true, opacity: 0.15 })
+    );
+    m.rotation.set(d.rx, d.ry, d.rz);
+    m._spd = d.spd;
+    scene.add(m);
+    return m;
+  });
+  function setSize() {
+    const w = canvas.offsetWidth, h = canvas.offsetHeight || window.innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  setSize();
+  window.addEventListener('resize', setSize, { passive: true });
+  let mouse = { x: 0, y: 0 }, tilt = { x: 0, y: 0 };
+  window.addEventListener('mousemove', e => {
+    mouse.x = (e.clientX / window.innerWidth  - 0.5) * 2;
+    mouse.y = -(e.clientY / window.innerHeight - 0.5) * 2;
+  }, { passive: true });
+  /* Touch Tilt — DeviceOrientation affects rings on mobile */
+  window.addEventListener('deviceorientation', e => {
+    tilt.x = Math.max(-1, Math.min(1, (e.gamma || 0) / 30));
+    tilt.y = Math.max(-1, Math.min(1, ((e.beta  || 45) - 45) / 30));
+  }, { passive: true });
+  const isTouch = () => window.matchMedia('(hover:none)').matches;
+  (function animate() {
+    requestAnimationFrame(animate);
+    rings.forEach(r => { r.rotation.y += r._spd; r.rotation.x += r._spd * 0.4; });
+    const px = isTouch() ? tilt.x * 0.25 : mouse.x * 0.12;
+    const py = isTouch() ? tilt.y * 0.25 : mouse.y * 0.12;
+    scene.rotation.y += (px - scene.rotation.y) * 0.05;
+    scene.rotation.x += (py - scene.rotation.x) * 0.05;
+    renderer.render(scene, camera);
+  })();
+})();
+
+/* ===================== CUSTOM CURSOR TRAIL ===================== */
+(function initCursor() {
+  if (window.matchMedia('(hover:none)').matches) return;
+  const canvas = document.createElement('canvas');
+  canvas.id = 'cursor-canvas';
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  const trail = [], MAX = 30;
+  let mx = -200, my = -200;
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
+  (function draw() {
+    requestAnimationFrame(draw);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    trail.push({ x: mx, y: my });
+    if (trail.length > MAX) trail.shift();
+    trail.forEach((p, i) => {
+      const t = i / MAX;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, t * 5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200,255,0,${t * 0.55})`;
+      ctx.fill();
+    });
+    ctx.beginPath();
+    ctx.arc(mx, my, 5.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#c8ff00';
+    ctx.fill();
+  })();
+})();
+
+/* ===================== SPLITTEXT HERO HEADLINE ===================== */
+(function initSplitText() {
+  if (typeof gsap === 'undefined') return;
+  const hl = document.querySelector('.hero-headline');
+  if (!hl) return;
+  hl.classList.remove('reveal');
+  hl.style.cssText += ';opacity:1;transform:none';
+  function splitChars(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const frag = document.createDocumentFragment();
+      [...node.textContent].forEach(ch => {
+        if (!ch.trim()) { frag.appendChild(document.createTextNode(ch)); return; }
+        const s = document.createElement('span');
+        s.className = 'char'; s.textContent = ch;
+        frag.appendChild(s);
+      });
+      node.parentNode.replaceChild(frag, node);
+    } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'BR') {
+      [...node.childNodes].forEach(splitChars);
+    }
+  }
+  [...hl.childNodes].forEach(splitChars);
+  const chars = hl.querySelectorAll('.char');
+  gsap.set(chars, { opacity: 0, y: 55 });
+  setTimeout(() => {
+    gsap.to(chars, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: 0.028 });
+  }, 150);
+})();
+
+</script>
 
 </body>
 </html>
