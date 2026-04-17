@@ -2407,34 +2407,58 @@ document.querySelectorAll('a, button, .interval-btn, .quick-btn, details summary
   canvas.id = 'cursor-canvas';
   document.body.appendChild(canvas);
   const ctx = canvas.getContext('2d');
-  const trail = [], MAX = 32;
+
   let mx = -300, my = -300;
+  /* floating position — lerps toward real mouse */
+  let fx = -300, fy = -300;
+  /* secondary orb that lags even more */
+  let sx = -300, sy = -300;
+  let pulse = 0;
+
   function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
   resize();
   window.addEventListener('resize', resize, { passive: true });
   window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
+
+  function drawOrb(x, y, r1, r2, alpha) {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r2);
+    g.addColorStop(0,   `rgba(220,255,80,${alpha})`);
+    g.addColorStop(0.15,`rgba(200,255,0,${alpha * 0.75})`);
+    g.addColorStop(0.5, `rgba(180,240,0,${alpha * 0.2})`);
+    g.addColorStop(1,   'rgba(180,240,0,0)');
+    ctx.beginPath();
+    ctx.arc(x, y, r2, 0, Math.PI * 2);
+    ctx.fillStyle = g;
+    ctx.fill();
+    /* bright pinpoint core */
+    const c = ctx.createRadialGradient(x, y, 0, x, y, r1);
+    c.addColorStop(0, `rgba(240,255,160,${alpha})`);
+    c.addColorStop(1, 'rgba(200,255,0,0)');
+    ctx.beginPath();
+    ctx.arc(x, y, r1, 0, Math.PI * 2);
+    ctx.fillStyle = c;
+    ctx.fill();
+  }
+
   (function draw() {
     requestAnimationFrame(draw);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    trail.push({ x: mx, y: my });
-    if (trail.length > MAX) trail.shift();
-    trail.forEach((p, i) => {
-      const t = i / MAX;
-      const r = t * 6;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(200,255,0,${t * 0.45})`;
-      ctx.fill();
-    });
-    /* Leuchtender Kern mit Glow */
-    const grd = ctx.createRadialGradient(mx, my, 0, mx, my, 12);
-    grd.addColorStop(0, 'rgba(200,255,0,0.9)');
-    grd.addColorStop(0.4, 'rgba(200,255,0,0.4)');
-    grd.addColorStop(1, 'rgba(200,255,0,0)');
-    ctx.beginPath();
-    ctx.arc(mx, my, 12, 0, Math.PI * 2);
-    ctx.fillStyle = grd;
-    ctx.fill();
+
+    const ease = 0.1;
+    fx += (mx - fx) * ease;
+    fy += (my - fy) * ease;
+    sx += (fx - sx) * 0.06;
+    sy += (fy - sy) * 0.06;
+
+    pulse += 0.045;
+    const breathe = 1 + Math.sin(pulse) * 0.12;
+
+    /* far outer ambient glow */
+    drawOrb(sx, sy, 4, 70 * breathe, 0.06);
+    /* mid halo */
+    drawOrb(fx, fy, 5, 38, 0.18);
+    /* bright floating core */
+    drawOrb(fx, fy, 6, 14, 0.85);
   })();
 })();
 
