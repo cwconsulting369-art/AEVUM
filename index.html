@@ -1202,6 +1202,80 @@ nav { padding-left:max(28px, env(safe-area-inset-left)); padding-right:max(28px,
 }
 
 
+/* ============================================================
+   UNIFIED GRID BACKGROUND — alle Sektionen transparent,
+   Grid sitzt fixed auf body, Cards schweben drüber
+   ============================================================ */
+body {
+  background-image:
+    linear-gradient(rgba(200,255,0,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,255,0,0.02) 1px, transparent 1px);
+  background-size:80px 80px;
+  background-attachment:fixed;
+}
+
+/* Hero-Grid-Div braucht kein eigenes Muster mehr */
+.hero-bg-grid { background-image:none !important; }
+
+/* Alle Sektionen transparent → body-Grid durchscheinen lassen */
+.live-section, .comp-section, .ai-section,
+.modules-section, .compare-section, .process-section,
+.quote-section,
+[aria-labelledby="slogan-heading"],
+[aria-labelledby="faq-heading"] {
+  background:transparent !important;
+}
+
+/* Slogan-Sektion: inneres Grid-Div entfernen (body übernimmt) */
+[aria-labelledby="slogan-heading"] > div:first-child {
+  display:none;
+}
+
+/* CTA: eigenes Grid entfernen, body liefert es */
+.cta-section {
+  background-image:none !important;
+  background-color:transparent !important;
+}
+
+/* === FLOATING CARDS — schweben über dem Grid === */
+.module-card {
+  background:rgba(5,5,5,0.94) !important;
+  box-shadow:0 2px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(200,255,0,0.07);
+  transition:background 0.3s, box-shadow 0.3s, transform 0.3s !important;
+}
+.module-card:hover {
+  background:rgba(10,10,10,0.98) !important;
+  box-shadow:0 8px 52px rgba(0,0,0,0.7), 0 0 0 1px rgba(200,255,0,0.16) !important;
+  transform:translateY(-3px);
+}
+
+.process-steps {
+  background:rgba(5,5,5,0.92);
+  box-shadow:0 4px 36px rgba(0,0,0,0.5);
+}
+.process-step { background:transparent; }
+.process-step:hover { background:rgba(200,255,0,0.02) !important; }
+
+.stat-item {
+  background:rgba(5,5,5,0.9) !important;
+}
+
+.dash-metric {
+  background:rgba(8,8,8,0.94) !important;
+  box-shadow:0 2px 18px rgba(0,0,0,0.4);
+}
+.dash-metric:hover { background:rgba(12,12,12,0.98) !important; }
+
+details[itemscope] {
+  background:rgba(5,5,5,0.94) !important;
+  box-shadow:0 2px 20px rgba(0,0,0,0.45);
+}
+
+.comp-player {
+  background:transparent !important;
+}
+.comp-player:hover { background:rgba(255,255,255,0.015) !important; }
+
 /* === HORIZONTAL MODULE SCROLL (Desktop) === */
 @media (min-width:769px) {
   .modules-section { overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
