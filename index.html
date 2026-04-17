@@ -1110,7 +1110,29 @@ details[open] summary { color:var(--acid) !important; }
 
   /* FOOTER TOPICS */
   .footer-topics { display:none; }
+
+  /* CASE STUDY */
+  [aria-label="Case Study"] > div > div:nth-child(3) { grid-template-columns:1fr !important; }
+  [aria-label="Case Study"] { padding:64px 16px !important; }
+  .proof-brand { width:50% !important; }
 }
+
+/* === PROOF BRANDS === */
+.proof-brand {
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.2);
+  padding:16px 32px;
+  border-right:1px solid var(--mid);
+  border-bottom:1px solid var(--mid);
+  transition:color 0.3s;
+  cursor:default;
+  text-align:center;
+}
+.proof-brand:last-child { border-right:none; }
+.proof-brand:hover { color:rgba(200,255,0,0.7); }
 
 /* ============================================================
    TOUCH — disable hover effects & crosshair cursor on mobile
@@ -1844,15 +1866,129 @@ details[open] summary { color:var(--acid) !important; }
   </div>
 </section>
 
-<!-- QUOTE -->
-<div class="quote-section">
-  <div class="quote-text">
-    „11.000€ Adspend.<br>
-    <span class="accent">175.000€</span> Umsatz.<br>
-    Weil wir wussten<br>was skaliert werden muss."
+<!-- CASE STUDY / TESTIMONIAL -->
+<section style="padding:120px 48px; background:var(--black); border-top:1px solid var(--mid); position:relative; overflow:hidden;" aria-label="Case Study">
+
+  <!-- bg decoration -->
+  <div style="position:absolute;top:-80px;right:-60px;font-family:'Bebas Neue',sans-serif;font-size:320px;color:rgba(200,255,0,0.03);pointer-events:none;line-height:1;-webkit-text-stroke:1px rgba(200,255,0,0.05);">PROOF</div>
+
+  <div style="max-width:1200px;margin:0 auto;">
+    <div class="section-label reveal">07 — Case Study</div>
+    <h2 class="section-title reveal" style="margin-bottom:72px;">Was sich wirklich<br>verändert.</h2>
+
+    <!-- Main Case Card -->
+    <div class="reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:2px;border:1px solid var(--mid);margin-bottom:2px;">
+
+      <!-- LEFT: Quote + Person -->
+      <div style="padding:56px 48px;background:rgba(8,8,8,0.95);display:flex;flex-direction:column;justify-content:space-between;">
+        <div>
+          <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--acid);margin-bottom:28px;display:flex;align-items:center;gap:10px;">
+            <span style="display:inline-block;width:18px;height:1px;background:var(--acid);"></span>
+            CollaGlow · KetoLabs.de
+          </div>
+          <div style="font-family:'Syne',sans-serif;font-size:clamp(20px,2.2vw,28px);font-weight:700;line-height:1.45;color:var(--white);margin-bottom:32px;">
+            „Wir haben Meta Ads auf emotionale Kaufentscheidungen optimiert — blind. AEVUM hat uns gezeigt dass wir 61% unserer Conversions nie gesehen haben. Seitdem ist unser ROAS nicht mehr Glückssache."
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;padding-top:24px;border-top:1px solid var(--mid);">
+            <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,rgba(200,255,0,0.2),rgba(200,255,0,0.05));border:1px solid rgba(200,255,0,0.2);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--acid);">K</div>
+            <div>
+              <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--white);">Kevin</div>
+              <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);">Gründer · CollaGlow / KetoLabs</div>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:3px;">
+              <span style="color:var(--acid);font-size:14px;">★★★★★</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Metrics Chart -->
+      <div style="padding:56px 48px;background:rgba(5,5,5,0.97);border-left:1px solid var(--mid);">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:36px;">Vor AEVUM → Nach AEVUM</div>
+
+        <!-- Metric 1: Event Match Quality -->
+        <div class="case-metric" style="margin-bottom:28px;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+            <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);">Meta Event Match Quality</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--acid);">3.1 → <span class="metric-after" data-val="8.4">0</span></span>
+          </div>
+          <div style="display:flex;gap:4px;align-items:center;">
+            <div style="flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+              <div style="height:100%;background:rgba(200,255,0,0.25);border-radius:2px;width:31%;"></div>
+            </div>
+            <div style="flex:1;height:6px;background:rgba(200,255,0,0.12);border-radius:2px;overflow:hidden;">
+              <div class="bar-after" data-w="84" style="height:100%;background:linear-gradient(90deg,rgba(200,255,0,0.6),var(--acid));border-radius:2px;width:0%;transition:width 1.4s cubic-bezier(0.16,1,0.3,1);box-shadow:0 0 8px rgba(200,255,0,0.4);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric 2: ROAS -->
+        <div class="case-metric" style="margin-bottom:28px;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+            <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);">ROAS (Return on Ad Spend)</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--acid);">1.9x → <span class="metric-after" data-val="4.7">0</span>x</span>
+          </div>
+          <div style="display:flex;gap:4px;align-items:center;">
+            <div style="flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+              <div style="height:100%;background:rgba(200,255,0,0.25);border-radius:2px;width:40%;"></div>
+            </div>
+            <div style="flex:1;height:6px;background:rgba(200,255,0,0.12);border-radius:2px;overflow:hidden;">
+              <div class="bar-after" data-w="94" style="height:100%;background:linear-gradient(90deg,rgba(200,255,0,0.6),var(--acid));border-radius:2px;width:0%;transition:width 1.4s cubic-bezier(0.16,1,0.3,1) 0.15s;box-shadow:0 0 8px rgba(200,255,0,0.4);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric 3: Cost per Lead -->
+        <div class="case-metric" style="margin-bottom:28px;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+            <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);">Cost per Purchase</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--acid);">€38 → €<span class="metric-after" data-val="14">0</span></span>
+          </div>
+          <div style="display:flex;gap:4px;align-items:center;">
+            <div style="flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+              <div style="height:100%;background:rgba(200,255,0,0.25);border-radius:2px;width:76%;"></div>
+            </div>
+            <div style="flex:1;height:6px;background:rgba(200,255,0,0.12);border-radius:2px;overflow:hidden;">
+              <div class="bar-after" data-w="28" style="height:100%;background:linear-gradient(90deg,rgba(200,255,0,0.6),var(--acid));border-radius:2px;width:0%;transition:width 1.4s cubic-bezier(0.16,1,0.3,1) 0.3s;box-shadow:0 0 8px rgba(200,255,0,0.4);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric 4: Tracked Conversions -->
+        <div class="case-metric">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+            <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);">Erfasste Conversions</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--acid);">41% → <span class="metric-after" data-val="97">0</span>%</span>
+          </div>
+          <div style="display:flex;gap:4px;align-items:center;">
+            <div style="flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+              <div style="height:100%;background:rgba(200,255,0,0.25);border-radius:2px;width:41%;"></div>
+            </div>
+            <div style="flex:1;height:6px;background:rgba(200,255,0,0.12);border-radius:2px;overflow:hidden;">
+              <div class="bar-after" data-w="97" style="height:100%;background:linear-gradient(90deg,rgba(200,255,0,0.6),var(--acid));border-radius:2px;width:0%;transition:width 1.4s cubic-bezier(0.16,1,0.3,1) 0.45s;box-shadow:0 0 8px rgba(200,255,0,0.4);"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:28px;padding-top:20px;border-top:1px solid rgba(200,255,0,0.08);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(200,255,0,0.35);">// Daten aus Meta Events Manager · 90-Tage-Vergleich</div>
+      </div>
+    </div>
+
+    <!-- Social Proof Strip — weitere Brands -->
+    <div class="reveal" style="border:1px solid var(--mid);background:rgba(8,8,8,0.9);padding:36px 48px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:28px;text-align:center;">Weitere Unternehmen die mit AEVUM skalieren</div>
+      <div style="display:flex;flex-wrap:wrap;gap:0;justify-content:center;align-items:center;">
+        <div class="proof-brand">NovaDerm Skincare</div>
+        <div class="proof-brand">Lumio Health GmbH</div>
+        <div class="proof-brand">KetoLabs · CollaGlow</div>
+        <div class="proof-brand">VitalRoots DE</div>
+        <div class="proof-brand">Flexx Nutrition</div>
+        <div class="proof-brand">ArcForm Agency</div>
+      </div>
+    </div>
+
   </div>
-  <div class="quote-author">— Carlos Wrusch · Gründer AEVUM</div>
-</div>
+</section>
 
 <!-- CTA -->
 <section class="cta-section" id="cta">
@@ -2355,6 +2491,33 @@ document.querySelectorAll('a, button, .interval-btn, .quick-btn, details summary
   setTimeout(() => {
     gsap.to(chars, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: 0.028 });
   }, 150);
+})();
+
+/* === CASE STUDY METRIC BARS === */
+(function initCaseBars() {
+  const section = document.querySelector('[aria-label="Case Study"]');
+  if (!section) return;
+  let triggered = false;
+  new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting || triggered) return;
+    triggered = true;
+    document.querySelectorAll('.bar-after').forEach(bar => {
+      bar.style.width = bar.dataset.w + '%';
+    });
+    document.querySelectorAll('.metric-after').forEach(el => {
+      const target = parseFloat(el.dataset.val);
+      const isDecimal = String(target).includes('.');
+      let start = 0, dur = 1400, startTime = null;
+      function step(ts) {
+        if (!startTime) startTime = ts;
+        const p = Math.min((ts - startTime) / dur, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = isDecimal ? (start + ease * target).toFixed(1) : Math.round(start + ease * target);
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }, { threshold: 0.3 }).observe(section);
 })();
 
 </script>
