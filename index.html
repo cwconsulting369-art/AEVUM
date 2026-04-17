@@ -384,52 +384,96 @@ nav {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 0 48px 80px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 80px 48px;
   position: relative;
   overflow: hidden;
 }
-.hero-bg-grid {
-  position: absolute; inset: 0;
-  background-image: linear-gradient(rgba(200,255,0,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(200,255,0,0.025) 1px, transparent 1px);
-  background-size: 80px 80px;
-}
-.hero-number {
-  position: absolute; top: 100px; right: 48px;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(200px, 28vw, 400px);
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(200,255,0,0.06);
-  line-height: 1;
-  user-select: none;
-  animation: drift 18s ease-in-out infinite;
-}
-@keyframes drift { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-24px)} }
-.hero::after {
-  content: '';
-  position: absolute; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(200,255,0,0.2), transparent);
-  animation: scanline 7s linear infinite;
+.hero-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
-@keyframes scanline { 0%{top:-2%} 100%{top:102%} }
-.hero-eyebrow { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:var(--acid); margin-bottom:24px; display:flex; align-items:center; gap:12px; }
-.hero-eyebrow::before { content:''; display:inline-block; width:28px; height:1px; background:var(--acid); }
-.hero-headline { font-family:'Bebas Neue',sans-serif; font-size:clamp(64px,11vw,170px); line-height:0.88; letter-spacing:-2px; position:relative; z-index:2; max-width:1000px; }
-.hero-headline .accent { color:var(--acid); }
-.hero-headline .strike { position:relative; color:var(--dim); }
-.hero-headline .strike::after { content:''; position:absolute; left:0;right:0; top:50%; height:3px; background:var(--red); transform:rotate(-1.5deg); }
-.hero-sub { margin-top:36px; max-width:500px; font-size:15px; line-height:1.7; color:rgba(240,237,230,0.55); position:relative; z-index:2; }
-.hero-actions { margin-top:44px; display:flex; align-items:center; gap:28px; position:relative; z-index:2; }
-.btn-primary { background:var(--acid); color:var(--black); font-family:'DM Mono',monospace; font-size:12px; font-weight:500; letter-spacing:3px; text-transform:uppercase; padding:17px 38px; border:none; cursor:crosshair; text-decoration:none; display:inline-block; position:relative; overflow:hidden; transition:all 0.2s; }
-.btn-primary::before { content:''; position:absolute; inset:0; background:var(--white); transform:translateX(-101%); transition:transform 0.3s; }
-.btn-primary:hover::before { transform:translateX(0); }
-.btn-primary span { position:relative; z-index:1; }
-.btn-ghost { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--dim); text-decoration:none; display:flex; align-items:center; gap:8px; transition:color 0.2s; }
-.btn-ghost:hover { color:var(--white); }
-.btn-ghost::before { content:'▶'; font-size:9px; color:var(--acid); }
-
+.hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  max-width: 900px;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dim);
+  border: 1px solid rgba(200,255,0,0.15);
+  padding: 8px 18px;
+  border-radius: 2px;
+}
+.hero-headline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(72px, 12vw, 160px);
+  line-height: 0.9;
+  letter-spacing: -1px;
+  color: var(--white);
+  margin: 0;
+}
+.hero-sub {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--dim);
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0;
+}
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hero-stats {
+  display: flex;
+  gap: 48px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 32px;
+  border-top: 1px solid rgba(200,255,0,0.1);
+  width: 100%;
+  margin-top: 16px;
+}
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.stat-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1;
+  color: var(--white);
+  letter-spacing: 1px;
+}
+.stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
 /* TICKER */
 .ticker { background:var(--acid); padding:13px 0; overflow:hidden; white-space:nowrap; }
 .ticker-inner { display:inline-flex; animation:ticker 28s linear infinite; }
@@ -1152,15 +1196,14 @@ body:not(.js-loading) .reveal { opacity: 1 !important; transform: none !importan
 <body>
 
 <nav>
-  <a href="/" class="logo" aria-label="AEVUM Startseite">AEVUM</a>
+  <a href="/" class="logo" aria-label="AEVUM Startseite">&bull; AEVUM</a>
   <div class="nav-links" id="navLinks">
-    <a href="#live" class="nav-link">Live Tracking</a>
-    <a href="#competitive" class="nav-link">Competitive Intel</a>
-    <a href="#ai" class="nav-link">KI Assistent</a>
+    <a href="#live" class="nav-link">System</a>
+    <a href="#competitive" class="nav-link">Dashboard</a>
+    <a href="#faq" class="nav-link">FAQ</a>
     <a href='https://wa.me/message/5QFEVA2RDCGXH1' class="nav-cta">Demo anfragen</a>
   </div>
-  <!-- Mobile hamburger -->
-  <button class="nav-hamburger" id="navToggle" aria-label="Menü öffnen" aria-expanded="false">
+  <button class="nav-hamburger" id="navToggle" aria-label="Men&uuml; &ouml;ffnen" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
 </nav>
@@ -1175,24 +1218,23 @@ body:not(.js-loading) .reveal { opacity: 1 !important; transform: none !importan
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-bg-grid"></div>
-  <div class="hero-number">∞</div>
-  <div class="hero-eyebrow reveal" aria-hidden="true">01 — Das Tracking Betriebssystem</div>
-  <!-- SEO: Real H1 visually hidden, crawler-readable -->
-  <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Meta Ads Tracking Tool für Deutschland — Server-Side Tracking, Creative-Attribution &amp; Competitive Intelligence | AEVUM</h1>
-  <!-- Visual headline as H2 for semantic hierarchy -->
-  <h2 class="hero-headline reveal" aria-label="Du verbrennst Geld weil du nicht weißt was wirkt">
-    Du brennst<br>
-    <span class="accent">Geld</span>, weil du<br>
-    <span class="strike">nicht weißt</span><br>
-    was wirkt.
-  </h2>
-  <p class="hero-sub reveal">
-    AEVUM ist die einzige <strong>modulare KI-Infrastruktur für DACH</strong> — mit Server-Side Tracking, Creative-Umsatz-Attribution, Competitive Intelligence und KI-Assistent. DSGVO-konform. Made in Germany. Setup in unter 72h.
-  </p>
-  <div class="hero-actions reveal">
-    <a href='https://wa.me/message/5QFEVA2RDCGXH1' class="btn-primary"><span>Demo anfragen →</span></a>
-    <a href="#live" class="btn-ghost">Live Demo ansehen</a>
+  <canvas id="heroCanvas" class="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge reveal">&bull; AEVUM &mdash; KI-Infrastruktur f&uuml;r DACH</div>
+    <h1 class="hero-headline reveal">
+      Du verbrennst<br>Geld. Wir zeigen<br>dir <span class="accent">warum.</span>
+    </h1>
+    <p class="hero-sub reveal">Serverseitiges Meta Ads Tracking von Creative bis Close.<br>100% Datenpr&auml;zision. Kein Raten mehr.</p>
+    <div class="hero-actions reveal">
+      <a href='https://wa.me/message/5QFEVA2RDCGXH1' class="btn-primary">Demo anfragen &rarr;</a>
+      <a href="#live" class="btn-ghost">Dashboard ansehen</a>
+    </div>
+    <div class="hero-stats reveal">
+      <div class="stat-item"><span class="stat-num">100<span class="accent">%</span></span><span class="stat-label">LEAD-ERFASSUNG</span></div>
+      <div class="stat-item"><span class="stat-num">16<span class="accent">&times;</span></span><span class="stat-label">MEHR DATEN ALS META</span></div>
+      <div class="stat-item"><span class="stat-num">175K<span class="accent">&euro;</span></span><span class="stat-label">AUS 11K&euro; ADSPEND</span></div>
+      <div class="stat-item"><span class="stat-num">&lt;72<span class="accent">h</span></span><span class="stat-label">SETUP DONE4YOU</span></div>
+    </div>
   </div>
 </section>
 
@@ -2184,6 +2226,37 @@ setTimeout(() => {
 }, 1500);
 document.documentElement.classList.remove('js-loading');
 document.body.classList.remove('js-loading');
-</script>
+
+// === HERO CANVAS STARS ===
+(function() {
+  const canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    stars = [];
+    const count = Math.floor((canvas.width * canvas.height) / 8000);
+    for (let i = 0; i < count; i++) {
+      stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 1.2 + 0.2, o: Math.random() * 0.7 + 0.1, speed: Math.random() * 0.3 + 0.05 });
+    }
+  }
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const s of stars) {
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,' + s.o + ')';
+      ctx.fill();
+      s.y -= s.speed;
+      if (s.y < -2) { s.y = canvas.height + 2; s.x = Math.random() * canvas.width; }
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+})();</script>
 </body>
 </html>
