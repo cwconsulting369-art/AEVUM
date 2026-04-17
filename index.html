@@ -382,6 +382,7 @@ nav {
 /* HERO */
 .hero {
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -1152,6 +1153,39 @@ details[open] summary { color:var(--acid) !important; }
   }
   .reveal { opacity:1 !important; transform:none !important; }
 }
+
+/* ============================================================
+   LARGE SCREEN (1600px+)
+   ============================================================ */
+@media (min-width:1600px) {
+  nav { padding:20px 80px; }
+  .hero { padding:0 80px 120px; }
+  section { padding:140px 80px; }
+  .stats-bar { display:grid; }
+  .section-title { font-size:clamp(60px,4.5vw,100px); }
+  .cta-section { padding:160px 80px; }
+  .cta-title { font-size:clamp(80px,8vw,150px); }
+  .footer-bottom { padding:28px 80px; }
+}
+
+/* ============================================================
+   TOUCH / HIGH-END MOBILE IMPROVEMENTS
+   ============================================================ */
+@media (hover:none) and (pointer:coarse) {
+  /* Remove blue tap flash on iOS */
+  * { -webkit-tap-highlight-color:transparent; }
+  /* Momentum scroll on horizontal module list */
+  .modules-section { -webkit-overflow-scrolling:touch; scroll-snap-type:x mandatory; }
+  /* Larger tap targets */
+  .interval-btn { min-height:44px; }
+  .btn-primary, .btn-dark, .nav-cta { min-height:48px; display:flex; align-items:center; justify-content:center; }
+  /* Remove input styling on iOS */
+  input, textarea, select { -webkit-appearance:none; border-radius:0; }
+}
+
+/* Safe area insets — notch / Dynamic Island */
+nav { padding-left:max(28px, env(safe-area-inset-left)); padding-right:max(28px, env(safe-area-inset-right)); }
+.sticky-cta-mobile { padding-bottom:max(16px, env(safe-area-inset-bottom)); bottom:max(0px, env(safe-area-inset-bottom)); }
 
 /* === WEBGL CANVAS === */
 #hero-webgl {
@@ -2269,8 +2303,12 @@ document.querySelectorAll('a, button, .interval-btn, .quick-btn, details summary
     tilt.y = Math.max(-1, Math.min(1, ((e.beta  || 45) - 45) / 30));
   }, { passive: true });
   const isTouch = () => window.matchMedia('(hover:none)').matches;
+  let heroVisible = true;
+  new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }, { threshold: 0 })
+    .observe(canvas);
   (function animate() {
     requestAnimationFrame(animate);
+    if (!heroVisible) return;
     rings.forEach(r => { r.rotation.y += r._spd; r.rotation.x += r._spd * 0.4; });
     const px = isTouch() ? tilt.x * 0.25 : mouse.x * 0.12;
     const py = isTouch() ? tilt.y * 0.25 : mouse.y * 0.12;
@@ -2318,6 +2356,7 @@ document.querySelectorAll('a, button, .interval-btn, .quick-btn, details summary
 /* ===================== CTA WEBGL RINGS ===================== */
 (function initCtaWebGL() {
   if (typeof THREE === 'undefined') return;
+  if (window.matchMedia('(hover:none)').matches) return; // Mobile: skip, zu schwer im Scroll
   const canvas = document.getElementById('cta-webgl');
   if (!canvas) return;
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
@@ -2354,8 +2393,12 @@ document.querySelectorAll('a, button, .interval-btn, .quick-btn, details summary
     mouse.x = (e.clientX / window.innerWidth  - 0.5) * 2;
     mouse.y = -(e.clientY / window.innerHeight - 0.5) * 2;
   }, { passive: true });
+  let ctaVisible = false;
+  new IntersectionObserver(([e]) => { ctaVisible = e.isIntersecting; }, { threshold: 0 })
+    .observe(canvas);
   (function animate() {
     requestAnimationFrame(animate);
+    if (!ctaVisible) return;
     rings.forEach(r => { r.rotation.y += r._spd; r.rotation.x += r._spd * 0.5; });
     scene.rotation.y += (mouse.x * 0.1 - scene.rotation.y) * 0.04;
     scene.rotation.x += (mouse.y * 0.1 - scene.rotation.x) * 0.04;
