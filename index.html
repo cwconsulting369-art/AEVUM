@@ -1535,6 +1535,28 @@ footer {
   .v-step { grid-template-columns: 44px 1fr; gap: 16px; }
   .v-step-num { width: 40px; height: 40px; font-size: 15px; border-radius: 8px; }
 }
+
+/* ── BEFORE / AFTER ───────────────────────────── */
+.ba-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-top:64px; border-radius:16px; overflow:hidden; }
+.ba-col { padding:40px 36px; }
+.ba-col.before { background:rgba(239,68,68,0.04); border:1px solid rgba(239,68,68,0.15); border-radius:16px 0 0 16px; }
+.ba-col.after  { background:rgba(180,226,100,0.04); border:1px solid rgba(180,226,100,0.18); border-radius:0 16px 16px 0; }
+.ba-label { font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:32px; display:inline-flex; align-items:center; gap:8px; padding:5px 12px; border-radius:100px; }
+.before .ba-label { color:rgba(239,68,68,0.85); border:1px solid rgba(239,68,68,0.2); background:rgba(239,68,68,0.06); }
+.after  .ba-label { color:var(--accent-text); border:1px solid rgba(180,226,100,0.2); background:rgba(180,226,100,0.06); }
+.ba-label-dot { width:5px; height:5px; border-radius:50%; display:inline-block; }
+.before .ba-label-dot { background:rgba(239,68,68,0.85); }
+.after  .ba-label-dot { background:var(--accent); box-shadow:0 0 8px var(--accent); animation:blink 3s infinite; }
+.ba-item { display:flex; align-items:flex-start; gap:14px; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:14px; color:var(--text-2); line-height:1.5; }
+.ba-item:last-child { border-bottom:none; }
+.ba-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+.before .ba-dot { background:rgba(239,68,68,0.6); }
+.after  .ba-dot { background:var(--accent); }
+@media (max-width: 768px) {
+  .ba-grid { grid-template-columns:1fr; gap:2px; }
+  .ba-col.before { border-radius:16px 16px 0 0; }
+  .ba-col.after  { border-radius:0 0 16px 16px; }
+}
 </style>
 </head>
 <body>
@@ -1884,71 +1906,40 @@ footer {
 <!-- ═══ BEFORE / AFTER ════════════════════════════════════════════════════════════ -->
 <section class="section" id="transformation">
   <div class="section-inner">
-    <div class="label reveal">Realität</div>
-    <h2 class="section-title reveal">Der Unterschied<br>ist messbar.</h2>
-    <p class="section-sub reveal">Jeder Tag ohne vollständige Tracking-Infrastruktur ist ein Tag, an dem du Entscheidungen auf Basis unvollständiger Daten triffst.</p>
+    <div class="label reveal">Transformation</div>
+    <h2 class="section-title reveal">Vorher vs. Nachher.</h2>
+    <p class="section-sub reveal">Der Unterschied zwischen einem Unternehmen das wächst und einem das stagniert, liegt nicht am Produkt — sondern an der Infrastruktur dahinter.</p>
 
-    <div class="reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:64px;border-radius:16px;overflow:hidden;">
+    <div class="ba-grid reveal">
 
       <!-- OHNE AEVUM -->
-      <div style="background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.15);border-radius:16px 0 0 16px;padding:40px 36px;">
-        <div style="display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(239,68,68,0.8);margin-bottom:32px;padding:5px 12px;border:1px solid rgba(239,68,68,0.2);border-radius:100px;background:rgba(239,68,68,0.06);">
-          <span style="width:5px;height:5px;border-radius:50%;background:rgba(239,68,68,0.8);display:inline-block;"></span>
+      <div class="ba-col before">
+        <div class="ba-label">
+          <span class="ba-label-dot"></span>
           Ohne AEVUM
         </div>
-        <div style="display:flex;flex-direction:column;gap:0;">
-          <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <span style="color:rgba(239,68,68,0.6);font-size:12px;margin-top:2px;flex-shrink:0;">✕</span>
-            <span style="font-size:14px;color:var(--text-2);line-height:1.5;">40–60% der Conversions unsichtbar — iOS-Blocker vernichten deine Messdaten</span>
-          </div>
-          <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <span style="color:rgba(239,68,68,0.6);font-size:12px;margin-top:2px;flex-shrink:0;">✕</span>
-            <span style="font-size:14px;color:var(--text-2);line-height:1.5;">Meta-Algorithmus optimiert auf falsche Signale — Budget verbrennt in die falsche Richtung</span>
-          </div>
-          <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <span style="color:rgba(239,68,68,0.6);font-size:12px;margin-top:2px;flex-shrink:0;">✕</span>
-            <span style="font-size:14px;color:var(--text-2);line-height:1.5;">Creative-Performance unbekannt — Skalierungsentscheidungen basieren auf Bauchgefühl</span>
-          </div>
-          <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <span style="color:rgba(239,68,68,0.6);font-size:12px;margin-top:2px;flex-shrink:0;">✕</span>
-            <span style="font-size:14px;color:var(--text-2);line-height:1.5;">Marktveränderungen werden erst nach Wochen sichtbar — Wettbewerber handeln früher</span>
-          </div>
-          <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;">
-            <span style="color:rgba(239,68,68,0.6);font-size:12px;margin-top:2px;flex-shrink:0;">✕</span>
-            <span style="font-size:14px;color:var(--text-2);line-height:1.5;">Stunden für manuelle Reports — Zeit, die für Strategie und Wachstum fehlt</span>
-          </div>
-        </div>
+        <div class="ba-item"><div class="ba-dot"></div><span>Interessenten kommen auf die Website — und verschwinden spurlos ohne Spur</span></div>
+        <div class="ba-item"><div class="ba-dot"></div><span>Keine Ahnung, welche Maßnahmen tatsächlich Kunden bringen</span></div>
+        <div class="ba-item"><div class="ba-dot"></div><span>Rückrufe passieren "irgendwann" — oft Stunden zu spät</span></div>
+        <div class="ba-item"><div class="ba-dot"></div><span>Neue Website: 3–6 Monate Agentur-Prozess, €8.000–20.000</span></div>
+        <div class="ba-item"><div class="ba-dot"></div><span>Leads werden im E-Mail-Postfach verwaltet — unstrukturiert, unverlässlich</span></div>
+        <div class="ba-item"><div class="ba-dot"></div><span>€500–2.000/Monat für Tools die nichts Messbares liefern</span></div>
       </div>
 
       <!-- MIT AEVUM -->
-      <div style="background:rgba(180,226,100,0.04);border:1px solid rgba(180,226,100,0.18);border-radius:0 16px 16px 0;padding:40px 36px;">
-        <div style="display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-text);margin-bottom:32px;padding:5px 12px;border:1px solid rgba(180,226,100,0.2);border-radius:100px;background:rgba(180,226,100,0.06);">
-          <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);display:inline-block;animation:blink 3s infinite;"></span>
+      <div class="ba-col after">
+        <div class="ba-label">
+          <span class="ba-label-dot"></span>
           Mit AEVUM
         </div>
-        <div style="display:flex;flex-direction:column;gap:0;">
-          <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <span style="color:var(--accent);font-size:12px;margin-top:2px;flex-shrink:0;">✓</span>
-            <span style="font-size:14px;color:var(--text-2);line-height:1.5;">100% Lead-Erfassung — serverseitiges Tracking unabhängig von Browser oder Betriebssystem</span>
-          </div>
-          <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <span style="color:var(--accent);font-size:12px;margin-top:2px;flex-shrink:0;">✓</span>
-            <span style="font-size:14px;color:var(--text-2);line-height:1.5;">Meta CAPI sendet vollständige Conversion-Signale — Algorithmus optimiert auf echte Käufer</span>
-          </div>
-          <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <span style="color:var(--accent);font-size:12px;margin-top:2px;flex-shrink:0;">✓</span>
-            <span style="font-size:14px;color:var(--text-2);line-height:1.5;">Creative-Level Attribution bis zum Umsatz — du siehst exakt welches Ad welchen Euro verdient</span>
-          </div>
-          <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <span style="color:var(--accent);font-size:12px;margin-top:2px;flex-shrink:0;">✓</span>
-            <span style="font-size:14px;color:var(--text-2);line-height:1.5;">Competitive Intelligence alle 6h automatisch — Marktveränderungen erkennst du vor deinen Wettbewerbern</span>
-          </div>
-          <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;">
-            <span style="color:var(--accent);font-size:12px;margin-top:2px;flex-shrink:0;">✓</span>
-            <span style="font-size:14px;color:var(--text-2);line-height:1.5;">Echtzeit-Dashboard, null manuelle Arbeit — Entscheidungen in Sekunden statt Stunden</span>
-          </div>
-        </div>
+        <div class="ba-item"><div class="ba-dot"></div><span>Jeder Besucher wird erfasst — jeder Lead automatisch ins CRM geschrieben</span></div>
+        <div class="ba-item"><div class="ba-dot"></div><span>Live-Dashboard: woher kommen Ihre besten Kunden, welche Kanäle konvertieren</span></div>
+        <div class="ba-item"><div class="ba-dot"></div><span>Automatische Antwort in unter 3 Minuten — 24/7, ohne manuellen Aufwand</span></div>
+        <div class="ba-item"><div class="ba-dot"></div><span>Neue Website live in unter 72 Stunden — fertig zum Launch, deployment-ready</span></div>
+        <div class="ba-item"><div class="ba-dot"></div><span>CRM mit vollständiger Pipeline, Status-Tracking und Follow-up-Sequenz</span></div>
+        <div class="ba-item"><div class="ba-dot"></div><span>Einmalig €2.500–7.500 Setup. Dann €400–1.500/Monat — messbar, transparent</span></div>
       </div>
+
     </div>
   </div>
 </section>
