@@ -1565,8 +1565,8 @@ footer {
 .process-guarantee {
   margin-top: 56px;
   padding: 28px 36px;
-  background: var(--surface);
-  border: 1px solid var(--border2);
+  background: rgba(180,226,100,0.04);
+  border: 1px solid rgba(180,226,100,0.25);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -1611,7 +1611,7 @@ footer {
 }
 
 /* ── PRICING CARDS ────────────────────────────── */
-.pkg-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:64px; align-items:start; }
+.pkg-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:64px; align-items:stretch; }
 .pkg-card {
   background:var(--surface);
   border:1px solid var(--border);
@@ -1619,6 +1619,8 @@ footer {
   padding:40px 32px;
   position:relative;
   transition:border-color 0.25s var(--ease), background 0.25s var(--ease);
+  display:flex;
+  flex-direction:column;
 }
 .pkg-card:hover { border-color:var(--border2); background:var(--surface2); }
 .pkg-card.featured {
@@ -1642,7 +1644,7 @@ footer {
 .pkg-retainer span { color:var(--text-2); }
 .pkg-features-label { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-3); margin-bottom:14px; }
 .pkg-card.featured .pkg-features-label { color:var(--accent-text); }
-.pkg-features { list-style:none; margin-bottom:36px; }
+.pkg-features { list-style:none; margin-bottom:36px; flex:1; }
 .pkg-features li { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-2); }
 .pkg-card.featured .pkg-features li { border-color:rgba(180,226,100,0.08); }
 .pkg-features li:last-child { border-bottom:none; }
@@ -2176,149 +2178,79 @@ footer {
     </div>
 
     <!-- Trust strip -->
-    <div class="reveal" style="margin-top:24px;padding:20px 32px;display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap;border:1px solid var(--border);border-radius:10px;">
-      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-3);"><span style="color:var(--accent);">✓</span>Setup in unter 72h</div>
-      <div style="width:1px;height:12px;background:var(--border);"></div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-3);"><span style="color:var(--accent);">✓</span>DSGVO-konform · Server in Deutschland</div>
-      <div style="width:1px;height:12px;background:var(--border);"></div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-3);"><span style="color:var(--accent);">✓</span>Kein Jahresvertrag</div>
-      <div style="width:1px;height:12px;background:var(--border);"></div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-3);"><span style="color:var(--accent);">✓</span>Volle Rückerstattung bei Nicht-Lieferung</div>
+    <div class="reveal" style="margin-top:24px;padding:18px 32px;display:flex;align-items:center;justify-content:center;gap:36px;flex-wrap:wrap;border:1px solid rgba(180,226,100,0.2);border-radius:12px;background:rgba(180,226,100,0.04);">
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2);font-weight:500;"><span style="color:var(--accent);font-size:13px;">✓</span>Lieferung in 7 Tagen</div>
+      <div style="width:1px;height:14px;background:rgba(180,226,100,0.15);"></div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2);font-weight:500;"><span style="color:var(--accent);font-size:13px;">✓</span>DSGVO-konform · Server in Deutschland</div>
+      <div style="width:1px;height:14px;background:rgba(180,226,100,0.15);"></div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2);font-weight:500;"><span style="color:var(--accent);font-size:13px;">✓</span>Kein Jahresvertrag</div>
+      <div style="width:1px;height:14px;background:rgba(180,226,100,0.15);"></div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2);font-weight:500;"><span style="color:var(--accent);font-size:13px;">✓</span>Volle Rückerstattung bei Nicht-Lieferung</div>
     </div>
   </div>
 </section>
 
 <hr class="divider">
 
-<!-- QUOTE -->
-<!-- ═══ TESTIMONIAL — KEVIN CRLJE / KETO7ABS ════════════════════════════════════ -->
+<!-- ═══ TESTIMONIAL ════════════════════════════════════════════════════════════════ -->
 <section class="section" style="background:var(--nebula);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
 <div class="section-inner">
   <div class="label reveal">Kundenresultat</div>
+  <h2 class="section-title reveal" style="margin-bottom:16px;">Was unsere Kunden<br>tatsächlich erleben.</h2>
+  <p class="section-sub reveal">Kein Versprechen. Ein dokumentiertes Ergebnis.</p>
 
-  <div class="reveal testimonial-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;">
+  <!-- Main testimonial card -->
+  <div class="reveal" style="margin-top:56px;background:var(--surface);border:1px solid var(--border2);border-radius:20px;overflow:hidden;">
 
-    <!-- Left: Quote + Person -->
-    <div>
-      <div style="font-size:72px;line-height:1;color:rgba(180,226,100,0.15);font-family:'Syne',sans-serif;font-weight:800;margin-bottom:8px;">"</div>
-      <blockquote style="font-size:clamp(18px,2.5vw,26px);font-weight:400;line-height:1.55;color:var(--text-1);margin-bottom:32px;font-style:italic;letter-spacing:-0.01em;">
-        Bevor AEVUM hatten wir täglich 30–50 Leads — und keine Ahnung welche unsere besten Kunden wurden. Wir haben alles auf Creative #04 gesetzt, weil das Bauchgefühl es sagte. AEVUM hat uns gezeigt: Creative #09 hat 3× den ROAS. In drei Wochen haben wir den Adspend auf #09 verdreifacht und den Umsatz von 28.000€ auf <strong style="color:var(--lime);font-style:normal;">94.000€ monatlich</strong> skaliert. Ohne mehr Budget.
-      </blockquote>
-
-      <!-- Person card -->
-      <div class="kevin-card" style="display:flex;align-items:center;gap:20px;padding:24px;background:var(--cosmos);border:1px solid var(--border2);border-radius:12px;">
-        <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--lime),rgba(180,226,100,0.3));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--void);flex-shrink:0;">K</div>
+    <!-- Top: quote area -->
+    <div style="padding:48px 48px 40px;border-bottom:1px solid var(--border);">
+      <div style="display:grid;grid-template-columns:1fr auto;gap:40px;align-items:start;">
         <div>
-          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--text-1);letter-spacing:-0.01em;">Kevin Crlje</div>
-          <div style="font-size:12px;color:var(--text-2);margin-top:3px;">Gründer · <a href="https://keto7abs.de" target="_blank" style="color:var(--lime);text-decoration:none;font-weight:500;">keto7abs.de</a></div>
-          <div style="font-size:11px;color:var(--text-3);margin-top:4px;letter-spacing:0.04em;">Health & Nutrition · Online-Coaching · DACH</div>
+          <div style="font-size:56px;line-height:0.9;color:rgba(180,226,100,0.2);font-family:'Syne',sans-serif;font-weight:800;margin-bottom:20px;">"</div>
+          <blockquote style="font-size:clamp(16px,2vw,20px);font-weight:400;line-height:1.65;color:var(--text-1);margin:0;font-style:normal;letter-spacing:-0.01em;">
+            Bevor AEVUM hatten wir täglich 30–50 Leads — und keine Ahnung welche unsere besten Kunden wurden. Wir haben Budget auf das falsche Creative gesetzt, weil das Bauchgefühl es sagte. AEVUM hat uns gezeigt, was wirklich funktioniert. In drei Wochen haben wir den Umsatz von <strong style="color:var(--text-1);">28.000€</strong> auf <strong style="color:var(--lime);">94.000€ monatlich</strong> skaliert — ohne mehr Budget.
+          </blockquote>
+
+          <!-- Person -->
+          <div style="display:flex;align-items:center;gap:16px;margin-top:32px;">
+            <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--lime),rgba(180,226,100,0.25));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--bg);flex-shrink:0;">K</div>
+            <div>
+              <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--text-1);letter-spacing:-0.01em;">Kevin Crlje</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:2px;">Gründer · <a href="https://keto7abs.de" target="_blank" style="color:var(--accent-text);text-decoration:none;">keto7abs.de</a> · Health & Nutrition · DACH</div>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:2px;flex-shrink:0;">
+              <span style="color:var(--lime);font-size:14px;">★★★★★</span>
+            </div>
+          </div>
         </div>
-        <div style="margin-left:auto;text-align:right;flex-shrink:0;">
-          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--lime);letter-spacing:-0.02em;line-height:1;">+236%</div>
-          <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.06em;margin-top:3px;">Umsatz in 3 Wochen</div>
+
+        <!-- Right: Big stat -->
+        <div style="text-align:center;padding:32px 28px;background:rgba(180,226,100,0.04);border:1px solid rgba(180,226,100,0.15);border-radius:14px;min-width:160px;">
+          <div style="font-family:'Syne',sans-serif;font-size:56px;font-weight:800;color:var(--lime);letter-spacing:-0.04em;line-height:1;">+236<span style="font-size:28px;">%</span></div>
+          <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-top:8px;">Umsatzwachstum</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px;">in 3 Wochen</div>
+          <div style="width:40px;height:1px;background:rgba(180,226,100,0.2);margin:16px auto;"></div>
+          <div style="font-size:11px;color:var(--text-3);">ohne mehr<br>Ad-Budget</div>
         </div>
       </div>
+    </div>
 
-      <!-- Star rating -->
-      <div style="display:flex;align-items:center;gap:10px;margin-top:20px;">
-        <div style="display:flex;gap:3px;">
-          <span style="color:var(--lime);font-size:16px;">★★★★★</span>
-        </div>
-        <div style="font-size:12px;color:var(--text-3);letter-spacing:0.04em;">Verifizierter Kunde · keto7abs.de · April 2025</div>
+    <!-- Bottom: 3 metrics -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);">
+      <div style="padding:24px 28px;border-right:1px solid var(--border);text-align:center;">
+        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--text-1);letter-spacing:-0.03em;">28K€</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:4px;text-transform:uppercase;letter-spacing:0.06em;">Umsatz vor AEVUM</div>
+      </div>
+      <div style="padding:24px 28px;border-right:1px solid var(--border);text-align:center;">
+        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--lime);letter-spacing:-0.03em;">94K€</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:4px;text-transform:uppercase;letter-spacing:0.06em;">Nach 3 Wochen</div>
+      </div>
+      <div style="padding:24px 28px;text-align:center;">
+        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--lime);letter-spacing:-0.03em;">21 Tage</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:4px;text-transform:uppercase;letter-spacing:0.06em;">Zeit bis Ergebnis</div>
       </div>
     </div>
 
-    <!-- Right: Results Chart -->
-    <div>
-      <div style="background:var(--cosmos);border:1px solid var(--border2);border-radius:16px;overflow:hidden;">
-
-        <!-- Chart header -->
-        <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-3);">Monatlicher Umsatz — keto7abs.de</div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--lime);font-weight:500;letter-spacing:0.08em;">
-            <div style="width:5px;height:5px;border-radius:50%;background:var(--lime);animation:blink 1.5s infinite;"></div>
-            AEVUM aktiv ab Woche 3
-          </div>
-        </div>
-
-        <!-- Bar chart -->
-        <div style="padding:24px 24px 8px;">
-          <div style="display:flex;align-items:flex-end;gap:8px;height:140px;position:relative;">
-
-            <!-- Grid lines -->
-            <div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;">
-              <div style="border-top:1px dashed rgba(255,255,255,0.05);width:100%;"></div>
-              <div style="border-top:1px dashed rgba(255,255,255,0.05);width:100%;"></div>
-              <div style="border-top:1px dashed rgba(255,255,255,0.05);width:100%;"></div>
-              <div style="border-top:1px dashed rgba(255,255,255,0.05);width:100%;"></div>
-            </div>
-
-            <!-- Bars: before AEVUM (grey), after (lime) -->
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;">
-              <div style="flex:1;width:100%;display:flex;align-items:flex-end;">
-                <div style="width:100%;height:30%;background:rgba(255,255,255,0.08);border-radius:3px 3px 0 0;position:relative;overflow:hidden;"></div>
-              </div>
-              <div style="font-size:9px;color:var(--text-3);text-align:center;line-height:1.2;">Jan</div>
-            </div>
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;">
-              <div style="flex:1;width:100%;display:flex;align-items:flex-end;">
-                <div style="width:100%;height:26%;background:rgba(255,255,255,0.08);border-radius:3px 3px 0 0;"></div>
-              </div>
-              <div style="font-size:9px;color:var(--text-3);text-align:center;line-height:1.2;">Feb</div>
-            </div>
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;">
-              <div style="flex:1;width:100%;display:flex;align-items:flex-end;">
-                <div style="width:100%;height:32%;background:rgba(255,255,255,0.08);border-radius:3px 3px 0 0;"></div>
-              </div>
-              <div style="font-size:9px;color:var(--text-3);text-align:center;line-height:1.2;">Mär</div>
-            </div>
-
-            <!-- Divider line — AEVUM starts -->
-            <div style="width:1px;height:100%;background:rgba(180,226,100,0.3);position:relative;flex-shrink:0;">
-              <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:8px;color:var(--lime);letter-spacing:0.06em;font-weight:600;">▼ AEVUM</div>
-            </div>
-
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;">
-              <div style="flex:1;width:100%;display:flex;align-items:flex-end;">
-                <div style="width:100%;height:30%;background:rgba(180,226,100,0.25);border-radius:3px 3px 0 0;border-top:2px solid var(--lime);"></div>
-              </div>
-              <div style="font-size:9px;color:var(--lime);text-align:center;line-height:1.2;font-weight:600;">Apr W1</div>
-            </div>
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;">
-              <div style="flex:1;width:100%;display:flex;align-items:flex-end;">
-                <div style="width:100%;height:55%;background:rgba(180,226,100,0.3);border-radius:3px 3px 0 0;border-top:2px solid var(--lime);"></div>
-              </div>
-              <div style="font-size:9px;color:var(--lime);text-align:center;line-height:1.2;font-weight:600;">W2</div>
-            </div>
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;">
-              <div style="flex:1;width:100%;display:flex;align-items:flex-end;">
-                <div style="width:100%;height:100%;background:linear-gradient(180deg,rgba(180,226,100,0.35) 0%,rgba(180,226,100,0.2) 100%);border-radius:3px 3px 0 0;border-top:2px solid var(--lime);box-shadow:0 0 20px rgba(180,226,100,0.2);position:relative;overflow:hidden;">
-                  <div style="position:absolute;top:8px;left:0;right:0;text-align:center;font-size:8px;color:var(--lime);font-weight:700;">94K€</div>
-                </div>
-              </div>
-              <div style="font-size:9px;color:var(--lime);text-align:center;line-height:1.2;font-weight:600;">W3+</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Key metrics row -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--border);">
-          <div style="padding:16px 20px;border-right:1px solid var(--border);text-align:center;">
-            <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--text-1);letter-spacing:-0.02em;">28K€</div>
-            <div style="font-size:10px;color:var(--text-3);margin-top:3px;text-transform:uppercase;letter-spacing:0.06em;">Vorher / Monat</div>
-          </div>
-          <div style="padding:16px 20px;border-right:1px solid var(--border);text-align:center;">
-            <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--lime);letter-spacing:-0.02em;">94K€</div>
-            <div style="font-size:10px;color:var(--text-3);margin-top:3px;text-transform:uppercase;letter-spacing:0.06em;">Nach 3 Wochen</div>
-          </div>
-          <div style="padding:16px 20px;text-align:center;">
-            <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--lime);letter-spacing:-0.02em;">+236%</div>
-            <div style="font-size:10px;color:var(--text-3);margin-top:3px;text-transform:uppercase;letter-spacing:0.06em;">Gleiches Budget</div>
-          </div>
-        </div>
-
-      </div>
-    </div>
   </div>
 </div>
 </section>
