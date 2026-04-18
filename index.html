@@ -1481,59 +1481,111 @@ footer {
   .problem-grid { grid-template-columns: 1fr; }
 }
 
-/* ── VERTICAL STEPS (PROCESS) ────────────────────── */
-.v-steps { margin-top: 64px; }
-.v-step {
-  display: grid;
-  grid-template-columns: 72px 1fr;
-  gap: 32px;
-  align-items: start;
-  padding: 36px 0;
-  border-bottom: 1px solid var(--border);
-  transition: all 0.2s;
+/* ── PROCESS TIMELINE ─────────────────────────────── */
+.process-timeline { margin-top: 72px; position: relative; }
+.process-timeline::before {
+  content: '';
+  position: absolute;
+  left: 27px;
+  top: 28px;
+  bottom: 28px;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--border2), var(--border), transparent);
 }
-.v-step:last-child { border-bottom: none; }
-.v-step:hover .v-step-num { border-color: rgba(180,226,100,0.3); color: var(--accent); }
-.v-step-num {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
+.pt-step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 40px;
+  align-items: start;
+  padding: 0 0 56px;
+  position: relative;
+}
+.pt-step:last-child { padding-bottom: 0; }
+.pt-num {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   border: 1px solid var(--border2);
+  background: var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Syne', sans-serif;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
   color: var(--text-3);
-  letter-spacing: -0.02em;
   flex-shrink: 0;
   transition: all 0.3s var(--ease);
+  position: relative;
+  z-index: 1;
 }
-.v-step-content h3 {
-  font-family: 'Syne', sans-serif;
-  font-size: 17px;
+.pt-step:hover .pt-num { border-color: rgba(180,226,100,0.4); color: var(--accent); background: rgba(180,226,100,0.04); }
+.pt-body { padding-top: 12px; }
+.pt-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.pt-tag {
+  font-size: 10px;
   font-weight: 700;
-  color: var(--text-1);
-  margin-bottom: 8px;
-  letter-spacing: -0.01em;
-}
-.v-step-content p { font-size: 13px; color: var(--text-2); line-height: 1.7; }
-.v-step-tag {
-  display: inline-block;
-  margin-top: 14px;
-  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--accent-text);
   background: var(--accent-dim);
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: 100px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
   border: 1px solid rgba(180,226,100,0.15);
 }
+.pt-time {
+  font-size: 11px;
+  color: var(--text-3);
+  font-weight: 500;
+}
+.pt-body h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+.pt-body p { font-size: 14px; color: var(--text-2); line-height: 1.7; margin-bottom: 18px; }
+.pt-delivers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pt-deliver {
+  font-size: 12px;
+  color: var(--text-3);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: border-color 0.2s;
+}
+.pt-step:hover .pt-deliver { border-color: var(--border2); color: var(--text-2); }
+.process-guarantee {
+  margin-top: 56px;
+  padding: 28px 36px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.pg-left { display: flex; align-items: center; gap: 16px; }
+.pg-icon { font-size: 24px; }
+.pg-text strong { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-1); display: block; letter-spacing: -0.01em; }
+.pg-text span { font-size: 13px; color: var(--text-3); }
+.pg-stat { text-align: right; }
+.pg-stat strong { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: -0.04em; display: block; line-height: 1; }
+.pg-stat span { font-size: 12px; color: var(--text-3); }
 @media (max-width: 768px) {
-  .v-step { grid-template-columns: 44px 1fr; gap: 16px; }
-  .v-step-num { width: 40px; height: 40px; font-size: 15px; border-radius: 8px; }
+  .process-timeline::before { left: 23px; }
+  .pt-step { grid-template-columns: 48px 1fr; gap: 20px; }
+  .pt-num { width: 48px; height: 48px; font-size: 15px; }
+  .process-guarantee { flex-direction: column; align-items: flex-start; }
+  .pg-stat { text-align: left; }
 }
 
 /* ── BEFORE / AFTER ───────────────────────────── */
@@ -1858,46 +1910,102 @@ footer {
 
 <!-- PROCESS -->
 <section class="section" id="ablauf">
-  <div class="section-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;">
-    <div>
-      <div class="label reveal">Ablauf</div>
-      <h2 class="section-title reveal">Von null auf<br>live in 72h.</h2>
-      <p class="section-sub reveal" style="margin-bottom:0;">Du gibst Zugänge. Wir liefern das vollständige System. Kein Entwickler, kein Agentur-Chaos, keine Wartezeit.</p>
+  <div class="section-inner">
+    <div class="label reveal">Ablauf</div>
+    <h2 class="section-title reveal">Von der ersten Anfrage<br>bis zum laufenden System.</h2>
+    <p class="section-sub reveal">Kein endloser Agentur-Prozess. Kein Entwickler notwendig. Du gibst uns Zugang — wir liefern das vollständige System in unter 72 Stunden.</p>
+
+    <div class="process-timeline reveal">
+
+      <div class="pt-step">
+        <div class="pt-num">01</div>
+        <div class="pt-body">
+          <div class="pt-meta">
+            <span class="pt-tag">Kostenlos</span>
+            <span class="pt-time">15–30 Minuten</span>
+          </div>
+          <h3>Diagnose & Strategie-Call</h3>
+          <p>Kein Pitch, kein Verkaufsgespräch. Wir analysieren deinen aktuellen digitalen Auftritt live — Website, Tracking, Lead-Flow — und zeigen dir exakt, wo Potential verloren geht und was ein professionelles System verändern würde.</p>
+          <div class="pt-delivers">
+            <span class="pt-deliver">Website-Audit live</span>
+            <span class="pt-deliver">Gap-Analyse</span>
+            <span class="pt-deliver">Maßnahmenplan</span>
+            <span class="pt-deliver">Festpreis-Angebot</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-step">
+        <div class="pt-num">02</div>
+        <div class="pt-body">
+          <div class="pt-meta">
+            <span class="pt-tag">Tag 1</span>
+            <span class="pt-time">2–3 Stunden</span>
+          </div>
+          <h3>Onboarding & Zugänge</h3>
+          <p>Du teilst Zugang zu Domain, Ad Account und bestehenden Tools. Wir dokumentieren deine Zielgruppe, USPs und Conversion-Ziele — die Grundlage für ein System das wirklich konvertiert, nicht nur gut aussieht.</p>
+          <div class="pt-delivers">
+            <span class="pt-deliver">Zugangs-Setup</span>
+            <span class="pt-deliver">Briefing-Dokument</span>
+            <span class="pt-deliver">Zieldefinition</span>
+            <span class="pt-deliver">Projektplan</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-step">
+        <div class="pt-num">03</div>
+        <div class="pt-body">
+          <div class="pt-meta">
+            <span class="pt-tag">Tag 1–2</span>
+            <span class="pt-time">Done-for-You</span>
+          </div>
+          <h3>Build & Integration</h3>
+          <p>Wir bauen: KI-generierte Conversion-Website, serverseitiges Tracking, CRM-Pipeline, Automations-Workflows und alle konfigurierten Integrationen. Parallel. Ohne Rückfragen. Ohne Wartezeit.</p>
+          <div class="pt-delivers">
+            <span class="pt-deliver">Website live</span>
+            <span class="pt-deliver">Meta CAPI aktiv</span>
+            <span class="pt-deliver">CRM konfiguriert</span>
+            <span class="pt-deliver">n8n Automations</span>
+            <span class="pt-deliver">Analytics</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-step">
+        <div class="pt-num">04</div>
+        <div class="pt-body">
+          <div class="pt-meta">
+            <span class="pt-tag">Tag 2–3</span>
+            <span class="pt-time">Go-Live</span>
+          </div>
+          <h3>Launch, Test & Übergabe</h3>
+          <p>Vollständiger QA-Durchlauf aller Systeme. Persönliches Briefing: du lernst dein Dashboard in 30 Minuten kennen. Ab diesem Moment läuft alles automatisch — Leads rein, Daten sauber, Entscheidungen klar.</p>
+          <div class="pt-delivers">
+            <span class="pt-deliver">QA-Protokoll</span>
+            <span class="pt-deliver">Dashboard-Briefing</span>
+            <span class="pt-deliver">Dokumentation</span>
+            <span class="pt-deliver">Support-Zugang</span>
+          </div>
+        </div>
+      </div>
+
     </div>
-    <div class="v-steps reveal">
-      <div class="v-step">
-        <div class="v-step-num">1</div>
-        <div class="v-step-content">
-          <h3>Diagnose Call</h3>
-          <p>15 Minuten. Kein Pitch. Wir analysieren deinen aktuellen Setup live und zeigen dir exakt, wo du Daten verlierst und was das kostet.</p>
-          <span class="v-step-tag">15 Min · kostenlos</span>
+
+    <div class="process-guarantee reveal">
+      <div class="pg-left">
+        <div class="pg-icon">⚡</div>
+        <div class="pg-text">
+          <strong>72-Stunden Liefergarantie</strong>
+          <span>Vollständiges System live — oder Setup-Gebühr vollständig zurück.</span>
         </div>
       </div>
-      <div class="v-step">
-        <div class="v-step-num">2</div>
-        <div class="v-step-content">
-          <h3>Zugänge & Onboarding</h3>
-          <p>Du teilst Zugang zu Ad Account, CRM und Landingpages. Wir dokumentieren deine Ziele und definieren den Soll-Zustand.</p>
-          <span class="v-step-tag">Tag 1</span>
-        </div>
-      </div>
-      <div class="v-step">
-        <div class="v-step-num">3</div>
-        <div class="v-step-content">
-          <h3>Infrastruktur-Setup</h3>
-          <p>Server-Side Tracking, Meta CAPI, CRM-Integration, Competitive Intelligence, KI-Assistent — alles Done-for-You konfiguriert und getestet.</p>
-          <span class="v-step-tag">Tag 1–2</span>
-        </div>
-      </div>
-      <div class="v-step">
-        <div class="v-step-num">4</div>
-        <div class="v-step-content">
-          <h3>Live-Schaltung & Übergabe</h3>
-          <p>Vollständiger Test aller Datenpunkte. Dashboard-Briefing. Ab jetzt siehst du in Echtzeit, welches Creative deinen Umsatz macht.</p>
-          <span class="v-step-tag">Tag 2–3</span>
-        </div>
+      <div class="pg-stat">
+        <strong>&lt;72h</strong>
+        <span>garantierte Lieferzeit</span>
       </div>
     </div>
+
   </div>
 </section>
 
