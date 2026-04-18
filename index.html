@@ -1184,8 +1184,26 @@ footer {
   .section-sub { font-size: 15px; margin-bottom: 40px; }
 
   /* FEATURE GRID */
-  .feature-grid { grid-template-columns: 1fr; }
+  .feature-grid { grid-template-columns: 1fr 1fr; }
   .feature-card { padding: 28px 24px; }
+
+  /* PROBLEM GRID */
+  .problem-grid { grid-template-columns: 1fr 1fr; }
+  .problem-card { padding: 28px 20px; }
+
+  /* PRICING */
+  .pkg-grid { grid-template-columns: 1fr; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+  /* TRUST STRIP */
+  .trust-strip-divider { display: none; }
+
+  /* TESTIMONIAL inner */
+  .testi-quote-area { padding: 28px 24px 24px !important; }
+  .testi-inner-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .testi-stat-block { min-width: unset !important; width: 100%; text-align: left !important; display: flex; align-items: center; gap: 20px; padding: 20px 24px !important; }
+  .testi-metrics { grid-template-columns: 1fr !important; }
+  .testi-metrics > div { border-right: none !important; border-bottom: 1px solid var(--border); text-align: left !important; padding: 16px 20px !important; }
+  .testi-metrics > div:last-child { border-bottom: none; }
 
   /* DASHBOARD */
   .db-metrics { grid-template-columns: 1fr 1fr; }
@@ -1274,6 +1292,13 @@ footer {
   /* Process: single column */
   .process-grid { grid-template-columns: 1fr; }
   .process-card { border-right: none; border-bottom: 1px solid var(--border); }
+
+  /* Feature + Problem: single column on small mobile */
+  .feature-grid { grid-template-columns: 1fr; }
+  .problem-grid { grid-template-columns: 1fr; }
+
+  /* Testimonial top padding */
+  .testi-inner-grid div[style*="padding:48px"] { padding: 24px !important; }
 
   /* Dashboard */
   .db-metric-val { font-size: 20px; }
@@ -1635,7 +1660,7 @@ footer {
   font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
   padding:5px 16px; border-radius:100px; white-space:nowrap;
 }
-.pkg-name { font-size:10px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-3); margin-bottom:24px; }
+.pkg-name { font-size:10px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-3); margin-bottom:24px; margin-top:16px; }
 .pkg-card.featured .pkg-name { color:var(--accent-text); }
 .pkg-price { font-family:'Syne',sans-serif; font-size:48px; font-weight:800; color:var(--text-1); letter-spacing:-0.04em; line-height:1; margin-bottom:4px; }
 .pkg-setup { font-size:12px; color:var(--text-3); margin-bottom:4px; }
@@ -2129,11 +2154,11 @@ footer {
         <div class="pkg-retainer">+ <span>€400/Monat</span> Retainer</div>
         <div class="pkg-features-label">Enthält</div>
         <ul class="pkg-features">
-          <li><span class="pkg-check">✓</span>Server-Side Tracking (iOS-sicher)</li>
-          <li><span class="pkg-check">✓</span>Meta Pixel + CAPI Grundkonfiguration</li>
-          <li><span class="pkg-check">✓</span>Creative Attribution Setup</li>
-          <li><span class="pkg-check">✓</span>Echtzeit-Dashboard (Leads, ROAS, Umsatz)</li>
-          <li><span class="pkg-check">✓</span>30 Tage Setup-Support</li>
+          <li><span class="pkg-check">✓</span>Website-Audit (KI-gestützt, 90 Sek.)</li>
+          <li><span class="pkg-check">✓</span>Conversion-Website (1 Seite, 48h Lieferung)</li>
+          <li><span class="pkg-check">✓</span>Lead-Capture Formular + E-Mail-Benachrichtigung</li>
+          <li><span class="pkg-check">✓</span>Google Analytics + Meta Pixel</li>
+          <li><span class="pkg-check">✓</span>Deploy auf Vercel · 1 Monat Support</li>
         </ul>
         <a href="#contact" class="pkg-cta pkg-cta-outline">Demo anfragen →</a>
       </div>
@@ -2141,19 +2166,19 @@ footer {
       <!-- PROFESSIONAL — FEATURED -->
       <div class="pkg-card featured">
         <div class="pkg-badge">Meistgewählt</div>
-        <div class="pkg-name" style="margin-top:16px;">Professional</div>
+        <div class="pkg-name">Professional</div>
         <div class="pkg-price">€4.000</div>
         <div class="pkg-setup">Setup · einmalig</div>
         <div class="pkg-retainer">+ <span>€700/Monat</span> Retainer</div>
         <div class="pkg-features-label">Enthält</div>
         <ul class="pkg-features">
           <li><span class="pkg-check">✓</span>Alles aus Starter</li>
-          <li><span class="pkg-check">✓</span>Meta CAPI vollständige Integration</li>
-          <li><span class="pkg-check">✓</span>Competitive Intelligence DACH (6h/12h/24h)</li>
-          <li><span class="pkg-check">✓</span>CRM-Integration + automatisches Follow-up</li>
-          <li><span class="pkg-check">✓</span>KI-Assistent mit deinen Kampagnendaten</li>
+          <li><span class="pkg-check">✓</span>AEVUM Lead-Tracking (Meta CAPI)</li>
+          <li><span class="pkg-check">✓</span>Airtable CRM mit vollständiger Pipeline</li>
+          <li><span class="pkg-check">✓</span>n8n Follow-up E-Mail-Sequenz (3 Steps)</li>
+          <li><span class="pkg-check">✓</span>WhatsApp-Benachrichtigung bei neuem Lead</li>
           <li><span class="pkg-check">✓</span>Wöchentlicher Performance-Report</li>
-          <li><span class="pkg-check">✓</span>90 Tage Priority-Support</li>
+          <li><span class="pkg-check">✓</span>3 Monate Support</li>
         </ul>
         <a href="#contact" class="pkg-cta pkg-cta-fill">Demo anfragen →</a>
       </div>
@@ -2167,10 +2192,10 @@ footer {
         <div class="pkg-features-label">Enthält</div>
         <ul class="pkg-features">
           <li><span class="pkg-check">✓</span>Alles aus Professional</li>
-          <li><span class="pkg-check">✓</span>KI-Agent für automatische Lead-Qualifizierung</li>
-          <li><span class="pkg-check">✓</span>Multi-Account + Multi-Markt Dashboard</li>
-          <li><span class="pkg-check">✓</span>Custom Automation-Workflows (CRM, ERP)</li>
-          <li><span class="pkg-check">✓</span>180 Tage dedizierter Support</li>
+          <li><span class="pkg-check">✓</span>KI-Agent: automatische Lead-Qualifizierung</li>
+          <li><span class="pkg-check">✓</span>Mehrsprachige Website (bis 3 Sprachen)</li>
+          <li><span class="pkg-check">✓</span>SEO-Setup (On-Page + technisches Audit)</li>
+          <li><span class="pkg-check">✓</span>6 Monate Maintenance & Support</li>
         </ul>
         <a href="#contact" class="pkg-cta pkg-cta-outline">Individuell anfragen →</a>
       </div>
@@ -2203,8 +2228,8 @@ footer {
   <div class="reveal" style="margin-top:56px;background:var(--surface);border:1px solid var(--border2);border-radius:20px;overflow:hidden;">
 
     <!-- Top: quote area -->
-    <div style="padding:48px 48px 40px;border-bottom:1px solid var(--border);">
-      <div style="display:grid;grid-template-columns:1fr auto;gap:40px;align-items:start;">
+    <div class="testi-quote-area" style="padding:48px 48px 40px;border-bottom:1px solid var(--border);">
+      <div class="testi-inner-grid" style="display:grid;grid-template-columns:1fr auto;gap:40px;align-items:start;">
         <div>
           <div style="font-size:56px;line-height:0.9;color:rgba(180,226,100,0.2);font-family:'Syne',sans-serif;font-weight:800;margin-bottom:20px;">"</div>
           <blockquote style="font-size:clamp(16px,2vw,20px);font-weight:400;line-height:1.65;color:var(--text-1);margin:0;font-style:normal;letter-spacing:-0.01em;">
@@ -2225,7 +2250,7 @@ footer {
         </div>
 
         <!-- Right: Big stat -->
-        <div style="text-align:center;padding:32px 28px;background:rgba(180,226,100,0.04);border:1px solid rgba(180,226,100,0.15);border-radius:14px;min-width:160px;">
+        <div class="testi-stat-block" style="text-align:center;padding:32px 28px;background:rgba(180,226,100,0.04);border:1px solid rgba(180,226,100,0.15);border-radius:14px;min-width:160px;">
           <div style="font-family:'Syne',sans-serif;font-size:56px;font-weight:800;color:var(--lime);letter-spacing:-0.04em;line-height:1;">+236<span style="font-size:28px;">%</span></div>
           <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-top:8px;">Umsatzwachstum</div>
           <div style="font-size:11px;color:var(--text-3);margin-top:2px;">in 3 Wochen</div>
@@ -2236,7 +2261,7 @@ footer {
     </div>
 
     <!-- Bottom: 3 metrics -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);">
+    <div class="testi-metrics" style="display:grid;grid-template-columns:repeat(3,1fr);">
       <div style="padding:24px 28px;border-right:1px solid var(--border);text-align:center;">
         <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--text-1);letter-spacing:-0.03em;">28K€</div>
         <div style="font-size:11px;color:var(--text-3);margin-top:4px;text-transform:uppercase;letter-spacing:0.06em;">Umsatz vor AEVUM</div>
