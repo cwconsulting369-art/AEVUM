@@ -1515,35 +1515,30 @@ footer {
   90%  { opacity: 1; }
   100% { top: calc(100% - 56px); opacity: 0; }
 }
-@keyframes problem-glow {
-  0%   { top: 128px; opacity: 0; }
-  6%   { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { top: calc(100% - 200px); opacity: 0; }
+@keyframes border-travel {
+  from { offset-distance: 0%; }
+  to   { offset-distance: 100%; }
 }
-section#problem::before {
+.problem-grid-wrap { position: relative; margin-top: 64px; }
+.problem-grid-wrap .problem-grid { margin-top: 0; }
+.prob-border-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.prob-border-glow::after {
   content: '';
   position: absolute;
-  left: 20px;
-  top: 128px;
-  bottom: 128px;
-  width: 1px;
-  background: linear-gradient(to bottom, transparent, var(--border2), transparent);
-  pointer-events: none;
-}
-section#problem::after {
-  content: '';
-  position: absolute;
-  left: 16px;
-  top: 128px;
-  width: 9px;
-  height: 72px;
-  border-radius: 5px;
-  background: linear-gradient(to bottom, transparent, rgba(180,226,100,0.9), transparent);
-  filter: blur(4px);
-  animation: problem-glow 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  pointer-events: none;
-  z-index: 0;
+  width: 6px;
+  height: 80px;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, transparent, rgba(180,226,100,0.85) 50%, transparent);
+  filter: blur(7px);
+  offset-path: inset(0 round 16px);
+  offset-distance: 0%;
+  transform: translate(-3px, -40px);
+  animation: border-travel 10s linear infinite;
 }
 .process-timeline { margin-top: 72px; position: relative; }
 .process-timeline::before {
@@ -1903,7 +1898,9 @@ section#problem::after {
     <div class="label reveal">Das Problem</div>
     <h2 class="section-title reveal">Täglich Interessenten verloren.<br>Ohne es zu merken.</h2>
     <p class="section-sub reveal">Professionelle Dienstleister verlieren täglich potenzielle Kunden — nicht weil ihr Angebot schlecht ist, sondern weil ihre digitale Infrastruktur nicht existiert.</p>
-    <div class="problem-grid">
+    <div class="problem-grid-wrap">
+      <div class="prob-border-glow"></div>
+      <div class="problem-grid">
       <div class="problem-card reveal">
         <div class="problem-num">01</div>
         <h3>Website als Visitenkarte</h3>
@@ -1934,6 +1931,7 @@ section#problem::after {
         <h3>Kein Überblick, kein Reporting</h3>
         <p>Woher kommen Ihre besten Kunden? Welcher Kanal bringt Anfragen? Ohne Daten sind das Fragen ohne Antwort — und Investitionen ohne Grundlage.</p>
       </div>
+    </div>
     </div>
   </div>
 </section>
