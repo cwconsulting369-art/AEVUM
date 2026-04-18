@@ -1515,30 +1515,12 @@ footer {
   90%  { opacity: 1; }
   100% { top: calc(100% - 56px); opacity: 0; }
 }
-@keyframes border-travel {
-  from { offset-distance: 0%; }
-  to   { offset-distance: 100%; }
-}
-.problem-grid-wrap { position: relative; margin-top: 64px; }
+.problem-grid-wrap { margin-top: 64px; }
 .problem-grid-wrap .problem-grid { margin-top: 0; }
-.prob-border-glow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 2;
-}
-.prob-border-glow::after {
-  content: '';
-  position: absolute;
-  width: 6px;
-  height: 80px;
-  border-radius: 4px;
-  background: linear-gradient(to bottom, transparent, rgba(180,226,100,0.85) 50%, transparent);
-  filter: blur(7px);
-  offset-path: inset(0 round 16px);
-  offset-distance: 0%;
-  transform: translate(-3px, -40px);
-  animation: border-travel 10s linear infinite;
+.problem-card { transition: background 0.7s ease, box-shadow 0.7s ease; }
+.problem-card.lit {
+  background: rgba(180,226,100,0.04);
+  box-shadow: inset 0 0 0 1px rgba(180,226,100,0.18);
 }
 .process-timeline { margin-top: 72px; position: relative; }
 .process-timeline::before {
@@ -1899,7 +1881,6 @@ footer {
     <h2 class="section-title reveal">Täglich Interessenten verloren.<br>Ohne es zu merken.</h2>
     <p class="section-sub reveal">Professionelle Dienstleister verlieren täglich potenzielle Kunden — nicht weil ihr Angebot schlecht ist, sondern weil ihre digitale Infrastruktur nicht existiert.</p>
     <div class="problem-grid-wrap">
-      <div class="prob-border-glow"></div>
       <div class="problem-grid">
       <div class="problem-card reveal">
         <div class="problem-num">01</div>
@@ -2700,6 +2681,19 @@ const io = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ── PROBLEM CARDS SEQUENTIAL ILLUMINATE ────────── */
+const problemGrid = document.querySelector('.problem-grid');
+if (problemGrid) {
+  const cardObs = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      const cards = problemGrid.querySelectorAll('.problem-card');
+      cards.forEach((card, i) => setTimeout(() => card.classList.add('lit'), i * 900));
+      cardObs.disconnect();
+    }
+  }, { threshold: 0.25 });
+  cardObs.observe(problemGrid);
+}
 
 /* ── LIVE FEED SIMULATION ───────────────────────── */
 const feedEvents = [
