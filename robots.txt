@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Block API endpoints
+Disallow: /api/
+
+Sitemap: https://www.aevum-system.de/sitemap.xml
+Sitemap: https://www.aevum.io/sitemap.xml
