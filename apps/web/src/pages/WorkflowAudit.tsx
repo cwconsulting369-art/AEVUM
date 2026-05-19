@@ -95,6 +95,8 @@ function FormSection() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -102,9 +104,29 @@ function FormSection() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      const res = await fetch('https://api.lennoxos.com/api/audit/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        throw new Error(data?.error || `HTTP ${res.status}`);
+      }
+      setSubmitted(true);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      setSubmitError(
+        `Senden fehlgeschlagen: ${msg}. Bitte per WhatsApp/Email direkt kontaktieren.`
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const inputClasses =
@@ -419,11 +441,26 @@ function FormSection() {
           >
             <button
               type="submit"
-              className="w-full btn-primary flex items-center justify-center gap-2 py-4 text-base font-medium"
+              disabled={submitting}
+              className="w-full btn-primary flex items-center justify-center gap-2 py-4 text-base font-medium disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <Sparkles size={18} />
-              Meinen Roadmap generieren
+              {submitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-[#0B0C10] border-t-transparent rounded-full animate-spin" />
+                  Wird gesendet...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={18} />
+                  Meinen Roadmap generieren
+                </>
+              )}
             </button>
+            {submitError && (
+              <p className="text-center text-sm text-red-400 mt-4 px-4 py-3 bg-red-500/10 border border-red-500/30">
+                {submitError}
+              </p>
+            )}
             <p className="text-center text-xs text-[#52525B] mt-4">
               100% kostenlos und unverbindlich. Ihre Daten sind sicher.
             </p>
