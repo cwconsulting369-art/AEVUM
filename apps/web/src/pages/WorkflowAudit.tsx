@@ -1,0 +1,629 @@
+import { useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
+import {
+  MessageCircle,
+  Calendar,
+  ArrowRight,
+  CheckCircle,
+  Upload,
+  TrendingUp,
+  Clock,
+  FileText,
+  Sparkles,
+  ArrowLeft,
+  User,
+  Building2,
+  Briefcase,
+  Users,
+  Wrench,
+  Wallet,
+  CalendarClock,
+  Mail,
+  Phone,
+} from 'lucide-react';
+import CONTACT from '../config/contact';
+
+/* ──────────────────────── Animation helpers ──────────────────────── */
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+  }),
+};
+
+/* ──────────────────────── Hero Section ──────────────────────── */
+
+function HeroSection() {
+  return (
+    <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden pt-32 pb-16">
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#F59E0B]/15 via-transparent to-transparent" />
+      </div>
+      <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+        <motion.span
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="inline-block bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-[#F59E0B] font-mono text-xs uppercase tracking-[0.15em] px-4 py-2 mb-6"
+        >
+          Kostenlos & unverbindlich
+        </motion.span>
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight leading-[1.1] mb-6"
+        >
+          Kostenloser
+          <span className="text-gradient font-medium block mt-2">Workflow Audit</span>
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="text-base md:text-lg text-[#A1A1AA] max-w-2xl mx-auto leading-relaxed"
+        >
+          Füllen Sie das Formular aus. Wir analysieren Ihre Prozesse und senden Ihnen
+          innerhalb von 48 Stunden eine personalisierte Automatisierungs-Roadmap.
+        </motion.p>
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────── Form Section ──────────────────────── */
+
+function FormSection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  const [formData, setFormData] = useState({
+    name: '',
+    company: '',
+    industry: '',
+    teamSize: '',
+    description: '',
+    timeWasters: '',
+    tools: '',
+    budget: '',
+    timeline: '',
+    email: '',
+    phone: '',
+  });
+
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+  };
+
+  const inputClasses =
+    'w-full bg-[#0B0C10] border border-white/10 px-4 py-3 text-sm text-[#F8FAFC] placeholder-[#52525B] focus:border-[#F59E0B]/50 focus:outline-none transition-colors';
+  const labelClasses = 'flex items-center gap-2 text-sm text-[#A1A1AA] mb-2';
+  const selectClasses =
+    'w-full bg-[#0B0C10] border border-white/10 px-4 py-3 text-sm text-[#F8FAFC] focus:border-[#F59E0B]/50 focus:outline-none transition-colors appearance-none cursor-pointer';
+
+  if (submitted) {
+    return (
+      <section className="px-6 lg:px-16 py-24" ref={ref}>
+        <div className="max-w-2xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            className="bg-[#15161A] border border-[#F59E0B]/30 p-10 lg:p-16 text-center"
+          >
+            <div className="w-20 h-20 bg-[#F59E0B]/10 border border-[#F59E0B]/30 flex items-center justify-center mx-auto mb-8">
+              <CheckCircle size={40} className="text-[#F59E0B]" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-4">
+              Anfrage <span className="text-gradient">erhalten!</span>
+            </h2>
+            <p className="text-[#A1A1AA] mb-8 leading-relaxed">
+              Vielen Dank, {formData.name || 'für Ihre Anfrage'}. Wir analysieren Ihre
+              Prozesse und senden Ihnen innerhalb von <strong className="text-[#F8FAFC]">48 Stunden</strong>{' '}
+              Ihre personalisierte Automatisierungs-Roadmap.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a
+                href={CONTACT.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary flex items-center gap-2"
+              >
+                <MessageCircle size={18} />
+                WhatsApp für Rückfragen
+              </a>
+              <a href="#/" className="btn-secondary flex items-center gap-2">
+                <ArrowLeft size={18} />
+                Zur Startseite
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="px-6 lg:px-16 py-24" ref={ref}>
+      <div className="max-w-3xl mx-auto">
+        <motion.form
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7 }}
+          onSubmit={handleSubmit}
+          className="bg-[#15161A] border border-white/10 p-8 lg:p-12"
+        >
+          {/* Intro text */}
+          <div className="mb-10 pb-8 border-b border-white/10">
+            <p className="text-[#A1A1AA] leading-relaxed">
+              Erzählen Sie uns von Ihrem Unternehmen. Je mehr wir wissen, desto präziser
+              wird Ihre Roadmap. Das dauert nur <strong className="text-[#F8FAFC]">3-5 Minuten</strong>.
+            </p>
+          </div>
+
+          <div className="space-y-8">
+            {/* 1. Name */}
+            <motion.div custom={0} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+              <label htmlFor="name" className={labelClasses}>
+                <User size={16} className="text-[#F59E0B]" />
+                Wie heißen Sie? *
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Max Mustermann"
+                className={inputClasses}
+              />
+            </motion.div>
+
+            {/* 2. Unternehmen */}
+            <motion.div custom={1} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+              <label htmlFor="company" className={labelClasses}>
+                <Building2 size={16} className="text-[#F59E0B]" />
+                Wie heißt Ihr Unternehmen? *
+              </label>
+              <input
+                type="text"
+                id="company"
+                name="company"
+                required
+                value={formData.company}
+                onChange={handleChange}
+                placeholder="Muster GmbH"
+                className={inputClasses}
+              />
+            </motion.div>
+
+            {/* 3. Branche */}
+            <motion.div custom={2} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+              <label htmlFor="industry" className={labelClasses}>
+                <Briefcase size={16} className="text-[#F59E0B]" />
+                In welcher Branche sind Sie tätig? *
+              </label>
+              <select
+                id="industry"
+                name="industry"
+                required
+                value={formData.industry}
+                onChange={handleChange}
+                className={selectClasses}
+              >
+                <option value="">Bitte wählen</option>
+                <option value="ecommerce">E-Commerce</option>
+                <option value="b2b">B2B / SaaS</option>
+                <option value="beratung">Beratung / Coaching</option>
+                <option value="realestate">Immobilien</option>
+                <option value="gesundheit">Gesundheit / Fitness</option>
+                <option value="finanzen">Finanzen / Versicherung</option>
+                <option value="handwerk">Handwerk / Bau</option>
+                <option value="marketing">Marketing / Agentur</option>
+                <option value="personalbrand">Personal Brand</option>
+                <option value="andere">Andere</option>
+              </select>
+            </motion.div>
+
+            {/* 4. Teamgröße */}
+            <motion.div custom={3} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+              <label htmlFor="teamSize" className={labelClasses}>
+                <Users size={16} className="text-[#F59E0B]" />
+                Wie groß ist Ihr Team? *
+              </label>
+              <select
+                id="teamSize"
+                name="teamSize"
+                required
+                value={formData.teamSize}
+                onChange={handleChange}
+                className={selectClasses}
+              >
+                <option value="">Bitte wählen</option>
+                <option value="solo">Solo / Freelancer</option>
+                <option value="2-5">2 – 5 Mitarbeiter</option>
+                <option value="6-15">6 – 15 Mitarbeiter</option>
+                <option value="16-50">16 – 50 Mitarbeiter</option>
+                <option value="50+">50+ Mitarbeiter</option>
+              </select>
+            </motion.div>
+
+            {/* 5. Was macht Ihr Unternehmen? */}
+            <motion.div custom={4} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+              <label htmlFor="description" className={labelClasses}>
+                <FileText size={16} className="text-[#F59E0B]" />
+                Was macht Ihr Unternehmen? Was ist Ihr Angebot? *
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                required
+                rows={4}
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Wir bieten... unsere Zielgruppe ist... unsere größten Stärken sind..."
+                className={`${inputClasses} resize-none`}
+              />
+            </motion.div>
+
+            {/* 6. Größte Zeitfresser */}
+            <motion.div custom={5} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+              <label htmlFor="timeWasters" className={labelClasses}>
+                <Clock size={16} className="text-[#F59E0B]" />
+                Was sind Ihre größten Zeitfresser? *
+              </label>
+              <textarea
+                id="timeWasters"
+                name="timeWasters"
+                required
+                rows={4}
+                value={formData.timeWasters}
+                onChange={handleChange}
+                placeholder="z.B. Manuelle Datenpflege, Follow-ups, Content-Erstellung, Lead-Qualifizierung..."
+                className={`${inputClasses} resize-none`}
+              />
+            </motion.div>
+
+            {/* 7. Aktuelle Tools */}
+            <motion.div custom={6} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+              <label htmlFor="tools" className={labelClasses}>
+                <Wrench size={16} className="text-[#F59E0B]" />
+                Welche Tools nutzen Sie aktuell?
+              </label>
+              <input
+                type="text"
+                id="tools"
+                name="tools"
+                value={formData.tools}
+                onChange={handleChange}
+                placeholder="z.B. HubSpot, Salesforce, Notion, Slack, Zapier, Make..."
+                className={inputClasses}
+              />
+            </motion.div>
+
+            {/* 8. Budgetrahmen */}
+            <motion.div custom={7} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+              <label htmlFor="budget" className={labelClasses}>
+                <Wallet size={16} className="text-[#F59E0B]" />
+                Was ist Ihr Budgetrahmen? *
+              </label>
+              <select
+                id="budget"
+                name="budget"
+                required
+                value={formData.budget}
+                onChange={handleChange}
+                className={selectClasses}
+              >
+                <option value="">Bitte wählen</option>
+                <option value="under5k">Unter 5.000 €</option>
+                <option value="5k-15k">5.000 – 15.000 €</option>
+                <option value="15k-50k">15.000 – 50.000 €</option>
+                <option value="50k+">Über 50.000 €</option>
+              </select>
+            </motion.div>
+
+            {/* 9. Zeitrahmen */}
+            <motion.div custom={8} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+              <label htmlFor="timeline" className={labelClasses}>
+                <CalendarClock size={16} className="text-[#F59E0B]" />
+                Wann soll das System live sein? *
+              </label>
+              <select
+                id="timeline"
+                name="timeline"
+                required
+                value={formData.timeline}
+                onChange={handleChange}
+                className={selectClasses}
+              >
+                <option value="">Bitte wählen</option>
+                <option value="asap">So schnell wie möglich</option>
+                <option value="1-2months">In 1-2 Monaten</option>
+                <option value="3-6months">In 3-6 Monaten</option>
+                <option value="planning">Nur am Planen / Budgetierung</option>
+              </select>
+            </motion.div>
+
+            {/* 10. E-Mail */}
+            <motion.div custom={9} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+              <label htmlFor="email" className={labelClasses}>
+                <Mail size={16} className="text-[#F59E0B]" />
+                Ihre E-Mail-Adresse *
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="max@beispiel.de"
+                className={inputClasses}
+              />
+            </motion.div>
+
+            {/* 11. Telefon */}
+            <motion.div custom={10} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+              <label htmlFor="phone" className={labelClasses}>
+                <Phone size={16} className="text-[#F59E0B]" />
+                Ihre Telefonnummer
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+49 123 456789"
+                className={inputClasses}
+              />
+            </motion.div>
+
+            {/* File Upload (visual only) */}
+            <motion.div custom={11} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+              <label className={labelClasses}>
+                <Upload size={16} className="text-[#F59E0B]" />
+                Dokumente hochladen (optional)
+              </label>
+              <div className="w-full bg-[#0B0C10] border border-dashed border-white/20 hover:border-[#F59E0B]/30 px-4 py-10 text-center transition-colors cursor-pointer group">
+                <Upload size={28} className="text-[#52525B] group-hover:text-[#F59E0B] mx-auto mb-3 transition-colors" />
+                <p className="text-sm text-[#52525B] group-hover:text-[#A1A1AA] transition-colors">
+                  PDF, DOC, oder Bilder hierher ziehen
+                </p>
+                <p className="text-xs text-[#52525B] mt-1">Max. 10 MB</p>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Submit */}
+          <motion.div
+            custom={12}
+            variants={fadeUp}
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
+            className="mt-10 pt-8 border-t border-white/10"
+          >
+            <button
+              type="submit"
+              className="w-full btn-primary flex items-center justify-center gap-2 py-4 text-base font-medium"
+            >
+              <Sparkles size={18} />
+              Meinen Roadmap generieren
+            </button>
+            <p className="text-center text-xs text-[#52525B] mt-4">
+              100% kostenlos und unverbindlich. Ihre Daten sind sicher.
+            </p>
+          </motion.div>
+        </motion.form>
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────── What Happens Next ──────────────────────── */
+
+function NextStepsSection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  const steps = [
+    {
+      icon: FileText,
+      title: 'Analyse',
+      desc: 'Wir analysieren Ihre Antworten und identifizieren die größten Automatisierungspotenziale.',
+    },
+    {
+      icon: Sparkles,
+      title: 'Roadmap',
+      desc: 'Sie erhalten eine detaillierte, priorisierte Roadmap mit konkreten Use Cases und Zeitplan.',
+    },
+    {
+      icon: MessageCircle,
+      title: 'Strategy Call',
+      desc: 'Wir besprechen die Roadmap in einem 30-minütigen Call und beantworten alle Fragen.',
+    },
+  ];
+
+  return (
+    <section className="px-6 lg:px-16 py-24 bg-[#15161A]" ref={ref}>
+      <div className="max-w-[1440px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-16"
+        >
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+            Der Ablauf
+          </span>
+          <h2 className="text-3xl md:text-5xl font-light tracking-tight">
+            Was passiert als Nächstes?
+          </h2>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {steps.map((step, i) => (
+            <motion.div
+              key={step.title}
+              custom={i}
+              variants={fadeUp}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+              className="relative text-center p-8 bg-[#0B0C10] border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1"
+            >
+              <div className="w-16 h-16 bg-[#15161A] border border-[#F59E0B]/30 flex items-center justify-center mx-auto mb-6">
+                <step.icon size={28} className="text-[#F59E0B]" />
+              </div>
+              <span className="font-mono text-xs text-[#52525B] uppercase tracking-wider block mb-3">
+                Schritt {i + 1}
+              </span>
+              <h3 className="text-lg font-medium mb-3">{step.title}</h3>
+              <p className="text-sm text-[#A1A1AA] leading-relaxed">{step.desc}</p>
+
+              {i < steps.length - 1 && (
+                <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-[#F59E0B]">
+                  <ArrowRight size={20} />
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────── Kevin Testimonial ──────────────────────── */
+
+function TestimonialSection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  return (
+    <section className="px-6 lg:px-16 py-24" ref={ref}>
+      <div className="max-w-[1440px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7 }}
+          className="max-w-3xl mx-auto"
+        >
+          <div className="bg-[#15161A] border border-[#F59E0B]/20 p-10 lg:p-12">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center text-black font-bold text-xl">
+                K
+              </div>
+              <div>
+                <h3 className="text-lg font-medium">Kevin</h3>
+                <span className="font-mono text-xs text-[#F59E0B] uppercase tracking-wider">
+                  Ketolabs — E-Commerce
+                </span>
+              </div>
+            </div>
+
+            <blockquote className="text-lg md:text-xl text-[#A1A1AA] leading-relaxed mb-8 italic">
+              &ldquo;Der Workflow Audit war der Wendepunkt. Innerhalb von 48 Stunden hatten wir eine
+              Roadmap, die exakt zeigte, wo wir mit KI ansetzen können. Seitdem laufen 6 AI Agents
+              und wir machen €2.847 pro Tag — automatisiert.&rdquo;
+            </blockquote>
+
+            <div className="flex flex-wrap gap-6">
+              <div className="flex items-center gap-2">
+                <TrendingUp size={18} className="text-[#F59E0B]" />
+                <span className="text-sm text-[#A1A1AA]">€2.847/Tag</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle size={18} className="text-[#F59E0B]" />
+                <span className="text-sm text-[#A1A1AA]">6 AI Agents</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <TrendingUp size={18} className="text-[#F59E0B]" />
+                <span className="text-sm text-[#A1A1AA]">3.45x ROAS</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────── Final CTA ──────────────────────── */
+
+function FinalCTA() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  return (
+    <section className="px-6 lg:px-16 py-24 bg-[#15161A]" ref={ref}>
+      <div className="max-w-[1440px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+          className="relative overflow-hidden bg-gradient-to-br from-[#0B0C10] to-[#15161A] border border-[#F59E0B]/30 p-10 lg:p-16 text-center"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-[#F59E0B]/5 to-transparent" />
+          <div className="relative z-10 max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
+              Noch Fragen?
+            </h2>
+            <p className="text-[#A1A1AA] text-lg mb-10">
+              Schreiben Sie uns direkt auf WhatsApp oder buchen Sie einen Call.
+              Wir antworten innerhalb von 2 Stunden.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a
+                href={CONTACT.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary flex items-center gap-2"
+              >
+                <MessageCircle size={18} />
+                WhatsApp schreiben
+              </a>
+              <a
+                href={CONTACT.calendly}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary flex items-center gap-2"
+              >
+                <Calendar size={18} />
+                Call buchen
+              </a>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────── Page ──────────────────────── */
+
+export default function WorkflowAudit() {
+  return (
+    <div className="bg-[#0B0C10]">
+      <HeroSection />
+      <FormSection />
+      <NextStepsSection />
+      <TestimonialSection />
+      <FinalCTA />
+    </div>
+  );
+}

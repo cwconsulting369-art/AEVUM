@@ -1,0 +1,152 @@
+
+import { MessageCircle, Calendar, Mail, Phone } from 'lucide-react';
+import CONTACT from '../config/contact';
+
+const serviceLinks = [
+  { label: 'Websites', path: '/services/websites' },
+  { label: 'Lead Generation', path: '/services/lead-generation' },
+  { label: 'Content Workflows', path: '/services/content-workflows' },
+  { label: 'AI Automation', path: '/services/ai-automation' },
+];
+
+const navLinks = [
+  { label: 'Home', path: '/' },
+  { label: 'Services', path: '/services' },
+  { label: 'Cases', path: '/cases' },
+  { label: 'Workflow-Audit', path: '/workflow-audit' },
+];
+
+export default function Footer() {
+  return (
+    <footer className="bg-[#15161A] border-t border-white/10">
+      <div className="max-w-[1440px] mx-auto px-6 lg:px-16 py-16 lg:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          {/* Brand Column */}
+          <div className="lg:col-span-1">
+            <a href="#/" className="flex items-center gap-1 mb-4">
+              <span className="text-2xl font-bold tracking-tight text-[#F9FAFB] font-[Space_Grotesk]">
+                AEVUM
+              </span>
+              <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
+            </a>
+            <p className="text-sm text-[#A1A1AA] leading-relaxed mb-6">
+              Vollständige KI-Systeme für Unternehmen, die wachsen wollen.
+            </p>
+            <div className="flex gap-3">
+              <a
+                href={CONTACT.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-full border border-white/10 text-[#A1A1AA] hover:text-[#F59E0B] hover:border-[#F59E0B]/30 transition-all"
+                aria-label="WhatsApp"
+              >
+                <MessageCircle size={18} />
+              </a>
+              <a
+                href={CONTACT.calendly}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-full border border-white/10 text-[#A1A1AA] hover:text-[#F59E0B] hover:border-[#F59E0B]/30 transition-all"
+                aria-label="Call buchen"
+              >
+                <Calendar size={18} />
+              </a>
+            </div>
+          </div>
+
+          {/* Services Column */}
+          <div>
+            <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#52525B] mb-6">
+              Services
+            </h4>
+            <ul className="space-y-3">
+              {serviceLinks.map((link) => (
+                <li key={link.path}>
+                  <a
+                    href={"#" + link.path}
+                    className="text-sm text-[#A1A1AA] hover:text-[#F59E0B] transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Navigation Column */}
+          <div>
+            <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#52525B] mb-6">
+              Navigation
+            </h4>
+            <ul className="space-y-3">
+              {navLinks.map((link) => (
+                <li key={link.path}>
+                  <a
+                    href={"#" + link.path}
+                    className="text-sm text-[#A1A1AA] hover:text-[#F59E0B] transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact Column */}
+          <div>
+            <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#52525B] mb-6">
+              Kontakt
+            </h4>
+            <div className="space-y-4">
+              <p className="text-sm text-[#F9FAFB] font-medium">{CONTACT.name}</p>
+              <a
+                href={`mailto:${CONTACT.email}`}
+                className="flex items-center gap-2 text-sm text-[#A1A1AA] hover:text-[#F59E0B] transition-colors"
+              >
+                <Mail size={14} />
+                {CONTACT.email}
+              </a>
+              <a
+                href={`tel:${CONTACT.phone.replace(/\s/g, '')}`}
+                className="flex items-center gap-2 text-sm text-[#A1A1AA] hover:text-[#F59E0B] transition-colors"
+              >
+                <Phone size={14} />
+                {CONTACT.phone}
+              </a>
+              <div className="flex flex-col gap-3 pt-2">
+                <a
+                  href={CONTACT.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary text-sm text-center py-2.5 flex items-center justify-center gap-2"
+                >
+                  <MessageCircle size={16} />
+                  WhatsApp
+                </a>
+                <a
+                  href={CONTACT.calendly}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary text-sm text-center py-2.5 flex items-center justify-center gap-2"
+                >
+                  <Calendar size={16} />
+                  Call buchen
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Copyright Bar */}
+        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-[#52525B]">
+            &copy; 2026 {CONTACT.company}. Alle Rechte vorbehalten.
+          </p>
+          <p className="text-xs text-[#52525B]">
+            Gebaut von {CONTACT.name}
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
