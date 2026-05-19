@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #0F172A;
+    --bg-elevated: #1E293B;
+    --bg-surface: #334155;
+    --bg-accent-wash: rgba(245, 158, 11, 0.06);
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    --accent-primary: #F59E0B;
+    --accent-hover: #D97706;
+    --accent-glow: rgba(245, 158, 11, 0.25);
+    --border-primary: rgba(148, 163, 184, 0.15);
+    --border-accent: rgba(245, 158, 11, 0.4);
+    --success: #10B981;
+    --danger: #EF4444;
+
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 217 33% 17%;
+    --card-foreground: 210 40% 98%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 20% 65% / 0.15;
+    --input: 215 20% 65% / 0.15;
+    --ring: 38 92% 50%;
+    --radius: 0.625rem;
+  }
+
+  * {
+    @apply border-[rgba(148,163,184,0.15)];
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .text-gradient {
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg px-9 py-4 font-body text-sm font-semibold uppercase tracking-[0.04em];
+    background-color: var(--accent-primary);
+    color: var(--bg-primary);
+    transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--accent-hover);
+    box-shadow: 0 0 40px var(--accent-glow);
+    transform: translateY(-2px);
+  }
+
+  .btn-primary:active {
+    transform: scale(0.97);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg border px-9 py-4 font-body text-sm font-semibold uppercase tracking-[0.04em];
+    background: transparent;
+    border-color: var(--border-primary);
+    color: var(--text-primary);
+    transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: rgba(245, 158, 11, 0.05);
+  }
+
+  .section-label {
+    @apply font-mono text-xs uppercase tracking-[0.1em];
+    color: var(--accent-primary);
+  }
+
+  .card-lennox {
+    @apply rounded-xl border p-9 transition-all duration-300;
+    background-color: var(--bg-elevated);
+    border-color: var(--border-primary);
+  }
+
+  .card-lennox:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 30px var(--accent-glow);
+  }
+}
