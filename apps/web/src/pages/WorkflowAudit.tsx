@@ -92,7 +92,10 @@ function FormSection() {
     timeline: '',
     email: '',
     phone: '',
+    website: '', // honeypot — must stay empty
   });
+  // Track form-open timestamp for bot-detection (too-fast submits)
+  const formStartedAt = useRef<number>(Date.now());
 
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -112,7 +115,10 @@ function FormSection() {
       const res = await fetch('https://api.lennoxos.com/api/audit/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          formStartedAt: formStartedAt.current,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {
@@ -187,6 +193,30 @@ function FormSection() {
           onSubmit={handleSubmit}
           className="bg-[#15161A] border border-white/10 p-8 lg:p-12"
         >
+          {/* Honeypot — visually hidden, off-screen. Real users never see/fill this. Bots auto-fill. */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              left: '-9999px',
+              top: 'auto',
+              width: '1px',
+              height: '1px',
+              overflow: 'hidden',
+            }}
+          >
+            <label htmlFor="website-hp">Website (do not fill)</label>
+            <input
+              type="text"
+              id="website-hp"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={formData.website}
+              onChange={handleChange}
+            />
+          </div>
+
           {/* Intro text */}
           <div className="mb-10 pb-8 border-b border-white/10">
             <p className="text-[#A1A1AA] leading-relaxed">
