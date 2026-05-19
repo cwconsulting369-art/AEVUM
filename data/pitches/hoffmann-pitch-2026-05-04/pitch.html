@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>AEVUM × Hoffmann Eitle — Strategischer SEO-Partner</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  @page { size: A4; margin: 0; }
+  html, body {
+    font-family: 'Manrope', -apple-system, sans-serif;
+    background: #0A0A0B;
+    color: #E5E5E7;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'kern', 'liga';
+  }
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 22mm 20mm;
+    page-break-after: always;
+    position: relative;
+    background: #0A0A0B;
+  }
+  .page:last-child { page-break-after: auto; }
+  .accent { color: #C9A961; }
+  .muted { color: #8B8B92; }
+  .red { color: #E07A5F; }
+  .green { color: #6FCF97; }
+  h1 { font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; }
+  h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 14px; }
+  h3 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 8px; }
+  p { font-size: 12.5px; line-height: 1.65; color: #C5C5C8; }
+  small { color: #8B8B92; font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 500; }
+
+  /* Cover */
+  .cover { display: flex; flex-direction: column; justify-content: space-between; }
+  .cover-badge { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #C9A961; font-weight: 600; }
+  .cover h1 { font-size: 56px; margin: 32px 0; }
+  .cover-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding-top: 24px; border-top: 1px solid #1F1F22; }
+  .cover-meta div small { display: block; margin-bottom: 4px; }
+  .cover-meta div span { font-size: 14px; color: #E5E5E7; font-weight: 500; }
+
+  /* Header bar */
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; }
+  .top .logo { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; }
+  .top .nav { font-size: 10.5px; color: #8B8B92; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* Cards */
+  .card {
+    background: #131316;
+    border: 1px solid #1F1F22;
+    border-radius: 6px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+  .card.accent-border { border-color: #C9A961; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  /* Score visualization */
+  .score-row { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid #1F1F22; font-size: 12px; }
+  .score-row:last-child { border: 0; }
+  .score-bar { flex: 1; height: 6px; background: #1F1F22; border-radius: 3px; overflow: hidden; position: relative; }
+  .score-bar-fill { height: 100%; border-radius: 3px; }
+  .score-val { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 36px; text-align: right; }
+  .score-label { min-width: 180px; font-size: 12px; }
+
+  /* Big metric */
+  .metric-big { display: flex; align-items: baseline; gap: 12px; margin: 6px 0; }
+  .metric-big .num { font-size: 48px; font-weight: 800; letter-spacing: -0.04em; }
+  .metric-big .delta { font-size: 16px; font-weight: 600; }
+
+  /* Issue list */
+  .issue { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid #1F1F22; }
+  .issue:last-child { border: 0; }
+  .issue-status { width: 10px; height: 10px; border-radius: 5px; margin-top: 6px; flex-shrink: 0; }
+  .issue-status.crit { background: #E07A5F; }
+  .issue-status.fixed { background: #6FCF97; }
+  .issue-content h3 { font-size: 13px; margin-bottom: 4px; }
+  .issue-content p { font-size: 11.5px; color: #8B8B92; }
+
+  /* Pricing */
+  .price-row { display: grid; grid-template-columns: 1fr auto; padding: 14px 0; border-bottom: 1px solid #1F1F22; align-items: baseline; }
+  .price-row .label { font-size: 13px; }
+  .price-row .label small { display: block; margin-top: 3px; text-transform: none; letter-spacing: 0; }
+  .price-row .val { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 18px; }
+
+  /* List bullet */
+  ul { list-style: none; margin: 6px 0; }
+  ul li { padding: 5px 0 5px 18px; position: relative; font-size: 12px; line-height: 1.6; color: #C5C5C8; }
+  ul li::before { content: "▸"; position: absolute; left: 0; color: #C9A961; }
+
+  /* Quote */
+  .quote {
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 16px 20px;
+    border-left: 2px solid #C9A961;
+    color: #E5E5E7;
+    font-weight: 500;
+    margin: 12px 0;
+    font-style: italic;
+  }
+
+  /* Option box */
+  .option { padding: 16px 18px; border: 1px solid #1F1F22; border-radius: 6px; margin-bottom: 10px; }
+  .option.recommended { border-color: #C9A961; background: rgba(201, 169, 97, 0.04); }
+  .option-tag { display: inline-block; font-size: 9.5px; padding: 2px 8px; background: #C9A961; color: #0A0A0B; border-radius: 3px; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .option h3 { display: flex; align-items: center; gap: 10px; }
+
+  .footer { position: absolute; bottom: 12mm; left: 20mm; right: 20mm; display: flex; justify-content: space-between; font-size: 9.5px; color: #5A5A5F; letter-spacing: 0.06em; text-transform: uppercase; }
+  .pageno::before { content: counter(page); }
+</style>
+</head>
+<body>
+
+<!-- ========= COVER ========= -->
+<section class="page cover">
+  <div>
+    <div class="cover-badge">AEVUM · Strategischer SEO-Partner</div>
+  </div>
+
+  <div>
+    <h1>Hoffmann Eitle.<br><span class="accent">SEO-Infrastruktur.</span><br>30 Tage. Messbar.</h1>
+    <p style="font-size: 16px; max-width: 480px; color: #C5C5C8; margin-top: 28px; line-height: 1.55;">
+      Strategie-Vorschlag für 5-Sprachen-Tech-SEO,
+      Schema.org für LegalService, GEO-Content für KI-Suche.
+    </p>
+  </div>
+
+  <div class="cover-meta">
+    <div>
+      <small>Termin</small>
+      <span>Mo, 04.05.2026 · 16:00 Uhr</span>
+    </div>
+    <div>
+      <small>Vorgelegt von</small>
+      <span>Carlos Wrusch · AEVUM</span>
+    </div>
+    <div>
+      <small>Empfänger</small>
+      <span>Hoffmann Eitle, pm@hoffmanneitle.com</span>
+    </div>
+    <div>
+      <small>Bezug</small>
+      <span>Angebot März 2026 · finales Gespräch</span>
+    </div>
+  </div>
+</section>
+
+<!-- ========= PAGE 2: DIAGNOSE HOFFMANN ========= -->
+<section class="page">
+  <div class="top">
+    <div class="logo">AEVUM<span class="muted"> · Hoffmann Eitle</span></div>
+    <div class="nav">01 — Diagnose</div>
+  </div>
+
+  <small style="margin-bottom: 8px; display: block;">SEO Lens Audit · hoffmanneitle.com · 04.05.2026</small>
+  <h2>SEO-Score 66/100.<br>Platz 4 von 7.</h2>
+  <p style="margin-bottom: 18px;">Heute Morgen durch unser Tool gelaufen. Content-Strategie ist stark (82). Technik solide (75). <span class="accent">SEO-Infrastruktur ist der Engpass: 27 / 100.</span> Drei kritische Defizite, fünf hohe Mängel — alle in 30 Tagen zu beheben.</p>
+
+  <div class="grid-2" style="margin-bottom: 14px;">
+    <div class="card">
+      <small>Kategorie-Scores</small>
+      <div class="score-row"><span class="score-label">Content</span><div class="score-bar"><div class="score-bar-fill" style="width:82%; background:#6FCF97;"></div></div><span class="score-val green">82</span></div>
+      <div class="score-row"><span class="score-label">Performance</span><div class="score-bar"><div class="score-bar-fill" style="width:77%; background:#C9A961;"></div></div><span class="score-val">77</span></div>
+      <div class="score-row"><span class="score-label">Technik</span><div class="score-bar"><div class="score-bar-fill" style="width:75%; background:#C9A961;"></div></div><span class="score-val">75</span></div>
+      <div class="score-row"><span class="score-label">Accessibility</span><div class="score-bar"><div class="score-bar-fill" style="width:70%; background:#C9A961;"></div></div><span class="score-val">70</span></div>
+      <div class="score-row"><span class="score-label">SEO</span><div class="score-bar"><div class="score-bar-fill" style="width:27%; background:#E07A5F;"></div></div><span class="score-val red">27</span></div>
+    </div>
+
+    <div class="card">
+      <small>Findings-Übersicht</small>
+      <div class="metric-big" style="margin-top: 10px;">
+        <span class="num">3</span><span class="delta red">Kritisch</span>
+      </div>
+      <div class="metric-big">
+        <span class="num" style="font-size:32px;">5</span><span class="delta" style="color:#E5C07B;">Hoch</span>
+      </div>
+      <div class="metric-big">
+        <span class="num" style="font-size:24px;">2</span><span class="delta muted">Mittel</span>
+      </div>
+      <div class="metric-big">
+        <span class="num green" style="font-size:24px;">10</span><span class="delta muted">Bestanden</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <small style="display:block; margin-bottom:8px;">Top Findings</small>
+    <div class="issue">
+      <div class="issue-status crit"></div>
+      <div class="issue-content">
+        <h3>sitemap.xml fehlt oder nicht erreichbar <span class="red" style="font-size:10px; font-weight:700; letter-spacing:0.06em;">— KRITISCH</span></h3>
+        <p>Crawler erfassen nur, was sie über interne Links finden. Bei 200+ Seiten in 5 Sprachen entgeht Google strukturell ein Großteil des Bestands.</p>
+      </div>
+    </div>
+    <div class="issue">
+      <div class="issue-status crit"></div>
+      <div class="issue-content">
+        <h3>JSON-LD / Schema.org fehlt komplett <span class="red" style="font-size:10px; font-weight:700; letter-spacing:0.06em;">— KRITISCH</span></h3>
+        <p>Kein LegalService-Markup, kein Organization-Schema. Google und KI-Modelle verstehen die Seiten nicht als Patentanwalts-Kanzlei mit 8 Standorten.</p>
+      </div>
+    </div>
+    <div class="issue">
+      <div class="issue-status crit"></div>
+      <div class="issue-content">
+        <h3>Web-Analytics nicht gefunden <span class="red" style="font-size:10px; font-weight:700; letter-spacing:0.06em;">— KRITISCH</span></h3>
+        <p>Keine Messung = keine Steuerung. Jede Marketing-Investition läuft ohne Feedback-Loop.</p>
+      </div>
+    </div>
+    <div class="issue">
+      <div class="issue-status crit"></div>
+      <div class="issue-content">
+        <h3>0 H1-Tags · Open Graph 0/3 · Canonical fehlt</h3>
+        <p>Hauptüberschriften (WCAG 1.3.1) fehlen, Social-Sharing zerschossen, Duplicate-Content-Schutz nicht aktiv. Roh-Metrik: 1/15 Bildern ohne Alt-Text. Sprache <code style="color:#C9A961;">lang="en"</code> — Sprachsignal nicht differenziert für Mehrmarkt-Setup.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="quote">
+    Content-Score 82 zeigt: Sie haben das Wertvolle. SEO-Score 27 zeigt: niemand findet es.
+  </div>
+
+  <div class="footer"><span>AEVUM × Hoffmann Eitle · Pitch 04.05.2026</span><span class="pageno"></span></div>
+</section>
+
+<!-- ========= PAGE 2.5: WETTBEWERBSVERGLEICH ========= -->
+<section class="page">
+  <div class="top">
+    <div class="logo">AEVUM<span class="muted"> · Hoffmann Eitle</span></div>
+    <div class="nav">01b — Wettbewerb</div>
+  </div>
+
+  <small style="margin-bottom: 8px; display: block;">Konkurrenz-Vergleich · gleicher Audit-Lauf · 04.05.2026</small>
+  <h2>Bardehle ist 12 Punkte voraus.<br>Aufholbar in 30 Tagen.</h2>
+  <p style="margin-bottom: 18px;">Wir haben Ihre 6 direkten IP-Kanzlei-Wettbewerber durch das gleiche Tool laufen lassen. Hoffmann Eitle landet auf <span class="accent">Platz 4 von 7</span> — nicht weil das Produkt schwächer ist, sondern weil drei messbare Defizite den Score ausbremsen.</p>
+
+  <div class="card">
+    <div class="score-row"><span class="score-label" style="font-weight:600;">Bardehle Pagenberg</span><div class="score-bar"><div class="score-bar-fill" style="width:78%; background:#C9A961;"></div></div><span class="score-val">78</span></div>
+    <div class="score-row"><span class="score-label">Grünecker</span><div class="score-bar"><div class="score-bar-fill" style="width:74%; background:#C9A961;"></div></div><span class="score-val">74</span></div>
+    <div class="score-row"><span class="score-label">Boehmert &amp; Boehmert</span><div class="score-bar"><div class="score-bar-fill" style="width:72%; background:#C9A961;"></div></div><span class="score-val">72</span></div>
+    <div class="score-row"><span class="score-label">Meissner Bolte</span><div class="score-bar"><div class="score-bar-fill" style="width:70%; background:#C9A961;"></div></div><span class="score-val">70</span></div>
+    <div class="score-row" style="background: rgba(201, 169, 97, 0.08); margin: 0 -20px; padding: 10px 20px;"><span class="score-label" style="color:#C9A961; font-weight:700;">▸ Hoffmann Eitle</span><div class="score-bar"><div class="score-bar-fill" style="width:66%; background:#C9A961;"></div></div><span class="score-val accent">66</span></div>
+    <div class="score-row"><span class="score-label">Vossius &amp; Partner</span><div class="score-bar"><div class="score-bar-fill" style="width:63%; background:#8B8B92;"></div></div><span class="score-val muted">63</span></div>
+    <div class="score-row"><span class="score-label">Cohausz &amp; Florack</span><div class="score-bar"><div class="score-bar-fill" style="width:58%; background:#8B8B92;"></div></div><span class="score-val muted">58</span></div>
+  </div>
+
+  <div class="grid-2" style="margin-top: 18px;">
+    <div class="card">
+      <small>Score-Lücke</small>
+      <div class="metric-big">
+        <span class="num">12</span>
+        <span class="delta muted">Pkt zu Platz 1</span>
+      </div>
+      <p style="font-size: 11px; margin-top: 6px;">Bardehle 78 vs. Hoffmann 66. Diese Lücke schließt sich nicht von allein — und Bardehle baut weiter aus.</p>
+    </div>
+    <div class="card accent-border">
+      <small>Realistische Projektion</small>
+      <div class="metric-big">
+        <span class="num accent">+22</span>
+        <span class="delta green">Pkt in 90 Tagen</span>
+      </div>
+      <p style="font-size: 11px; margin-top: 6px;">Setup-Phase bringt sitemap, JSON-LD, Web-Analytics, H1, Canonical, OG live. Allein die drei kritischen Findings = ~15 Pkt Score-Gewinn.</p>
+    </div>
+  </div>
+
+  <div class="quote" style="margin-top: 16px;">
+    In 30 Tagen sind Sie an Bardehle vorbei. In 90 Tagen ist die Lücke nicht mehr aufholbar — für die anderen.
+  </div>
+
+  <div class="footer"><span>AEVUM × Hoffmann Eitle · Pitch 04.05.2026</span><span class="pageno"></span></div>
+</section>
+
+<!-- ========= PAGE 3: LÖSUNG — AEVUM APPROACH ========= -->
+<section class="page">
+  <div class="top">
+    <div class="logo">AEVUM<span class="muted"> · Hoffmann Eitle</span></div>
+    <div class="nav">02 — Lösung</div>
+  </div>
+
+  <small style="margin-bottom: 8px; display: block;">AEVUM-Methode · Setup + Continuous</small>
+  <h2>Wir liefern Code.<br>Ihr Team kontrolliert Production.</h2>
+  <p style="margin-bottom: 22px;">Klare Verantwortungs-Trennung. Wir bauen, briefen, monitoren — Ihr IT-Team setzt um. Saubere Skalierung, kein Vertrauensrisiko, jederzeit nachvollziehbar.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <small>Phase 1 · Tag 1–30</small>
+      <h3 style="margin-top: 6px; font-size: 17px;">Setup-Phase</h3>
+      <ul style="margin-top: 8px;">
+        <li>Vollständiger Tech-SEO-Audit aller 200+ Seiten</li>
+        <li>Schema.org LegalService — alle 8 Standorte, 5 Sprachen</li>
+        <li>Hreflang-Implementierung DE/EN/IT/NL/ES</li>
+        <li>Canonical-URL-Strategie für 200+ Seiten</li>
+        <li>H1-Briefings für die 11 fehlenden Seiten</li>
+        <li>GEO-Optimierungs-Strategie (LLM-readable content)</li>
+        <li>Multi-Tenant-Login mit Hoffmann-Branding</li>
+        <li>Priorisiertes Initial-Backlog im Dashboard</li>
+        <li>Kickoff-Workshop 90 Min mit Marketing + IT</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <small>Phase 2 · Ab Monat 2</small>
+      <h3 style="margin-top: 6px; font-size: 17px;">Continuous Retainer</h3>
+      <ul style="margin-top: 8px;">
+        <li>Wöchentlicher 200-Seiten-Crawl, automatisch</li>
+        <li>Wöchentliche PDF-Reports + Live-Dashboard</li>
+        <li>2× Tech-Briefings pro Monat — Code/Markup für IT</li>
+        <li>4× GEO-Content-Briefings (LLM-Snippets)</li>
+        <li>1× Monat: Executive Performance Report (Partner-PDF)</li>
+        <li>1× Quartal: Wettbewerbs-Analyse Top 3</li>
+        <li>1× Monat: 60-Min Strategy-Call</li>
+        <li>Slack/Email-Channel · 4h Response-Zeit</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top: 18px;">
+    <small>Was Sie nicht bekommen</small>
+    <p style="margin-top: 6px;">Keine Black-Box. Kein „Trust me bro". Jede Empfehlung kommt mit Code, Markup oder Briefing — nachvollziehbar, von Ihrem Team prüfbar, Ihrem CMS-Team direkt umsetzbar.</p>
+  </div>
+
+  <div class="footer"><span>AEVUM × Hoffmann Eitle · Pitch 04.05.2026</span><span class="pageno"></span></div>
+</section>
+
+<!-- ========= PAGE 4: BEWEIS — AEVUM EIGENES BEISPIEL ========= -->
+<section class="page">
+  <div class="top">
+    <div class="logo">AEVUM<span class="muted"> · Hoffmann Eitle</span></div>
+    <div class="nav">03 — Beweis</div>
+  </div>
+
+  <small style="margin-bottom: 8px; display: block;">Live-Beispiel · aevum-system.de</small>
+  <h2>Wir machen's an uns selbst.<br><span class="accent">82 → 93 in 24 Stunden.</span></h2>
+  <p style="margin-bottom: 22px;">Wir haben unsere eigene Domain durch dieselbe Pipeline laufen lassen, die Sie bekämen. Hier sind die Zahlen vor und nach dem Eingriff — gemessen mit demselben Tool, mit dem wir auch Hoffmann monitoren werden.</p>
+
+  <div class="grid-2" style="margin-bottom: 14px;">
+    <div class="card accent-border">
+      <small>Vorher · 03.05.2026 23:00</small>
+      <div class="metric-big">
+        <span class="num red">82</span>
+        <span class="delta muted">/ 100 SEO-Score</span>
+      </div>
+      <p style="font-size: 11px; margin-top: 6px;">robots.txt fehlt · sitemap.xml fehlt · Description 197 Zeichen · keine Web-Analytics · Brand-Score 52</p>
+    </div>
+    <div class="card accent-border">
+      <small>Nachher · 04.05.2026 nach Optimierung</small>
+      <div class="metric-big">
+        <span class="num green">93</span>
+        <span class="delta green">+11 Punkte</span>
+      </div>
+      <p style="font-size: 11px; margin-top: 6px;">Platz 1 von 7 in der Vergleichsgruppe — vor Jimdo, Webflow Deutschland, Chimpify und Digitalwerk.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom: 12px; font-size: 15px;">Was wurde in 24 Stunden gemacht</h3>
+    <div class="issue">
+      <div class="issue-status fixed"></div>
+      <div class="issue-content">
+        <h3>robots.txt + sitemap.xml deployed</h3>
+        <p>Static files in <code style="color:#C9A961;">/public/</code> — Crawler-Zugriff geöffnet, automatische Index-Pflege aktiv.</p>
+      </div>
+    </div>
+    <div class="issue">
+      <div class="issue-status fixed"></div>
+      <div class="issue-content">
+        <h3>Meta-Description auf &lt;160 Zeichen optimiert</h3>
+        <p>Vorher 197 Zeichen — Google hat abgeschnitten. Jetzt komplett sichtbar in Suchergebnissen, höhere CTR.</p>
+      </div>
+    </div>
+    <div class="issue">
+      <div class="issue-status fixed"></div>
+      <div class="issue-content">
+        <h3>Trust-Signale ergänzt + Typografie aufgewertet</h3>
+        <p>Manrope statt Syne — bessere Lesbarkeit, höhere Brand-Wahrnehmung. Garantie-Statement, Team-Element.</p>
+      </div>
+    </div>
+    <div class="issue">
+      <div class="issue-status fixed"></div>
+      <div class="issue-content">
+        <h3>Schema.org + Open Graph konsolidiert</h3>
+        <p>JSON-LD korrekt strukturiert. KI-Suchmaschinen können jetzt Inhalt sauber referenzieren.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="quote" style="margin-top: 14px;">
+    Wir haben den exakt gleichen Prozess intern laufen — und ihn an uns selbst geprüft, bevor wir ihn Ihnen anbieten.
+  </div>
+
+  <div class="footer"><span>AEVUM × Hoffmann Eitle · Pitch 04.05.2026</span><span class="pageno"></span></div>
+</section>
+
+<!-- ========= PAGE 5: PROGNOSE HOFFMANN ========= -->
+<section class="page">
+  <div class="top">
+    <div class="logo">AEVUM<span class="muted"> · Hoffmann Eitle</span></div>
+    <div class="nav">04 — Prognose</div>
+  </div>
+
+  <small style="margin-bottom: 8px; display: block;">Hoffmann Eitle · 90-Tage-Projektion auf Score-Basis</small>
+  <h2>66 → 88+. Platz 1.<br>+50 % organische Aufrufe.</h2>
+  <p style="margin-bottom: 22px;">Die Projektion ist nicht hypothetisch. Sie folgt aus den drei kritischen Findings (sitemap, JSON-LD, Analytics) plus den fünf hohen Mängeln. Jeder dieser Punkte hat einen messbaren Score-Wert und einen messbaren Traffic-Effekt.</p>
+
+  <div class="grid-3" style="margin-bottom: 18px;">
+    <div class="card">
+      <small>Tag 30 — Setup-Ende</small>
+      <div class="metric-big">
+        <span class="num">66 → 78</span>
+        <span class="delta green">+12 Pkt</span>
+      </div>
+      <p style="font-size: 11px; margin-top: 6px;">sitemap, JSON-LD (LegalService + Organization), Web-Analytics, H1 auf 11 Seiten, OG vollständig, Canonical, Twitter Cards. <span class="accent">= gleichauf mit Bardehle.</span></p>
+    </div>
+    <div class="card">
+      <small>Tag 60 — Content + GEO</small>
+      <div class="metric-big">
+        <span class="num">78 → 84</span>
+        <span class="delta green">+6 Pkt</span>
+      </div>
+      <p style="font-size: 11px; margin-top: 6px;">GEO-Snippets für die Top-10-Seiten gehen live. KI-Suchmaschinen indexieren strukturierte FAQ-Antworten. <span class="accent">+25–30 % organische Aufrufe</span> auf Long-Tail-Begriffe.</p>
+    </div>
+    <div class="card accent-border">
+      <small>Tag 90 — Marktposition</small>
+      <div class="metric-big">
+        <span class="num accent">84 → 88+</span>
+        <span class="delta green">Platz 1</span>
+      </div>
+      <p style="font-size: 11px; margin-top: 6px;">Wettbewerbs-Driven-Optimierung schließt die letzten Lücken. <span class="accent">+45–60 % organische Aufrufe</span> kumuliert. KI-Suchen (ChatGPT, Perplexity) referenzieren Hoffmann statt Bardehle.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom: 14px;">
+    <small style="display:block; margin-bottom:10px;">Wirkungspfad pro kritischem Finding</small>
+    <div class="score-row"><span class="score-label">sitemap.xml deployed</span><span class="muted" style="flex:1; font-size:11px;">+200 zusätzlich indexierte Seiten</span><span class="score-val green">+5 Pkt</span></div>
+    <div class="score-row"><span class="score-label">JSON-LD LegalService</span><span class="muted" style="flex:1; font-size:11px;">Rich Snippets, Knowledge Graph, KI-Sichtbarkeit</span><span class="score-val green">+6 Pkt</span></div>
+    <div class="score-row"><span class="score-label">Web-Analytics aktiv</span><span class="muted" style="flex:1; font-size:11px;">Steuerung + Conversion-Messung möglich</span><span class="score-val green">+4 Pkt</span></div>
+    <div class="score-row"><span class="score-label">H1 + OG + Canonical</span><span class="muted" style="flex:1; font-size:11px;">On-Page-Signale konsolidiert (5 hohe Findings)</span><span class="score-val green">+5 Pkt</span></div>
+    <div class="score-row" style="border:0;"><span class="score-label">Hreflang + GEO-Content</span><span class="muted" style="flex:1; font-size:11px;">Mehrsprachen-Ranking + KI-Sichtbarkeit</span><span class="score-val green">+8 Pkt</span></div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size: 15px; margin-bottom: 10px;">ROI-Logik · Einzelnes Mandat rechtfertigt 6 Monate</h3>
+    <div class="price-row">
+      <div class="label">Patentmandat (durchschnittlich)<small class="muted">Range €15.000 – €50.000</small></div>
+      <div class="val">€ 25.000</div>
+    </div>
+    <div class="price-row">
+      <div class="label">Investition AEVUM 6 Monate<small class="muted">Setup + 6× Retainer</small></div>
+      <div class="val">€ 63.500</div>
+    </div>
+    <div class="price-row" style="border-bottom:0;">
+      <div class="label">Break-Even-Schwelle<small class="muted">zusätzliche Mandate über die Laufzeit</small></div>
+      <div class="val accent">2,5 Mandate</div>
+    </div>
+  </div>
+
+  <p style="margin-top: 14px; font-size: 11.5px;" class="muted">Konservative Schätzung — basiert auf der Audit-Analyse Ihrer Site und durchschnittlicher Effekt-Messung in vergleichbaren B2B-Tech-SEO-Projekten. Live-Demo des Tools mit echten Hoffmann-Daten direkt im Termin möglich.</p>
+
+  <div class="footer"><span>AEVUM × Hoffmann Eitle · Pitch 04.05.2026</span><span class="pageno"></span></div>
+</section>
+
+<!-- ========= PAGE 6: INVESTITION ========= -->
+<section class="page">
+  <div class="top">
+    <div class="logo">AEVUM<span class="muted"> · Hoffmann Eitle</span></div>
+    <div class="nav">05 — Investition</div>
+  </div>
+
+  <small style="margin-bottom: 8px; display: block;">Pricing · Year-1-Projektion</small>
+  <h2>Klar, planbar,<br>auditfähig.</h2>
+
+  <div class="card" style="margin-top: 22px;">
+    <div class="price-row">
+      <div class="label">Setup-Phase · Tag 1–30<small class="muted">Audit · Schema · Hreflang · Canonical · H1 · Multi-Tenant-Login · Kickoff</small></div>
+      <div class="val">€ 3.500 <span class="muted" style="font-size:11px;">einmalig</span></div>
+    </div>
+    <div class="price-row">
+      <div class="label">Continuous Retainer · ab Monat 2<small class="muted">Crawl · 2× Tech-Briefings · 4× GEO-Briefings · Reports · Strategy-Call · Slack-Channel</small></div>
+      <div class="val">€ 10.000 <span class="muted" style="font-size:11px;">/ Monat</span></div>
+    </div>
+    <div class="price-row" style="background: rgba(201, 169, 97, 0.06); margin: 10px -20px -16px; padding: 14px 20px;">
+      <div class="label" style="color:#C9A961; font-weight:700; font-size:14px;">Year-1-Wert<small class="muted" style="font-weight:400;">Setup + 12× Retainer</small></div>
+      <div class="val" style="color:#C9A961; font-size: 22px;">€ 123.500</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 22px;">
+    <small>Vertragsbedingungen</small>
+    <ul style="margin-top: 8px;">
+      <li><strong style="color:#E5E5E7;">Mindestlaufzeit:</strong> 6 Monate — SEO-Effekte brauchen 3–6 Monate für valide Messung</li>
+      <li><strong style="color:#E5E5E7;">30-Tage-Review-Klausel:</strong> Setup-Phase nicht zu Ihrer Zufriedenheit = kostenfreier Ausstieg</li>
+      <li><strong style="color:#E5E5E7;">Datenschutz:</strong> DSGVO-konform, AVV-Vertrag inklusive</li>
+      <li><strong style="color:#E5E5E7;">SLA:</strong> 99,9 % Uptime · 24h-Recovery bei Ausfall · pro-rata Refund</li>
+      <li><strong style="color:#E5E5E7;">Pilot-Pricing:</strong> Hoffmann Eitle bekommt Konditionen, die zukünftige Kunden in dieser Größe nicht mehr bekommen</li>
+    </ul>
+  </div>
+
+  <div class="footer"><span>AEVUM × Hoffmann Eitle · Pitch 04.05.2026</span><span class="pageno"></span></div>
+</section>
+
+<!-- ========= PAGE 7: IMPLEMENTATION OPTIONS ========= -->
+<section class="page">
+  <div class="top">
+    <div class="logo">AEVUM<span class="muted"> · Hoffmann Eitle</span></div>
+    <div class="nav">06 — Implementation</div>
+  </div>
+
+  <small style="margin-bottom: 8px; display: block;">3 Optionen · klare Verantwortung</small>
+  <h2>Wie es bei Ihnen<br>landet.</h2>
+
+  <div class="option recommended" style="margin-top: 22px;">
+    <span class="option-tag">Empfohlen</span>
+    <h3 style="font-size: 17px;">Option A · Ihr IT-Team setzt um</h3>
+    <p style="margin-top: 8px;">Wir liefern Code, Schema-Markup, Briefings. Ihr IT-Team deployed auf Production. Saubere Verantwortungs-Trennung, klare Audit-Spur, skaliert sauber. <span class="accent">Setup-Zeit: 30 Tage.</span></p>
+  </div>
+
+  <div class="option">
+    <h3 style="font-size: 17px;">Option B · CMS-Zugang für AEVUM</h3>
+    <p style="margin-top: 8px;">Wir setzen direkt auf Ihrem Server um. Schneller (14–21 Tage), aber: Vertrauensfrage bei Anwaltskanzlei-Daten, geteilte Verantwortung bei Ausfällen. <span class="muted">Empfehlung: nur falls Hoffmann Eitle es ausdrücklich wünscht.</span></p>
+  </div>
+
+  <div class="option">
+    <h3 style="font-size: 17px;">Option C · Hybrid</h3>
+    <p style="margin-top: 8px;">Setup-Phase: temporärer Zugang für AEVUM. Ab Monat 2 übernimmt Ihr Team. Schnellster Start mit sauberer Übergabe. <span class="accent">Setup-Zeit: 21 Tage.</span> Sinnvoll bei knapper IT-Kapazität.</p>
+  </div>
+
+  <div class="quote" style="margin-top: 22px;">
+    Empfehlung: Option A. Ihr Team kontrolliert Production. Wir liefern fertige Lösungen. Wenn Geschwindigkeit nicht reicht, wechseln wir auf Hybrid.
+  </div>
+
+  <div class="footer"><span>AEVUM × Hoffmann Eitle · Pitch 04.05.2026</span><span class="pageno"></span></div>
+</section>
+
+<!-- ========= PAGE 8: NEXT STEPS ========= -->
+<section class="page">
+  <div class="top">
+    <div class="logo">AEVUM<span class="muted"> · Hoffmann Eitle</span></div>
+    <div class="nav">07 — Next Steps</div>
+  </div>
+
+  <small style="margin-bottom: 8px; display: block;">Wenn wir uns einig werden</small>
+  <h2>Diese Woche live.<br>Setup-Phase startet Mo 11.05.</h2>
+
+  <div class="grid-2" style="margin-top: 22px;">
+    <div class="card">
+      <small>Tag 0 · Heute</small>
+      <h3 style="margin-top: 8px;">Vertragsentwurf</h3>
+      <p style="font-size: 12px; margin-top: 6px;">MSA + SOW gehen Mittwoch raus. AVV-Vertrag DSGVO-konform inklusive. Review-Frist 5 Werktage.</p>
+    </div>
+    <div class="card">
+      <small>Tag 1–7</small>
+      <h3 style="margin-top: 8px;">Kickoff-Workshop</h3>
+      <p style="font-size: 12px; margin-top: 6px;">90 Min mit Marketing + IT. CMS-Zugang sichten. Initial-Backlog priorisieren. Kommunikationskanal aufsetzen.</p>
+    </div>
+    <div class="card">
+      <small>Tag 8–30</small>
+      <h3 style="margin-top: 8px;">Setup-Lieferung</h3>
+      <p style="font-size: 12px; margin-top: 6px;">Audit · Schema · Hreflang · Canonical · H1-Briefings · Multi-Tenant-Login · GEO-Strategy.</p>
+    </div>
+    <div class="card">
+      <small>Ab Tag 31</small>
+      <h3 style="margin-top: 8px;">Continuous Retainer</h3>
+      <p style="font-size: 12px; margin-top: 6px;">Wöchentlicher Crawl, monatliche Briefings, monatlicher Strategy-Call, Executive Reports.</p>
+    </div>
+  </div>
+
+  <div class="card accent-border" style="margin-top: 22px; padding: 22px 24px;">
+    <small style="color:#C9A961;">Schließ-Frage</small>
+    <h3 style="font-size: 18px; margin-top: 8px; line-height: 1.4;">Wenn wir uns heute auf Option A einigen — was wäre auf Ihrer Seite nötig, damit wir nächste Woche mit der Setup-Phase starten können?</h3>
+  </div>
+
+  <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: end; padding-top: 22px; border-top: 1px solid #1F1F22;">
+    <div>
+      <small>Kontakt</small>
+      <p style="font-size: 13px; color: #E5E5E7; margin-top: 4px; line-height: 1.5;"><strong>Carlos Wrusch</strong><br>cwconsulting369@gmail.com<br>aevum-system.de</p>
+    </div>
+    <div style="text-align: right;">
+      <small>Vorgelegt am</small>
+      <p style="font-size: 13px; color: #E5E5E7; margin-top: 4px;">Mo, 04.05.2026</p>
+    </div>
+  </div>
+
+  <div class="footer"><span>AEVUM × Hoffmann Eitle · Pitch 04.05.2026</span><span class="pageno"></span></div>
+</section>
+
+</body>
+</html>
