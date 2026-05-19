@@ -100,6 +100,7 @@ function FormSection() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -109,6 +110,10 @@ function FormSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!consent) {
+      setSubmitError('Bitte stimmen Sie der Datenverarbeitung zu (DSGVO).');
+      return;
+    }
     setSubmitError(null);
     setSubmitting(true);
     try {
@@ -117,6 +122,7 @@ function FormSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          consent: true,
           formStartedAt: formStartedAt.current,
         }),
       });
@@ -460,6 +466,32 @@ function FormSection() {
               </div>
             </motion.div>
           </div>
+
+          {/* DSGVO Consent */}
+          <motion.div
+            custom={11}
+            variants={fadeUp}
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
+            className="mt-8 pt-6 border-t border-white/10"
+          >
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+                required
+                className="mt-1 w-4 h-4 accent-[#F59E0B] cursor-pointer flex-shrink-0"
+              />
+              <span className="text-sm text-[#A1A1AA] group-hover:text-[#F8FAFC] transition-colors">
+                Ich willige ein, dass meine Daten zum Zweck der Audit-Erstellung und Kontaktaufnahme verarbeitet werden. Mehr in der{' '}
+                <a href="#/datenschutz" className="text-[#F59E0B] hover:underline">
+                  Datenschutzerklärung
+                </a>
+                . Widerruf jederzeit möglich (Art 7 Abs 3 DSGVO).
+              </span>
+            </label>
+          </motion.div>
 
           {/* Submit */}
           <motion.div

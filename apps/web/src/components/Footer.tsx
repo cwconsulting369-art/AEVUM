@@ -137,14 +137,19 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Copyright Bar */}
+        {/* Legal Links Bar */}
         <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-[#52525B]">
             &copy; 2026 {CONTACT.company}. Alle Rechte vorbehalten.
           </p>
-          <p className="text-xs text-[#52525B]">
-            Gebaut von {CONTACT.name}
-          </p>
+          <nav className="flex items-center gap-6">
+            <a href="#/datenschutz" className="text-xs text-[#52525B] hover:text-[#F59E0B] transition-colors">
+              Datenschutz
+            </a>
+            <a href="#/impressum" className="text-xs text-[#52525B] hover:text-[#F59E0B] transition-colors">
+              Impressum
+            </a>
+          </nav>
         </div>
       </div>
     </footer>

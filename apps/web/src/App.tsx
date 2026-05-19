@@ -9,6 +9,8 @@ const ContentWorkflows = lazy(() => import('./pages/services/ContentWorkflows'))
 const AIAutomation = lazy(() => import('./pages/services/AIAutomation'));
 const WorkflowAudit = lazy(() => import('./pages/WorkflowAudit'));
 const Cases = lazy(() => import('./pages/Cases'));
+const Datenschutz = lazy(() => import('./pages/Datenschutz'));
+const Impressum = lazy(() => import('./pages/Impressum'));
 
 // Legacy services from lennoxOS
 const LegacyAIAutomation = lazy(() => import('./pages/legacy/AIAutomation'));
@@ -47,6 +49,8 @@ const routeComponents: Record<string, React.ComponentType> = {
   '/services/ai-automation': AIAutomation,
   '/workflow-audit': WorkflowAudit,
   '/cases': Cases,
+  '/datenschutz': Datenschutz,
+  '/impressum': Impressum,
   // Legacy lennoxOS services
   '/legacy/ai-automation': LegacyAIAutomation,
   '/legacy/automation-audit': LegacyAutomationAudit,
