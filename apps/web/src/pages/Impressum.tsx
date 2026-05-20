@@ -15,9 +15,7 @@ export default function Impressum() {
           Impressum
         </h1>
 
-        <div className="bg-[#F59E0B]/10 border border-[#F59E0B]/30 px-4 py-3 mb-10 text-sm text-[#F59E0B]">
-          ⚠️ DRAFT — Vollständige Postanschrift und ggf. USt-ID werden in Kürze ergänzt.
-        </div>
+        <p className="text-sm text-[#52525B] mb-12">Stand: 20. Mai 2026</p>
 
         <article className="space-y-8 text-[#A1A1AA] leading-relaxed">
 
@@ -25,7 +23,8 @@ export default function Impressum() {
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Angaben gemäß § 5 DDG</h2>
             <p>
               Carlos Wrusch<br />
-              [Postanschrift folgt]<br />
+              Federteilstr. 2e<br />
+              86517 Wehringen<br />
               Deutschland
             </p>
           </section>
@@ -39,8 +38,21 @@ export default function Impressum() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Umsatzsteuer-ID</h2>
-            <p>[USt-ID folgt — alternativ: Kleinunternehmer gem. § 19 UStG]</p>
+            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Berufsbezeichnung</h2>
+            <p>
+              AI Fullstack Developer (selbstständig tätig, Bundesrepublik Deutschland).
+              Die Tätigkeit ist nicht reglementiert; es bestehen keine berufsständische
+              Kammer-Mitgliedschaft und keine Aufsichtsbehörde.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Umsatzsteuer</h2>
+            <p>
+              Als Kleinunternehmer im Sinne von § 19 UStG wird keine Umsatzsteuer
+              ausgewiesen. Eine Umsatzsteuer-Identifikationsnummer nach § 27a UStG
+              wird nicht geführt.
+            </p>
           </section>
 
           <section>
@@ -49,30 +61,57 @@ export default function Impressum() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Streitschlichtung</h2>
+            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">EU-Streitschlichtung</h2>
             <p>
               Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:{' '}
               <a href="https://ec.europa.eu/consumers/odr/" className="text-[#F59E0B] hover:underline" target="_blank" rel="noopener noreferrer">
                 https://ec.europa.eu/consumers/odr/
               </a>
               <br />
-              Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
+              Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer
+              Verbraucherschlichtungsstelle teilzunehmen.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Haftung für Inhalte</h2>
             <p>
-              Als Diensteanbieter sind wir gemäß § 7 Abs 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.
-              Nach §§ 8 bis 10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.
+              Als Diensteanbieter sind wir gemäß § 7 Abs 1 DDG für eigene Inhalte auf diesen
+              Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind
+              wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte
+              fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine
+              rechtswidrige Tätigkeit hinweisen.
+            </p>
+            <p>
+              Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach
+              den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung
+              ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung
+              möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir
+              diese Inhalte umgehend entfernen.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Haftung für Links</h2>
+            <p>
+              Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir
+              keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine
+              Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige
+              Anbieter oder Betreiber der Seiten verantwortlich.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Urheberrecht</h2>
             <p>
-              Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht.
-              Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.
+              Die durch den Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten
+              unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung,
+              Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes
+              bedürfen der schriftlichen Zustimmung des Verfassers.
+            </p>
+            <p>
+              Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen
+              Gebrauch gestattet.
             </p>
           </section>
 

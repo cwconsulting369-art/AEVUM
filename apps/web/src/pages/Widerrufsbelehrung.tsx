@@ -15,14 +15,10 @@ export default function Widerrufsbelehrung() {
           Widerrufs<span className="text-[#F59E0B]">belehrung</span>
         </h1>
 
-        <div className="bg-[#F59E0B]/10 border border-[#F59E0B]/30 px-4 py-3 mb-10 text-sm text-[#F59E0B]">
-          ⚠️ DRAFT — basierend auf gesetzlicher Musterbelehrung (§ 312f BGB i.V.m. Anlage 1 zu Art 246a EGBGB).
-          Anwaltliche Schlussprüfung empfohlen.
-        </div>
-
         <p className="text-sm text-[#52525B] mb-12">
-          Diese Belehrung gilt für Verbraucher im Sinne von § 13 BGB. B2B-Kunden haben kein
-          gesetzliches Widerrufsrecht — siehe AGB § 11 für freiwillige Stornierungsregeln.
+          Stand: 20. Mai 2026. Diese Belehrung gilt für Verbraucher im Sinne von § 13 BGB.
+          B2B-Kunden haben kein gesetzliches Widerrufsrecht — siehe AGB § 11 für freiwillige
+          Stornierungsregeln.
         </p>
 
         <article className="prose prose-invert max-w-none space-y-8 text-[#A1A1AA] leading-relaxed">
@@ -43,15 +39,16 @@ export default function Widerrufsbelehrung() {
             </p>
             <p className="bg-[#15161A] border border-white/10 p-4 my-4 font-mono text-sm">
               Carlos Wrusch<br />
-              [Postanschrift folgt im Impressum]<br />
-              E-Mail: cwconsulting369@gmail.com<br />
-              Telefon: +49 177 228 83 72
+              Federteilstr. 2e<br />
+              86517 Wehringen<br />
+              Deutschland<br />
+              E-Mail: cwconsulting369@gmail.com
             </p>
             <p>
               mittels einer eindeutigen Erklärung (z.B. ein mit der Post versandter Brief
-              oder E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren.
-              Sie können dafür das beigefügte Muster-Widerrufsformular verwenden, das jedoch
-              nicht vorgeschrieben ist.
+              oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen,
+              informieren. Sie können dafür das untenstehende Muster-Widerrufsformular
+              verwenden, das jedoch nicht vorgeschrieben ist.
             </p>
             <p>
               Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die
@@ -62,10 +59,10 @@ export default function Widerrufsbelehrung() {
           <section>
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Folgen des Widerrufs</h2>
             <p>
-              Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von
-              Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem
-              Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags
-              bei uns eingegangen ist.
+              Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir
+              von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab
+              dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses
+              Vertrags bei uns eingegangen ist.
             </p>
             <p>
               Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der
@@ -78,9 +75,9 @@ export default function Widerrufsbelehrung() {
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Vorzeitiges Erlöschen des Widerrufsrechts</h2>
             <p>
               Bei Verträgen zur Erbringung von Dienstleistungen erlischt das Widerrufsrecht
-              auch dann, wenn AEVUM die Dienstleistung vollständig erbracht hat und mit der
+              dann, wenn AEVUM die Dienstleistung vollständig erbracht hat und mit der
               Ausführung der Dienstleistung erst begonnen hat, nachdem Sie dazu Ihre
-              ausdrückliche Zustimmung gegeben haben und gleichzeitig Ihre Kenntnis davon
+              ausdrückliche Zustimmung gegeben und gleichzeitig Ihre Kenntnis davon
               bestätigt haben, dass Sie Ihr Widerrufsrecht bei vollständiger Vertragserfüllung
               durch AEVUM verlieren (§ 356 Abs 4 BGB).
             </p>
@@ -89,12 +86,12 @@ export default function Widerrufsbelehrung() {
           <section>
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Anteilige Vergütung bei vorzeitigem Widerruf</h2>
             <p>
-              Verlangen Sie, dass die Dienstleistung während der Widerrufsfrist beginnen soll,
-              und üben Sie das Widerrufsrecht anschließend aus, haben Sie uns einen
-              angemessenen Betrag zu zahlen, der dem Anteil der bis zu dem Zeitpunkt, zu dem
-              Sie uns von der Ausübung des Widerrufsrechts hinsichtlich dieses Vertrags
+              Verlangen Sie, dass die Dienstleistung während der Widerrufsfrist beginnen
+              soll, und üben Sie das Widerrufsrecht anschließend aus, haben Sie uns einen
+              angemessenen Betrag zu zahlen, der dem Anteil der bis zu dem Zeitpunkt, zu
+              dem Sie uns von der Ausübung des Widerrufsrechts hinsichtlich dieses Vertrags
               unterrichten, bereits erbrachten Dienstleistung im Vergleich zum Gesamtumfang
-              der im Vertrag vorgesehenen Dienstleistung entspricht.
+              der im Vertrag vorgesehenen Dienstleistung entspricht (§ 357a Abs 2 BGB).
             </p>
           </section>
 
@@ -105,7 +102,13 @@ export default function Widerrufsbelehrung() {
               aus und senden Sie es zurück:
             </p>
             <div className="bg-[#15161A] border border-white/10 p-6 my-4 text-sm">
-              <p className="mb-2">An: Carlos Wrusch, [Postanschrift], cwconsulting369@gmail.com</p>
+              <p className="mb-2">An:</p>
+              <p className="mb-2">
+                Carlos Wrusch<br />
+                Federteilstr. 2e<br />
+                86517 Wehringen<br />
+                E-Mail: cwconsulting369@gmail.com
+              </p>
               <hr className="border-white/10 my-3" />
               <p className="mb-2">Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über</p>
               <p className="mb-2">die Erbringung der folgenden Dienstleistung: ______________</p>
@@ -121,12 +124,12 @@ export default function Widerrufsbelehrung() {
           <section>
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Hinweis für Unternehmer (B2B)</h2>
             <p>
-              Diese Widerrufsbelehrung gilt ausschließlich für Verbraucher im Sinne von § 13 BGB.
-              Wenn Sie als Unternehmer (§ 14 BGB) bestellen, besteht kein gesetzliches
-              Widerrufsrecht. Für B2B-Stornierungen gilt § 11 unserer AGB:
+              Diese Widerrufsbelehrung gilt ausschließlich für Verbraucher im Sinne von
+              § 13 BGB. Wenn Sie als Unternehmer (§ 14 BGB) bestellen, besteht kein
+              gesetzliches Widerrufsrecht. Für B2B-Stornierungen gilt § 11 unserer AGB:
             </p>
             <ul className="list-disc pl-6 space-y-1">
-              <li>Innerhalb 14 Tagen nach Vertragsschluss UND vor Kickoff: volle Erstattung</li>
+              <li>Innerhalb von 14 Tagen nach Vertragsschluss UND vor Kickoff: volle Erstattung</li>
               <li>Nach Kickoff (Beginn der Leistungserbringung): anteilige Abrechnung nach Aufwand</li>
             </ul>
           </section>
