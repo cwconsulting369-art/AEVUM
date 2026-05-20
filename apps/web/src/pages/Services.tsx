@@ -115,8 +115,8 @@ function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-base md:text-lg text-[#A1A1AA] max-w-2xl mx-auto leading-relaxed"
         >
-          Vier leistungsstarke Services — ein integriertes System. Jeder Service ist ein Baustein
-          Ihres vollautomatisierten Wachstumsmotors.
+          Vier Services, die zusammen funktionieren. Einzeln nutzbar — als System
+          deutlich stärker. Was bei uns nicht funktioniert, sagen wir auch.
         </motion.p>
       </div>
     </section>

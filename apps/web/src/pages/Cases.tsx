@@ -76,18 +76,17 @@ const CASES: CaseStudy[] = [
   {
     tag: 'E-COMMERCE',
     name: 'Kevin — Ketolabs',
-    industry: 'E-Commerce OS',
+    industry: 'E-Commerce OS · Pilot 2026',
     challenge:
       'Manuelle Auftragsabwicklung, kein Lead-Nurturing, Werbebudget fliesst in unqualifizierten Traffic.',
     solution:
-      '6 KI-Agenten deployed: Lead-Qualifizierung, Kundensupport, Auftragsabwicklung, Ad-Optimierung, Retargeting und Analytics.',
+      'KI-Agenten-Stack im Aufbau: Lead-Qualifizierung, Kundensupport, Auftragsabwicklung, Ad-Optimierung, Retargeting und Analytics. Sechs Module deployed, finale Performance-Messung läuft.',
     kpis: [
-      { value: '\u20AC2.847', label: 'T\u00E4glicher Umsatz' },
-      { value: '3,45x', label: 'ROAS' },
-      { value: '6', label: 'KI-Agenten' },
+      { value: '6', label: 'AI-Module deployed' },
+      { value: 'Live', label: 'Performance-Tracking' },
+      { value: '2026', label: 'Pilot-Phase' },
     ],
-    quote:
-      'Ich bin vom Chaos-Management zum System gekommen, das sich selbst l\u00E4uft.',
+    quote: '',
     image: '/case-kevin.jpg',
     imageLeft: true,
     ctaText: 'STARTE DEIN SYSTEM',
@@ -95,18 +94,17 @@ const CASES: CaseStudy[] = [
   {
     tag: 'PERSONAL BRAND',
     name: 'Tim — Consulting & Coaching',
-    industry: 'Content Automation',
+    industry: 'Content Automation · Pilot 2026',
     challenge:
       'Keine Zeit f\u00FCr Content neben Klientenarbeit. Unregelm\u00E4ssiges Posting. Kein Lead-Capture-System.',
     solution:
       'Vollst\u00E4ndige Content-Automatisierung: Video \u2192 Blog + LinkedIn + Newsletter. Klienten-Workflow mit CRM-Integration.',
     kpis: [
-      { value: '0', label: 'Manuelle Posts/Woche' },
-      { value: '7+', label: 'Content Pieces/Woche' },
-      { value: '3x', label: 'Inbound Leads' },
+      { value: 'Pipeline', label: 'Setup deployed' },
+      { value: 'CRM', label: 'Integration aktiv' },
+      { value: '2026', label: 'Pilot-Phase' },
     ],
-    quote:
-      'Ich drehe ein Video, und das System erledigt den Rest.',
+    quote: '',
     image: '/case-tim.jpg',
     imageLeft: false,
     ctaText: 'BAUE DEINE PIPELINE',
@@ -114,48 +112,46 @@ const CASES: CaseStudy[] = [
   {
     tag: 'REAL ESTATE',
     name: 'Patrick — Property & Sales',
-    industry: 'Lead & CRM System',
+    industry: 'Lead & CRM System · Pilot 2026',
     challenge:
       'Leads gehen verloren. Kein zentrales System. Manuelles Follow-up bei jeder Anfrage.',
     solution:
       'Integriertes Lead-System: Anfragen-Erfassung, Auto-Qualifizierung, CRM-Routing, Follow-up-Sequenzen und Website-Relaunch.',
     kpis: [
-      { value: '100%', label: 'Lead-Capture-Rate' },
-      { value: '< 5min', label: 'Antwortzeit' },
-      { value: '1', label: 'Gesamtsystem' },
+      { value: 'Deployed', label: 'Vollständiges Setup' },
+      { value: 'Website', label: 'Relaunch live' },
+      { value: '2026', label: 'Pilot-Phase' },
     ],
-    quote:
-      'Jeder Lead hat jetzt einen Weg. Nichts geht verloren.',
+    quote: '',
     image: '/case-patrick.jpg',
     imageLeft: true,
     ctaText: 'ERFASSE JEDEN LEAD',
   },
   {
-    tag: 'B2B SALES',
-    name: 'Miguel — Energy Sector',
-    industry: 'Sales Automation',
+    tag: 'TECH-PARTNERSHIP',
+    name: 'Miguel — UtilityHub',
+    industry: 'B2B SaaS · Technischer Partner',
     challenge:
-      'Manuelles Leadlisten-Bauen. Inkonsistentes Outreach. Kein Tracking. SDRs zu teuer.',
+      'UtilityHub benötigt DSGVO-konforme Multi-Tenant-Plattform für Hausverwaltungen, Datenintegration aus mehreren Quellen, sicheres Hosting.',
     solution:
-      'Automatisierte Leadlisten-Generierung, personalisierte Outreach-Sequenzen, Meeting-Booking und Recruiting-Automatisierung.',
+      'Technische Partnerschaft mit HC Growth LTD: Hosting-Stack, DSGVO-Compliance-Layer, Datenintegration, Security-Audits.',
     kpis: [
-      { value: '10x', label: 'Outreach-Volumen' },
-      { value: '40%', label: 'Antwortrate' },
-      { value: '0', label: 'SDR-Stellen' },
+      { value: 'DSGVO', label: 'Compliance-Stack live' },
+      { value: 'Multi-Tenant', label: 'Architektur aktiv' },
+      { value: '2026', label: 'laufende Partnerschaft' },
     ],
-    quote:
-      'Wir haben unsere Pipeline skaliert \u2013 ohne unser Team zu skalieren.',
+    quote: '',
     image: '/case-miguel.jpg',
     imageLeft: false,
     ctaText: 'SKALIERE DEIN OUTREACH',
   },
 ];
 
-/* ── hero stat bar ─────────────────────────────────────────── */
+/* ── hero stat bar — ehrlich, keine Aggregat-Fantasie-Zahlen ─── */
 const HERO_STATS = [
-  { value: '\u20AC2.847', label: 'Umsatz/Tag' },
-  { value: '6', label: 'KI-Agenten' },
-  { value: '3,45x', label: 'ROAS' },
+  { value: '4', label: 'aktive Pilot-Cases' },
+  { value: '2026', label: 'erste Auswertungs-Periode' },
+  { value: '90 Tage', label: 'bis zu finalen KPIs' },
   { value: '4', label: 'Branchen' },
 ];
 
@@ -220,9 +216,9 @@ function HeroSection() {
         className="font-['Space_Grotesk'] font-light leading-[1.1] tracking-[-0.02em] max-w-[900px]"
         style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)', color: TEXT_PRIMARY }}
       >
-        Ergebnisse, die {" "}
+        Vier Pilot-Cases.{" "}
         <span style={{ color: ACCENT_AMBER }}>
-          {"\u00FCberzeugen"}
+          Offen dokumentiert.
         </span>
       </motion.h1>
 
@@ -233,7 +229,9 @@ function HeroSection() {
         className="font-['Inter'] text-[1rem] md:text-[1.125rem] font-normal leading-[1.75] max-w-[640px] mt-6"
         style={{ color: TEXT_SECONDARY }}
       >
-        4 deutsche Unternehmen. 4 Systeme deployed. Messbare Ergebnisse in jedem Fall.
+        Wir starten 2026 mit den ersten Kunden. Statt aufgeblasener Statistiken
+        zeigen wir den realen Stand jedes Projekts \u2014 was l\u00E4uft, was wir liefern,
+        was noch nicht ausgewertet ist. Finale KPIs folgen nach 90 Tagen Laufzeit.
       </motion.p>
 
       {/* Stats bar */}
@@ -367,16 +365,25 @@ function CaseSection({
         ))}
       </div>
 
-      {/* Quote */}
-      <blockquote
-        className="font-['JetBrains_Mono'] text-[0.9rem] italic leading-[1.6] mb-8 pl-4"
-        style={{
-          color: TEXT_SECONDARY,
-          borderLeft: `2px solid ${ACCENT_AMBER}`,
-        }}
-      >
-        &ldquo;{study.quote}&rdquo;
-      </blockquote>
+      {/* Quote — only render if we have a real customer quote */}
+      {study.quote ? (
+        <blockquote
+          className="font-['JetBrains_Mono'] text-[0.9rem] italic leading-[1.6] mb-8 pl-4"
+          style={{
+            color: TEXT_SECONDARY,
+            borderLeft: `2px solid ${ACCENT_AMBER}`,
+          }}
+        >
+          &ldquo;{study.quote}&rdquo;
+        </blockquote>
+      ) : (
+        <p
+          className="font-['JetBrains_Mono'] text-[0.8rem] uppercase tracking-[0.08em] mb-8 pl-4"
+          style={{ color: TEXT_MUTED, borderLeft: `2px solid ${BORDER_SUBTLE}` }}
+        >
+          Kunden-Statement folgt nach Pilot-Auswertung — wir veröffentlichen erst nach Freigabe.
+        </p>
+      )}
 
       {/* CTA */}
       <a

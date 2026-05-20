@@ -67,7 +67,8 @@ function HeroSection() {
           className="text-base md:text-lg text-[#A1A1AA] max-w-2xl mx-auto leading-relaxed"
         >
           Füllen Sie das Formular aus. Wir analysieren Ihre Prozesse und senden Ihnen
-          innerhalb von 48 Stunden eine personalisierte Automatisierungs-Roadmap.
+          in der Regel innerhalb von 2 bis 3 Werktagen eine personalisierte Automatisierungs-Roadmap —
+          ohne Verkaufsgespräch-Druck, kostenlos.
         </motion.p>
       </div>
     </section>

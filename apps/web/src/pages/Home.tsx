@@ -213,9 +213,9 @@ function ProblemSection() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   const stats = [
-    { icon: Clock, value: '60%+', label: 'manuelle Arbeit' },
-    { icon: Zap, value: '5+', label: 'separate Tools' },
-    { icon: Target, value: '0%', label: 'System-Denken' },
+    { icon: Clock, value: 'Manuell', label: 'wiederkehrende Aufgaben' },
+    { icon: Zap, value: 'Verteilt', label: 'Tools ohne gemeinsame Datenbasis' },
+    { icon: Target, value: 'Lokal', label: 'Optimierung statt System-Sicht' },
   ];
 
   return (
@@ -234,9 +234,9 @@ function ProblemSection() {
             Zeit und Geld versickern
           </h2>
           <p className="text-[#A1A1AA] text-lg max-w-2xl leading-relaxed">
-            Die meisten Unternehmen verschwenden 40% ihrer Woche mit repetitiven Aufgaben,
-            die eine Maschine erledigen sollte. Manuelle Prozesse, isolierte Tools und
-            fehlende Integration kosten nicht nur Zeit — sie kosten Wachstum.
+            Was wir in nahezu jedem Pitch sehen: viele wiederkehrende Aufgaben werden manuell
+            erledigt, Tools sind nicht verbunden, Daten leben in Insellösungen. Nicht weil
+            niemand sich kümmert — sondern weil eine durchgehende Systemarchitektur fehlt.
           </p>
         </motion.div>
 
@@ -437,34 +437,37 @@ function ProofSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
+  // Pilot-Cases — aktive 2026er Phase. Endgültige KPIs werden nach 90 Tagen
+  // Laufzeit transparent dokumentiert. Wir vermeiden absolute Zahlen-Claims
+  // solange wir noch in der Auswertungsphase sind.
   const cases = [
     {
       name: 'Kevin',
       company: 'Ketolabs',
       industry: 'E-Commerce',
-      kpi: '€2.847 / Tag',
-      desc: '6 AI Agents, 3.45x ROAS — vollautomatisiertes E-Commerce-System.',
+      kpi: '6 AI Agents',
+      desc: 'KI-Agenten-Stack für Performance-Marketing und Funnel — laufender Pilot, KPI-Reporting in Vorbereitung.',
     },
     {
       name: 'Tim',
       company: 'Personal Brand',
       industry: 'Personal Brand',
-      kpi: '15h / Woche',
-      desc: 'Volle Content-Automatisierung — von Idee bis Publishing ohne manuellen Aufwand.',
+      kpi: 'Content-Pipeline',
+      desc: 'Automatisierter Content-Workflow von Idee bis Publishing — Pilot-Phase 2026.',
     },
     {
       name: 'Patrick',
       company: 'Immobilien',
       industry: 'Real Estate',
-      kpi: '40+ Leads / Woche',
-      desc: 'Lead-, Anfrage-, Website- und CRM-System — vollständig deployed.',
+      kpi: 'Lead + CRM-Setup',
+      desc: 'Anfrage-, Website- und CRM-System — Setup ausgeliefert, Lead-Volumen-Reporting läuft an.',
     },
     {
       name: 'Miguel',
-      company: 'B2B Sales',
-      industry: 'B2B Sales',
-      kpi: '10x Outreach',
-      desc: 'Automatisierte Lead-Listen, Outreach und Recruiting-Pipeline.',
+      company: 'UtilityHub',
+      industry: 'Energie-Dienstleistung',
+      kpi: 'Tech-Partner',
+      desc: 'Technischer Partner für UtilityHub — Infrastruktur, DSGVO-Stack, Datenintegration.',
     },
   ];
 
@@ -478,11 +481,16 @@ function ProofSection() {
           className="text-center mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
-            Der Beweis
+            Aktive Pilot-Cases
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
-            Ergebnisse, die überzeugen
+            Vier laufende Projekte, ehrlich dokumentiert
           </h2>
+          <p className="text-[#A1A1AA] text-base max-w-2xl mx-auto leading-relaxed mt-4">
+            Wir sind 2026 mit den ersten Kunden in der Pilot-Phase. Statt
+            ausgedachter Statistiken zeigen wir den realen Stand — finale KPIs
+            werden nach 90 Tagen Laufzeit transparent dokumentiert.
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -510,7 +518,7 @@ function ProofSection() {
               <div className="mb-4">
                 <p className="text-3xl font-light text-gradient">{c.kpi}</p>
                 <p className="text-xs text-[#52525B] font-mono uppercase tracking-wider mt-1">
-                  gespart / erreicht
+                  Pilot-Phase 2026
                 </p>
               </div>
 
