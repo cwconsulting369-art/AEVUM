@@ -15,15 +15,12 @@ Run new files **in numeric order**. All migrations are idempotent (`IF NOT EXIST
 | 002 | `002_security_events.sql` | yes | Blocked attempts log |
 | 003 | `003_dsgvo.sql` | yes | B1-B3 baseline: consent_log, erasure_log, audits.consent_version |
 | 004 | `004_orders.sql` | yes (2026-05-20) | Stripe shop orders + pilot_slots singleton |
+| 005 | `005_dsgvo_audit_logs.sql` | yes (2026-05-20) | `audit_logs` + trigger function + 4 triggers (audits/orders/consent_log/erasure_log) |
+| 006 | `006_dsgvo_extend.sql` | yes (2026-05-20) | `dsgvo_settings`, `dsgvo_deletion_due` cols, consent_log.order_id FK, explicit RLS policies |
 
-## Pending (paste in Supabase SQL Editor)
+## Pending
 
-| # | File | Adds | Risk | Reversible? |
-|---|---|---|---|---|
-| 005 | `005_dsgvo_audit_logs.sql` | `audit_logs` table + `audit_pii_change()` trigger function + triggers on audits/orders/consent_log/erasure_log | Low — additive. Triggers fire on writes only. | yes (drop triggers + table) |
-| 006 | `006_dsgvo_extend.sql` | `dsgvo_settings` singleton, `dsgvo_deletion_due` cols on audits+orders, `consent_log.order_id` FK, extended `erasure_log` cols, explicit "service-role only" RLS policies on audits/security_events/consent_log/erasure_log | Low — `IF NOT EXISTS` everywhere. Tightens RLS (anon already had no policies, so no behavior change for public). | yes (drop policies + cols) |
-
-**Order matters:** 005 must run before 006 only because 006 references no new tables from 005 — they are technically independent, but numeric order is recommended for clarity.
+_None — all DSGVO Phase B migrations applied._
 
 ---
 
