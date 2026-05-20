@@ -175,25 +175,34 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="flex flex-col items-center justify-center gap-4"
         >
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full max-w-lg">
+            <div className="sm:flex-1">
+              <BuyButton
+                tier="S"
+                label="Audit starten — 3.900 €"
+                variant="primary"
+              />
+            </div>
+            <a
+              href={CONTACT.calendly}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary flex items-center justify-center gap-2 sm:flex-1"
+            >
+              <Calendar size={18} />
+              Call buchen
+            </a>
+          </div>
           <a
             href={CONTACT.whatsapp}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary flex items-center gap-2"
+            className="inline-flex items-center gap-2 text-sm text-[#A1A1AA] hover:text-[#F59E0B] underline-offset-4 hover:underline transition-colors"
           >
-            <MessageCircle size={18} />
-            Jetzt schreiben
-          </a>
-          <a
-            href={CONTACT.calendly}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary flex items-center gap-2"
-          >
-            <Calendar size={18} />
-            Call buchen
+            <MessageCircle size={14} />
+            Direkt schreiben →
           </a>
         </motion.div>
       </div>

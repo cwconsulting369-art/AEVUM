@@ -21,6 +21,7 @@ import {
   Globe2,
 } from 'lucide-react';
 import CONTACT from '../config/contact';
+import BuyButton from '../components/BuyButton';
 
 /* ──────────────────────── Animation helpers ──────────────────────── */
 
@@ -316,6 +317,117 @@ function LegacyServicesSection() {
   );
 }
 
+/* ──────────────────────── Direct Buy Section ──────────────────────── */
+
+const directBuyTiers = [
+  {
+    tier: 'S' as const,
+    name: 'Start',
+    price: '3.900 €',
+    period: 'einmalig · netto',
+    desc: 'Workflow-Audit + Automatisierungs-Roadmap. Klarer Plan vor dem Build.',
+    cta: 'Audit starten',
+    highlighted: false,
+  },
+  {
+    tier: 'M' as const,
+    name: 'Wachstum',
+    price: '12.900 €',
+    period: 'einmalig · netto',
+    desc: '1–2 Use Cases vollständig implementiert. 4–8 Wochen Lieferzeit.',
+    cta: 'Wachstum buchen',
+    highlighted: true,
+  },
+  {
+    tier: 'L' as const,
+    name: 'Skalierung',
+    price: '4.900 €',
+    period: 'pro Monat · netto',
+    desc: 'Laufende Optimierung, Monitoring und neue Use Cases on-demand.',
+    cta: 'Skalieren',
+    highlighted: false,
+  },
+];
+
+function DirectBuySection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  return (
+    <section className="px-6 lg:px-16 py-24" ref={ref}>
+      <div className="max-w-[1440px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-16"
+        >
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+            Direkt-Kauf
+          </span>
+          <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-4">
+            Schon entschieden? Direkt buchen.
+          </h2>
+          <p className="text-[#A1A1AA] text-base max-w-2xl mx-auto leading-relaxed">
+            Festpreise, Stripe-Checkout, sofortiger Start. Wenn du lieber erst reden willst —
+            der Call-Button steht weiter unten.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {directBuyTiers.map((pkg, i) => (
+            <motion.div
+              key={pkg.tier}
+              custom={i}
+              variants={fadeUp}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+              className={`relative p-8 border ${
+                pkg.highlighted
+                  ? 'bg-[#15161A] border-[#F59E0B]/40 scale-[1.02]'
+                  : 'bg-[#15161A] border-white/10 hover:border-[#F59E0B]/20'
+              } transition-all hover:-translate-y-1`}
+            >
+              {pkg.highlighted && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#F59E0B] text-black text-[0.65rem] font-mono uppercase tracking-wider px-4 py-1">
+                  Empfohlen
+                </span>
+              )}
+
+              <div className="mb-4">
+                <span className="font-mono text-3xl font-light text-[#F59E0B]">{pkg.tier}</span>
+                <h3 className="text-xl font-medium mt-2">{pkg.name}</h3>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-3xl font-light">{pkg.price}</p>
+                <p className="text-sm text-[#52525B] font-mono">{pkg.period}</p>
+              </div>
+
+              <p className="text-sm text-[#A1A1AA] leading-relaxed mb-8 min-h-[3.5rem]">
+                {pkg.desc}
+              </p>
+
+              <BuyButton
+                tier={pkg.tier}
+                label={pkg.cta}
+                variant={pkg.highlighted ? 'primary' : 'secondary'}
+                showCallOption={pkg.tier !== 'S'}
+                calendlyUrl={CONTACT.calendly}
+              />
+            </motion.div>
+          ))}
+        </div>
+
+        <p className="text-xs text-[#52525B] text-center mt-8 max-w-2xl mx-auto">
+          Pilot-Programm 2026 aktiv: −30 % gegen Testimonial-Video nach 90 Tagen.
+          Wird im Checkout automatisch berücksichtigt, solange Slots frei sind.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 /* ──────────────────────── CTA Banner ──────────────────────── */
 
 function CTABanner() {
@@ -379,6 +491,7 @@ export default function Services() {
       <HeroSection />
       <ServiceCards />
       <ProcessSection />
+      <DirectBuySection />
       <LegacyServicesSection />
       <CTABanner />
     </div>
