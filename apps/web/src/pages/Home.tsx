@@ -168,7 +168,7 @@ function HeroSection() {
           className="inline-flex items-center gap-2 px-4 py-2 mb-10 rounded-full border border-[#F59E0B]/30 bg-[#F59E0B]/5 text-[#F59E0B] text-xs md:text-sm font-mono tracking-wider uppercase"
         >
           <span className="w-2 h-2 rounded-full bg-[#F59E0B] animate-pulse" />
-          Pilot-Programm 2026 · −30 % für die ersten 10 Kunden
+          Pilot-Programm 2026 · −30 % gegen Testimonial-Video nach 90 Tagen
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -618,8 +618,9 @@ function PackagesSection() {
           </h2>
           <p className="text-[#A1A1AA] text-base max-w-2xl mx-auto leading-relaxed">
             Festpreise. Was du siehst zahlst du. Upsells sind optional und nie versteckt.
-            Die ersten 10 Pilot-Kunden bekommen 30 % Rabatt — im Tausch gegen ehrliches
-            Feedback und Veröffentlichung als Case nach 90 Tagen Laufzeit.
+            Die ersten 10 Pilot-Kunden bekommen 30 % Rabatt — im Tausch gegen ein
+            aussagekräftiges Testimonial-Video mit echten Ergebnis-Daten nach 90 Tagen
+            Laufzeit. Wir tauschen Preis gegen Vertrauen, das in beide Richtungen messbar wird.
           </p>
         </motion.div>
 
