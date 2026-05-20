@@ -98,7 +98,7 @@ function HeroSection() {
           transition={{ duration: 0.6 }}
           className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block"
         >
-          Unsangebot
+          Unser Angebot
         </motion.span>
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
