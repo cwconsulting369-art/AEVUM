@@ -164,7 +164,7 @@ export default function AGB() {
             <p>
               AEVUM strebt eine Verfügbarkeit der gehosteten Systeme von 99 % im Jahresmittel
               an, ohne Anspruch auf ständige Erreichbarkeit. Geplante Wartungsfenster und
-              Störungen bei Sub-Dienstleistern (Vercel, Supabase, Cloudflare, Stripe, Resend
+              Störungen bei Sub-Dienstleistern (Vercel, Supabase, Cloudflare, Stripe
               etc.) werden nicht in die Verfügbarkeitsberechnung einbezogen.
             </p>
           </section>

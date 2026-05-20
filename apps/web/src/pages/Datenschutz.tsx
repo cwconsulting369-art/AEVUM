@@ -108,12 +108,6 @@ export default function Datenschutz() {
                     <td className="px-3 py-2 border-b border-white/10">AVV + EU-SCCs, PCI-DSS Level 1</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2 border-b border-white/10">Resend (Resend, Inc.)</td>
-                    <td className="px-3 py-2 border-b border-white/10">Transaktions-E-Mail (Bestätigungen, Rechnungen)</td>
-                    <td className="px-3 py-2 border-b border-white/10">USA</td>
-                    <td className="px-3 py-2 border-b border-white/10">AVV + EU-SCCs</td>
-                  </tr>
-                  <tr>
                     <td className="px-3 py-2">Telegram Messenger Inc.</td>
                     <td className="px-3 py-2">Interne Admin-Benachrichtigung mit minimierten Auszügen (keine Rohdaten)</td>
                     <td className="px-3 py-2">VAE / global</td>
