@@ -161,11 +161,14 @@ checkoutRouter.post('/create-session', async (req, res) => {
   try {
     session = await stripe.checkout.sessions.create({
       mode: pkg.type === 'recurring' ? 'subscription' : 'payment',
-      payment_method_types: ['card', 'sepa_debit'],
+      // payment_method_types weggelassen → Stripe nutzt automatically alle im Dashboard aktivierten Methoden.
+      // Carlos kann SEPA/Klarna/Sofort später in Stripe-Dashboard → Settings → Payment Methods aktivieren ohne Code-Change.
       line_items: lineItems,
       customer_email: f.customerEmail,
-      allow_promotion_codes: !couponId,
-      discounts: couponId ? [{ coupon: couponId }] : undefined,
+      ...(couponId
+        ? { discounts: [{ coupon: couponId }] }
+        : { allow_promotion_codes: true }
+      ),
       success_url: `${SITE_BASE}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${SITE_BASE}/services?checkout=cancelled`,
       metadata: {
