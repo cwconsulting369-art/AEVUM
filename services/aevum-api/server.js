@@ -86,14 +86,34 @@ const auditSubmitLimiter = rateLimit({
     error: 'rate_limit_audit',
     hint: 'Maximal 3 Anfragen pro Stunde. Bitte direkt per WhatsApp oder Email kontaktieren.'
   },
-  skip: (req) => req.method !== 'POST'  // only limit POST, not GET
+  // Only limit POST /submit — not /export, /erase, /withdraw-consent, /
+  skip: (req) => req.method !== 'POST' || req.path !== '/submit'
+});
+
+// DSGVO self-service limiter — 5 requests / 10 min / IP for export/erase/withdraw
+const dsgvoLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: clientIp,
+  message: {
+    ok: false,
+    error: 'rate_limit_dsgvo',
+    hint: 'Maximal 5 DSGVO-Anfragen pro 10 Minuten. Bei dringendem Anliegen: dsgvo@aevum-system.de'
+  },
+  skip: (req) => {
+    if (req.method !== 'POST') return true;
+    const p = req.path;
+    return !(p === '/export' || p === '/erase' || p === '/withdraw-consent');
+  }
 });
 
 // Routes
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, service: 'aevum-api', uptime: process.uptime() });
 });
-app.use('/api/audit', auditSubmitLimiter, auditRouter);
+app.use('/api/audit', auditSubmitLimiter, dsgvoLimiter, auditRouter);
 
 // Checkout — create-session + pilot-status. Webhook is mounted above
 // with raw-body parser before express.json().

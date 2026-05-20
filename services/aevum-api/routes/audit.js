@@ -149,62 +149,227 @@ auditRouter.post('/submit', async (req, res) => {
   return res.json({ ok: true, id: inserted?.id });
 });
 
-// ─── DSGVO Art 15 — Recht auf Auskunft ───
-// POST /api/audit/export { email, secret }
-// (Secret = simple token shared with Carlos — for E-Mail-Verified Self-Service later)
+// Helper: maskEmail for TG notifications (PII-min)
+function maskEmail(email) {
+  return (email || '').replace(/^(.).+(@.+)$/, '$1***$2');
+}
+
+// Helper: collect EVERY PII row across all tables for a given email
+// Used by both export (Art 15/20) and erasure (Art 17) endpoints
+async function collectAllPiiByEmail(email) {
+  const cleanEmail = clean(email).toLowerCase();
+  const enc = encodeURIComponent(cleanEmail);
+
+  const [audits, orders, consents, erasures, secEvents] = await Promise.all([
+    supabase.select('audits', `?email=eq.${enc}&select=*`),
+    supabase.select('orders', `?customer_email=eq.${enc}&select=*`),
+    supabase.select('consent_log', `?email=eq.${enc}&select=*`),
+    supabase.select('erasure_log', `?email=eq.${enc}&select=*`),
+    // security_events stored payload_summary may contain email — best effort
+    supabase.select('security_events', `?payload_summary=ilike.*${enc}*&select=id,event_type,created_at,reason,ip_anonymized`)
+  ]);
+
+  return {
+    email: cleanEmail,
+    audits: Array.isArray(audits.data) ? audits.data : [],
+    orders: Array.isArray(orders.data) ? orders.data : [],
+    consent_log: Array.isArray(consents.data) ? consents.data : [],
+    erasure_log: Array.isArray(erasures.data) ? erasures.data : [],
+    security_events: Array.isArray(secEvents.data) ? secEvents.data : []
+  };
+}
+
+// ─── DSGVO Art 15/20 — Recht auf Auskunft + Datenportabilität ───
+// POST /api/audit/export { email }
+// Returns full JSON dump of all PII rows for that email.
+// (For unverified self-service: still log + notify Carlos. Carlos can
+//  verify ownership manually if disputed — webform is rate-limited.)
 auditRouter.post('/export', async (req, res) => {
   const { email } = req.body || {};
   if (!email || typeof email !== 'string') {
     return res.status(400).json({ ok: false, error: 'email_required' });
   }
-  // Currently Carlos handles this manually — log the request + notify
-  const emailMasked = email.replace(/^(.).+(@.+)$/, '$1***$2');
-  notifyCarlos(`📨 *DSGVO Auskunfts-Request*\nEmail: \`${emailMasked}\`\nVolle Adresse in Supabase consent_log\nManuell bearbeiten + binnen 30 Tagen antworten (Art 15 DSGVO)`);
-  return res.json({ ok: true, message: 'Anfrage erhalten. Wir bearbeiten Ihre Auskunfts-Anfrage binnen 30 Tagen gemäß Art 15 DSGVO.' });
+
+  const ip = clientIp(req);
+  const ua = req.get('user-agent') || '';
+
+  const dump = await collectAllPiiByEmail(email);
+  const totalRows =
+    dump.audits.length + dump.orders.length +
+    dump.consent_log.length + dump.erasure_log.length +
+    dump.security_events.length;
+
+  // Log export request
+  supabase.insert('export_requests', {
+    email: dump.email,
+    requested_via: 'api',
+    status: 'completed',
+    completed_at: new Date().toISOString(),
+    ip,
+    user_agent: ua,
+    notes: `auto-export: ${totalRows} rows`
+  }).catch(() => { /* table may not exist yet — silent */ });
+
+  notifyCarlos(
+    `📨 *DSGVO Art 15 Export ausgeführt*\nEmail: \`${maskEmail(dump.email)}\`\nRows: ${totalRows} (audits=${dump.audits.length}, orders=${dump.orders.length}, consents=${dump.consent_log.length})\n_JSON wurde an Anfrager zurückgegeben._`
+  );
+
+  return res.json({
+    ok: true,
+    message: 'Auskunft gemäß Art 15/20 DSGVO. Diese Antwort enthält alle bei uns gespeicherten personenbezogenen Daten.',
+    generated_at: new Date().toISOString(),
+    consent_text_version: CONSENT_VERSION,
+    data: dump
+  });
 });
 
-// ─── DSGVO Art 17 — Recht auf Löschung ───
+// ─── DSGVO Art 17 — Recht auf Löschung ──────────────────────────
 // POST /api/audit/erase { email }
+// Cascades across audits + orders + consent_log + erasure_log marker
 auditRouter.post('/erase', async (req, res) => {
   const { email } = req.body || {};
   if (!email || typeof email !== 'string') {
     return res.status(400).json({ ok: false, error: 'email_required' });
   }
   const cleanEmail = clean(email).toLowerCase();
+  const enc = encodeURIComponent(cleanEmail);
+  const ip = clientIp(req);
+  const ua = req.get('user-agent') || '';
 
-  // Delete audits matching this email
-  const { ok: ok1, data: deletedAudits } = await supabase.select('audits', `email=eq.${encodeURIComponent(cleanEmail)}&select=id`);
-  const auditsCount = Array.isArray(deletedAudits) ? deletedAudits.length : 0;
+  // Count before delete
+  const [auditsResult, ordersResult, consentsResult] = await Promise.all([
+    supabase.select('audits', `?email=eq.${enc}&select=id`),
+    supabase.select('orders', `?customer_email=eq.${enc}&select=id,status`),
+    supabase.select('consent_log', `?email=eq.${enc}&select=id`)
+  ]);
 
+  const auditsCount = Array.isArray(auditsResult.data) ? auditsResult.data.length : 0;
+  const ordersAll   = Array.isArray(ordersResult.data) ? ordersResult.data : [];
+  const consentsCount = Array.isArray(consentsResult.data) ? consentsResult.data.length : 0;
+
+  // ── Audits: hard delete (lead data, no legal retention required) ──
   if (auditsCount > 0) {
-    // Cascade delete will also clear consent_log (via FK on delete cascade)
-    await fetch(`${process.env.SUPABASE_URL}/rest/v1/audits?email=eq.${encodeURIComponent(cleanEmail)}`, {
-      method: 'DELETE',
-      headers: {
-        apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`
-      }
-    });
+    await supabase.delete('audits', `?email=eq.${enc}`);
   }
 
-  // Log the erasure for audit trail
+  // ── Orders: HGB §147 = 10y retention for PAID. Only delete pending/cancelled/failed.
+  //    For paid orders: pseudonymize PII (keep accounting record).
+  const ordersDeletable = ordersAll.filter(o => o.status !== 'paid' && o.status !== 'refunded');
+  const ordersPseudo    = ordersAll.filter(o => o.status === 'paid' || o.status === 'refunded');
+  let ordersDeleted = 0;
+  let ordersPseudonymized = 0;
+
+  if (ordersDeletable.length > 0) {
+    const ids = ordersDeletable.map(o => o.id).join(',');
+    await supabase.delete('orders', `?id=in.(${ids})`);
+    ordersDeleted = ordersDeletable.length;
+  }
+
+  if (ordersPseudo.length > 0) {
+    const ids = ordersPseudo.map(o => o.id).join(',');
+    await supabase.update(
+      'orders',
+      `?id=in.(${ids})`,
+      {
+        customer_email: `erased-${Date.now()}@dsgvo.local`,
+        customer_name: null,
+        customer_company: null,
+        ip: null,
+        user_agent: null,
+        metadata: { dsgvo_erased_at: new Date().toISOString() }
+      }
+    );
+    ordersPseudonymized = ordersPseudo.length;
+  }
+
+  // ── consent_log: hard delete remnants (some may already cascade from audits) ──
+  await supabase.delete('consent_log', `?email=eq.${enc}`);
+
+  // ── Log the erasure for audit trail ──
   await supabase.insert('erasure_log', {
     email: cleanEmail,
     requested_by: 'self',
     audits_deleted_count: auditsCount,
-    notes: 'via POST /api/audit/erase'
+    consents_deleted_count: consentsCount,
+    orders_deleted_count: ordersDeleted,
+    ip,
+    user_agent: ua,
+    notes: `via POST /api/audit/erase; ${ordersPseudonymized} paid orders pseudonymized (HGB §147)`
   });
 
-  const emailMaskedErase = cleanEmail.replace(/^(.).+(@.+)$/, '$1***$2');
-  notifyCarlos(`🗑 *DSGVO Löschungs-Request ausgeführt*\nEmail: \`${emailMaskedErase}\`\nAudits gelöscht: ${auditsCount}\nLog in erasure_log Tabelle.`);
+  notifyCarlos(
+    `🗑 *DSGVO Art 17 Löschung ausgeführt*\nEmail: \`${maskEmail(cleanEmail)}\`\n• audits: ${auditsCount} gelöscht\n• orders: ${ordersDeleted} gelöscht, ${ordersPseudonymized} pseudonymisiert (HGB §147)\n• consents: ${consentsCount}\nLog in erasure_log.`
+  );
 
   return res.json({
     ok: true,
     message: 'Ihre Daten wurden gelöscht. Diese Aktion wurde protokolliert (DSGVO Art 17).',
-    audits_deleted: auditsCount
+    audits_deleted: auditsCount,
+    orders_deleted: ordersDeleted,
+    orders_pseudonymized: ordersPseudonymized,
+    consents_deleted: consentsCount,
+    notice: ordersPseudonymized > 0
+      ? `Bezahlte Bestellungen wurden gemäß HGB §147 (10 Jahre Aufbewahrung) pseudonymisiert statt gelöscht. Personenbezogene Felder sind entfernt.`
+      : undefined
+  });
+});
+
+// ─── DSGVO Art 7(3) — Widerruf der Einwilligung ─────────────────
+// POST /api/audit/withdraw-consent { email, consent_type? }
+// Marks existing consent rows as withdrawn (preserves audit trail).
+// Different from erase: data stays, but the consent legal-basis is revoked.
+auditRouter.post('/withdraw-consent', async (req, res) => {
+  const { email, consent_type } = req.body || {};
+  if (!email || typeof email !== 'string') {
+    return res.status(400).json({ ok: false, error: 'email_required' });
+  }
+  const cleanEmail = clean(email).toLowerCase();
+  const enc = encodeURIComponent(cleanEmail);
+  const ip = clientIp(req);
+  const ua = req.get('user-agent') || '';
+
+  // Build filter: by email + optional consent_type + only not-yet-withdrawn
+  let filter = `?email=eq.${enc}&withdrawn_at=is.null`;
+  if (consent_type && typeof consent_type === 'string') {
+    filter += `&consent_type=eq.${encodeURIComponent(consent_type)}`;
+  }
+
+  const existingResult = await supabase.select('consent_log', filter + '&select=id,consent_type');
+  const existing = Array.isArray(existingResult.data) ? existingResult.data : [];
+
+  if (existing.length === 0) {
+    return res.json({
+      ok: true,
+      message: 'Keine aktiven Einwilligungen unter dieser E-Mail gefunden.',
+      withdrawn: 0
+    });
+  }
+
+  // Mark them withdrawn
+  await supabase.update('consent_log', filter, {
+    withdrawn_at: new Date().toISOString()
+  });
+
+  notifyCarlos(
+    `🚫 *DSGVO Art 7(3) Widerruf*\nEmail: \`${maskEmail(cleanEmail)}\`\nEinwilligungen widerrufen: ${existing.length}${consent_type ? ` (type=${consent_type})` : ''}\n_Daten bleiben (für Bearbeitung laufender Anfragen), aber Einwilligung ist revoked._`
+  );
+
+  return res.json({
+    ok: true,
+    message: 'Ihre Einwilligung wurde widerrufen. Wir verarbeiten keine neuen Daten mehr auf dieser Grundlage.',
+    withdrawn: existing.length,
+    hint: 'Für komplette Löschung Ihrer Daten nutzen Sie bitte den Endpoint /api/audit/erase oder kontaktieren Sie uns direkt.'
   });
 });
 
 auditRouter.get('/', async (_req, res) => {
-  res.json({ ok: true, message: 'audit endpoint — POST /submit to create' });
+  res.json({
+    ok: true,
+    endpoints: {
+      submit: 'POST /submit',
+      export: 'POST /export { email }       — Art 15/20',
+      erase: 'POST /erase { email }         — Art 17',
+      withdraw_consent: 'POST /withdraw-consent { email, consent_type? } — Art 7(3)'
+    }
+  });
 });

@@ -3,8 +3,9 @@ import { z } from 'zod';
 import { stripe, PACKAGES, getPriceId, PILOT_COUPON_ID_ENV } from '../lib/stripe.js';
 import { supabase } from '../lib/supabase.js';
 import { notifyCarlos } from '../lib/tg-notify.js';
-import { clean } from '../lib/security.js';
+import { clean, scanPayload } from '../lib/security.js';
 import { logBlock } from '../lib/monitor.js';
+import { CONSENT_VERSION } from './audit.js';
 
 export const checkoutRouter = Router();
 
@@ -24,6 +25,10 @@ const CheckoutSchema = z.object({
   consent: z.literal(true, {
     errorMap: () => ({ message: 'Einwilligung zur Datenverarbeitung erforderlich' }),
   }),
+  // honeypot — must stay empty; bots fill it
+  website: z.string().max(500).optional().default(''),
+  // time-check — must be > 1500ms between form-open and submit (BuyButton uses 1500)
+  formStartedAt: z.number().optional(),
 });
 
 function clientIp(req) {
@@ -57,6 +62,37 @@ checkoutRouter.post('/create-session', async (req, res) => {
     });
   }
   const f = parsed.data;
+
+  // ─── Honeypot — silent fail (bot doesn't learn it was detected) ───
+  if (f.website && f.website.length > 0) {
+    logBlock({ ...ctx, type: 'honeypot_triggered', reason: `website-field filled: ${f.website.slice(0, 100)}` });
+    return res.json({ ok: true, url: '/services?checkout=cancelled' });
+  }
+
+  // ─── Time-check ───
+  if (f.formStartedAt) {
+    const elapsed = Date.now() - f.formStartedAt;
+    if (elapsed < 1500) {
+      logBlock({ ...ctx, type: 'too_fast', reason: `submitted in ${elapsed}ms (min 1500)` });
+      return res.json({ ok: true, url: '/services?checkout=cancelled' });
+    }
+  }
+
+  // ─── Pattern-scan ───
+  const attackHits = scanPayload({
+    customerName: f.customerName || '',
+    customerCompany: f.customerCompany || '',
+    customerEmail: f.customerEmail
+  });
+  if (attackHits.length > 0) {
+    logBlock({
+      ...ctx,
+      type: 'attack_pattern',
+      reason: attackHits.map(h => `${h.field}:${h.reason}`).join('; '),
+      payload_summary: `tier=${f.tier} email=${f.customerEmail}`
+    });
+    return res.status(400).json({ ok: false, error: 'invalid_input' });
+  }
 
   // Build line_items
   let priceId;
@@ -123,7 +159,7 @@ checkoutRouter.post('/create-session', async (req, res) => {
   }
 
   // Pre-insert pending order row so we can match the webhook
-  await supabase.insert('orders', {
+  const orderInsert = await supabase.insert('orders', {
     stripe_session_id: session.id,
     customer_email: clean(f.customerEmail),
     customer_name: f.customerName ? clean(f.customerName) : null,
@@ -142,6 +178,17 @@ checkoutRouter.post('/create-session', async (req, res) => {
     ip,
     user_agent: ua,
   });
+  const insertedOrder = Array.isArray(orderInsert.data) ? orderInsert.data[0] : orderInsert.data;
+
+  // Log consent (Art 7 — Nachweis der Einwilligung at checkout time)
+  supabase.insert('consent_log', {
+    order_id: insertedOrder?.id || null,
+    email: clean(f.customerEmail),
+    consent_type: 'checkout_purchase',
+    consent_text_version: CONSENT_VERSION,
+    ip,
+    user_agent: ua
+  }).catch(err => console.error('consent_log fail (checkout):', err));
 
   return res.json({ ok: true, url: session.url, sessionId: session.id });
 });

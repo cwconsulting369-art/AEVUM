@@ -1,8 +1,17 @@
 #!/usr/bin/env node
 // DSGVO data-retention cron — daily
-// 1) Anonymize IPs in security_events older than 30 days (mask last octet)
-// 2) Delete audits older than 12 months (Speicherbegrenzung Art 5 lit. e)
-// 3) Delete security_events older than 90 days (after IP anon, content useless)
+//
+// Runs once per day (cron entry: 30 3 * * *).
+//
+// Actions:
+//  1) Anonymize IPs in security_events older than 30 days (mask last octet)
+//  1b) Anonymize IPs in audit_logs older than 30 days
+//  2) Delete closed audits (closed_won/closed_lost) older than 12 months
+//  3) Delete security_events older than 90 days
+//  4) Delete audit_logs older than 12 months (Art 30 retention window)
+//  5) Delete abandoned orders (pending/cancelled/failed) older than 30 days
+//  6) Hard-delete records past dsgvo_deletion_due (set by retention triggers / erasure flow)
+//  7) Delete withdrawn consents older than 2 years (Art 7 burden-of-proof window)
 //
 // Usage: node scripts/dsgvo-cleanup.js [--dry-run]
 
@@ -33,11 +42,9 @@ async function sb(method, path, body) {
 
 function anonymizeIp(ip) {
   if (!ip) return '';
-  // IPv4: mask last octet
   if (/^\d+\.\d+\.\d+\.\d+/.test(ip)) {
     return ip.replace(/\.\d+$/, '.0');
   }
-  // IPv6: mask last 80 bits (keep /48)
   if (ip.includes(':')) {
     const parts = ip.split(':');
     return parts.slice(0, 3).join(':') + '::';
@@ -56,13 +63,19 @@ async function tg(text) {
 
 async function main() {
   const summary = [];
+  const now = Date.now();
+  const day = 24 * 60 * 60 * 1000;
   const cutoffs = {
-    ipAnonymize: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    auditsDelete: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
-    securityEventsDelete: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()
+    ipAnonymize:          new Date(now -  30 * day).toISOString(),
+    auditsDelete:         new Date(now - 365 * day).toISOString(),
+    securityEventsDelete: new Date(now -  90 * day).toISOString(),
+    auditLogsDelete:      new Date(now - 365 * day).toISOString(),
+    ordersAbandonDelete:  new Date(now -  30 * day).toISOString(),
+    consentLogDelete:     new Date(now - 730 * day).toISOString()
   };
+  const nowIso = new Date(now).toISOString();
 
-  // 1) Anonymize IPs in security_events older than 30 days
+  // 1) Anonymize IPs in security_events
   const { data: oldEvents } = await sb('GET', `/security_events?created_at=lt.${cutoffs.ipAnonymize}&ip_anonymized=eq.false&select=id,ip&limit=500`);
   let anonymized = 0;
   if (Array.isArray(oldEvents) && oldEvents.length > 0) {
@@ -74,9 +87,23 @@ async function main() {
       anonymized++;
     }
   }
-  summary.push(`IP-anon: ${anonymized}`);
+  summary.push(`sec-events ip-anon: ${anonymized}`);
 
-  // 2) Delete audits older than 12 months (only if status in (closed_won, closed_lost) — keep active)
+  // 1b) Anonymize IPs in audit_logs
+  const { data: oldAuditLogs } = await sb('GET', `/audit_logs?created_at=lt.${cutoffs.ipAnonymize}&ip_anonymized=eq.false&ip=not.is.null&select=id,ip&limit=500`);
+  let auditIpAnon = 0;
+  if (Array.isArray(oldAuditLogs) && oldAuditLogs.length > 0) {
+    for (const ev of oldAuditLogs) {
+      const anon = anonymizeIp(ev.ip);
+      if (!DRY) {
+        await sb('PATCH', `/audit_logs?id=eq.${ev.id}`, { ip: anon, ip_anonymized: true });
+      }
+      auditIpAnon++;
+    }
+  }
+  summary.push(`audit-logs ip-anon: ${auditIpAnon}`);
+
+  // 2) Delete closed audits older than 12 months
   const { data: oldAudits } = await sb('GET', `/audits?created_at=lt.${cutoffs.auditsDelete}&status=in.(closed_won,closed_lost)&select=id&limit=100`);
   let auditsDeleted = 0;
   if (Array.isArray(oldAudits) && oldAudits.length > 0) {
@@ -88,7 +115,7 @@ async function main() {
   }
   summary.push(`audits-deleted: ${auditsDeleted}`);
 
-  // 3) Delete security_events older than 90 days
+  // 3) Delete old security_events
   const { data: oldSec } = await sb('GET', `/security_events?created_at=lt.${cutoffs.securityEventsDelete}&select=id&limit=500`);
   let secDeleted = 0;
   if (Array.isArray(oldSec) && oldSec.length > 0) {
@@ -100,10 +127,70 @@ async function main() {
   }
   summary.push(`sec-events-deleted: ${secDeleted}`);
 
+  // 4) Delete old audit_logs
+  const { data: oldAuditLogsDel } = await sb('GET', `/audit_logs?created_at=lt.${cutoffs.auditLogsDelete}&select=id&limit=500`);
+  let auditLogsDeleted = 0;
+  if (Array.isArray(oldAuditLogsDel) && oldAuditLogsDel.length > 0) {
+    if (!DRY) {
+      const ids = oldAuditLogsDel.map(e => e.id).join(',');
+      await sb('DELETE', `/audit_logs?id=in.(${ids})`);
+    }
+    auditLogsDeleted = oldAuditLogsDel.length;
+  }
+  summary.push(`audit-logs-deleted: ${auditLogsDeleted}`);
+
+  // 5) Delete abandoned orders
+  const { data: oldAbandoned } = await sb('GET', `/orders?created_at=lt.${cutoffs.ordersAbandonDelete}&status=in.(pending,cancelled,failed)&select=id&limit=200`);
+  let ordersAbandonedDeleted = 0;
+  if (Array.isArray(oldAbandoned) && oldAbandoned.length > 0) {
+    if (!DRY) {
+      const ids = oldAbandoned.map(o => o.id).join(',');
+      await sb('DELETE', `/orders?id=in.(${ids})`);
+    }
+    ordersAbandonedDeleted = oldAbandoned.length;
+  }
+  summary.push(`orders-abandoned-deleted: ${ordersAbandonedDeleted}`);
+
+  // 6) Hard-delete records past dsgvo_deletion_due
+  const { data: dueAudits } = await sb('GET', `/audits?dsgvo_deletion_due=lt.${nowIso}&select=id&limit=100`);
+  let dueAuditsDeleted = 0;
+  if (Array.isArray(dueAudits) && dueAudits.length > 0) {
+    if (!DRY) {
+      const ids = dueAudits.map(a => a.id).join(',');
+      await sb('DELETE', `/audits?id=in.(${ids})`);
+    }
+    dueAuditsDeleted = dueAudits.length;
+  }
+  summary.push(`due-audits-deleted: ${dueAuditsDeleted}`);
+
+  const { data: dueOrders } = await sb('GET', `/orders?dsgvo_deletion_due=lt.${nowIso}&select=id&limit=100`);
+  let dueOrdersDeleted = 0;
+  if (Array.isArray(dueOrders) && dueOrders.length > 0) {
+    if (!DRY) {
+      const ids = dueOrders.map(o => o.id).join(',');
+      await sb('DELETE', `/orders?id=in.(${ids})`);
+    }
+    dueOrdersDeleted = dueOrders.length;
+  }
+  summary.push(`due-orders-deleted: ${dueOrdersDeleted}`);
+
+  // 7) Delete withdrawn consents older than 2 years
+  const { data: oldConsents } = await sb('GET', `/consent_log?withdrawn_at=lt.${cutoffs.consentLogDelete}&select=id&limit=200`);
+  let consentsDeleted = 0;
+  if (Array.isArray(oldConsents) && oldConsents.length > 0) {
+    if (!DRY) {
+      const ids = oldConsents.map(c => c.id).join(',');
+      await sb('DELETE', `/consent_log?id=in.(${ids})`);
+    }
+    consentsDeleted = oldConsents.length;
+  }
+  summary.push(`old-withdrawn-consents-deleted: ${consentsDeleted}`);
+
   console.log(`[dsgvo-cleanup] ${DRY ? 'DRY-RUN ' : ''}${summary.join(' | ')}`);
-  // Only send TG if real action happened
-  if (!DRY && (anonymized + auditsDeleted + secDeleted) > 0) {
-    await tg(`🧹 *DSGVO Daily Cleanup*\n${summary.map(s => `• ${s}`).join('\n')}`);
+  const totalActions = anonymized + auditIpAnon + auditsDeleted + secDeleted +
+    auditLogsDeleted + ordersAbandonedDeleted + dueAuditsDeleted + dueOrdersDeleted + consentsDeleted;
+  if (!DRY && totalActions > 0) {
+    await tg(`🧹 *DSGVO Daily Cleanup (AEVUM)*\n${summary.map(s => `• ${s}`).join('\n')}`);
   }
 }
 
