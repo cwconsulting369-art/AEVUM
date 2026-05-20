@@ -33,6 +33,19 @@ app.use(cors({
   credentials: false
 }));
 
+// Stripe webhook needs the RAW body to verify the signature.
+// Mount it before express.json() so the raw bytes survive.
+import { checkoutRouter } from './routes/checkout.js';
+app.post(
+  '/api/checkout/webhook',
+  express.raw({ type: 'application/json', limit: '1mb' }),
+  (req, res, next) => {
+    // Re-route into the router which expects POST /webhook
+    req.url = '/webhook';
+    return checkoutRouter.handle(req, res, next);
+  }
+);
+
 app.use(express.json({ limit: '256kb' }));
 
 // Real client IP comes from Cloudflare via CF-Connecting-IP header
@@ -81,6 +94,10 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true, service: 'aevum-api', uptime: process.uptime() });
 });
 app.use('/api/audit', auditSubmitLimiter, auditRouter);
+
+// Checkout — create-session + pilot-status. Webhook is mounted above
+// with raw-body parser before express.json().
+app.use('/api/checkout', checkoutRouter);
 
 // 404
 app.use((req, res) => {

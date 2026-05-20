@@ -33,7 +33,14 @@ async function rpc(method, path, body) {
   return { ok: true, status: res.status, data };
 }
 
+function normaliseQuery(query = '') {
+  if (!query) return '';
+  return query.startsWith('?') ? query : '?' + query;
+}
+
 export const supabase = {
   insert: (table, row) => rpc('POST', `/${table}`, row),
-  select: (table, query = '') => rpc('GET', `/${table}${query ? '?' + query : ''}`)
+  select: (table, query = '') => rpc('GET', `/${table}${normaliseQuery(query)}`),
+  update: (table, query, patch) => rpc('PATCH', `/${table}${normaliseQuery(query)}`, patch),
+  delete: (table, query) => rpc('DELETE', `/${table}${normaliseQuery(query)}`)
 };
