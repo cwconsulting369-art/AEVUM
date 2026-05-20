@@ -146,12 +146,18 @@ export default function Footer() {
           <p className="text-xs text-[#52525B]">
             &copy; 2026 {CONTACT.company}. Alle Rechte vorbehalten.
           </p>
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-6 flex-wrap justify-center">
             <a href="#/datenschutz" className="text-xs text-[#52525B] hover:text-[#F59E0B] transition-colors">
               Datenschutz
             </a>
             <a href="#/impressum" className="text-xs text-[#52525B] hover:text-[#F59E0B] transition-colors">
               Impressum
+            </a>
+            <a href="#/agb" className="text-xs text-[#52525B] hover:text-[#F59E0B] transition-colors">
+              AGB
+            </a>
+            <a href="#/widerrufsbelehrung" className="text-xs text-[#52525B] hover:text-[#F59E0B] transition-colors">
+              Widerruf
             </a>
           </nav>
         </div>

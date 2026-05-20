@@ -14,6 +14,7 @@ import {
   Zap,
 } from 'lucide-react';
 import CONTACT from '../config/contact';
+import BuyButton from '../components/BuyButton';
 
 /* ──────────────────────── Animation helpers ──────────────────────── */
 
@@ -673,16 +674,13 @@ function PackagesSection() {
                 ))}
               </ul>
 
-              <a
-                href={CONTACT.calendly}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`w-full text-center block ${
-                  pkg.highlighted ? 'btn-primary' : 'btn-secondary'
-                } py-3 text-sm`}
-              >
-                {pkg.cta}
-              </a>
+              <BuyButton
+                tier={pkg.checkoutTier}
+                label={pkg.cta}
+                variant={pkg.highlighted ? 'primary' : 'secondary'}
+                showCallOption={pkg.checkoutTier !== 'S'}
+                calendlyUrl={CONTACT.calendly}
+              />
               <p className="text-[10px] text-[#52525B] font-mono uppercase tracking-wider mt-3 text-center">
                 Direkt-Kauf via Stripe · Pilot-Slot wird im Checkout reserviert
               </p>

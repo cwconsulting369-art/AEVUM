@@ -11,6 +11,10 @@ const WorkflowAudit = lazy(() => import('./pages/WorkflowAudit'));
 const Cases = lazy(() => import('./pages/Cases'));
 const Datenschutz = lazy(() => import('./pages/Datenschutz'));
 const Impressum = lazy(() => import('./pages/Impressum'));
+const AGB = lazy(() => import('./pages/AGB'));
+const Widerrufsbelehrung = lazy(() => import('./pages/Widerrufsbelehrung'));
+const CheckoutSuccess = lazy(() => import('./pages/CheckoutSuccess'));
+const CheckoutCancelled = lazy(() => import('./pages/CheckoutCancelled'));
 
 // Legacy services from lennoxOS
 const LegacyAIAutomation = lazy(() => import('./pages/legacy/AIAutomation'));
@@ -51,6 +55,10 @@ const routeComponents: Record<string, React.ComponentType> = {
   '/cases': Cases,
   '/datenschutz': Datenschutz,
   '/impressum': Impressum,
+  '/agb': AGB,
+  '/widerrufsbelehrung': Widerrufsbelehrung,
+  '/checkout/success': CheckoutSuccess,
+  '/checkout/cancelled': CheckoutCancelled,
   // Legacy lennoxOS services
   '/legacy/ai-automation': LegacyAIAutomation,
   '/legacy/automation-audit': LegacyAutomationAudit,
