@@ -29,8 +29,12 @@ export default function Footer() {
               </span>
               <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
             </a>
-            <p className="text-sm text-[#A1A1AA] leading-relaxed mb-6">
+            <p className="text-sm text-[#A1A1AA] leading-relaxed mb-3">
               Vollständige KI-Systeme für Unternehmen, die wachsen wollen.
+            </p>
+            <p className="text-xs text-[#52525B] leading-relaxed mb-6">
+              Solo geführt aus Augsburg. Wenn dir jemand schreibt — ich bin's selbst.
+              Keine Account-Manager-Kette, keine Übergaben.
             </p>
             <div className="flex gap-3">
               <a
