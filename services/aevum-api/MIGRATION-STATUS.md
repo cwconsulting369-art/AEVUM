@@ -17,6 +17,7 @@ Run new files **in numeric order**. All migrations are idempotent (`IF NOT EXIST
 | 004 | `004_orders.sql` | yes (2026-05-20) | Stripe shop orders + pilot_slots singleton |
 | 005 | `005_dsgvo_audit_logs.sql` | yes (2026-05-20) | `audit_logs` + trigger function + 4 triggers (audits/orders/consent_log/erasure_log) |
 | 006 | `006_dsgvo_extend.sql` | yes (2026-05-20) | `dsgvo_settings`, `dsgvo_deletion_due` cols, consent_log.order_id FK, explicit RLS policies |
+| 007 | `007_consent_immediate_start.sql` | yes (2026-05-20) | orders.consent_immediate_start cols (§ 356 Abs 4 BGB waiver tracking) |
 
 ## Pending
 
