@@ -132,21 +132,21 @@ function ProblemSection() {
             Das Problem
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
-            85% der B2B-Websites verlieren Leads
-            <span className="text-gradient"> in 5 Sekunden</span>
+            Wenn die Website Leads
+            <span className="text-gradient"> verliert statt fängt</span>
           </h2>
           <p className="text-[#A1A1AA] text-lg max-w-2xl mx-auto leading-relaxed">
             Langsame Ladezeiten, verwirrende Navigation und schwache Call-to-Actions treiben
-            Besucher direkt zur Konkurrenz. Eine Website ist kein digitales Prospekt —
-            sie muss verkaufen.
+            Besucher zur Konkurrenz — bevor sie verstanden haben was du anbietest. Eine
+            Website ist kein digitales Prospekt; sie muss messbar verkaufen.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {[
-            { value: '3 Sek.', label: 'bis der Besucher geht' },
-            { value: '53%', label: 'abbrechen auf Mobile' },
-            { value: '0%', label: 'folgen schwachem CTA' },
+            { value: 'Langsam', label: 'Ladezeiten kosten Aufmerksamkeit' },
+            { value: 'Verwirrend', label: 'Navigation ohne klaren Pfad' },
+            { value: 'Schwach', label: 'CTAs ohne messbare Conversion' },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}

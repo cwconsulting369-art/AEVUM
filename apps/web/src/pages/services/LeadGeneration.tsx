@@ -124,20 +124,21 @@ function ProblemSection() {
             Das Problem
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
-            68% der Leads werden
-            <span className="text-gradient"> nie kontaktiert</span>
+            Leads, die nie
+            <span className="text-gradient"> kontaktiert werden</span>
           </h2>
           <p className="text-[#A1A1AA] text-lg max-w-2xl mx-auto leading-relaxed">
-            Vertriebsteams sind überlastet. Leads verfallen, Follow-ups werden vergessen,
-            Chancen gehen verloren. Das kostet Ihr Unternehmen jeden Monat Tausende Euro.
+            Was wir in fast jedem Vertriebsteam sehen: Leads verfallen, Follow-ups werden
+            vergessen, Antwortzeiten dehnen sich auf Tage. Nicht weil das Team schlecht ist —
+            sondern weil kein System dahintersteht.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {[
-            { value: '68%', label: 'Leads werden nie kontaktiert' },
-            { value: '<5%', label: 'Follow-up-Rate manuell' },
-            { value: '42h', label: 'durchschn. Antwortzeit' },
+            { value: 'Unkontaktiert', label: 'Leads bleiben im Posteingang' },
+            { value: 'Manuell', label: 'Follow-ups vergessen' },
+            { value: 'Langsam', label: 'Antwortzeit in Tagen statt Minuten' },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}

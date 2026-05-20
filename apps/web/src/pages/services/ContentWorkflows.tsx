@@ -129,21 +129,21 @@ function ProblemSection() {
             Das Problem
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
-            15+ Stunden/Woche für
-            <span className="text-gradient"> Content</span>
+            Content frisst Zeit, die im
+            <span className="text-gradient"> Geschäft fehlt</span>
           </h2>
           <p className="text-[#A1A1AA] text-lg max-w-2xl mx-auto leading-relaxed">
-            Schreiben, Editieren, Formatieren, Posten — Content Creation frisst Zeit,
-            die Sie besser im Geschäft investieren. Und trotzdem kommen Sie nicht
-            zur Konstanz.
+            Schreiben, Editieren, Formatieren, Posten — Content-Creation kostet die Stunden,
+            die du eigentlich in Vertrieb und Kunden investieren willst. Und trotzdem reicht
+            es selten für echte Konstanz.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {[
-            { value: '15h+', label: 'pro Woche manuell' },
-            { value: '3-5x', label: 'Konten getrennt' },
-            { value: '60%', label: 'hören nach 4 Wochen auf' },
+            { value: 'Stunden', label: 'pro Woche manuell statt automatisiert' },
+            { value: 'Verteilt', label: 'Posts in jeder Plattform anders' },
+            { value: 'Pause', label: 'nach 4-6 Wochen Konstanz weg' },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}

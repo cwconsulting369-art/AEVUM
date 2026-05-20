@@ -288,7 +288,8 @@ function TimelineSection() {
             <span className="text-gradient"> lebenden System</span>
           </h2>
           <p className="text-[#A1A1AA] max-w-xl mx-auto">
-            Ein methodischer Ansatz, der Qualität garantiert. Keine halben Sachen.
+            Ein methodischer Ansatz mit klarer Phasenstruktur. Wir liefern in
+            kontrollierten Schritten — kein All-in-One-Big-Bang.
           </p>
         </motion.div>
 
