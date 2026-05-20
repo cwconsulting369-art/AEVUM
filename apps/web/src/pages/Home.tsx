@@ -156,10 +156,20 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="text-base md:text-lg text-[#A1A1AA] max-w-2xl mx-auto mb-10 leading-relaxed"
+          className="text-base md:text-lg text-[#A1A1AA] max-w-2xl mx-auto mb-6 leading-relaxed"
         >
           Wir bauen vollständige AI-Systeme für Unternehmen, die wachsen wollen.
+          Ehrlich gepreist, ohne Bullshit-Statistiken, mit klarem Festpreis.
         </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
+          className="inline-flex items-center gap-2 px-4 py-2 mb-10 rounded-full border border-[#F59E0B]/30 bg-[#F59E0B]/5 text-[#F59E0B] text-xs md:text-sm font-mono tracking-wider uppercase"
+        >
+          <span className="w-2 h-2 rounded-full bg-[#F59E0B] animate-pulse" />
+          Pilot-Programm 2026 · −30 % für die ersten 10 Kunden
+        </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -603,9 +613,14 @@ function PackagesSection() {
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
             Investment
           </span>
-          <h2 className="text-3xl md:text-5xl font-light tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-4">
             Wähle dein Paket
           </h2>
+          <p className="text-[#A1A1AA] text-base max-w-2xl mx-auto leading-relaxed">
+            Festpreise. Was du siehst zahlst du. Upsells sind optional und nie versteckt.
+            Die ersten 10 Pilot-Kunden bekommen 30 % Rabatt — im Tausch gegen ehrliches
+            Feedback und Veröffentlichung als Case nach 90 Tagen Laufzeit.
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -694,9 +709,12 @@ function CTASection() {
           Bereit für dein
           <span className="block text-gradient mt-2">AI-System?</span>
         </h2>
-        <p className="text-[#A1A1AA] text-lg mb-10 max-w-xl mx-auto">
+        <p className="text-[#A1A1AA] text-lg mb-4 max-w-xl mx-auto">
           Buch einen kostenlosen Strategy Call. Wir analysieren deine Prozesse
           und zeigen dir den exakten Fahrplan zu deinem KI-System.
+        </p>
+        <p className="text-[#F59E0B] text-sm font-mono uppercase tracking-wider mb-10">
+          Pilot-Programm 2026 · noch Plätze frei mit −30 %
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
