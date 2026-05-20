@@ -558,45 +558,52 @@ function PackagesSection() {
     {
       tier: 'S',
       name: 'Start',
-      price: '2.000 – 4.000 €',
-      period: 'einmalig',
+      price: '3.900 €',
+      pilotPrice: '2.730 €',
+      period: 'einmalig · netto',
       features: [
-        'Deep-dive Workflow Audit',
-        'Automatisierungs-Roadmap',
-        '3–5 Projektplan',
-        'Priorisierungs-Matrix',
+        'Deep-dive Workflow Audit (3–5 Tage)',
+        'Automatisierungs-Roadmap mit ROI-Schätzung',
+        'Priorisierungs-Matrix nach Cash-Impact',
+        'Konkrete Implementations-Vorschläge',
+        'Kein Build inkludiert — sauberer Plan zuerst',
       ],
-      cta: 'Audit buchen',
+      cta: 'Audit starten',
+      checkoutTier: 'S' as const,
       highlighted: false,
     },
     {
       tier: 'M',
       name: 'Wachstum',
-      price: '5.000 – 15.000 €',
-      period: 'einmalig',
+      price: '12.900 €',
+      pilotPrice: '9.030 €',
+      period: 'einmalig · netto',
       features: [
-        '1–2 Use Cases (Lead-Qual, Support, Content)',
-        'Vollständige Implementation',
+        '1–2 Use Cases vollständig implementiert',
+        'Lead-Qualifizierung, Content oder Support-Bot',
         'Integration mit bestehenden Tools',
-        '6–8 Wochen Lieferzeit',
-        '3 Monate Support',
+        '4–8 Wochen Lieferzeit',
+        '3 Monate Support nach Go-Live',
       ],
-      cta: 'Loslegen',
+      cta: 'Wachstum buchen',
+      checkoutTier: 'M' as const,
       highlighted: true,
     },
     {
       tier: 'L',
       name: 'Skalierung',
-      price: '2.000 – 5.000 €',
-      period: '/ Monat',
+      price: '4.900 €',
+      pilotPrice: '3.430 €',
+      period: 'pro Monat · netto',
       features: [
-        'Laufende Überwachung & Optimierung',
+        'Laufende Optimierung & Monitoring',
         'Monatliche Performance-Reports',
-        'Dedizierter Support',
         'Neue Use Cases on-demand',
-        'Prioritäts-Entwicklung',
+        'Priorisierte Entwicklung',
+        'Jahres-Prepay −10 %',
       ],
       cta: 'Skalieren',
+      checkoutTier: 'L' as const,
       highlighted: false,
     },
   ];
@@ -652,6 +659,9 @@ function PackagesSection() {
               <div className="mb-8">
                 <p className="text-3xl font-light">{pkg.price}</p>
                 <p className="text-sm text-[#52525B] font-mono">{pkg.period}</p>
+                <p className="text-xs text-[#F59E0B] font-mono uppercase tracking-wider mt-2">
+                  Pilot-Preis: {pkg.pilotPrice}
+                </p>
               </div>
 
               <ul className="space-y-3 mb-8">
@@ -673,9 +683,46 @@ function PackagesSection() {
               >
                 {pkg.cta}
               </a>
+              <p className="text-[10px] text-[#52525B] font-mono uppercase tracking-wider mt-3 text-center">
+                Direkt-Kauf via Stripe · Pilot-Slot wird im Checkout reserviert
+              </p>
             </motion.div>
           ))}
         </div>
+
+        {/* Bundle-Rabatt-Hinweis */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-12 max-w-3xl mx-auto p-6 bg-[#0B0C10] border border-[#F59E0B]/20 rounded"
+        >
+          <p className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-3">
+            Bundle-Rabatte
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-[#A1A1AA]">
+            <div>
+              <p className="text-[#F9FAFB] font-medium">2 Services</p>
+              <p className="text-xs">−10 %</p>
+            </div>
+            <div>
+              <p className="text-[#F9FAFB] font-medium">3 Services</p>
+              <p className="text-xs">−15 %</p>
+            </div>
+            <div>
+              <p className="text-[#F9FAFB] font-medium">4 Services Full-Stack</p>
+              <p className="text-xs">−20 % + 1. Monat L gratis</p>
+            </div>
+            <div>
+              <p className="text-[#F9FAFB] font-medium">Jahres-Prepay L</p>
+              <p className="text-xs">−10 %</p>
+            </div>
+          </div>
+          <p className="text-xs text-[#52525B] mt-4 leading-relaxed">
+            Pilot-Rabatt (−30 %) und Bundle-Rabatte sind kombinierbar. Beispiel: 2 Services
+            im Pilot-Programm = −10 % Bundle, danach −30 % auf den Restbetrag.
+          </p>
+        </motion.div>
       </div>
     </section>
   );
