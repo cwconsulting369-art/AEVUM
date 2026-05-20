@@ -11,6 +11,15 @@ export const checkoutRouter = Router();
 
 const SITE_BASE = process.env.SITE_BASE_URL || 'https://aevum-system.de';
 
+// § 356 Abs 4 BGB — Sofort-Verzicht-Text-Version (bump on legal-text change)
+const IMMEDIATE_START_VERSION = 'immediate-start-v1-2026-05-20';
+
+// Pakete mit Pflicht-Sofortverzicht (kurze Delivery → echtes Widerrufs-Risiko)
+const IMMEDIATE_START_REQUIRED_TIERS = new Set(['S', 'M']);
+
+// HGB §147 — 10 Jahre Aufbewahrung kaufmännischer Belege
+const ORDER_RETENTION_MS = 10 * 365 * 24 * 60 * 60 * 1000;
+
 const CheckoutSchema = z.object({
   tier: z.enum(['S', 'M', 'L']),
   // optional add-on price IDs (Carlos defines them in Stripe later)
@@ -25,6 +34,9 @@ const CheckoutSchema = z.object({
   consent: z.literal(true, {
     errorMap: () => ({ message: 'Einwilligung zur Datenverarbeitung erforderlich' }),
   }),
+  // § 356 Abs 4 BGB — Sofort-Verzicht. Pflicht für S+M, optional für L.
+  // Re-check tier-specific Pflicht in handler.
+  consent_immediate_start: z.boolean().optional().default(false),
   // honeypot — must stay empty; bots fill it
   website: z.string().max(500).optional().default(''),
   // time-check — must be > 1500ms between form-open and submit (BuyButton uses 1500)
@@ -76,6 +88,20 @@ checkoutRouter.post('/create-session', async (req, res) => {
       logBlock({ ...ctx, type: 'too_fast', reason: `submitted in ${elapsed}ms (min 1500)` });
       return res.json({ ok: true, url: '/services?checkout=cancelled' });
     }
+  }
+
+  // ─── § 356 Abs 4 BGB — Pflicht-Check Sofort-Verzicht für S+M ───
+  if (IMMEDIATE_START_REQUIRED_TIERS.has(f.tier) && !f.consent_immediate_start) {
+    logBlock({
+      ...ctx,
+      type: 'missing_immediate_start_waiver',
+      reason: `tier=${f.tier} requires § 356 Abs 4 BGB waiver but consent_immediate_start=false`,
+    });
+    return res.status(400).json({
+      ok: false,
+      error: 'immediate_start_required',
+      message: 'Sofort-Verzicht-Zustimmung erforderlich (§ 356 Abs 4 BGB)',
+    });
   }
 
   // ─── Pattern-scan ───
@@ -150,6 +176,10 @@ checkoutRouter.post('/create-session', async (req, res) => {
         pilotSlot: pilotSlotNumber ? String(pilotSlotNumber) : '',
         customerName: f.customerName || '',
         customerCompany: f.customerCompany || '',
+        consent_immediate_start: String(f.consent_immediate_start),
+        consent_immediate_start_version: f.consent_immediate_start
+          ? IMMEDIATE_START_VERSION
+          : '',
       },
       locale: 'de',
     });
@@ -159,6 +189,7 @@ checkoutRouter.post('/create-session', async (req, res) => {
   }
 
   // Pre-insert pending order row so we can match the webhook
+  const nowIso = new Date().toISOString();
   const orderInsert = await supabase.insert('orders', {
     stripe_session_id: session.id,
     customer_email: clean(f.customerEmail),
@@ -177,6 +208,9 @@ checkoutRouter.post('/create-session', async (req, res) => {
     status: 'pending',
     ip,
     user_agent: ua,
+    consent_immediate_start: f.consent_immediate_start,
+    consent_immediate_start_at: f.consent_immediate_start ? nowIso : null,
+    consent_immediate_start_version: f.consent_immediate_start ? IMMEDIATE_START_VERSION : null,
   });
   const insertedOrder = Array.isArray(orderInsert.data) ? orderInsert.data[0] : orderInsert.data;
 
@@ -189,6 +223,18 @@ checkoutRouter.post('/create-session', async (req, res) => {
     ip,
     user_agent: ua
   }).catch(err => console.error('consent_log fail (checkout):', err));
+
+  // § 356 Abs 4 BGB — separate consent_log entry for Sofort-Verzicht
+  if (f.consent_immediate_start) {
+    supabase.insert('consent_log', {
+      order_id: insertedOrder?.id || null,
+      email: clean(f.customerEmail),
+      consent_type: 'immediate_start_waiver',
+      consent_text_version: IMMEDIATE_START_VERSION,
+      ip,
+      user_agent: ua
+    }).catch(err => console.error('consent_log fail (immediate_start):', err));
+  }
 
   return res.json({ ok: true, url: session.url, sessionId: session.id });
 });
@@ -222,25 +268,36 @@ checkoutRouter.post('/webhook', async (req, res) => {
     );
     const row = Array.isArray(existing) ? existing[0] : existing;
 
+    const paidAt = new Date();
+    const paidAtIso = paidAt.toISOString();
+    // HGB §147 — 10 Jahre Aufbewahrungspflicht
+    const dsgvoDeletionDueIso = new Date(paidAt.getTime() + ORDER_RETENTION_MS).toISOString();
+    const metaImmediateStart = session.metadata?.consent_immediate_start === 'true';
+    const metaImmediateStartVersion =
+      session.metadata?.consent_immediate_start_version || (metaImmediateStart ? IMMEDIATE_START_VERSION : null);
+
+    let finalOrderId = row?.id || null;
+
     if (row?.id) {
       await supabase.update(
         'orders',
         `?id=eq.${row.id}`,
         {
           status: 'paid',
-          paid_at: new Date().toISOString(),
+          paid_at: paidAtIso,
+          dsgvo_deletion_due: dsgvoDeletionDueIso,
           stripe_payment_intent: session.payment_intent,
           stripe_customer_id: session.customer,
           total_cents: amountTotal,
           subtotal_cents: amountTotal,
           base_price_cents: amountTotal,
           currency,
-          updated_at: new Date().toISOString(),
+          updated_at: paidAtIso,
         }
       );
     } else {
       // Webhook arrived without a preceding create-session row (rare; log + fallback insert)
-      await supabase.insert('orders', {
+      const fallbackInsert = await supabase.insert('orders', {
         stripe_session_id: sessionId,
         customer_email: session.customer_details?.email || 'unknown@example.com',
         package_tier: session.metadata?.tier || 'custom',
@@ -252,10 +309,28 @@ checkoutRouter.post('/webhook', async (req, res) => {
         pilot_discount_percent: session.metadata?.pilotApplied === 'true' ? 30 : 0,
         currency,
         status: 'paid',
-        paid_at: new Date().toISOString(),
+        paid_at: paidAtIso,
+        dsgvo_deletion_due: dsgvoDeletionDueIso,
         stripe_payment_intent: session.payment_intent,
         stripe_customer_id: session.customer,
+        consent_immediate_start: metaImmediateStart,
+        consent_immediate_start_at: metaImmediateStart ? paidAtIso : null,
+        consent_immediate_start_version: metaImmediateStartVersion,
       });
+      const inserted = Array.isArray(fallbackInsert.data) ? fallbackInsert.data[0] : fallbackInsert.data;
+      finalOrderId = inserted?.id || null;
+    }
+
+    // § 356 Abs 4 BGB — post-payment consent_log entry (Beweissicherung Vertragsschluss)
+    if (metaImmediateStart) {
+      supabase.insert('consent_log', {
+        order_id: finalOrderId,
+        email: session.customer_details?.email || null,
+        consent_type: 'immediate_start_waiver_confirmed_at_payment',
+        consent_text_version: metaImmediateStartVersion || IMMEDIATE_START_VERSION,
+        ip: null,
+        user_agent: 'stripe-webhook'
+      }).catch(err => console.error('consent_log fail (webhook waiver):', err));
     }
 
     // PII-minimised TG notification

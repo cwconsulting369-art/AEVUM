@@ -21,6 +21,7 @@ interface CheckoutFormState {
   company: string;
   consent: boolean;
   agb: boolean;
+  immediateStart: boolean;
 }
 
 const INITIAL_STATE: CheckoutFormState = {
@@ -29,7 +30,12 @@ const INITIAL_STATE: CheckoutFormState = {
   company: '',
   consent: false,
   agb: false,
+  immediateStart: false,
 };
+
+// § 356 Abs 4 BGB — Pflicht für kurze Delivery-Pakete (S+M).
+// Bei L (Dauerleistung/Retainer) regelt AGB.
+const IMMEDIATE_START_REQUIRED_TIERS: Tier[] = ['S', 'M'];
 
 export default function BuyButton({
   tier,
@@ -45,6 +51,9 @@ export default function BuyButton({
   const [pilotInfo, setPilotInfo] = useState<{ free: number; taken: number; total: number } | null>(null);
   const [formStartedAt] = useState(() => Date.now());
   const [honeypot, setHoneypot] = useState(''); // bot trap
+  const [waiverInfoOpen, setWaiverInfoOpen] = useState(false);
+
+  const immediateStartRequired = IMMEDIATE_START_REQUIRED_TIERS.includes(tier);
 
   useEffect(() => {
     if (!open) return;
@@ -73,6 +82,11 @@ export default function BuyButton({
       return;
     }
 
+    if (immediateStartRequired && !form.immediateStart) {
+      setError('Bitte den Sofort-Verzicht bestätigen (§ 356 Abs 4 BGB).');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const res = await fetch(`${API_BASE}/api/checkout/create-session`, {
@@ -85,6 +99,7 @@ export default function BuyButton({
           customerCompany: form.company,
           requestPilot: pilotInfo ? pilotInfo.free > 0 : false,
           consent: true,
+          consent_immediate_start: form.immediateStart,
           addonPriceIds: [],
           bundleSize: 1,
           // DSGVO / anti-bot proof
@@ -102,6 +117,8 @@ export default function BuyButton({
           );
         } else if (data.error === 'validation_failed') {
           setError('Bitte alle Pflichtfelder korrekt ausfüllen.');
+        } else if (data.error === 'immediate_start_required') {
+          setError('Sofort-Verzicht-Zustimmung erforderlich (§ 356 Abs 4 BGB).');
         } else {
           setError('Fehler beim Checkout. Bitte später erneut versuchen oder einen Call buchen.');
         }
@@ -258,6 +275,51 @@ export default function BuyButton({
                   </span>
                 </label>
 
+                {/* § 356 Abs 4 BGB — Sofort-Verzicht. Pflicht für S+M, optional für L. */}
+                <div>
+                  <label className="flex items-start gap-2 text-xs text-[#A1A1AA] cursor-pointer leading-relaxed">
+                    <input
+                      type="checkbox"
+                      checked={form.immediateStart}
+                      onChange={(e) => setForm({ ...form, immediateStart: e.target.checked })}
+                      className="mt-1 accent-[#F59E0B]"
+                    />
+                    <span>
+                      Ich verlange ausdrücklich, dass mit der Erbringung der Dienstleistung
+                      sofort begonnen wird. Mir ist bekannt, dass mein Widerrufsrecht bei
+                      vollständiger Vertragserfüllung erlischt (§ 356 Abs 4 BGB).
+                      {immediateStartRequired ? (
+                        <span className="text-[#F59E0B]"> *</span>
+                      ) : (
+                        <span className="text-[#52525B]"> (optional)</span>
+                      )}
+                    </span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setWaiverInfoOpen((v) => !v)}
+                    className="ml-6 mt-1 text-[10px] text-[#52525B] hover:text-[#F59E0B] underline-offset-2 hover:underline"
+                  >
+                    Was bedeutet das?
+                  </button>
+                  {waiverInfoOpen && (
+                    <p className="ml-6 mt-2 text-[10px] text-[#A1A1AA] bg-white/5 border border-white/10 px-3 py-2 rounded leading-relaxed">
+                      Wir starten sofort mit der Arbeit, statt 14 Tage Widerrufsfrist abzuwarten.
+                      Sobald die Leistung vollständig erbracht ist, erlischt dein Widerrufsrecht
+                      (§ 356 Abs 4 BGB). Vorher kannst du jederzeit widerrufen — dann berechnen
+                      wir anteilig den bereits erbrachten Teil. Volltext:{' '}
+                      <a
+                        href="#/widerrufsbelehrung"
+                        target="_blank"
+                        className="text-[#F59E0B] hover:underline"
+                      >
+                        Widerrufsbelehrung
+                      </a>
+                      .
+                    </p>
+                  )}
+                </div>
+
                 {error && (
                   <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded">
                     {error}
@@ -275,8 +337,13 @@ export default function BuyButton({
                   </button>
                   <button
                     type="submit"
-                    disabled={submitting}
-                    className="flex-1 btn-primary py-2.5 text-sm"
+                    disabled={
+                      submitting ||
+                      !form.consent ||
+                      !form.agb ||
+                      (immediateStartRequired && !form.immediateStart)
+                    }
+                    className="flex-1 btn-primary py-2.5 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {submitting ? 'Weiterleitung...' : 'Zu Stripe →'}
                   </button>
