@@ -6,6 +6,7 @@ dotenv.config({ path: '/home/carlos/.envs/aevum.env', override: true });
 
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { auditRouter } from './routes/audit.js';
 
@@ -14,6 +15,33 @@ const PORT = parseInt(process.env.PORT || '3210', 10);
 
 // Behind cloudflared+CF tunnel — trust the proxy chain so real IPs work via CF-Connecting-IP
 app.set('trust proxy', true);
+
+// Security headers via helmet (audit M2)
+// API serves JSON only; frontend on aevum-system.de must be able to call us cross-origin.
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      connectSrc: ["'self'", 'https://aevum-system.de', 'https://api.stripe.com'],
+      frameAncestors: ["'none'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+  crossOriginEmbedderPolicy: false, // API serves JSON, kein iframe-Embed gewünscht
+  crossOriginResourcePolicy: { policy: 'cross-origin' }, // Frontend on aevum-system.de muss calls machen
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  hsts: {
+    maxAge: 63072000,
+    includeSubDomains: true,
+    preload: true,
+  },
+}));
 
 // CORS — allow aevum-system.de + localhost dev
 const ALLOWED_ORIGINS = [
