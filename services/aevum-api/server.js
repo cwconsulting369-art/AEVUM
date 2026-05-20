@@ -6,7 +6,7 @@ dotenv.config({ path: '/home/carlos/.envs/aevum.env', override: true });
 
 import express from 'express';
 import cors from 'cors';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { auditRouter } from './routes/audit.js';
 
 const app = express();
@@ -56,6 +56,13 @@ function clientIp(req) {
     || 'unknown';
 }
 
+// IPv6-safe key generator (express-rate-limit requires ipKeyGenerator helper)
+// Falls CF header eine IPv6 ist, normalisiert ipKeyGenerator den /64-Prefix
+function clientIpKey(req) {
+  const raw = clientIp(req);
+  return ipKeyGenerator(raw);
+}
+
 // Basic request log
 app.use((req, _res, next) => {
   console.log(`${new Date().toISOString()} ${req.method} ${req.path} ip=${clientIp(req)}`);
@@ -69,7 +76,7 @@ const globalLimiter = rateLimit({
   max: 60,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  keyGenerator: clientIp,
+  keyGenerator: clientIpKey,
   message: { ok: false, error: 'rate_limit_global' }
 });
 app.use(globalLimiter);
@@ -80,7 +87,7 @@ const auditSubmitLimiter = rateLimit({
   max: 3,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  keyGenerator: clientIp,
+  keyGenerator: clientIpKey,
   message: {
     ok: false,
     error: 'rate_limit_audit',
@@ -96,7 +103,7 @@ const dsgvoLimiter = rateLimit({
   max: 5,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  keyGenerator: clientIp,
+  keyGenerator: clientIpKey,
   message: {
     ok: false,
     error: 'rate_limit_dsgvo',
