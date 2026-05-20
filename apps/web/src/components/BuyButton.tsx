@@ -87,6 +87,9 @@ export default function BuyButton({
           consent: true,
           addonPriceIds: [],
           bundleSize: 1,
+          // DSGVO / anti-bot proof
+          website: honeypot,
+          formStartedAt,
         }),
       });
 
