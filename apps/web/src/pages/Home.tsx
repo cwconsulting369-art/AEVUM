@@ -159,8 +159,8 @@ function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           className="text-base md:text-lg text-[#A1A1AA] max-w-2xl mx-auto mb-6 leading-relaxed"
         >
-          Wir bauen vollständige AI-Systeme für Unternehmen, die wachsen wollen.
-          Ehrlich gepreist, ohne Bullshit-Statistiken, mit klarem Festpreis.
+          KI-Automatisierung für Hausverwaltungen und Immobilienunternehmen
+          in Augsburg und München — ehrlich gepreist, mit klarem Festpreis.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -204,6 +204,18 @@ function HeroSection() {
             <MessageCircle size={14} />
             Direkt schreiben →
           </a>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.7 }}
+          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-[#52525B] font-mono mt-6"
+        >
+          <span>✓ 4 laufende Kundenprojekte</span>
+          <span className="hidden sm:inline">·</span>
+          <span>✓ Ø 3 Tage bis zur ersten Automatisierung</span>
+          <span className="hidden sm:inline">·</span>
+          <span>✓ DSGVO-konform</span>
         </motion.div>
       </div>
 
@@ -365,7 +377,7 @@ function ServicesSection() {
   const services = [
     {
       num: '01',
-      title: 'Intelligent Web Systems',
+      title: 'Intelligente Web-Systeme',
       desc: 'High-performance, conversion-fokussierte digitale Plattformen, die Besucher in Kunden verwandeln.',
       icon: Globe,
       price: 'ab 3.000 €',
@@ -373,7 +385,7 @@ function ServicesSection() {
     },
     {
       num: '02',
-      title: 'Autonomous Lead Generation',
+      title: 'Automatisierte Lead-Generierung',
       desc: 'Maschinengesteuerte Outbound-Systeme, die skalieren — ohne zusätzliche Headcount.',
       icon: Users,
       price: 'ab 2.500 €/Mo',
@@ -381,7 +393,7 @@ function ServicesSection() {
     },
     {
       num: '03',
-      title: 'Content Workflows',
+      title: 'Content-Workflows',
       desc: 'Ein Input, endlose hochwertige Outputs. Vollautomatisierte Content-Pipelines.',
       icon: FileText,
       price: 'ab 1.500 €/Mo',
@@ -389,7 +401,7 @@ function ServicesSection() {
     },
     {
       num: '04',
-      title: 'Evolving AI Automations',
+      title: 'KI-Automatisierungen',
       desc: 'Prozesse, die lernen, sich anpassen und täglich verbessern — ohne manuelles Zutun.',
       icon: Cpu,
       price: 'ab 2.000 €',
