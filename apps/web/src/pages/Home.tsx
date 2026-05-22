@@ -159,12 +159,28 @@ function ParticleCanvas() {
       rafRef.current = requestAnimationFrame(draw);
     };
 
-    draw();
+    // P1-Fix: defer first draw to idle — frees main-thread for LCP paint (~1.3s recovered)
+    type IdleWindow = Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => number;
+    };
+    const win = window as IdleWindow;
+    let idleHandle: number | null = null;
+    let fallbackTimer: number | null = null;
+    if (typeof win.requestIdleCallback === 'function') {
+      idleHandle = win.requestIdleCallback(() => { draw(); }, { timeout: 1500 });
+    } else {
+      fallbackTimer = window.setTimeout(() => { draw(); }, 800);
+    }
 
     return () => {
+      if (idleHandle !== null && 'cancelIdleCallback' in window) {
+        (window as Window & { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback?.(idleHandle);
+      }
+      if (fallbackTimer !== null) clearTimeout(fallbackTimer);
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('mousemove', onMouse);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, []);
 

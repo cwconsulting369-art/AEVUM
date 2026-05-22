@@ -35,6 +35,14 @@ export default function CookieBanner() {
     }
   }, []);
 
+  // Emit visibility events so other widgets (Helpbot FAB) can move out of the way
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.dispatchEvent(
+      new CustomEvent('aevum:cookie-banner-visibility', { detail: { visible } })
+    );
+  }, [visible]);
+
   const acknowledge = () => {
     try {
       window.localStorage.setItem(
