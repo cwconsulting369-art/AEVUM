@@ -1,80 +1,66 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
-import { Trash2, ArrowLeft, KeyRound, Lock, Plus, Shield, BarChart3, Layers, Workflow } from 'lucide-react';
+import {
+  Trash2, ArrowLeft, KeyRound, Lock, Plus, Shield,
+  LayoutDashboard, Workflow, Settings as SettingsIcon
+} from 'lucide-react';
 import Spinner from '@/components/Spinner';
 import { stagger } from '@/lib/animations';
-import { useAuth } from '@/lib/auth';
-import {
-  loadIndustryTemplate,
-  type IndustryTemplate,
-} from '@/templates/industry-dashboards';
-import { formatKpiValue, resolveSource } from '@/templates/industry-dashboards/format';
+import BusinessDashboard from '@/components/dashboard/BusinessDashboard';
 
 type ApiRow = { id: string; service: string; key_label: string | null; scope: string; health: string; added_at: string; last_used_at: string | null };
+type MeAccount = { id: string; slug: string; name: string; client_zero: boolean };
+type MeProject = { id: string; slug: string; name: string };
 
-type ProjectDetailPayload = {
-  id: string;
-  slug: string;
-  name: string;
-  industry?: string | null;
-  metrics?: Record<string, unknown> | null;
-};
+type TabKey = 'dashboard' | 'apis' | 'workflows' | 'settings';
 
 export default function ProjectDetail() {
   const { slug = '' } = useParams();
-  const { me } = useAuth();
   const [apis, setApis] = useState<ApiRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ service: '', key_label: '', key: '' });
   const [submitting, setSubmitting] = useState(false);
   const [confirmId, setConfirmId] = useState<string | null>(null);
-  const [template, setTemplate] = useState<IndustryTemplate | null>(null);
-  const [projectDetail, setProjectDetail] = useState<ProjectDetailPayload | null>(null);
+  const [account, setAccount] = useState<MeAccount | null>(null);
+  const [project, setProject] = useState<MeProject | null>(null);
+  const [tab, setTab] = useState<TabKey>('apis');
 
-  const load = async () => {
-    setLoading(true);
+  const isClientZeroAevum = useMemo(
+    () => !!(account?.client_zero && slug === 'aevum'),
+    [account, slug]
+  );
+
+  const loadApis = async () => {
     try {
       const data = await api<{ ok: boolean; apis: ApiRow[] }>(`/api/me/projects/${slug}/apis`);
       setApis(data.apis);
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'Laden fehlgeschlagen');
-    } finally {
-      setLoading(false);
     }
   };
 
-  /**
-   * Industry-Template laden.
-   *
-   * project.industry kommt momentan nur via auth.me NICHT — die Me-Liste
-   * hat keine industry. Wir versuchen daher einen Detail-Endpoint und
-   * fallen sonst auf den Slug-Heuristik / default zurück. Existing Backend
-   * ohne /detail-Endpoint führt nur zum default-Template (kein Crash).
-   */
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      let industry: string | null | undefined = null;
-      let detail: ProjectDetailPayload | null = null;
-      try {
-        // Optional Detail-Endpoint; existiert evtl. noch nicht — silent fallback.
-        detail = await api<ProjectDetailPayload>(`/api/me/projects/${slug}`);
-        industry = detail?.industry ?? null;
-      } catch {
-        // ignore — Detail-Endpoint optional
-      }
-      if (cancelled) return;
-      setProjectDetail(detail);
-      const tpl = await loadIndustryTemplate(industry);
-      if (!cancelled) setTemplate(tpl);
-    })();
-    return () => { cancelled = true; };
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [slug, me?.account?.id]);
+  const loadMe = async () => {
+    try {
+      const me = await api<{ ok: boolean; account: MeAccount; projects: MeProject[] }>(`/api/me`);
+      setAccount(me.account);
+      const p = me.projects.find(pr => pr.slug === slug) || null;
+      setProject(p);
+      // Default tab: dashboard for client-zero AEVUM, APIs otherwise.
+      if (me.account?.client_zero && slug === 'aevum') setTab('dashboard');
+    } catch {
+      /* non-fatal — tabs gracefully degrade */
+    }
+  };
 
-  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [slug]);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    Promise.all([loadApis(), loadMe()]).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [slug]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,7 +69,7 @@ export default function ProjectDetail() {
       await api(`/api/me/projects/${slug}/apis`, { method: 'POST', body: JSON.stringify(form) });
       toast.success(`API-Key "${form.service}" eingereicht — AES-256-GCM verschlüsselt`);
       setForm({ service: '', key_label: '', key: '' });
-      await load();
+      await loadApis();
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'Einreichen fehlgeschlagen');
     } finally {
@@ -96,11 +82,13 @@ export default function ProjectDetail() {
       await api(`/api/me/projects/${slug}/apis/${id}`, { method: 'DELETE' });
       toast.success('API-Key entfernt');
       setConfirmId(null);
-      await load();
+      await loadApis();
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'Löschen fehlgeschlagen');
     }
   };
+
+  const projectName = project?.name || `/${slug}`;
 
   return (
     <div>
@@ -108,21 +96,123 @@ export default function ProjectDetail() {
         <ArrowLeft size={14} /> Projekte
       </Link>
 
-      <header className="mb-10 flex flex-wrap items-end justify-between gap-4">
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs text-gold-300 mb-3 uppercase tracking-wider font-semibold">
             <KeyRound size={12} /> Projekt
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-mono">/{slug}</h1>
-          <p className="text-ink-400 mt-2">Read-only API-Keys deines Projekts verwalten.</p>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">{projectName}</h1>
+          <p className="text-ink-400 mt-2 font-mono text-sm">/{slug}</p>
         </div>
-        <div className="badge badge-gold">
-          <Shield size={11} /> AES-256-GCM
+        <div className="flex items-center gap-2">
+          {isClientZeroAevum && <span className="badge badge-gold">Client Zero</span>}
+          <span className="badge badge-gold"><Shield size={11} /> AES-256-GCM</span>
         </div>
       </header>
 
-      <IndustryDashboard template={template} projectDetail={projectDetail} />
+      {/* Tabs (only for client-zero AEVUM — keeps existing UX unchanged for everyone else) */}
+      {isClientZeroAevum && (
+        <div className="border-b border-white/[0.06] mb-8 overflow-x-auto">
+          <nav className="flex items-center gap-1 min-w-max" role="tablist" aria-label="Projekt-Bereiche">
+            <TabButton tab="dashboard" active={tab} onClick={setTab} icon={<LayoutDashboard size={13} />}>
+              Übersicht
+            </TabButton>
+            <TabButton tab="apis" active={tab} onClick={setTab} icon={<KeyRound size={13} />}>
+              API-Keys
+            </TabButton>
+            <TabButton tab="workflows" active={tab} onClick={setTab} icon={<Workflow size={13} />}>
+              Workflows
+            </TabButton>
+            <TabButton tab="settings" active={tab} onClick={setTab} icon={<SettingsIcon size={13} />}>
+              Settings
+            </TabButton>
+          </nav>
+        </div>
+      )}
 
+      {loading && (
+        <div className="card-premium p-16 flex justify-center"><Spinner size="md" /></div>
+      )}
+
+      {!loading && tab === 'dashboard' && isClientZeroAevum && (
+        <BusinessDashboard slug={slug} />
+      )}
+
+      {!loading && tab === 'apis' && (
+        <ApisSection
+          apis={apis}
+          form={form}
+          setForm={setForm}
+          submit={submit}
+          submitting={submitting}
+          confirmId={confirmId}
+          setConfirmId={setConfirmId}
+          remove={remove}
+        />
+      )}
+
+      {!loading && tab === 'workflows' && isClientZeroAevum && (
+        <PlaceholderCard label="Workflows" hint="Workflow-Übersicht folgt — n8n-Scenarios werden hier sichtbar." />
+      )}
+      {!loading && tab === 'settings' && isClientZeroAevum && (
+        <PlaceholderCard label="Settings" hint="Projekt-Konfiguration folgt — Blueprint-Version, Permissions, Deployment." />
+      )}
+    </div>
+  );
+}
+
+function TabButton({
+  tab, active, onClick, icon, children
+}: {
+  tab: TabKey;
+  active: TabKey;
+  onClick: (t: TabKey) => void;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const isActive = tab === active;
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={isActive}
+      onClick={() => onClick(tab)}
+      className={[
+        'inline-flex items-center gap-2 px-3.5 py-2.5 text-xs font-medium transition rounded-t-md border-b-2 -mb-px',
+        isActive
+          ? 'text-white border-gold-300 bg-white/[0.025]'
+          : 'text-ink-400 hover:text-white border-transparent hover:bg-white/[0.02]'
+      ].join(' ')}
+    >
+      {icon}
+      {children}
+    </button>
+  );
+}
+
+function PlaceholderCard({ label, hint }: { label: string; hint: string }) {
+  return (
+    <div className="card-premium p-12 text-center">
+      <div className="text-sm text-ink-300 font-medium mb-1">{label}</div>
+      <div className="text-xs text-ink-400">{hint}</div>
+    </div>
+  );
+}
+
+function ApisSection({
+  apis, form, setForm, submit, submitting, confirmId, setConfirmId, remove
+}: {
+  apis: ApiRow[];
+  form: { service: string; key_label: string; key: string };
+  setForm: React.Dispatch<React.SetStateAction<{ service: string; key_label: string; key: string }>>;
+  submit: (e: React.FormEvent) => Promise<void>;
+  submitting: boolean;
+  confirmId: string | null;
+  setConfirmId: (id: string | null) => void;
+  remove: (id: string) => Promise<void>;
+}) {
+  return (
+    <>
       <section className="mb-10">
         <h2 className="text-sm font-semibold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
           <Plus size={14} className="text-gold-300" /> Neuen API-Key einreichen
@@ -162,9 +252,7 @@ export default function ProjectDetail() {
           <KeyRound size={14} className="text-gold-300" /> Eingereichte API-Keys
           <span className="badge ml-auto">{apis.length}</span>
         </h2>
-        {loading ? (
-          <div className="card-premium p-10 flex justify-center"><Spinner size="md" /></div>
-        ) : apis.length === 0 ? (
+        {apis.length === 0 ? (
           <EmptyKeys />
         ) : (
           <div className="space-y-2">
@@ -218,7 +306,7 @@ export default function ProjectDetail() {
           </div>
         )}
       </section>
-    </div>
+    </>
   );
 }
 
@@ -228,123 +316,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="block text-xs font-medium mb-1.5 text-ink-200">{label}</span>
       {children}
     </label>
-  );
-}
-
-/**
- * Industry-spezifisches Dashboard.
- *
- * - Lädt template lazy via loadIndustryTemplate
- * - Rendert KPI-Strip mit "—" für nicht-vorhandene Sources
- * - Zeigt Empty-State, wenn keinerlei project.metrics existiert
- * - Listet Module + Recommended-Workflows als Outline (Renderer-Stubs
- *   für Sections sind out-of-scope dieser Phase)
- */
-function IndustryDashboard({
-  template,
-  projectDetail,
-}: {
-  template: IndustryTemplate | null;
-  projectDetail: ProjectDetailPayload | null;
-}) {
-  if (!template) {
-    return (
-      <section className="mb-10">
-        <div className="card-premium p-6 flex items-center justify-center min-h-[120px]">
-          <Spinner size="sm" />
-        </div>
-      </section>
-    );
-  }
-
-  // Source-Pfade beginnen mit "project." → wir wrappen die Detail-Payload
-  // unter dem Schlüssel "project", damit "project.metrics.x" auflösbar ist.
-  const sourceRoot = { project: projectDetail ?? { metrics: null } };
-  const hasAnyMetrics =
-    !!projectDetail?.metrics && Object.keys(projectDetail.metrics).length > 0;
-
-  return (
-    <>
-      <section className="mb-10">
-        <div className="flex items-center justify-between gap-4 mb-4">
-          <h2 className="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
-            <BarChart3 size={14} className="text-gold-300" />
-            {template.display_name}
-          </h2>
-          <span className="badge text-[0.65rem]">{template.industry}</span>
-        </div>
-
-        {/* KPI-Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          {template.kpi_strip.map((kpi, i) => {
-            const raw = resolveSource(sourceRoot, kpi.source);
-            const display = formatKpiValue(raw, kpi.format);
-            return (
-              <div
-                key={kpi.id}
-                className="card-premium p-4 animate-fade-up"
-                style={stagger(i, 40, 30)}
-                title={kpi.hint || ''}
-              >
-                <div className="text-[0.65rem] text-ink-400 uppercase tracking-wider mb-1.5 truncate">
-                  {kpi.label}
-                </div>
-                <div className="text-xl font-bold text-white font-mono tabular-nums">
-                  {display}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Empty-State-Hint, wenn keine echten Daten */}
-        {!hasAnyMetrics && (
-          <div className="mt-4 card-premium p-4 flex items-start gap-3 border-dashed">
-            <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/25 flex items-center justify-center shrink-0">
-              <Layers size={14} className="text-gold-300" />
-            </div>
-            <div className="text-xs text-ink-300 leading-relaxed">
-              {template.empty_state_hint}
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* Recommended Workflows */}
-      {template.recommended_workflows.length > 0 && (
-        <section className="mb-10">
-          <h2 className="text-sm font-semibold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-            <Workflow size={14} className="text-gold-300" /> Empfohlene Workflows
-            <span className="badge ml-auto">{template.recommended_workflows.length}</span>
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-2">
-            {template.recommended_workflows.map((wf, i) => (
-              <div
-                key={wf}
-                className="card-premium p-3 flex items-center justify-between gap-3 animate-fade-up"
-                style={stagger(i, 30, 20)}
-              >
-                <div className="font-mono text-xs text-white truncate">{wf}</div>
-                <span className="badge shrink-0">blueprint</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Module-Outline (Renderer-Stubs) */}
-      <section className="mb-10">
-        <h2 className="text-sm font-semibold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-          <Layers size={14} className="text-gold-300" /> Dashboard-Module
-          <span className="badge ml-auto">{template.default_modules.length}</span>
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {template.default_modules.map(m => (
-            <span key={m} className="badge font-mono text-[0.7rem]">{m}</span>
-          ))}
-        </div>
-      </section>
-    </>
   );
 }
 
