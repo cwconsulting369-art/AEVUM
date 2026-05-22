@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router';
 import { useAuth } from '@/lib/auth';
 import { LogOut, LayoutDashboard, User, ShieldCheck, FolderGit2 } from 'lucide-react';
+import Footer from './Footer';
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -41,9 +42,12 @@ export default function Layout() {
           </button>
         </div>
       </aside>
-      <main className="flex-1 p-10 max-w-5xl">
-        <Outlet />
-      </main>
+      <div className="flex-1 flex flex-col">
+        <main className="flex-1 p-10 max-w-5xl">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 }

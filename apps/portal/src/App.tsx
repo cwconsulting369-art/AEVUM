@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router';
 import { AuthProvider, useAuth } from './lib/auth';
 import Layout from './components/Layout';
+import CookieBanner from './components/CookieBanner';
 import Login from './pages/Login';
 import AuthVerify from './pages/AuthVerify';
 import Dashboard from './pages/Dashboard';
@@ -8,6 +9,9 @@ import Profile from './pages/Profile';
 import Permissions from './pages/Permissions';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
+import Datenschutz from './pages/Datenschutz';
+import Impressum from './pages/Impressum';
+import AGB from './pages/AGB';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { me, loading } = useAuth();
@@ -22,6 +26,9 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/auth/verify" element={<AuthVerify />} />
+        <Route path="/datenschutz" element={<Datenschutz />} />
+        <Route path="/impressum" element={<Impressum />} />
+        <Route path="/agb" element={<AGB />} />
         <Route element={<RequireAuth><Layout /></RequireAuth>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
@@ -31,6 +38,7 @@ export default function App() {
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <CookieBanner />
     </AuthProvider>
   );
 }
