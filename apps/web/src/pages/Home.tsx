@@ -3,18 +3,42 @@ import { motion, useInView } from 'framer-motion';
 import {
   MessageCircle,
   Calendar,
-  Globe,
-  Users,
-  FileText,
-  Cpu,
   ArrowRight,
   TrendingUp,
+  LayoutDashboard,
+  Settings2,
+  Zap,
+  FileText,
+  User,
+  Building2,
+  Lock,
+  Globe,
+  ShieldCheck,
+  Bot,
+  GitBranch,
+  BarChart3,
+  Mail,
+  Phone,
+  MousePointerClick,
+  Sparkles,
+  ArrowLeft,
+  CheckCircle,
+  Upload,
   Clock,
   Target,
-  Zap,
+  Wrench,
+  Wallet,
+  CalendarClock,
+  Users,
+  Briefcase,
 } from 'lucide-react';
 import CONTACT from '../config/contact';
-import BuyButton from '../components/BuyButton';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/components/ui/accordion';
 
 /* ──────────────────────── Animation helpers ──────────────────────── */
 
@@ -25,11 +49,6 @@ const fadeUp = {
     y: 0,
     transition: { delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] },
   }),
-};
-
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.8 } },
 };
 
 /* ──────────────────────── Section 1: Hero ──────────────────────── */
@@ -98,7 +117,6 @@ function ParticleCanvas() {
         ctx.fill();
       }
 
-      // Draw subtle connection lines
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
@@ -147,30 +165,21 @@ function HeroSection() {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light tracking-tight leading-[1.1] mb-6"
         >
-          KI-Systeme, die
+          AEVUM Systems entwickelt
           <span className="block mt-2 text-gradient font-medium">
-            komplett funktionieren
+            individuelle KI-Betriebssysteme
           </span>
-          — nicht halb.
+          fuer Unternehmen
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="text-base md:text-lg text-[#A1A1AA] max-w-2xl mx-auto mb-6 leading-relaxed"
+          className="text-base md:text-lg text-[#A1A1AA] max-w-2xl mx-auto mb-8 leading-relaxed"
         >
-          KI-Automatisierung für Hausverwaltungen und Immobilienunternehmen
-          in Augsburg und München — ehrlich gepreist, mit klarem Festpreis.
+          Mit klarer Analyse, passendem Setup, laufender Optimierung und einer
+          Deal-Struktur, die zum Wachstum des Kunden passt.
         </motion.p>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-2 px-4 py-2 mb-10 rounded-full border border-[#F59E0B]/30 bg-[#F59E0B]/5 text-[#F59E0B] text-xs md:text-sm font-mono tracking-wider uppercase"
-        >
-          <span className="w-2 h-2 rounded-full bg-[#F59E0B] animate-pulse" />
-          Pilot-Programm 2026 · −30 % gegen Testimonial-Video nach 90 Tagen
-        </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -178,21 +187,11 @@ function HeroSection() {
           className="flex flex-col items-center justify-center gap-4"
         >
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full max-w-lg">
-            <div className="sm:flex-1">
-              <BuyButton
-                tier="S"
-                label="Audit starten — 3.900 €"
-                variant="primary"
-              />
-            </div>
-            <a
-              href={CONTACT.calendly}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary flex items-center justify-center gap-2 sm:flex-1"
-            >
-              <Calendar size={18} />
-              Call buchen
+            <a href="#/audit" className="btn-primary flex items-center justify-center gap-2 sm:flex-1">
+              Audit starten
+            </a>
+            <a href="#/method" className="btn-secondary flex items-center justify-center gap-2 sm:flex-1">
+              Wie wir arbeiten
             </a>
           </div>
           <a
@@ -202,7 +201,7 @@ function HeroSection() {
             className="inline-flex items-center gap-2 text-sm text-[#A1A1AA] hover:text-[#F59E0B] underline-offset-4 hover:underline transition-colors"
           >
             <MessageCircle size={14} />
-            Direkt schreiben →
+            Direkt schreiben
           </a>
         </motion.div>
         <motion.div
@@ -211,11 +210,11 @@ function HeroSection() {
           transition={{ duration: 0.8, delay: 0.7 }}
           className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-[#52525B] font-mono mt-6"
         >
-          <span>✓ 4 laufende Kundenprojekte</span>
-          <span className="hidden sm:inline">·</span>
-          <span>✓ Ø 3 Tage bis zur ersten Automatisierung</span>
-          <span className="hidden sm:inline">·</span>
-          <span>✓ DSGVO-konform</span>
+          <span>Deutsch</span>
+          <span className="hidden sm:inline">|</span>
+          <span>DSGVO</span>
+          <span className="hidden sm:inline">|</span>
+          <span>Massgeschneidert</span>
         </motion.div>
       </div>
 
@@ -238,16 +237,49 @@ function HeroSection() {
   );
 }
 
-/* ──────────────────────── Section 2: Problem ──────────────────────── */
+/* ──────────────────────── Section 2: Marketing-Thesis (7 Steps) ──────────────────────── */
 
-function ProblemSection() {
+function ThesisSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const stats = [
-    { icon: Clock, value: 'Manuell', label: 'wiederkehrende Aufgaben' },
-    { icon: Zap, value: 'Verteilt', label: 'Tools ohne gemeinsame Datenbasis' },
-    { icon: Target, value: 'Lokal', label: 'Optimierung statt System-Sicht' },
+  const steps = [
+    {
+      num: '01',
+      tag: 'PROBLEM',
+      text: 'Unternehmen sammeln Tools wie Erweiterungs-Karten. CRM hier, Automations-Hub dort, AI-Spielzeug ueberall. Aber zwischen den Inseln verlaeuft sich die Arbeit: Daten doppelt gepflegt, Entscheidungen aus dem Bauch, Reports im Excel-Limbo.',
+    },
+    {
+      num: '02',
+      tag: 'HYPOTHESE',
+      text: 'Viele glauben: noch ein Tool, noch ein Hire, dann wird\'s besser. Oder: "Wir machen jetzt was mit AI", dann sind wir auf dem Stand der Zeit.',
+    },
+    {
+      num: '03',
+      tag: 'ANTI-THESE',
+      text: 'Mehr Werkzeuge in einer ungeordneten Werkstatt machen die Werkstatt nicht ordentlicher. AI ohne System wird zur teuren Spielerei. Die meisten "AI-Implementierungen" produzieren PowerPoint-Material, nicht Outcomes.',
+    },
+    {
+      num: '04',
+      tag: 'DIAGNOSE',
+      text: 'Was fehlt, ist kein weiteres Tool. Was fehlt, ist ein Betriebssystem. Ein zentraler Layer, der Daten, Workflows und Entscheidungen orchestriert.',
+    },
+    {
+      num: '05',
+      tag: 'MECHANISMUS',
+      text: 'AEVUM ist dieses Betriebssystem. In drei Schritten: Analyse → Setup → Run',
+    },
+    {
+      num: '06',
+      tag: 'BEWEIS',
+      text: 'Wir bauen, was wir selbst nutzen. AEVUM laeuft auf uns selbst, bevor es zu dir kommt. Client Zero.',
+    },
+    {
+      num: '07',
+      tag: 'CTA',
+      text: 'Starte mit einem Audit. 15-25 Fragen, ein Datei-Upload, ein automatisch generierter Pitch-Report.',
+      isCTA: true,
+    },
   ];
 
   return (
@@ -260,106 +292,46 @@ function ProblemSection() {
           className="mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
-            Das Problem
+            Die Story
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
-            Zeit und Geld versickern
-          </h2>
-          <p className="text-[#A1A1AA] text-lg max-w-2xl leading-relaxed">
-            Was wir in nahezu jedem Pitch sehen: viele wiederkehrende Aufgaben werden manuell
-            erledigt, Tools sind nicht verbunden, Daten leben in Insellösungen. Nicht weil
-            niemand sich kümmert — sondern weil eine durchgehende Systemarchitektur fehlt.
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {stats.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              custom={i}
-              variants={fadeUp}
-              initial="hidden"
-              animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#15161A] p-8 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1"
-            >
-              <stat.icon size={28} className="text-[#F59E0B] mb-4" />
-              <p className="text-4xl md:text-5xl font-light text-[#F9FAFB] mb-2">
-                {stat.value}
-              </p>
-              <p className="text-sm text-[#A1A1AA]">{stat.label}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ──────────────────────── Section 3: Strategic Narrative ──────────────────────── */
-
-function NarrativeSection() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-
-  const cards = [
-    {
-      tag: 'Die Hypothese',
-      title: 'Mehr Budget = mehr Effizienz',
-      desc: 'Viele glauben, dass mehr Investition automatisch bessere Ergebnisse bringt. Aber Budget allein löst keine strukturellen Probleme.',
-      border: 'border-l-[#F59E0B]',
-    },
-    {
-      tag: 'Die Anti-These',
-      title: 'Billige Tools kosten mehr als sie nutzen',
-      desc: 'Kostenlose oder günstige Einzeltools erzeugen Fragmentierung. Jedes neue Tool bedeutet mehr Komplexität, nicht mehr Produktivität.',
-      border: 'border-l-[#D97706]',
-    },
-    {
-      tag: 'Die Diagnose',
-      title: 'Fehlendes System-Denken',
-      desc: 'Der wahre Engpass ist nicht das Budget — es ist das Fehlen einer durchgängigen Systemarchitektur, die alle Prozesse verbindet.',
-      border: 'border-l-[#F59E0B]',
-    },
-    {
-      tag: 'Der Mechanismus',
-      title: 'Vollständige Systeme statt halber Lösungen',
-      desc: 'Wir bauen integrierte KI-Systeme, die von der ersten Kundenberührung bis zur Nachverfolgung nahtlos zusammenarbeiten.',
-      border: 'border-l-[#F59E0B]',
-    },
-  ];
-
-  return (
-    <section className="section-padding px-6 lg:px-16 bg-[#15161A]" ref={ref}>
-      <div className="max-w-[1440px] mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-16"
-        >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
-            Die Strategie
-          </span>
-          <h2 className="text-3xl md:text-5xl font-light tracking-tight">
             Warum die meisten KI-Projekte scheitern
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {cards.map((card, i) => (
+        <div className="space-y-6">
+          {steps.map((step, i) => (
             <motion.div
-              key={card.tag}
+              key={step.num}
               custom={i}
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className={`bg-[#0B0C10] p-8 border ${card.border} border-l-4 border-y-0 border-r-0 hover:-translate-y-1 transition-all duration-300`}
+              className={`bg-[#15161A] border border-white/10 hover:border-[#F59E0B]/30 transition-all p-8 lg:p-10 ${
+                step.isCTA ? 'border-[#F59E0B]/40' : ''
+              }`}
             >
-              <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-[#52525B] mb-3 block">
-                {card.tag}
-              </span>
-              <h3 className="text-lg font-medium mb-3 leading-snug">{card.title}</h3>
-              <p className="text-sm text-[#A1A1AA] leading-relaxed">{card.desc}</p>
+              <div className="flex items-start gap-6">
+                <span className="font-mono text-sm text-[#52525B] shrink-0 mt-1">
+                  {step.num}
+                </span>
+                <div>
+                  <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-[#F59E0B] mb-3 block">
+                    {step.tag}
+                  </span>
+                  <p className="text-base md:text-lg leading-relaxed text-[#F9FAFB]">
+                    {step.text}
+                  </p>
+                  {step.isCTA && (
+                    <a
+                      href="#/audit"
+                      className="btn-primary inline-flex items-center gap-2 mt-6"
+                    >
+                      Audit starten <ArrowRight size={18} />
+                    </a>
+                  )}
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -368,44 +340,129 @@ function NarrativeSection() {
   );
 }
 
-/* ──────────────────────── Section 4: Services ──────────────────────── */
+/* ──────────────────────── Section 3: Die 3 Saeulen ──────────────────────── */
 
-function ServicesSection() {
+function PillarsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const services = [
+  const pillars = [
     {
-      num: '01',
-      title: 'Intelligente Web-Systeme',
-      desc: 'High-performance, conversion-fokussierte digitale Plattformen, die Besucher in Kunden verwandeln.',
-      icon: Globe,
-      price: 'ab 3.000 €',
-      path: '/services/websites',
+      icon: LayoutDashboard,
+      name: 'MONITORING',
+      pitch: 'Du siehst jederzeit, was laeuft.',
+      bullets: [
+        'Dashboard mit Echtzeit-KPIs',
+        'Woechtenliche Reports',
+        'Transparenz ueber alle Workflows',
+      ],
     },
     {
-      num: '02',
-      title: 'Automatisierte Lead-Generierung',
-      desc: 'Maschinengesteuerte Outbound-Systeme, die skalieren — ohne zusätzliche Headcount.',
+      icon: Settings2,
+      name: 'ANPASSUNG',
+      pitch: 'System passt sich an dein Business an.',
+      bullets: [
+        'Workflows werden weiterentwickelt',
+        'Tools getauscht wo besser',
+        'Agent lernt mit',
+      ],
+    },
+    {
+      icon: TrendingUp,
+      name: 'WACHSTUM',
+      pitch: 'Wir bauen mit dir hoch, nicht fuer dich.',
+      bullets: [
+        'Neue Bausteine integriert',
+        'Use Cases werden unlocked',
+        'Skalierungs-Logik baked-in',
+      ],
+    },
+  ];
+
+  return (
+    <section className="section-padding px-6 lg:px-16 bg-[#15161A]" ref={ref}>
+      <div className="max-w-[1440px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-16"
+        >
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+            Die drei Saeulen
+          </span>
+          <h2 className="text-3xl md:text-5xl font-light tracking-tight">
+            Was AEVUM ausmacht
+          </h2>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {pillars.map((p, i) => (
+            <motion.div
+              key={p.name}
+              custom={i}
+              variants={fadeUp}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+              className="bg-[#0B0C10] p-8 lg:p-10 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1"
+            >
+              <p.icon size={32} className="text-[#F59E0B] mb-6" />
+              <h3 className="font-mono text-sm uppercase tracking-[0.1em] text-[#F59E0B] mb-3">
+                {p.name}
+              </h3>
+              <p className="text-lg text-[#F9FAFB] font-medium mb-6">{p.pitch}</p>
+              <ul className="space-y-3">
+                {p.bullets.map((b) => (
+                  <li key={b} className="flex items-start gap-2 text-sm text-[#A1A1AA]">
+                    <span className="text-[#F59E0B] mt-0.5 shrink-0">-</span>
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────── Section 4: Bausteine-Visualisierung ──────────────────────── */
+
+function ModulesSection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  const modules = [
+    {
+      icon: MousePointerClick,
+      name: 'Lead-Routing',
+      desc: 'Automatisierte Verteilung von Leads basierend auf Qualitaet, Quelle und Verfuegbarkeit.',
+    },
+    {
+      icon: Mail,
+      name: 'Email-Automation',
+      desc: 'Personalisierte Sequenzen, die zum richtigen Zeitpunkt ausgeloest werden.',
+    },
+    {
+      icon: BarChart3,
+      name: 'Reporting-Pipeline',
+      desc: 'Zentrale Daten-Sicht statt verstreuter Excel-Reports.',
+    },
+    {
       icon: Users,
-      price: 'ab 2.500 €/Mo',
-      path: '/services/lead-generation',
+      name: 'CRM-Sync',
+      desc: 'Zwei-Wege-Synchronisation zwischen allen Tools und deinem CRM.',
     },
     {
-      num: '03',
-      title: 'Content-Workflows',
-      desc: 'Ein Input, endlose hochwertige Outputs. Vollautomatisierte Content-Pipelines.',
       icon: FileText,
-      price: 'ab 1.500 €/Mo',
-      path: '/services/content-workflows',
+      name: 'Content-Pipeline',
+      desc: 'Von der Idee bis zum Publishing — automatisiert und skalierbar.',
     },
     {
-      num: '04',
-      title: 'KI-Automatisierungen',
-      desc: 'Prozesse, die lernen, sich anpassen und täglich verbessern — ohne manuelles Zutun.',
-      icon: Cpu,
-      price: 'ab 2.000 €',
-      path: '/services/ai-automation',
+      icon: Zap,
+      name: 'Monitoring-Alerts',
+      desc: 'Proaktive Benachrichtigungen bei Anomalien oder Engpaessen.',
     },
   ];
 
@@ -419,42 +476,32 @@ function ServicesSection() {
           className="mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
-            Services
+            Bausteine
           </span>
-          <h2 className="text-3xl md:text-5xl font-light tracking-tight">
-            Unsere KI-Systeme
+          <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
+            Module die zu deinem Setup andocken
           </h2>
+          <p className="text-[#A1A1AA] text-lg max-w-2xl leading-relaxed">
+            Im Audit klaeren wir, welche bei dir Sinn machen.
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {services.map((svc, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {modules.map((m, i) => (
             <motion.div
-              key={svc.num}
+              key={m.name}
               custom={i}
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
+              className="bg-[#15161A] p-8 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1 group"
             >
-              <a
-                href={"#" + svc.path}
-                className="block bg-[#15161A] p-8 lg:p-10 border-t border-[#D97706] hover:border-[#F59E0B] hover:-translate-y-1 transition-all duration-300 group"
-              >
-                <div className="flex items-start justify-between mb-6">
-                  <span className="font-mono text-sm text-[#52525B]">{svc.num}</span>
-                  <svc.icon
-                    size={24}
-                    className="text-[#A1A1AA] group-hover:text-[#F59E0B] transition-colors"
-                  />
-                </div>
-                <h3 className="text-xl lg:text-2xl font-medium mb-3">{svc.title}</h3>
-                <p className="text-sm text-[#A1A1AA] leading-relaxed mb-4">{svc.desc}</p>
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs text-[#F59E0B]">{svc.price}</span>
-                  <span className="flex items-center gap-1 text-sm text-[#A1A1AA] group-hover:text-[#F59E0B] transition-colors">
-                    Details <ArrowRight size={14} />
-                  </span>
-                </div>
-              </a>
+              <m.icon
+                size={28}
+                className="text-[#A1A1AA] group-hover:text-[#F59E0B] transition-colors mb-4"
+              />
+              <h3 className="text-lg font-medium mb-2">{m.name}</h3>
+              <p className="text-sm text-[#A1A1AA] leading-relaxed">{m.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -463,43 +510,27 @@ function ServicesSection() {
   );
 }
 
-/* ──────────────────────── Section 5: Proof (Cases) ──────────────────────── */
+/* ──────────────────────── Section 5: Was du bekommst ──────────────────────── */
 
-function ProofSection() {
+function WhatYouGetSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  // Pilot-Cases — aktive 2026er Phase. Endgültige KPIs werden nach 90 Tagen
-  // Laufzeit transparent dokumentiert. Wir vermeiden absolute Zahlen-Claims
-  // solange wir noch in der Auswertungsphase sind.
-  const cases = [
+  const items = [
     {
-      name: 'Kevin',
-      company: 'Ketolabs',
-      industry: 'E-Commerce',
-      kpi: '6 AI Agents',
-      desc: 'KI-Agenten-Stack für Performance-Marketing und Funnel — laufender Pilot, KPI-Reporting in Vorbereitung.',
+      icon: LayoutDashboard,
+      title: 'AEVUM-OS Dashboard',
+      desc: 'Dein zentrales Kommandozentrum. KPIs, Workflows, Reports — alles an einem Ort.',
     },
     {
-      name: 'Tim',
-      company: 'Personal Brand',
-      industry: 'Personal Brand',
-      kpi: 'Content-Pipeline',
-      desc: 'Automatisierter Content-Workflow von Idee bis Publishing — Pilot-Phase 2026.',
+      icon: Bot,
+      title: 'Personal Assistant Agent',
+      desc: 'Ein KI-Agent, der dein Business versteht. Verfuegbar via Chat, rund um die Uhr.',
     },
     {
-      name: 'Patrick',
-      company: 'Immobilien',
-      industry: 'Real Estate',
-      kpi: 'Lead + CRM-Setup',
-      desc: 'Anfrage-, Website- und CRM-System — Setup ausgeliefert, Lead-Volumen-Reporting läuft an.',
-    },
-    {
-      name: 'Miguel',
-      company: 'UtilityHub',
-      industry: 'Energie-Dienstleistung',
-      kpi: 'Tech-Partner',
-      desc: 'Technischer Partner für UtilityHub — Infrastruktur, DSGVO-Stack, Datenintegration.',
+      icon: GitBranch,
+      title: 'Workflow-Orchestration',
+      desc: 'Automatisierte Prozesse, die Daten verbinden und manuelle Arbeit eliminieren.',
     },
   ];
 
@@ -510,30 +541,92 @@ function ProofSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-16"
+          className="mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
-            Aktive Pilot-Cases
+            Lieferumfang
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
-            Vier laufende Projekte, ehrlich dokumentiert
+            Was du bekommst
           </h2>
-          <p className="text-[#A1A1AA] text-base max-w-2xl mx-auto leading-relaxed mt-4">
-            Wir sind 2026 mit den ersten Kunden in der Pilot-Phase. Statt
-            ausgedachter Statistiken zeigen wir den realen Stand — finale KPIs
-            werden nach 90 Tagen Laufzeit transparent dokumentiert.
-          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {items.map((item, i) => (
+            <motion.div
+              key={item.title}
+              custom={i}
+              variants={fadeUp}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+              className="bg-[#0B0C10] p-8 lg:p-10 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1"
+            >
+              <item.icon size={32} className="text-[#F59E0B] mb-6" />
+              <h3 className="text-xl font-medium mb-4">{item.title}</h3>
+              <p className="text-sm text-[#A1A1AA] leading-relaxed">{item.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────── Section 6: Live-Cases ──────────────────────── */
+
+function CasesSection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  const mockCases = [
+    {
+      name: 'Carlos',
+      industry: 'AEVUM / Client Zero',
+      share_industry: true,
+      share_kpi_deltas: true,
+      kpi_delta: 'System-Basis',
+      story: 'Wir bauen, was wir selbst nutzen.',
+      share_logo: false,
+      share_company_name: true,
+    },
+    {
+      name: 'Patrick',
+      industry: 'Real Estate Thailand',
+      share_industry: true,
+      share_kpi_deltas: true,
+      kpi_delta: 'Lead-Setup live',
+      story: 'Immobilien-Lead-System mit CRM-Integration.',
+      share_logo: false,
+      share_company_name: false,
+    },
+  ];
+
+  return (
+    <section className="section-padding px-6 lg:px-16" ref={ref}>
+      <div className="max-w-[1440px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-16"
+        >
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+            Live-Cases
+          </span>
+          <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
+            Echte Projekte, ehrlich dokumentiert
+          </h2>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {cases.map((c, i) => (
+          {mockCases.map((c, i) => (
             <motion.div
               key={c.name}
               custom={i}
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#0B0C10] p-8 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1 group"
+              className="bg-[#15161A] p-8 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center text-black font-bold text-lg">
@@ -541,93 +634,143 @@ function ProofSection() {
                 </div>
                 <div>
                   <h3 className="font-medium">{c.name}</h3>
-                  <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-[#F59E0B]">
-                    {c.industry}
-                  </span>
+                  {c.share_industry && (
+                    <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-[#F59E0B]">
+                      {c.industry}
+                    </span>
+                  )}
                 </div>
               </div>
 
-              <div className="mb-4">
-                <p className="text-3xl font-light text-gradient">{c.kpi}</p>
-                <p className="text-xs text-[#52525B] font-mono uppercase tracking-wider mt-1">
-                  Pilot-Phase 2026
+              {c.share_kpi_deltas && (
+                <div className="mb-4">
+                  <p className="text-3xl font-light text-gradient">{c.kpi_delta}</p>
+                </div>
+              )}
+
+              {c.share_company_name && c.share_industry && (
+                <p className="text-sm text-[#A1A1AA] leading-relaxed">{c.story}</p>
+              )}
+
+              {!c.share_company_name && c.share_industry && (
+                <p className="text-sm text-[#A1A1AA] leading-relaxed">
+                  Projekt laeuft — Details auf Anfrage.
                 </p>
-              </div>
-
-              <p className="text-sm text-[#A1A1AA] leading-relaxed mb-4">{c.desc}</p>
-
-              <a
-                href="#/cases"
-                className="inline-flex items-center gap-1 text-sm text-[#A1A1AA] group-hover:text-[#F59E0B] transition-colors"
-              >
-                Full Case lesen <ArrowRight size={14} />
-              </a>
+              )}
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, delay: 0.3 }}
+          className="mt-10 text-center"
+        >
+          <a
+            href="#/cases"
+            className="inline-flex items-center gap-2 text-sm text-[#A1A1AA] hover:text-[#F59E0B] transition-colors"
+          >
+            Alle Cases <ArrowRight size={14} />
+          </a>
+        </motion.div>
       </div>
     </section>
   );
 }
 
-/* ──────────────────────── Section 6: Packages ──────────────────────── */
+/* ──────────────────────── Section 7: Pricing-Block ──────────────────────── */
 
-function PackagesSection() {
+function PricingSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const packages = [
+  const models = [
     {
-      tier: 'S',
-      name: 'Start',
-      price: '3.900 €',
-      pilotPrice: '2.730 €',
-      period: 'einmalig · netto',
-      features: [
-        'Deep-dive Workflow Audit (3–5 Tage)',
-        'Automatisierungs-Roadmap mit ROI-Schätzung',
-        'Priorisierungs-Matrix nach Cash-Impact',
-        'Konkrete Implementations-Vorschläge',
-        'Kein Build inkludiert — sauberer Plan zuerst',
-      ],
-      cta: 'Audit starten',
-      checkoutTier: 'S' as const,
-      highlighted: false,
+      label: 'Modell A',
+      name: 'Setup + Standard-Retainer',
+      desc: 'Standard-Weg fuer Kunden mit Budget. Volles Setup, monatlicher Retainer fuer laufende Optimierung.',
     },
     {
-      tier: 'M',
-      name: 'Wachstum',
-      price: '12.900 €',
-      pilotPrice: '9.030 €',
-      period: 'einmalig · netto',
-      features: [
-        '1–2 Use Cases vollständig implementiert',
-        'Lead-Qualifizierung, Content oder Support-Bot',
-        'Integration mit bestehenden Tools',
-        '4–8 Wochen Lieferzeit',
-        '3 Monate Support nach Go-Live',
-      ],
-      cta: 'Wachstum buchen',
-      checkoutTier: 'M' as const,
-      highlighted: true,
+      label: 'Modell B',
+      name: 'Reduced-Setup + Hoeherer Retainer',
+      desc: 'Cashflow-freundlich. Geringere Setup-Kosten dafuer etwas hoeherer monatlicher Retainer.',
     },
     {
-      tier: 'L',
-      name: 'Skalierung',
-      price: '4.900 €',
-      pilotPrice: '3.430 €',
-      period: 'pro Monat · netto',
-      features: [
-        'Laufende Optimierung & Monitoring',
-        'Monatliche Performance-Reports',
-        'Neue Use Cases on-demand',
-        'Priorisierte Entwicklung',
-        'Jahres-Prepay −10 %',
-      ],
-      cta: 'Skalieren',
-      checkoutTier: 'L' as const,
-      highlighted: false,
+      label: 'Modell C',
+      name: 'Minimal-Setup + Retainer + Revenue-Share',
+      desc: 'Fuer Wachstums-Cases mit low budget. Wir teilen das Risiko und den Erfolg.',
     },
+  ];
+
+  return (
+    <section className="section-padding px-6 lg:px-16 bg-[#15161A]" ref={ref}>
+      <div className="max-w-[1440px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-16"
+        >
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+            Investment
+          </span>
+          <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
+            Jedes Setup wird individuell kalkuliert
+          </h2>
+          <p className="text-[#A1A1AA] text-lg max-w-2xl leading-relaxed">
+            Setup-Fee + Retainer + optional Revenue-Share. Abhaengig von
+            Komplexitaet, Datenlage, Zielbild und Wachstumspotenzial.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {models.map((m, i) => (
+            <motion.div
+              key={m.label}
+              custom={i}
+              variants={fadeUp}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+              className="bg-[#0B0C10] p-8 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1"
+            >
+              <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-3 block">
+                {m.label}
+              </span>
+              <h3 className="text-lg font-medium mb-4">{m.name}</h3>
+              <p className="text-sm text-[#A1A1AA] leading-relaxed">{m.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, delay: 0.3 }}
+          className="text-center"
+        >
+          <a
+            href="#/audit"
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            Im Audit-Call klaeren wir das passende Modell <ArrowRight size={18} />
+          </a>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────── Section 8: Vertrauens-Layer ──────────────────────── */
+
+function TrustSection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  const badges = [
+    { icon: ShieldCheck, text: 'Deutsches Unternehmen, DSGVO-konform' },
+    { icon: Lock, text: 'Aufgebaut auf bewaehrter Open-Source-Stack' },
+    { icon: Globe, text: 'Keine Vendor-Locks. Du behaeltst die Kontrolle ueber deine Daten.' },
   ];
 
   return (
@@ -637,128 +780,152 @@ function PackagesSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-16"
+          className="mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
-            Investment
+            Vertrauen
           </span>
-          <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-4">
-            Wähle dein Paket
+          <h2 className="text-3xl md:text-5xl font-light tracking-tight">
+            Transparent. Deutsch. DSGVO.
           </h2>
-          <p className="text-[#A1A1AA] text-base max-w-2xl mx-auto leading-relaxed">
-            Festpreise. Was du siehst zahlst du. Upsells sind optional und nie versteckt.
-            Die ersten 10 Pilot-Kunden bekommen 30 % Rabatt — im Tausch gegen ein
-            aussagekräftiges Testimonial-Video mit echten Ergebnis-Daten nach 90 Tagen
-            Laufzeit. Wir tauschen Preis gegen Vertrauen, das in beide Richtungen messbar wird.
-          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {packages.map((pkg, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          {badges.map((b, i) => (
             <motion.div
-              key={pkg.tier}
+              key={b.text}
               custom={i}
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className={`relative p-8 lg:p-10 border ${
-                pkg.highlighted
-                  ? 'bg-[#15161A] border-[#F59E0B]/40 scale-[1.02]'
-                  : 'bg-[#15161A] border-white/10 hover:border-[#F59E0B]/20'
-              } transition-all hover:-translate-y-1`}
+              className="bg-[#15161A] p-8 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1 text-center"
             >
-              {pkg.highlighted && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#F59E0B] text-black text-[0.65rem] font-mono uppercase tracking-wider px-4 py-1">
-                  Empfohlen
-                </span>
-              )}
-
-              <div className="mb-6">
-                <span className="font-mono text-3xl font-light text-[#F59E0B]">{pkg.tier}</span>
-                <h3 className="text-xl font-medium mt-2">{pkg.name}</h3>
-              </div>
-
-              <div className="mb-8">
-                <p className="text-3xl font-light">{pkg.price}</p>
-                <p className="text-sm text-[#52525B] font-mono">{pkg.period}</p>
-                <p className="text-xs text-[#F59E0B] font-mono uppercase tracking-wider mt-2">
-                  Pilot-Preis: {pkg.pilotPrice}
-                </p>
-              </div>
-
-              <ul className="space-y-3 mb-8">
-                {pkg.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-[#A1A1AA]">
-                    <TrendingUp size={14} className="text-[#F59E0B] mt-0.5 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <BuyButton
-                tier={pkg.checkoutTier}
-                label={pkg.cta}
-                variant={pkg.highlighted ? 'primary' : 'secondary'}
-                showCallOption={pkg.checkoutTier !== 'S'}
-                calendlyUrl={CONTACT.calendly}
-              />
-              <p className="text-[10px] text-[#52525B] font-mono uppercase tracking-wider mt-3 text-center">
-                Direkt-Kauf via Stripe · Pilot-Slot wird im Checkout reserviert
-              </p>
+              <b.icon size={32} className="text-[#F59E0B] mx-auto mb-4" />
+              <p className="text-sm text-[#A1A1AA] leading-relaxed">{b.text}</p>
             </motion.div>
           ))}
         </div>
 
-        {/* Bundle-Rabatt-Hinweis */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-12 max-w-3xl mx-auto p-6 bg-[#0B0C10] border border-[#F59E0B]/20 rounded"
+          custom={3}
+          variants={fadeUp}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          className="flex items-center gap-6 justify-center"
         >
-          <p className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-3">
-            Bundle-Rabatte
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-[#A1A1AA]">
-            <div>
-              <p className="text-[#F9FAFB] font-medium">2 Services</p>
-              <p className="text-xs">−10 %</p>
-            </div>
-            <div>
-              <p className="text-[#F9FAFB] font-medium">3 Services</p>
-              <p className="text-xs">−15 %</p>
-            </div>
-            <div>
-              <p className="text-[#F9FAFB] font-medium">4 Services Full-Stack</p>
-              <p className="text-xs">−20 % + 1. Monat L gratis</p>
-            </div>
-            <div>
-              <p className="text-[#F9FAFB] font-medium">Jahres-Prepay L</p>
-              <p className="text-xs">−10 %</p>
-            </div>
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center text-black font-bold text-xl">
+            C
           </div>
-          <p className="text-xs text-[#52525B] mt-4 leading-relaxed">
-            Pilot-Rabatt (−30 %) und Bundle-Rabatte sind kombinierbar. Beispiel: 2 Services
-            im Pilot-Programm = −10 % Bundle, danach −30 % auf den Restbetrag.
-          </p>
+          <div>
+            <p className="font-medium text-lg">Carlos Wrusch</p>
+            <p className="font-mono text-xs text-[#A1A1AA] uppercase tracking-wider">
+              Founder
+            </p>
+          </div>
         </motion.div>
       </div>
     </section>
   );
 }
 
-/* ──────────────────────── Section 7: Final CTA ──────────────────────── */
+/* ──────────────────────── Section 9: FAQ ──────────────────────── */
 
-function CTASection() {
+function FAQSection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  const faqs = [
+    {
+      q: 'Was unterscheidet AEVUM von einer normalen AI-Agency?',
+      a: 'AEVUM ist kein Service-Katalog. Wir bauen ein individuelles Betriebssystem fuer dein Unternehmen — mit Analyse, Setup und laufender Optimierung.',
+    },
+    {
+      q: 'Wie lange dauert der Aufbau?',
+      a: 'Typischerweise 4 bis 8 Wochen fuer das initiale Setup. Danach laeuft die laufende Optimierung im Retainer.',
+    },
+    {
+      q: 'Was passiert nach dem Audit?',
+      a: 'Du bekommst einen automatisch generierten Pitch-Report mit Analyse, Roadmap und Kostenschaetzung. Danach besprechen wir im Call die Details.',
+    },
+    {
+      q: 'Behaltet ihr meine Daten?',
+      a: 'Du behaeltst jederzeit die volle Kontrolle. Wir arbeiten mit Read-only API-Keys und speichern keine sensitiven Daten.',
+    },
+    {
+      q: 'Kann ich das System spaeter selbst uebernehmen?',
+      a: 'Ja. Alle Workflows sind dokumentiert und exportierbar. Kein Vendor-Lock.',
+    },
+    {
+      q: 'Was ist mit Tool-Lizenz-Kosten?',
+      a: 'Tool-Kosten werden mit 2x Multiplier weitergegeben. Das ist unsere Margin-Pflicht und sichert transparente Kalkulation.',
+    },
+    {
+      q: 'Ihr seid in Deutschland? DSGVO?',
+      a: 'Ja. AEVUM wird aus Augsburg gefuehrt. Alle Systeme sind DSGVO-konform konzipiert.',
+    },
+    {
+      q: 'Ich habe schon ein Make/n8n-Setup — koennt ihr drauf aufbauen?',
+      a: 'Ja. Im Audit analysieren wir deinen bestehenden Stack und bauen darauf auf.',
+    },
+  ];
+
+  return (
+    <section className="section-padding px-6 lg:px-16 bg-[#15161A]" ref={ref}>
+      <div className="max-w-[1440px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-16"
+        >
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+            FAQ
+          </span>
+          <h2 className="text-3xl md:text-5xl font-light tracking-tight">
+            Haeufige Fragen
+          </h2>
+        </motion.div>
+
+        <motion.div
+          custom={0}
+          variants={fadeUp}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          className="max-w-3xl mx-auto"
+        >
+          <Accordion type="single" collapsible className="space-y-4">
+            {faqs.map((faq, i) => (
+              <AccordionItem
+                key={i}
+                value={`faq-${i}`}
+                className="bg-[#0B0C10] border border-white/10 px-6"
+              >
+                <AccordionTrigger className="text-left text-sm md:text-base font-medium py-5 hover:no-underline">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-sm text-[#A1A1AA] leading-relaxed pb-5">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────── Section 10: Final CTA ──────────────────────── */
+
+function FinalCTASection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
     <section
-      className="min-h-screen flex items-center justify-center px-6 relative"
+      className="min-h-[60vh] flex items-center justify-center px-6 relative"
       ref={ref}
     >
-      {/* Subtle particle overlay */}
       <div className="absolute inset-0 opacity-30">
         <ParticleCanvas />
       </div>
@@ -769,30 +936,17 @@ function CTASection() {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 text-center max-w-3xl mx-auto"
       >
-        <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-6 block">
-          Der nächste Schritt
-        </span>
         <h2 className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight mb-6">
-          Bereit für dein
-          <span className="block text-gradient mt-2">AI-System?</span>
+          Bereit, dein
+          <span className="block text-gradient mt-2">Operating-System aufzubauen?</span>
         </h2>
-        <p className="text-[#A1A1AA] text-lg mb-4 max-w-xl mx-auto">
-          Buch einen kostenlosen Strategy Call. Wir analysieren deine Prozesse
-          und zeigen dir den exakten Fahrplan zu deinem KI-System.
-        </p>
-        <p className="text-[#F59E0B] text-sm font-mono uppercase tracking-wider mb-10">
-          Pilot-Programm 2026 · noch Plätze frei mit −30 %
-        </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 mt-10">
           <a
-            href={CONTACT.whatsapp}
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#/audit"
             className="btn-primary flex items-center gap-2"
           >
-            <MessageCircle size={18} />
-            Jetzt schreiben
+            Audit starten <ArrowRight size={18} />
           </a>
           <a
             href={CONTACT.calendly}
@@ -806,7 +960,7 @@ function CTASection() {
         </div>
 
         <p className="font-mono text-xs text-[#52525B]">
-          Durchschnittliche Deployment-Zeit: 6–8 Wochen
+          Deutsch · DSGVO · Massgeschneidert
         </p>
       </motion.div>
     </section>
@@ -819,12 +973,15 @@ export default function Home() {
   return (
     <div className="bg-[#0B0C10]">
       <HeroSection />
-      <ProblemSection />
-      <NarrativeSection />
-      <ServicesSection />
-      <ProofSection />
-      <PackagesSection />
-      <CTASection />
+      <ThesisSection />
+      <PillarsSection />
+      <ModulesSection />
+      <WhatYouGetSection />
+      <CasesSection />
+      <PricingSection />
+      <TrustSection />
+      <FAQSection />
+      <FinalCTASection />
     </div>
   );
 }
