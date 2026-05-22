@@ -12,6 +12,8 @@
 //  5) Delete abandoned orders (pending/cancelled/failed) older than 30 days
 //  6) Hard-delete records past dsgvo_deletion_due (set by retention triggers / erasure flow)
 //  7) Delete withdrawn consents older than 2 years (Art 7 burden-of-proof window)
+//  8) Delete helpbot_conversations rows whose last_msg_at is older than 30 days
+//     (anonymous AI-chat retention — DSGVO Art 5(1)(e) data minimization)
 //
 // Usage: node scripts/dsgvo-cleanup.js [--dry-run]
 
@@ -71,7 +73,8 @@ async function main() {
     securityEventsDelete: new Date(now -  90 * day).toISOString(),
     auditLogsDelete:      new Date(now - 365 * day).toISOString(),
     ordersAbandonDelete:  new Date(now -  30 * day).toISOString(),
-    consentLogDelete:     new Date(now - 730 * day).toISOString()
+    consentLogDelete:     new Date(now - 730 * day).toISOString(),
+    helpbotDelete:        new Date(now -  30 * day).toISOString()
   };
   const nowIso = new Date(now).toISOString();
 
@@ -186,9 +189,21 @@ async function main() {
   }
   summary.push(`old-withdrawn-consents-deleted: ${consentsDeleted}`);
 
+  // 8) Delete helpbot_conversations older than 30 days (anonymous AI-chat retention)
+  const { data: oldHelpbot } = await sb('GET', `/helpbot_conversations?last_msg_at=lt.${cutoffs.helpbotDelete}&select=id&limit=500`);
+  let helpbotDeleted = 0;
+  if (Array.isArray(oldHelpbot) && oldHelpbot.length > 0) {
+    if (!DRY) {
+      const ids = oldHelpbot.map(h => h.id).join(',');
+      await sb('DELETE', `/helpbot_conversations?id=in.(${ids})`);
+    }
+    helpbotDeleted = oldHelpbot.length;
+  }
+  summary.push(`helpbot-conv-deleted: ${helpbotDeleted}`);
+
   console.log(`[dsgvo-cleanup] ${DRY ? 'DRY-RUN ' : ''}${summary.join(' | ')}`);
   const totalActions = anonymized + auditIpAnon + auditsDeleted + secDeleted +
-    auditLogsDeleted + ordersAbandonedDeleted + dueAuditsDeleted + dueOrdersDeleted + consentsDeleted;
+    auditLogsDeleted + ordersAbandonedDeleted + dueAuditsDeleted + dueOrdersDeleted + consentsDeleted + helpbotDeleted;
   if (!DRY && totalActions > 0) {
     await tg(`🧹 *DSGVO Daily Cleanup (AEVUM)*\n${summary.map(s => `• ${s}`).join('\n')}`);
   }
