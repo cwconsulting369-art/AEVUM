@@ -376,7 +376,7 @@ function PillarsSection() {
       pitch: 'Du siehst jederzeit, was laeuft.',
       bullets: [
         'Dashboard mit Echtzeit-KPIs',
-        'Woechtenliche Reports',
+        'Woechentliche Reports',
         'Transparenz ueber alle Workflows',
       ],
     },
