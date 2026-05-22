@@ -19,11 +19,16 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { supabase } from '../lib/supabase.js';
 import { requireCustomerAuth, encryptSecret } from '../lib/crypto.js';
+import { projectAgentRouter } from './project-agent.js';
 
 export const meRouter = Router();
 
 // All endpoints gated by JWT auth
 meRouter.use(requireCustomerAuth);
+
+// Customer Project-Agent chat + memory (Lennox-style file memory).
+// Mounted as a sub-router so :slug propagates via mergeParams.
+meRouter.use('/projects/:slug/agent', projectAgentRouter);
 
 // ────────────────────────────────────────────────────────────
 // GET /api/me

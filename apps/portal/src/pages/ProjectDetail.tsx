@@ -4,17 +4,18 @@ import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import {
   Trash2, ArrowLeft, KeyRound, Lock, Plus, Shield,
-  LayoutDashboard, Workflow, Settings as SettingsIcon
+  LayoutDashboard, Workflow, Settings as SettingsIcon, Bot
 } from 'lucide-react';
 import Spinner from '@/components/Spinner';
 import { stagger } from '@/lib/animations';
 import BusinessDashboard from '@/components/dashboard/BusinessDashboard';
+import ProjectAgentChat from '@/components/agent/ProjectAgentChat';
 
 type ApiRow = { id: string; service: string; key_label: string | null; scope: string; health: string; added_at: string; last_used_at: string | null };
 type MeAccount = { id: string; slug: string; name: string; client_zero: boolean };
 type MeProject = { id: string; slug: string; name: string };
 
-type TabKey = 'dashboard' | 'apis' | 'workflows' | 'settings';
+type TabKey = 'dashboard' | 'agent' | 'apis' | 'workflows' | 'settings';
 
 export default function ProjectDetail() {
   const { slug = '' } = useParams();
@@ -110,25 +111,32 @@ export default function ProjectDetail() {
         </div>
       </header>
 
-      {/* Tabs (only for client-zero AEVUM — keeps existing UX unchanged for everyone else) */}
-      {isClientZeroAevum && (
-        <div className="border-b border-white/[0.06] mb-8 overflow-x-auto">
-          <nav className="flex items-center gap-1 min-w-max" role="tablist" aria-label="Projekt-Bereiche">
+      {/* Tabs — Agent tab always available; dashboard/workflows/settings gated to client-zero. */}
+      <div className="border-b border-white/[0.06] mb-8 overflow-x-auto">
+        <nav className="flex items-center gap-1 min-w-max" role="tablist" aria-label="Projekt-Bereiche">
+          {isClientZeroAevum && (
             <TabButton tab="dashboard" active={tab} onClick={setTab} icon={<LayoutDashboard size={13} />}>
               Übersicht
             </TabButton>
-            <TabButton tab="apis" active={tab} onClick={setTab} icon={<KeyRound size={13} />}>
-              API-Keys
-            </TabButton>
+          )}
+          <TabButton tab="agent" active={tab} onClick={setTab} icon={<Bot size={13} />}>
+            Agent
+          </TabButton>
+          <TabButton tab="apis" active={tab} onClick={setTab} icon={<KeyRound size={13} />}>
+            API-Keys
+          </TabButton>
+          {isClientZeroAevum && (
             <TabButton tab="workflows" active={tab} onClick={setTab} icon={<Workflow size={13} />}>
               Workflows
             </TabButton>
+          )}
+          {isClientZeroAevum && (
             <TabButton tab="settings" active={tab} onClick={setTab} icon={<SettingsIcon size={13} />}>
               Settings
             </TabButton>
-          </nav>
-        </div>
-      )}
+          )}
+        </nav>
+      </div>
 
       {loading && (
         <div className="card-premium p-16 flex justify-center"><Spinner size="md" /></div>
@@ -136,6 +144,13 @@ export default function ProjectDetail() {
 
       {!loading && tab === 'dashboard' && isClientZeroAevum && (
         <BusinessDashboard slug={slug} />
+      )}
+
+      {!loading && tab === 'agent' && (
+        <ProjectAgentChat
+          projectSlug={slug}
+          projectName={project?.name || slug}
+        />
       )}
 
       {!loading && tab === 'apis' && (
