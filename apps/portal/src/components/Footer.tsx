@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="dot dot-ok" />
-          <span>© {new Date().getFullYear()} AEVUM-system · Carlos Wrusch</span>
+          <span>© {new Date().getFullYear()} AEVUM · Carlos Wrusch</span>
         </div>
         <nav className="flex flex-wrap gap-5">
           <Link to="/datenschutz" className="hover:text-white transition">Datenschutz</Link>
