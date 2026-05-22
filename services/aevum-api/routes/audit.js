@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase.js';
 import { notifyCarlos } from '../lib/tg-notify.js';
 import { scanPayload, clean } from '../lib/security.js';
 import { logBlock } from '../lib/monitor.js';
+import { runAutoPlan } from '../lib/auto-plan.js';
 
 export const auditRouter = Router();
 
@@ -17,7 +18,7 @@ function clientIp(req) {
 // Current consent text version — bump when Datenschutzerklärung is updated
 export const CONSENT_VERSION = 'datenschutz-v1-2026-05-19';
 
-// Validation schema — matches WorkflowAudit.tsx form
+// Validation schema — matches WorkflowAudit.tsx form (v1)
 // `website` = honeypot field (visually hidden in form, bots fill it = trap)
 const AuditSchema = z.object({
   name: z.string().min(1).max(200),
@@ -41,12 +42,45 @@ const AuditSchema = z.object({
   formStartedAt: z.number().optional()
 });
 
+// AEVUM v2 audit-form schema — structured answers + file-upload metadata
+// Used by aevum-system.de v2 audit form (Kimi-refactored)
+const AuditV2Schema = z.object({
+  form_version: z.literal('v2'),
+  audit_form_blueprint_id: z.string().max(100).optional().default('aevum-audit-v2'),
+  // Anti-bot reused
+  website: z.string().max(500).optional().default(''),
+  formStartedAt: z.number().optional(),
+  // Consent
+  consent: z.literal(true, {
+    errorMap: () => ({ message: 'Einwilligung zur Datenverarbeitung erforderlich' })
+  }),
+  // Required top-level for indexing + GDPR
+  email: z.string().email().max(200),
+  name: z.string().min(1).max(200),
+  company: z.string().min(1).max(200),
+  phone: z.string().max(50).optional().default(''),
+  // Full structured answers (per AEVUM-V2-SCHEMAS §3)
+  answers: z.record(z.any()),
+  // Uploaded file metadata only — actual files in Storage Bucket "audit-uploads"
+  uploaded_files: z.array(z.object({
+    filename: z.string().max(255),
+    url: z.string().url().max(1000),
+    type: z.string().max(50).optional(),
+    size_bytes: z.number().int().nonnegative().optional()
+  })).max(5).optional().default([])
+});
+
 auditRouter.post('/submit', async (req, res) => {
   const ip = clientIp(req);
   const ua = req.get('user-agent') || '';
   const ctx = { ip, user_agent: ua, endpoint: 'POST /api/audit/submit' };
 
-  // ─── Layer 1: Schema validation (Zod) ───
+  // ─── v2 detection: route to v2-handler if form_version="v2" present ───
+  if (req.body?.form_version === 'v2') {
+    return handleAuditV2(req, res, ctx, ip, ua);
+  }
+
+  // ─── Layer 1: Schema validation (Zod) — v1 ───
   const parsed = AuditSchema.safeParse(req.body);
   if (!parsed.success) {
     logBlock({ ...ctx, type: 'validation_fail', reason: JSON.stringify(parsed.error.flatten().fieldErrors).slice(0, 200) });
@@ -148,6 +182,99 @@ auditRouter.post('/submit', async (req, res) => {
 
   return res.json({ ok: true, id: inserted?.id });
 });
+
+// ─── v2 submit handler ───
+async function handleAuditV2(req, res, ctx, ip, ua) {
+  const parsed = AuditV2Schema.safeParse(req.body);
+  if (!parsed.success) {
+    logBlock({ ...ctx, type: 'validation_fail_v2', reason: JSON.stringify(parsed.error.flatten().fieldErrors).slice(0, 200) });
+    return res.status(400).json({ ok: false, error: 'validation_failed', details: parsed.error.flatten() });
+  }
+  const f = parsed.data;
+
+  // Honeypot
+  if (f.website && f.website.length > 0) {
+    logBlock({ ...ctx, type: 'honeypot_triggered_v2' });
+    return res.json({ ok: true, id: 'simulated-' + Date.now().toString(36) });
+  }
+  // Time-check
+  if (f.formStartedAt) {
+    const elapsed = Date.now() - f.formStartedAt;
+    if (elapsed < 3000) {
+      logBlock({ ...ctx, type: 'too_fast_v2', reason: `${elapsed}ms` });
+      return res.json({ ok: true, id: 'simulated-' + Date.now().toString(36) });
+    }
+  }
+  // Pattern-scan on flat critical fields
+  const attackHits = scanPayload({ name: f.name, company: f.company, email: f.email, phone: f.phone });
+  if (attackHits.length > 0) {
+    logBlock({ ...ctx, type: 'attack_pattern_v2', reason: attackHits.map(h => `${h.field}:${h.reason}`).join('; ') });
+    return res.status(400).json({ ok: false, error: 'invalid_input' });
+  }
+
+  const consentAt = new Date().toISOString();
+  const row = {
+    // Legacy required fields (still NOT NULL on table)
+    name: clean(f.name),
+    company: clean(f.company),
+    email: clean(f.email),
+    phone: clean(f.phone),
+    // v2 structured payload
+    answers: f.answers,
+    uploaded_files: f.uploaded_files,
+    form_version: 'v2',
+    audit_form_blueprint_id: f.audit_form_blueprint_id ?? 'aevum-audit-v2',
+    consent_version: CONSENT_VERSION,
+    consent_at: consentAt,
+    meta: {
+      user_agent: ua,
+      ip,
+      form_open_ms: f.formStartedAt ? Date.now() - f.formStartedAt : null,
+      submission_type: 'v2'
+    },
+    status: 'new'
+  };
+
+  const result = await supabase.insert('audits', row);
+  if (!result.ok) {
+    console.error('Supabase insert (v2) failed:', result.status, result.error);
+    return res.status(500).json({ ok: false, error: 'persist_failed' });
+  }
+  const inserted = Array.isArray(result.data) ? result.data[0] : result.data;
+
+  // Consent log
+  supabase.insert('consent_log', {
+    audit_id: inserted?.id,
+    email: clean(f.email),
+    consent_type: 'wgm_v2_submission',
+    consent_text_version: CONSENT_VERSION,
+    ip,
+    user_agent: ua
+  }).catch(err => console.error('consent_log fail (v2):', err));
+
+  // TG notif
+  const idShort = (inserted?.id || 'unknown').slice(0, 8);
+  const firstName = (f.name || '').split(' ')[0] || 'Anon';
+  const emailMasked = f.email.replace(/^(.).+(@.+)$/, '$1***$2');
+  const industry = f.answers?.unternehmen?.industry || f.answers?.industry || null;
+  const summary = [
+    `📋 *Neuer Audit v2* — \`${idShort}\``,
+    `*Firma:* ${f.company}`,
+    `*Kontakt:* ${firstName} · ${emailMasked}`,
+    industry ? `*Branche:* ${industry}` : null,
+    f.uploaded_files?.length ? `*Files:* ${f.uploaded_files.length}` : null,
+    '',
+    `_Auto-Plan-Workflow startet im nächsten Schritt._`
+  ].filter(Boolean).join('\n');
+  notifyCarlos(summary);
+
+  // Fire-and-forget Auto-Plan-Engine (async, returns ok to client immediately)
+  if (inserted?.id) {
+    runAutoPlan(inserted.id).catch(err => console.error('[auto-plan] fire-and-forget failed:', err.message));
+  }
+
+  return res.json({ ok: true, id: inserted?.id, form_version: 'v2' });
+}
 
 // Helper: maskEmail for TG notifications (PII-min)
 function maskEmail(email) {
