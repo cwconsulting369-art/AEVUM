@@ -1,11 +1,15 @@
 {
-  "name": "AEVUM System",
+  "name": "AEVUM System — KI-Betriebssysteme für den Mittelstand",
   "short_name": "AEVUM",
-  "description": "Workflow-Automation, AI-Audits und MRR-Wachstum für Mittelstand.",
+  "description": "Individuelle KI-Betriebssysteme für Kanzleien, Makler, Hausverwaltungen und KMU. DSGVO-konform aus Augsburg.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#0B0C10",
   "theme_color": "#0B0C10",
+  "lang": "de-DE",
+  "categories": ["business", "productivity"],
   "icons": [
     {
       "src": "/favicon.svg",
