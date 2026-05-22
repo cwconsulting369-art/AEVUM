@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /checkout/
+
+Sitemap: https://aevum-system.de/sitemap.xml
