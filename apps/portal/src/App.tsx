@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router';
 import { AuthProvider, useAuth } from './lib/auth';
 import Layout from './components/Layout';
 import CookieBanner from './components/CookieBanner';
+import Spinner from './components/Spinner';
 import Login from './pages/Login';
 import AuthVerify from './pages/AuthVerify';
 import Dashboard from './pages/Dashboard';
@@ -15,7 +16,16 @@ import AGB from './pages/AGB';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { me, loading } = useAuth();
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-neutral-950 text-neutral-100">Lade…</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-ink-950 text-ink-100">
+        <div className="text-center">
+          <div className="flex justify-center mb-4"><Spinner size="md" /></div>
+          <div className="text-sm text-ink-400">Lade Portal…</div>
+        </div>
+      </div>
+    );
+  }
   if (!me) return <Navigate to="/" replace />;
   return <>{children}</>;
 }

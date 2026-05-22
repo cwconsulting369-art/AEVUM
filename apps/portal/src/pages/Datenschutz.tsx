@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router';
+import Brand from '@/components/Brand';
 
 export default function Datenschutz() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <header className="border-b border-neutral-800 px-6 py-5">
+    <div className="min-h-screen bg-ink-950 text-ink-100">
+      <header className="sticky top-0 z-20 backdrop-blur-xl bg-ink-950/70 border-b border-white/5 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold tracking-tight">AEVUM</Link>
-          <span className="text-xs text-neutral-500">Customer Portal</span>
+          <Link to="/" className="hover:opacity-90 transition"><Brand size={28} /></Link>
         </div>
       </header>
 
