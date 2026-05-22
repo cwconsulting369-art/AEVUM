@@ -9,6 +9,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { auditRouter } from './routes/audit.js';
+import { helpbotRouter } from './routes/helpbot.js';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3210', 10);
@@ -149,6 +150,28 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true, service: 'aevum-api', uptime: process.uptime() });
 });
 app.use('/api/audit', auditSubmitLimiter, dsgvoLimiter, auditRouter);
+
+// Helpbot chat widget — Claude Sonnet 4.5 streaming
+// Layered rate-limits: 30 msg / hour / IP, 200 msg / day / IP
+const helpbotHourLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 30,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: clientIpKey,
+  message: { ok: false, error: 'rate_limit_helpbot_hour', hint: 'Bitte später wieder versuchen oder direkt /audit nutzen.' },
+  skip: (req) => req.method !== 'POST' || req.path !== '/chat'
+});
+const helpbotDayLimiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000,
+  max: 200,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: clientIpKey,
+  message: { ok: false, error: 'rate_limit_helpbot_day', hint: 'Tageslimit erreicht. Buche ein Erstgespräch unter /audit.' },
+  skip: (req) => req.method !== 'POST' || req.path !== '/chat'
+});
+app.use('/api/helpbot', helpbotHourLimiter, helpbotDayLimiter, helpbotRouter);
 
 // Checkout — create-session + pilot-status. Webhook is mounted above
 // with raw-body parser before express.json().

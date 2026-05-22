@@ -2,6 +2,9 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 
+// Helpbot is lazy-loaded on first idle / interaction to keep initial bundle lean
+const Helpbot = lazy(() => import('./components/Helpbot'));
+
 const Audit = lazy(() => import('./pages/Audit'));
 const Method = lazy(() => import('./pages/Method'));
 const Cases = lazy(() => import('./pages/Cases'));
@@ -43,12 +46,29 @@ const routeComponents: Record<string, React.ComponentType> = {
 
 export default function App() {
   const [route, setRoute] = useState(getHashRoute);
+  const [mountHelpbot, setMountHelpbot] = useState(false);
 
   useEffect(() => {
     const handleHash = () => setRoute(getHashRoute());
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
+
+  // Mount Helpbot bundle when browser is idle (or after 2s as fallback) — keeps initial paint lean
+  useEffect(() => {
+    if (mountHelpbot) return;
+    const win = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number };
+    const idle = win.requestIdleCallback;
+    if (typeof idle === 'function') {
+      const id = idle(() => setMountHelpbot(true), { timeout: 2500 });
+      return () => {
+        const cancel = (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback;
+        if (typeof cancel === 'function') cancel(id);
+      };
+    }
+    const t = setTimeout(() => setMountHelpbot(true), 2000);
+    return () => clearTimeout(t);
+  }, [mountHelpbot]);
 
   const Page = routeComponents[route] || Home;
   const isHome = route === '/';
@@ -60,6 +80,11 @@ export default function App() {
       ) : (
         <Suspense fallback={<LoadingFallback />}>
           <Page />
+        </Suspense>
+      )}
+      {mountHelpbot && (
+        <Suspense fallback={null}>
+          <Helpbot />
         </Suspense>
       )}
     </Layout>
