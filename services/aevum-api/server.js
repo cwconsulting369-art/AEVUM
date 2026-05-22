@@ -9,6 +9,14 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { auditRouter } from './routes/audit.js';
+import { accountsRouter } from './routes/accounts.js';
+import { projectsRouter } from './routes/projects.js';
+import { blueprintsRouter } from './routes/blueprints.js';
+import { authRouter } from './routes/auth.js';
+import { meRouter } from './routes/me.js';
+import { casesRouter } from './routes/cases.js';
+import { approvalRouter } from './routes/approval.js';
+import { tgWebhookRouter } from './routes/tg-webhook.js';
 import { helpbotRouter } from './routes/helpbot.js';
 
 const app = express();
@@ -48,7 +56,9 @@ app.use(helmet({
 const ALLOWED_ORIGINS = [
   'https://aevum-system.de',
   'https://www.aevum-system.de',
+  'https://app.aevum-system.de',
   'http://localhost:3000',
+  'http://localhost:5180',
   'http://localhost:5173'
 ];
 
@@ -151,6 +161,26 @@ app.get('/api/health', (_req, res) => {
 });
 app.use('/api/audit', auditSubmitLimiter, dsgvoLimiter, auditRouter);
 
+// Checkout — create-session + pilot-status. Webhook is mounted above
+// with raw-body parser before express.json().
+app.use('/api/checkout', checkoutRouter);
+
+// AEVUM v2 — Account/Project/Blueprint layer (admin-token gated)
+app.use('/api/accounts', accountsRouter);
+app.use('/api/projects', projectsRouter);
+app.use('/api/blueprints', blueprintsRouter);
+
+// AEVUM v2 — Customer-Portal auth + self-service (Block D)
+app.use('/api/auth', authRouter);
+app.use('/api/me', meRouter);
+app.use('/api/cases', casesRouter);
+
+// Lennox ↔ Carlos async approval channel (admin-token gated)
+app.use('/api/approval', approvalRouter);
+
+// Telegram-Bot webhook (secret-token gated, not admin-gated — Telegram can't send custom headers besides secret_token)
+app.use('/api/tg-webhook', tgWebhookRouter);
+
 // Helpbot chat widget — Claude Sonnet 4.5 streaming
 // Layered rate-limits: 30 msg / hour / IP, 200 msg / day / IP
 const helpbotHourLimiter = rateLimit({
@@ -172,10 +202,6 @@ const helpbotDayLimiter = rateLimit({
   skip: (req) => req.method !== 'POST' || req.path !== '/chat'
 });
 app.use('/api/helpbot', helpbotHourLimiter, helpbotDayLimiter, helpbotRouter);
-
-// Checkout — create-session + pilot-status. Webhook is mounted above
-// with raw-body parser before express.json().
-app.use('/api/checkout', checkoutRouter);
 
 // 404
 app.use((req, res) => {

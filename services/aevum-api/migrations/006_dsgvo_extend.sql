@@ -54,6 +54,7 @@ INSERT INTO public.dsgvo_settings (id) VALUES (1)
 ALTER TABLE public.dsgvo_settings ENABLE ROW LEVEL SECURITY;
 
 -- Read-only public so frontend can show current consent_text_version
+DROP POLICY IF EXISTS "anyone read dsgvo settings" ON public.dsgvo_settings;
 CREATE POLICY "anyone read dsgvo settings" ON public.dsgvo_settings
   FOR SELECT USING (true);
 
