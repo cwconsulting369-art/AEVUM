@@ -206,7 +206,7 @@ function HeroSection() {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light tracking-tight leading-[1.1] mb-6"
         >
-          AEVUM entwickelt
+          <span className="text-gradient font-medium">AEVUM</span> entwickelt
           <span className="block mt-2 text-gradient font-medium">
             individuelle KI-Betriebssysteme
           </span>
