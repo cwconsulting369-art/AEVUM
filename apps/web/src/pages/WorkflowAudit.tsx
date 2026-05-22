@@ -40,14 +40,14 @@ function HeroSection() {
   return (
     <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden pt-32 pb-16">
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#F59E0B]/15 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#e0a458]/15 via-transparent to-transparent" />
       </div>
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
         <motion.span
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="inline-block bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-[#F59E0B] font-mono text-xs uppercase tracking-[0.15em] px-4 py-2 mb-6"
+          className="inline-block bg-[#e0a458]/10 border border-[#e0a458]/30 text-[#e0a458] font-mono text-xs uppercase tracking-[0.15em] px-4 py-2 mb-6"
         >
           Kostenlos & unverbindlich
         </motion.span>
@@ -64,7 +64,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-base md:text-lg text-[#A1A1AA] max-w-2xl mx-auto leading-relaxed"
+          className="text-base md:text-lg text-[#a4a4ad] max-w-2xl mx-auto leading-relaxed"
         >
           Füllen Sie das Formular aus. Wir analysieren Ihre Prozesse und senden Ihnen
           in der Regel innerhalb von 2 bis 3 Werktagen eine personalisierte Automatisierungs-Roadmap —
@@ -143,10 +143,10 @@ function FormSection() {
   };
 
   const inputClasses =
-    'w-full bg-[#0B0C10] border border-white/10 px-4 py-3 text-sm text-[#F8FAFC] placeholder-[#52525B] focus:border-[#F59E0B]/50 focus:outline-none transition-colors';
-  const labelClasses = 'flex items-center gap-2 text-sm text-[#A1A1AA] mb-2';
+    'w-full bg-[#08080a] border border-white/10 px-4 py-3 text-sm text-[#F8FAFC] placeholder-[#52525B] focus:border-[#e0a458]/50 focus:outline-none transition-colors';
+  const labelClasses = 'flex items-center gap-2 text-sm text-[#a4a4ad] mb-2';
   const selectClasses =
-    'w-full bg-[#0B0C10] border border-white/10 px-4 py-3 text-sm text-[#F8FAFC] focus:border-[#F59E0B]/50 focus:outline-none transition-colors appearance-none cursor-pointer';
+    'w-full bg-[#08080a] border border-white/10 px-4 py-3 text-sm text-[#F8FAFC] focus:border-[#e0a458]/50 focus:outline-none transition-colors appearance-none cursor-pointer';
 
   if (submitted) {
     return (
@@ -156,15 +156,15 @@ function FormSection() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
-            className="bg-[#15161A] border border-[#F59E0B]/30 p-10 lg:p-16 text-center"
+            className="bg-[#111116] border border-[#e0a458]/30 p-10 lg:p-16 text-center"
           >
-            <div className="w-20 h-20 bg-[#F59E0B]/10 border border-[#F59E0B]/30 flex items-center justify-center mx-auto mb-8">
-              <CheckCircle size={40} className="text-[#F59E0B]" />
+            <div className="w-20 h-20 bg-[#e0a458]/10 border border-[#e0a458]/30 flex items-center justify-center mx-auto mb-8">
+              <CheckCircle size={40} className="text-[#e0a458]" />
             </div>
             <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-4">
               Anfrage <span className="text-gradient">erhalten!</span>
             </h2>
-            <p className="text-[#A1A1AA] mb-8 leading-relaxed">
+            <p className="text-[#a4a4ad] mb-8 leading-relaxed">
               Vielen Dank, {formData.name || 'für Ihre Anfrage'}. Wir analysieren Ihre
               Prozesse und senden Ihnen innerhalb von <strong className="text-[#F8FAFC]">48 Stunden</strong>{' '}
               Ihre personalisierte Automatisierungs-Roadmap.
@@ -198,7 +198,7 @@ function FormSection() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
           onSubmit={handleSubmit}
-          className="bg-[#15161A] border border-white/10 p-8 lg:p-12"
+          className="bg-[#111116] border border-white/10 p-8 lg:p-12"
         >
           {/* Honeypot — visually hidden, off-screen. Real users never see/fill this. Bots auto-fill. */}
           <div
@@ -226,7 +226,7 @@ function FormSection() {
 
           {/* Intro text */}
           <div className="mb-10 pb-8 border-b border-white/10">
-            <p className="text-[#A1A1AA] leading-relaxed">
+            <p className="text-[#a4a4ad] leading-relaxed">
               Erzählen Sie uns von Ihrem Unternehmen. Je mehr wir wissen, desto präziser
               wird Ihre Roadmap. Das dauert nur <strong className="text-[#F8FAFC]">3-5 Minuten</strong>.
             </p>
@@ -236,7 +236,7 @@ function FormSection() {
             {/* 1. Name */}
             <motion.div custom={0} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="name" className={labelClasses}>
-                <User size={16} className="text-[#F59E0B]" />
+                <User size={16} className="text-[#e0a458]" />
                 Wie heißen Sie? *
               </label>
               <input
@@ -254,7 +254,7 @@ function FormSection() {
             {/* 2. Unternehmen */}
             <motion.div custom={1} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="company" className={labelClasses}>
-                <Building2 size={16} className="text-[#F59E0B]" />
+                <Building2 size={16} className="text-[#e0a458]" />
                 Wie heißt Ihr Unternehmen? *
               </label>
               <input
@@ -272,7 +272,7 @@ function FormSection() {
             {/* 3. Branche */}
             <motion.div custom={2} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="industry" className={labelClasses}>
-                <Briefcase size={16} className="text-[#F59E0B]" />
+                <Briefcase size={16} className="text-[#e0a458]" />
                 In welcher Branche sind Sie tätig? *
               </label>
               <select
@@ -300,7 +300,7 @@ function FormSection() {
             {/* 4. Teamgröße */}
             <motion.div custom={3} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="teamSize" className={labelClasses}>
-                <Users size={16} className="text-[#F59E0B]" />
+                <Users size={16} className="text-[#e0a458]" />
                 Wie groß ist Ihr Team? *
               </label>
               <select
@@ -323,7 +323,7 @@ function FormSection() {
             {/* 5. Was macht Ihr Unternehmen? */}
             <motion.div custom={4} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="description" className={labelClasses}>
-                <FileText size={16} className="text-[#F59E0B]" />
+                <FileText size={16} className="text-[#e0a458]" />
                 Was macht Ihr Unternehmen? Was ist Ihr Angebot? *
               </label>
               <textarea
@@ -341,7 +341,7 @@ function FormSection() {
             {/* 6. Größte Zeitfresser */}
             <motion.div custom={5} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="timeWasters" className={labelClasses}>
-                <Clock size={16} className="text-[#F59E0B]" />
+                <Clock size={16} className="text-[#e0a458]" />
                 Was sind Ihre größten Zeitfresser? *
               </label>
               <textarea
@@ -359,7 +359,7 @@ function FormSection() {
             {/* 7. Aktuelle Tools */}
             <motion.div custom={6} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="tools" className={labelClasses}>
-                <Wrench size={16} className="text-[#F59E0B]" />
+                <Wrench size={16} className="text-[#e0a458]" />
                 Welche Tools nutzen Sie aktuell?
               </label>
               <input
@@ -376,7 +376,7 @@ function FormSection() {
             {/* 8. Budgetrahmen */}
             <motion.div custom={7} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="budget" className={labelClasses}>
-                <Wallet size={16} className="text-[#F59E0B]" />
+                <Wallet size={16} className="text-[#e0a458]" />
                 Was ist Ihr Budgetrahmen? *
               </label>
               <select
@@ -398,7 +398,7 @@ function FormSection() {
             {/* 9. Zeitrahmen */}
             <motion.div custom={8} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="timeline" className={labelClasses}>
-                <CalendarClock size={16} className="text-[#F59E0B]" />
+                <CalendarClock size={16} className="text-[#e0a458]" />
                 Wann soll das System live sein? *
               </label>
               <select
@@ -420,7 +420,7 @@ function FormSection() {
             {/* 10. E-Mail */}
             <motion.div custom={9} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="email" className={labelClasses}>
-                <Mail size={16} className="text-[#F59E0B]" />
+                <Mail size={16} className="text-[#e0a458]" />
                 Ihre E-Mail-Adresse *
               </label>
               <input
@@ -438,7 +438,7 @@ function FormSection() {
             {/* 11. Telefon */}
             <motion.div custom={10} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="phone" className={labelClasses}>
-                <Phone size={16} className="text-[#F59E0B]" />
+                <Phone size={16} className="text-[#e0a458]" />
                 Ihre Telefonnummer
               </label>
               <input
@@ -455,15 +455,15 @@ function FormSection() {
             {/* File Upload (visual only) */}
             <motion.div custom={11} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label className={labelClasses}>
-                <Upload size={16} className="text-[#F59E0B]" />
+                <Upload size={16} className="text-[#e0a458]" />
                 Dokumente hochladen (optional)
               </label>
-              <div className="w-full bg-[#0B0C10] border border-dashed border-white/20 hover:border-[#F59E0B]/30 px-4 py-10 text-center transition-colors cursor-pointer group">
-                <Upload size={28} className="text-[#52525B] group-hover:text-[#F59E0B] mx-auto mb-3 transition-colors" />
-                <p className="text-sm text-[#52525B] group-hover:text-[#A1A1AA] transition-colors">
+              <div className="w-full bg-[#08080a] border border-dashed border-white/20 hover:border-[#e0a458]/30 px-4 py-10 text-center transition-colors cursor-pointer group">
+                <Upload size={28} className="text-[#7a7a85] group-hover:text-[#e0a458] mx-auto mb-3 transition-colors" />
+                <p className="text-sm text-[#7a7a85] group-hover:text-[#a4a4ad] transition-colors">
                   PDF, DOC, oder Bilder hierher ziehen
                 </p>
-                <p className="text-xs text-[#52525B] mt-1">Max. 10 MB</p>
+                <p className="text-xs text-[#7a7a85] mt-1">Max. 10 MB</p>
               </div>
             </motion.div>
           </div>
@@ -482,11 +482,11 @@ function FormSection() {
                 checked={consent}
                 onChange={(e) => setConsent(e.target.checked)}
                 required
-                className="mt-1 w-4 h-4 accent-[#F59E0B] cursor-pointer flex-shrink-0"
+                className="mt-1 w-4 h-4 accent-[#e0a458] cursor-pointer flex-shrink-0"
               />
-              <span className="text-sm text-[#A1A1AA] group-hover:text-[#F8FAFC] transition-colors">
+              <span className="text-sm text-[#a4a4ad] group-hover:text-[#F8FAFC] transition-colors">
                 Ich willige ein, dass meine Daten zum Zweck der Audit-Erstellung und Kontaktaufnahme verarbeitet werden. Mehr in der{' '}
-                <a href="#/datenschutz" className="text-[#F59E0B] hover:underline">
+                <a href="#/datenschutz" className="text-[#e0a458] hover:underline">
                   Datenschutzerklärung
                 </a>
                 . Widerruf jederzeit möglich (Art 7 Abs 3 DSGVO).
@@ -524,7 +524,7 @@ function FormSection() {
                 {submitError}
               </p>
             )}
-            <p className="text-center text-xs text-[#52525B] mt-4">
+            <p className="text-center text-xs text-[#7a7a85] mt-4">
               100% kostenlos und unverbindlich. Ihre Daten sind sicher.
             </p>
           </motion.div>
@@ -559,7 +559,7 @@ function NextStepsSection() {
   ];
 
   return (
-    <section className="px-6 lg:px-16 py-24 bg-[#15161A]" ref={ref}>
+    <section className="px-6 lg:px-16 py-24 bg-[#111116]" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -567,7 +567,7 @@ function NextStepsSection() {
           transition={{ duration: 0.7 }}
           className="text-center mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             Der Ablauf
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
@@ -583,19 +583,19 @@ function NextStepsSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="relative text-center p-8 bg-[#0B0C10] border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1"
+              className="relative text-center p-8 bg-[#08080a] border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
             >
-              <div className="w-16 h-16 bg-[#15161A] border border-[#F59E0B]/30 flex items-center justify-center mx-auto mb-6">
-                <step.icon size={28} className="text-[#F59E0B]" />
+              <div className="w-16 h-16 bg-[#111116] border border-[#e0a458]/30 flex items-center justify-center mx-auto mb-6">
+                <step.icon size={28} className="text-[#e0a458]" />
               </div>
-              <span className="font-mono text-xs text-[#52525B] uppercase tracking-wider block mb-3">
+              <span className="font-mono text-xs text-[#7a7a85] uppercase tracking-wider block mb-3">
                 Schritt {i + 1}
               </span>
               <h3 className="text-lg font-medium mb-3">{step.title}</h3>
-              <p className="text-sm text-[#A1A1AA] leading-relaxed">{step.desc}</p>
+              <p className="text-sm text-[#a4a4ad] leading-relaxed">{step.desc}</p>
 
               {i < steps.length - 1 && (
-                <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-[#F59E0B]">
+                <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-[#e0a458]">
                   <ArrowRight size={20} />
                 </div>
               )}
@@ -622,20 +622,20 @@ function TestimonialSection() {
           transition={{ duration: 0.7 }}
           className="max-w-3xl mx-auto"
         >
-          <div className="bg-[#15161A] border border-[#F59E0B]/20 p-10 lg:p-12">
+          <div className="bg-[#111116] border border-[#e0a458]/20 p-10 lg:p-12">
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center text-black font-bold text-xl">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#e0a458] to-[#a86d27] flex items-center justify-center text-black font-bold text-xl">
                 K
               </div>
               <div>
                 <h3 className="text-lg font-medium">Kevin</h3>
-                <span className="font-mono text-xs text-[#F59E0B] uppercase tracking-wider">
+                <span className="font-mono text-xs text-[#e0a458] uppercase tracking-wider">
                   Ketolabs — E-Commerce
                 </span>
               </div>
             </div>
 
-            <blockquote className="text-lg md:text-xl text-[#A1A1AA] leading-relaxed mb-8 italic">
+            <blockquote className="text-lg md:text-xl text-[#a4a4ad] leading-relaxed mb-8 italic">
               &ldquo;Der Workflow Audit war der Wendepunkt. Innerhalb von 48 Stunden hatten wir eine
               Roadmap, die exakt zeigte, wo wir mit KI ansetzen können. Seitdem laufen 6 AI Agents
               und wir machen €2.847 pro Tag — automatisiert.&rdquo;
@@ -643,16 +643,16 @@ function TestimonialSection() {
 
             <div className="flex flex-wrap gap-6">
               <div className="flex items-center gap-2">
-                <TrendingUp size={18} className="text-[#F59E0B]" />
-                <span className="text-sm text-[#A1A1AA]">€2.847/Tag</span>
+                <TrendingUp size={18} className="text-[#e0a458]" />
+                <span className="text-sm text-[#a4a4ad]">€2.847/Tag</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle size={18} className="text-[#F59E0B]" />
-                <span className="text-sm text-[#A1A1AA]">6 AI Agents</span>
+                <CheckCircle size={18} className="text-[#e0a458]" />
+                <span className="text-sm text-[#a4a4ad]">6 AI Agents</span>
               </div>
               <div className="flex items-center gap-2">
-                <TrendingUp size={18} className="text-[#F59E0B]" />
-                <span className="text-sm text-[#A1A1AA]">3.45x ROAS</span>
+                <TrendingUp size={18} className="text-[#e0a458]" />
+                <span className="text-sm text-[#a4a4ad]">3.45x ROAS</span>
               </div>
             </div>
           </div>
@@ -669,20 +669,20 @@ function FinalCTA() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section className="px-6 lg:px-16 py-24 bg-[#15161A]" ref={ref}>
+    <section className="px-6 lg:px-16 py-24 bg-[#111116]" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="relative overflow-hidden bg-gradient-to-br from-[#0B0C10] to-[#15161A] border border-[#F59E0B]/30 p-10 lg:p-16 text-center"
+          className="relative overflow-hidden bg-gradient-to-br from-[#0B0C10] to-[#15161A] border border-[#e0a458]/30 p-10 lg:p-16 text-center"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-[#F59E0B]/5 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#e0a458]/5 to-transparent" />
           <div className="relative z-10 max-w-2xl mx-auto">
             <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
               Noch Fragen?
             </h2>
-            <p className="text-[#A1A1AA] text-lg mb-10">
+            <p className="text-[#a4a4ad] text-lg mb-10">
               Schreiben Sie uns direkt auf WhatsApp oder buchen Sie einen Call.
               Wir antworten innerhalb von 2 Stunden.
             </p>
@@ -718,7 +718,7 @@ function FinalCTA() {
 
 export default function WorkflowAudit() {
   return (
-    <div className="bg-[#0B0C10]">
+    <div className="bg-[#08080a]">
       <HeroSection />
       <FormSection />
       <NextStepsSection />

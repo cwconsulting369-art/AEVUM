@@ -12,12 +12,12 @@ export default function AGB() {
         transition={{ duration: 0.6 }}
       >
         <h1 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
-          Allgemeine <span className="text-[#F59E0B]">Geschäftsbedingungen</span>
+          Allgemeine <span className="text-[#e0a458]">Geschäftsbedingungen</span>
         </h1>
 
-        <p className="text-sm text-[#52525B] mb-12">Stand: 20. Mai 2026 · Version: agb-v2-2026-05-20</p>
+        <p className="text-sm text-[#7a7a85] mb-12">Stand: 20. Mai 2026 · Version: agb-v2-2026-05-20</p>
 
-        <article className="prose prose-invert max-w-none space-y-8 text-[#A1A1AA] leading-relaxed">
+        <article className="prose prose-invert max-w-none space-y-8 text-[#a4a4ad] leading-relaxed">
 
           <section>
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 1 Geltungsbereich und Vertragspartner</h2>
@@ -32,7 +32,7 @@ export default function AGB() {
               AEVUM richtet sich primär an Unternehmer im Sinne von § 14 BGB (B2B). Bei
               Verbrauchern im Sinne von § 13 BGB (B2C) gelten ergänzend die gesetzlichen
               Verbraucherschutz-Regelungen, insbesondere das Widerrufsrecht (siehe{' '}
-              <a href="#/widerrufsbelehrung" className="text-[#F59E0B] hover:underline">Widerrufsbelehrung</a>).
+              <a href="#/widerrufsbelehrung" className="text-[#e0a458] hover:underline">Widerrufsbelehrung</a>).
             </p>
             <p>
               Abweichende, entgegenstehende oder ergänzende AGB des Kunden werden nur Vertragsbestandteil,
@@ -129,7 +129,7 @@ export default function AGB() {
             </p>
             <p>
               Welche Daten Stripe verarbeitet und auf welcher Rechtsgrundlage, ist in der{' '}
-              <a href="#/datenschutz" className="text-[#F59E0B] hover:underline">Datenschutzerklärung</a>{' '}
+              <a href="#/datenschutz" className="text-[#e0a458] hover:underline">Datenschutzerklärung</a>{' '}
               detailliert beschrieben.
             </p>
           </section>
@@ -184,7 +184,7 @@ export default function AGB() {
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 10 Datenschutz und Vertraulichkeit</h2>
             <p>
               Die Verarbeitung personenbezogener Daten erfolgt gemäß{' '}
-              <a href="#/datenschutz" className="text-[#F59E0B] hover:underline">Datenschutzerklärung</a>.
+              <a href="#/datenschutz" className="text-[#e0a458] hover:underline">Datenschutzerklärung</a>.
               Soweit AEVUM personenbezogene Daten im Auftrag des Kunden verarbeitet (z.B.
               Endkunden-Daten), wird ein separater AVV nach Art 28 DSGVO geschlossen.
             </p>
@@ -200,7 +200,7 @@ export default function AGB() {
             <p>
               Verbraucher im Sinne von § 13 BGB haben ein gesetzliches Widerrufsrecht von
               14 Tagen ab Vertragsschluss. Details siehe{' '}
-              <a href="#/widerrufsbelehrung" className="text-[#F59E0B] hover:underline">Widerrufsbelehrung</a>.
+              <a href="#/widerrufsbelehrung" className="text-[#e0a458] hover:underline">Widerrufsbelehrung</a>.
             </p>
             <p>
               Bei sofortigem Beginn der Dienstleistung auf ausdrücklichen Wunsch des
@@ -231,17 +231,17 @@ export default function AGB() {
             <ol className="list-decimal pl-6 space-y-2">
               <li>Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts.</li>
               <li>Gerichtsstand für sämtliche Streitigkeiten aus diesem Vertragsverhältnis ist der Wohnsitz des Anbieters (Wehringen, Amtsgericht Augsburg), soweit der Kunde Kaufmann, juristische Person des öffentlichen Rechts oder öffentlich-rechtliches Sondervermögen ist oder seinen Wohnsitz nach Vertragsschluss ins Ausland verlegt.</li>
-              <li>Plattform der Europäischen Kommission zur Online-Streitbeilegung: <a href="https://ec.europa.eu/consumers/odr/" className="text-[#F59E0B] hover:underline" target="_blank" rel="noopener noreferrer">https://ec.europa.eu/consumers/odr/</a>. AEVUM ist nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</li>
+              <li>Plattform der Europäischen Kommission zur Online-Streitbeilegung: <a href="https://ec.europa.eu/consumers/odr/" className="text-[#e0a458] hover:underline" target="_blank" rel="noopener noreferrer">https://ec.europa.eu/consumers/odr/</a>. AEVUM ist nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</li>
               <li>Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt. An die Stelle der unwirksamen Bestimmung tritt die gesetzliche Regelung.</li>
             </ol>
           </section>
 
         </article>
 
-        <div className="mt-16 pt-8 border-t border-white/10 text-sm text-[#52525B] flex flex-wrap gap-6">
-          <a href="#/datenschutz" className="hover:text-[#F59E0B]">Datenschutz</a>
-          <a href="#/impressum" className="hover:text-[#F59E0B]">Impressum</a>
-          <a href="#/widerrufsbelehrung" className="hover:text-[#F59E0B]">Widerrufsbelehrung</a>
+        <div className="mt-16 pt-8 border-t border-white/10 text-sm text-[#7a7a85] flex flex-wrap gap-6">
+          <a href="#/datenschutz" className="hover:text-[#e0a458]">Datenschutz</a>
+          <a href="#/impressum" className="hover:text-[#e0a458]">Impressum</a>
+          <a href="#/widerrufsbelehrung" className="hover:text-[#e0a458]">Widerrufsbelehrung</a>
         </div>
       </motion.div>
     </section>

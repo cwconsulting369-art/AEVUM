@@ -12,16 +12,16 @@ export default function Widerrufsbelehrung() {
         transition={{ duration: 0.6 }}
       >
         <h1 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
-          Widerrufs<span className="text-[#F59E0B]">belehrung</span>
+          Widerrufs<span className="text-[#e0a458]">belehrung</span>
         </h1>
 
-        <p className="text-sm text-[#52525B] mb-12">
+        <p className="text-sm text-[#7a7a85] mb-12">
           Stand: 20. Mai 2026. Diese Belehrung gilt für Verbraucher im Sinne von § 13 BGB.
           B2B-Kunden haben kein gesetzliches Widerrufsrecht — siehe AGB § 11 für freiwillige
           Stornierungsregeln.
         </p>
 
-        <article className="prose prose-invert max-w-none space-y-8 text-[#A1A1AA] leading-relaxed">
+        <article className="prose prose-invert max-w-none space-y-8 text-[#a4a4ad] leading-relaxed">
 
           <section>
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Widerrufsrecht</h2>
@@ -37,7 +37,7 @@ export default function Widerrufsbelehrung() {
             <p>
               Um Ihr Widerrufsrecht auszuüben, müssen Sie uns:
             </p>
-            <p className="bg-[#15161A] border border-white/10 p-4 my-4 font-mono text-sm">
+            <p className="bg-[#111116] border border-white/10 p-4 my-4 font-mono text-sm">
               Carlos Wrusch<br />
               Federteilstr. 2e<br />
               86517 Wehringen<br />
@@ -101,7 +101,7 @@ export default function Widerrufsbelehrung() {
               Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular
               aus und senden Sie es zurück:
             </p>
-            <div className="bg-[#15161A] border border-white/10 p-6 my-4 text-sm">
+            <div className="bg-[#111116] border border-white/10 p-6 my-4 text-sm">
               <p className="mb-2">An:</p>
               <p className="mb-2">
                 Carlos Wrusch<br />
@@ -117,7 +117,7 @@ export default function Widerrufsbelehrung() {
               <p className="mb-2">Anschrift des/der Verbraucher(s): ______________</p>
               <p className="mb-2">Unterschrift des/der Verbraucher(s) (nur bei Mitteilung auf Papier): ______________</p>
               <p className="mb-2">Datum: ______________</p>
-              <p className="mt-4 text-xs text-[#52525B]">(*) Unzutreffendes streichen.</p>
+              <p className="mt-4 text-xs text-[#7a7a85]">(*) Unzutreffendes streichen.</p>
             </div>
           </section>
 
@@ -136,10 +136,10 @@ export default function Widerrufsbelehrung() {
 
         </article>
 
-        <div className="mt-16 pt-8 border-t border-white/10 text-sm text-[#52525B] flex flex-wrap gap-6">
-          <a href="#/agb" className="hover:text-[#F59E0B]">AGB</a>
-          <a href="#/datenschutz" className="hover:text-[#F59E0B]">Datenschutz</a>
-          <a href="#/impressum" className="hover:text-[#F59E0B]">Impressum</a>
+        <div className="mt-16 pt-8 border-t border-white/10 text-sm text-[#7a7a85] flex flex-wrap gap-6">
+          <a href="#/agb" className="hover:text-[#e0a458]">AGB</a>
+          <a href="#/datenschutz" className="hover:text-[#e0a458]">Datenschutz</a>
+          <a href="#/impressum" className="hover:text-[#e0a458]">Impressum</a>
         </div>
       </motion.div>
     </section>

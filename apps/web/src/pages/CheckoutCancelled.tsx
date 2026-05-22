@@ -24,7 +24,7 @@ export default function CheckoutCancelled() {
           Kauf abgebrochen
         </h1>
 
-        <p className="text-[#A1A1AA] leading-relaxed mb-10">
+        <p className="text-[#a4a4ad] leading-relaxed mb-10">
           Du hast den Checkout vorzeitig verlassen. Es wurde keine Zahlung ausgelöst und keine
           Daten ausser deiner E-Mail-Adresse gespeichert (Pilot-Slot-Reservierung aufgehoben).
           Kannst gern jederzeit wiederkommen — oder direkt sprechen.

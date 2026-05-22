@@ -15,7 +15,7 @@ export default function Layout({ children }: LayoutProps) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0B0C10] text-[#F9FAFB]">
+    <div className="min-h-screen bg-[#08080a] text-[#F9FAFB]">
       <Navbar />
       <main>{children}</main>
       <Footer />

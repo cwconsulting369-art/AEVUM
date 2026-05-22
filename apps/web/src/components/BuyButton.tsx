@@ -150,7 +150,7 @@ export default function BuyButton({
           href={calendlyUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="block text-center text-xs text-[#A1A1AA] hover:text-[#F59E0B] mt-3 underline-offset-4 hover:underline"
+          className="block text-center text-xs text-[#a4a4ad] hover:text-[#e0a458] mt-3 underline-offset-4 hover:underline"
         >
           Lieber erst sprechen? Call buchen ↗
         </a>
@@ -170,16 +170,16 @@ export default function BuyButton({
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="bg-[#15161A] border border-white/10 w-full max-w-md p-8 rounded"
+              className="bg-[#111116] border border-white/10 w-full max-w-md p-8 rounded"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-6">
-                <p className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-2">
+                <p className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-2">
                   AEVUM {tier} buchen
                 </p>
                 <h3 className="text-2xl font-light tracking-tight">Schnell-Checkout</h3>
                 {pilotInfo && pilotInfo.free > 0 && (
-                  <p className="text-xs text-[#F59E0B] font-mono uppercase tracking-wider mt-3">
+                  <p className="text-xs text-[#e0a458] font-mono uppercase tracking-wider mt-3">
                     Pilot-Programm aktiv · {pilotInfo.free}/{pilotInfo.total} Slots frei · −30 %
                   </p>
                 )}
@@ -206,69 +206,69 @@ export default function BuyButton({
                 />
 
                 <div>
-                  <label className="text-xs text-[#A1A1AA] block mb-1">E-Mail *</label>
+                  <label className="text-xs text-[#a4a4ad] block mb-1">E-Mail *</label>
                   <input
                     type="email"
                     required
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full bg-[#0B0C10] border border-white/10 px-3 py-2 text-sm focus:border-[#F59E0B]/40 outline-none"
+                    className="w-full bg-[#08080a] border border-white/10 px-3 py-2 text-sm focus:border-[#e0a458]/40 outline-none"
                     placeholder="name@firma.de"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs text-[#A1A1AA] block mb-1">Name *</label>
+                  <label className="text-xs text-[#a4a4ad] block mb-1">Name *</label>
                   <input
                     type="text"
                     required
                     minLength={2}
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full bg-[#0B0C10] border border-white/10 px-3 py-2 text-sm focus:border-[#F59E0B]/40 outline-none"
+                    className="w-full bg-[#08080a] border border-white/10 px-3 py-2 text-sm focus:border-[#e0a458]/40 outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs text-[#A1A1AA] block mb-1">Firma</label>
+                  <label className="text-xs text-[#a4a4ad] block mb-1">Firma</label>
                   <input
                     type="text"
                     value={form.company}
                     onChange={(e) => setForm({ ...form, company: e.target.value })}
-                    className="w-full bg-[#0B0C10] border border-white/10 px-3 py-2 text-sm focus:border-[#F59E0B]/40 outline-none"
+                    className="w-full bg-[#08080a] border border-white/10 px-3 py-2 text-sm focus:border-[#e0a458]/40 outline-none"
                   />
                 </div>
 
-                <label className="flex items-start gap-2 text-xs text-[#A1A1AA] cursor-pointer leading-relaxed">
+                <label className="flex items-start gap-2 text-xs text-[#a4a4ad] cursor-pointer leading-relaxed">
                   <input
                     type="checkbox"
                     checked={form.consent}
                     onChange={(e) => setForm({ ...form, consent: e.target.checked })}
-                    className="mt-1 accent-[#F59E0B]"
+                    className="mt-1 accent-[#e0a458]"
                   />
                   <span>
                     Ich willige in die Verarbeitung meiner Daten gemäß{' '}
-                    <a href="#/datenschutz" target="_blank" className="text-[#F59E0B] hover:underline">
+                    <a href="#/datenschutz" target="_blank" className="text-[#e0a458] hover:underline">
                       Datenschutzerklärung
                     </a>{' '}
                     ein.
                   </span>
                 </label>
 
-                <label className="flex items-start gap-2 text-xs text-[#A1A1AA] cursor-pointer leading-relaxed">
+                <label className="flex items-start gap-2 text-xs text-[#a4a4ad] cursor-pointer leading-relaxed">
                   <input
                     type="checkbox"
                     checked={form.agb}
                     onChange={(e) => setForm({ ...form, agb: e.target.checked })}
-                    className="mt-1 accent-[#F59E0B]"
+                    className="mt-1 accent-[#e0a458]"
                   />
                   <span>
                     Ich akzeptiere die{' '}
-                    <a href="#/agb" target="_blank" className="text-[#F59E0B] hover:underline">
+                    <a href="#/agb" target="_blank" className="text-[#e0a458] hover:underline">
                       AGB
                     </a>{' '}
                     und die{' '}
-                    <a href="#/widerrufsbelehrung" target="_blank" className="text-[#F59E0B] hover:underline">
+                    <a href="#/widerrufsbelehrung" target="_blank" className="text-[#e0a458] hover:underline">
                       Widerrufsbelehrung
                     </a>
                     .
@@ -277,33 +277,33 @@ export default function BuyButton({
 
                 {/* § 356 Abs 4 BGB — Sofort-Verzicht. Pflicht für S+M, optional für L. */}
                 <div>
-                  <label className="flex items-start gap-2 text-xs text-[#A1A1AA] cursor-pointer leading-relaxed">
+                  <label className="flex items-start gap-2 text-xs text-[#a4a4ad] cursor-pointer leading-relaxed">
                     <input
                       type="checkbox"
                       checked={form.immediateStart}
                       onChange={(e) => setForm({ ...form, immediateStart: e.target.checked })}
-                      className="mt-1 accent-[#F59E0B]"
+                      className="mt-1 accent-[#e0a458]"
                     />
                     <span>
                       Ich verlange ausdrücklich, dass mit der Erbringung der Dienstleistung
                       sofort begonnen wird. Mir ist bekannt, dass mein Widerrufsrecht bei
                       vollständiger Vertragserfüllung erlischt (§ 356 Abs 4 BGB).
                       {immediateStartRequired ? (
-                        <span className="text-[#F59E0B]"> *</span>
+                        <span className="text-[#e0a458]"> *</span>
                       ) : (
-                        <span className="text-[#52525B]"> (optional)</span>
+                        <span className="text-[#7a7a85]"> (optional)</span>
                       )}
                     </span>
                   </label>
                   <button
                     type="button"
                     onClick={() => setWaiverInfoOpen((v) => !v)}
-                    className="ml-6 mt-1 text-[10px] text-[#52525B] hover:text-[#F59E0B] underline-offset-2 hover:underline"
+                    className="ml-6 mt-1 text-[10px] text-[#7a7a85] hover:text-[#e0a458] underline-offset-2 hover:underline"
                   >
                     Was bedeutet das?
                   </button>
                   {waiverInfoOpen && (
-                    <p className="ml-6 mt-2 text-[10px] text-[#A1A1AA] bg-white/5 border border-white/10 px-3 py-2 rounded leading-relaxed">
+                    <p className="ml-6 mt-2 text-[10px] text-[#a4a4ad] bg-white/5 border border-white/10 px-3 py-2 rounded leading-relaxed">
                       Wir starten sofort mit der Arbeit, statt 14 Tage Widerrufsfrist abzuwarten.
                       Sobald die Leistung vollständig erbracht ist, erlischt dein Widerrufsrecht
                       (§ 356 Abs 4 BGB). Vorher kannst du jederzeit widerrufen — dann berechnen
@@ -311,7 +311,7 @@ export default function BuyButton({
                       <a
                         href="#/widerrufsbelehrung"
                         target="_blank"
-                        className="text-[#F59E0B] hover:underline"
+                        className="text-[#e0a458] hover:underline"
                       >
                         Widerrufsbelehrung
                       </a>
@@ -349,7 +349,7 @@ export default function BuyButton({
                   </button>
                 </div>
 
-                <p className="text-[10px] text-[#52525B] leading-relaxed">
+                <p className="text-[10px] text-[#7a7a85] leading-relaxed">
                   Du wirst zu Stripe weitergeleitet. Wir speichern keine Kartendaten — Stripe ist
                   PCI-DSS-zertifizierter Zahlungsdienstleister. Zahlung erst nach Bestätigung.
                 </p>

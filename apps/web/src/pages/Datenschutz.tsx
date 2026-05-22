@@ -12,12 +12,12 @@ export default function Datenschutz() {
         transition={{ duration: 0.6 }}
       >
         <h1 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
-          Datenschutz<span className="text-[#F59E0B]">erklärung</span>
+          Datenschutz<span className="text-[#e0a458]">erklärung</span>
         </h1>
 
-        <p className="text-sm text-[#52525B] mb-12">Stand: 22. Mai 2026 · Version: datenschutz-v4-helpbot-2026-05-22</p>
+        <p className="text-sm text-[#7a7a85] mb-12">Stand: 22. Mai 2026 · Version: datenschutz-v4-helpbot-2026-05-22</p>
 
-        <article className="prose prose-invert max-w-none space-y-8 text-[#A1A1AA] leading-relaxed">
+        <article className="prose prose-invert max-w-none space-y-8 text-[#a4a4ad] leading-relaxed">
 
           <section>
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">1. Verantwortlicher</h2>
@@ -29,9 +29,9 @@ export default function Datenschutz() {
               Carlos Wrusch<br />
               Federteilstr. 2e<br />
               86517 Wehringen, Deutschland<br />
-              E-Mail: <a href="mailto:cwconsulting369@gmail.com" className="text-[#F59E0B] hover:underline">cwconsulting369@gmail.com</a>
+              E-Mail: <a href="mailto:cwconsulting369@gmail.com" className="text-[#e0a458] hover:underline">cwconsulting369@gmail.com</a>
             </p>
-            <p className="text-sm text-[#52525B]">
+            <p className="text-sm text-[#7a7a85]">
               Ein Datenschutzbeauftragter ist gesetzlich nicht erforderlich (kein
               Schwellenwert nach § 38 BDSG erreicht).
             </p>
@@ -75,7 +75,7 @@ export default function Datenschutz() {
             </p>
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm border border-white/10">
-                <thead className="bg-[#15161A]">
+                <thead className="bg-[#111116]">
                   <tr className="text-left">
                     <th className="px-3 py-2 border-b border-white/10 text-[#F8FAFC] font-normal">Anbieter</th>
                     <th className="px-3 py-2 border-b border-white/10 text-[#F8FAFC] font-normal">Zweck</th>
@@ -151,7 +151,7 @@ export default function Datenschutz() {
             </p>
             <p>
               <strong>Stripe-Datenschutzerklärung:</strong>{' '}
-              <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener noreferrer" className="text-[#F59E0B] hover:underline">
+              <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener noreferrer" className="text-[#e0a458] hover:underline">
                 stripe.com/de/privacy
               </a>
             </p>
@@ -169,7 +169,7 @@ export default function Datenschutz() {
               ausschließlich auf Grundlage eines separaten Auftragsverarbeitungsvertrags nach
               <strong> Art 28 DSGVO</strong>. Ein Standard-AVV-Template stellen wir auf Anfrage
               kostenfrei zur Verfügung. Anfragen bitte per E-Mail an{' '}
-              <a href="mailto:cwconsulting369@gmail.com" className="text-[#F59E0B] hover:underline">cwconsulting369@gmail.com</a>.
+              <a href="mailto:cwconsulting369@gmail.com" className="text-[#e0a458] hover:underline">cwconsulting369@gmail.com</a>.
             </p>
           </section>
 
@@ -215,10 +215,10 @@ export default function Datenschutz() {
             </p>
             <ul className="list-disc pl-6 space-y-1">
               <li>das <strong>Mülleimer-Symbol</strong> im Chat-Header bzw. „Verlauf löschen" unter dem Eingabefeld</li>
-              <li>oder per E-Mail an <a href="mailto:dsgvo@aevum-system.de" className="text-[#F59E0B] hover:underline">dsgvo@aevum-system.de</a> mit deiner Session-ID</li>
+              <li>oder per E-Mail an <a href="mailto:dsgvo@aevum-system.de" className="text-[#e0a458] hover:underline">dsgvo@aevum-system.de</a> mit deiner Session-ID</li>
             </ul>
-            <p className="text-sm text-[#52525B] mt-2">
-              Die Lösch-Funktion ruft den API-Endpunkt <code className="text-[#F59E0B]">POST /api/helpbot/erase</code>{' '}
+            <p className="text-sm text-[#7a7a85] mt-2">
+              Die Lösch-Funktion ruft den API-Endpunkt <code className="text-[#e0a458]">POST /api/helpbot/erase</code>{' '}
               auf, der den entsprechenden Datenbank-Eintrag unverzüglich entfernt.
             </p>
           </section>
@@ -242,7 +242,7 @@ export default function Datenschutz() {
             <ul className="list-disc pl-6 space-y-1">
               <li>Auskunft über Ihre verarbeiteten Daten (Art 15 DSGVO)</li>
               <li>Berichtigung unrichtiger Daten (Art 16 DSGVO)</li>
-              <li>Löschung (Art 17 DSGVO) – direkt umsetzbar per E-Mail oder über den API-Endpunkt <code className="text-[#F59E0B]">POST /api/audit/erase</code></li>
+              <li>Löschung (Art 17 DSGVO) – direkt umsetzbar per E-Mail oder über den API-Endpunkt <code className="text-[#e0a458]">POST /api/audit/erase</code></li>
               <li>Einschränkung der Verarbeitung (Art 18 DSGVO)</li>
               <li>Datenübertragbarkeit in einem strukturierten, gängigen Format (Art 20 DSGVO)</li>
               <li>Widerspruch gegen Verarbeitung auf Grundlage berechtigter Interessen (Art 21 DSGVO)</li>
@@ -250,7 +250,7 @@ export default function Datenschutz() {
             </ul>
             <p className="mt-4">
               Anfragen bitte per E-Mail an{' '}
-              <a href="mailto:cwconsulting369@gmail.com" className="text-[#F59E0B] hover:underline">cwconsulting369@gmail.com</a>.
+              <a href="mailto:cwconsulting369@gmail.com" className="text-[#e0a458] hover:underline">cwconsulting369@gmail.com</a>.
               Wir bearbeiten Anfragen innerhalb der gesetzlichen Frist von einem Monat (Art 12 Abs 3 DSGVO).
             </p>
             <p className="mt-4">
@@ -261,7 +261,7 @@ export default function Datenschutz() {
             <p className="text-sm">
               Bayerisches Landesamt für Datenschutzaufsicht (BayLDA)<br />
               Promenade 18, 91522 Ansbach<br />
-              <a href="https://www.lda.bayern.de" target="_blank" rel="noopener noreferrer" className="text-[#F59E0B] hover:underline">www.lda.bayern.de</a>
+              <a href="https://www.lda.bayern.de" target="_blank" rel="noopener noreferrer" className="text-[#e0a458] hover:underline">www.lda.bayern.de</a>
             </p>
           </section>
 

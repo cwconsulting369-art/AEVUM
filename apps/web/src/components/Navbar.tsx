@@ -39,17 +39,17 @@ export default function Navbar() {
     <nav
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-[#0B0C10]/80 backdrop-blur-xl border-b border-white/10'
+          ? 'bg-[#08080a]/80 backdrop-blur-xl border-b border-white/10'
           : 'bg-transparent'
       }`}
     >
       <div className="max-w-[1440px] mx-auto flex items-center justify-between px-6 lg:px-16 h-16">
         {/* Logo */}
-        <a href="#/" className="flex items-center gap-1 group">
-          <span className="text-xl font-bold tracking-tight text-[#F9FAFB] font-[Space_Grotesk]">
+        <a href="#/" className="flex items-center gap-1.5 group">
+          <span className="text-xl font-bold tracking-tight text-gold-gradient">
             AEVUM
           </span>
-          <span className="w-2 h-2 rounded-full bg-[#F59E0B] group-hover:scale-125 transition-transform" />
+          <span className="w-2 h-2 rounded-full bg-[#e0a458] shadow-[0_0_8px_rgba(224,164,88,0.6)] group-hover:scale-125 transition-transform" />
         </a>
 
         {/* Desktop Links */}
@@ -60,8 +60,8 @@ export default function Navbar() {
               href={"#" + link.path}
               className={`text-sm font-medium transition-colors ${
                 currentPath === link.path
-                  ? 'text-[#F59E0B]'
-                  : 'text-[#A1A1AA] hover:text-[#F9FAFB]'
+                  ? 'text-[#e0a458]'
+                  : 'text-[#a4a4ad] hover:text-[#F9FAFB]'
               }`}
             >
               {link.label}
@@ -75,7 +75,7 @@ export default function Navbar() {
             href="https://app.aevum-system.de"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-[#52525B] hover:text-[#F59E0B] transition-colors mr-2"
+            className="text-sm text-[#7a7a85] hover:text-[#e0a458] transition-colors mr-2"
           >
             Login &rarr;
           </a>
@@ -83,7 +83,7 @@ export default function Navbar() {
             href={CONTACT.whatsapp}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 rounded-full border border-white/10 text-[#A1A1AA] hover:text-[#F59E0B] hover:border-[#F59E0B]/30 transition-all"
+            className="p-2 rounded-full border border-white/10 text-[#a4a4ad] hover:text-[#e0a458] hover:border-[#e0a458]/30 transition-all"
             aria-label="WhatsApp"
           >
             <MessageCircle size={18} />
@@ -110,7 +110,7 @@ export default function Navbar() {
 
       {/* Mobile Overlay */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 top-16 bg-[#0B0C10]/98 backdrop-blur-xl z-40">
+        <div className="md:hidden fixed inset-0 top-16 bg-[#08080a]/98 backdrop-blur-xl z-40">
           <div className="flex flex-col items-center justify-center gap-8 pt-20">
             {navLinks.map((link) => (
               <a
@@ -118,8 +118,8 @@ export default function Navbar() {
                 href={"#" + link.path}
                 className={`text-2xl font-medium ${
                   currentPath === link.path
-                    ? 'text-[#F59E0B]'
-                    : 'text-[#A1A1AA]'
+                    ? 'text-[#e0a458]'
+                    : 'text-[#a4a4ad]'
                 }`}
                 onClick={() => setMobileOpen(false)}
               >
@@ -130,7 +130,7 @@ export default function Navbar() {
               href="https://app.aevum-system.de"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-lg text-[#52525B] hover:text-[#F59E0B] transition-colors"
+              className="text-lg text-[#7a7a85] hover:text-[#e0a458] transition-colors"
             >
               Login &rarr; app.aevum-system.de
             </a>
@@ -139,7 +139,7 @@ export default function Navbar() {
                 href={CONTACT.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#F59E0B]"
+                className="flex items-center gap-2 text-[#a4a4ad] hover:text-[#e0a458]"
               >
                 <MessageCircle size={20} />
                 <span>WhatsApp</span>
