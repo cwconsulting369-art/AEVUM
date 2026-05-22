@@ -181,7 +181,7 @@ function ClientZeroSection() {
                 <User size={32} className="text-[#e0a458]" />
               </div>
               <h3 className="text-xl font-medium text-[#F9FAFB]">Carlos Wrusch</h3>
-              <p className="text-sm text-[#a4a4ad]">Founder, AEVUM-system</p>
+              <p className="text-sm text-[#a4a4ad]">Founder, AEVUM</p>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 mt-3 rounded-full bg-[#e0a458]/10 text-[#e0a458] text-xs font-mono uppercase tracking-wider">
                 <CheckCircle2 size={12} />
                 AEVUM &mdash; Client Zero

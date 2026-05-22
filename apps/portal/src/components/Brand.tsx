@@ -1,5 +1,5 @@
 /**
- * AEVUM-system Brand-Mark — premium SVG monogram + wordmark.
+ * AEVUM Brand-Mark — premium SVG monogram + wordmark.
  * Custom-drawn: stylized "A" inside hexagonal frame, gold-gradient.
  */
 type Props = { size?: number; showWordmark?: boolean; className?: string };
@@ -7,7 +7,7 @@ type Props = { size?: number; showWordmark?: boolean; className?: string };
 export default function Brand({ size = 32, showWordmark = true, className = '' }: Props) {
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-label="AEVUM-system logo">
+      <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-label="AEVUM logo">
         <defs>
           <linearGradient id="aevum-gold-grad" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#f5d68d" />
@@ -41,7 +41,7 @@ export default function Brand({ size = 32, showWordmark = true, className = '' }
       </svg>
       {showWordmark && (
         <div className="leading-none">
-          <div className="text-[1.05rem] font-bold tracking-tight text-white">AEVUM-system</div>
+          <div className="text-[1.05rem] font-bold tracking-tight text-white">AEVUM</div>
           <div className="text-[0.65rem] uppercase tracking-[0.18em] text-ink-400 mt-1">Customer Portal</div>
         </div>
       )}

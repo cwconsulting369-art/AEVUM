@@ -38,7 +38,7 @@ export default function Login() {
 
           <div className="text-center mb-8 animate-fade-up" style={{ animationDelay: '80ms' }}>
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
-              <span className="text-gold-gradient">AEVUM-system</span>
+              <span className="text-gold-gradient">AEVUM</span>
             </h1>
             <p className="text-sm text-ink-400 mt-3 max-w-sm mx-auto leading-relaxed">
               Dein Operating-System für Wachstum. Login per Magic-Link — kein Passwort, keine Reibung.

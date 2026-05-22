@@ -60,7 +60,7 @@ export default function Permissions() {
           <ShieldCheck size={12} /> Datenkontrolle
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">Permissions</h1>
-        <p className="text-ink-400 mt-2">Du kontrollierst, was AEVUM-system von dir teilen darf. Default: nichts public.</p>
+        <p className="text-ink-400 mt-2">Du kontrollierst, was AEVUM von dir teilen darf. Default: nichts public.</p>
         {me?.permissions?.consent_date && (
           <div className="mt-4 inline-flex items-center gap-2 badge badge-gold">
             <Lock size={11} />
@@ -70,7 +70,7 @@ export default function Permissions() {
       </header>
 
       <div className="space-y-6 max-w-3xl">
-        <Section title="Was darf AEVUM-system zeigen" icon={Megaphone}>
+        <Section title="Was darf AEVUM zeigen" icon={Megaphone}>
           {FLAGS.map(f => <Toggle key={f.key} flag={f.key} label={f.label} on={!!state[f.key]} onToggle={toggle} />)}
         </Section>
 
