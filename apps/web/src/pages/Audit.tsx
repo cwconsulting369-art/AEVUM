@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Check, ChevronLeft, ChevronRight, Upload, FileText,
-  Shield, ArrowLeft, Calendar, Building2,
+  Shield, ArrowLeft, Calendar, Building2, X, AlertCircle,
 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
@@ -163,6 +163,44 @@ function getStepFields(stepIndex: number): string[] {
 /*  MAIN                                                              */
 /* ================================================================== */
 
+/* ------------------------------------------------------------------ */
+/*  FILE UPLOAD CONSTANTS                                             */
+/* ------------------------------------------------------------------ */
+
+const MAX_FILES = 5;
+const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
+const ALLOWED_FILE_TYPES = [
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
+  'application/msword', // doc
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // xlsx
+  'application/vnd.ms-excel', // xls
+  'text/csv',
+  'image/png',
+  'image/jpeg',
+];
+const ALLOWED_EXT_RE = /\.(pdf|docx?|xlsx?|csv|png|jpe?g)$/i;
+
+interface UploadedFileMeta {
+  filename: string;
+  url: string;
+  type?: string;
+  size_bytes?: number;
+}
+
+function isAllowedFile(file: File): boolean {
+  if (file.size > MAX_FILE_BYTES) return false;
+  if (ALLOWED_FILE_TYPES.includes(file.type)) return true;
+  // Fallback to extension check (some browsers/OS report empty MIME)
+  return ALLOWED_EXT_RE.test(file.name);
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export default function Audit() {
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -170,6 +208,9 @@ export default function Audit() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<AuditFormData>({
     resolver: zodResolver(auditFormSchema),
@@ -228,15 +269,79 @@ export default function Audit() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  /* -- File Upload Helpers -- */
+  const addFiles = useCallback((incoming: FileList | File[]) => {
+    setFileError(null);
+    const list = Array.from(incoming);
+    setFiles(prev => {
+      const next: File[] = [...prev];
+      for (const f of list) {
+        if (next.length >= MAX_FILES) {
+          setFileError(`Maximal ${MAX_FILES} Dateien erlaubt.`);
+          break;
+        }
+        if (!isAllowedFile(f)) {
+          setFileError(`"${f.name}" abgelehnt (Typ/Groesse). Erlaubt: PDF/DOCX/XLSX/CSV/PNG/JPG bis 10 MB.`);
+          continue;
+        }
+        // De-dupe by name+size
+        if (next.some(x => x.name === f.name && x.size === f.size)) continue;
+        next.push(f);
+      }
+      return next;
+    });
+  }, []);
+
+  const removeFile = useCallback((idx: number) => {
+    setFileError(null);
+    setFiles(prev => prev.filter((_, i) => i !== idx));
+  }, []);
+
+  // Upload a single file → returns metadata or null on failure (silent skip per spec)
+  const uploadOneFile = async (file: File): Promise<UploadedFileMeta | null> => {
+    try {
+      const fd = new FormData();
+      fd.append('file', file, file.name);
+      const res = await fetch(`${API_BASE}/api/audit/upload-file`, {
+        method: 'POST',
+        body: fd,
+      });
+      if (!res.ok) return null;
+      const json = await res.json();
+      if (!json?.ok || !json.url) return null;
+      return {
+        filename: file.name,
+        url: json.url,
+        type: file.type || undefined,
+        size_bytes: typeof json.size_bytes === 'number' ? json.size_bytes : file.size,
+      };
+    } catch {
+      return null;
+    }
+  };
+
   /* -- Submit -- */
   const onSubmit = async (data: AuditFormData) => {
     setSubmitError(null);
     setIsSubmitting(true);
     try {
+      // Step A: upload files first (failures silently skipped per spec)
+      let uploadedFiles: UploadedFileMeta[] = [];
+      if (files.length > 0) {
+        const results = await Promise.all(files.map(f => uploadOneFile(f)));
+        uploadedFiles = results.filter((r): r is UploadedFileMeta => r !== null);
+      }
+
+      // Step B: submit audit with uploaded-file metadata
       const payload = {
-        answers: data,
-        uploaded_files: [] as string[],
         form_version: 'v2',
+        email: data.kontakt_email,
+        name: data.unternehmen_name,
+        company: data.unternehmen_company,
+        phone: data.kontakt_phone || '',
+        consent: data.consent_dsgvo,
+        answers: data,
+        uploaded_files: uploadedFiles,
         submitted_email: data.kontakt_email,
       };
       const res = await fetch(`${API_BASE}/api/audit/submit`, {
@@ -265,7 +370,16 @@ export default function Audit() {
   /* -- Drag & Drop -- */
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setDragOver(true); };
   const handleDragLeave = () => setDragOver(false);
-  const handleDrop = (e: React.DragEvent) => { e.preventDefault(); setDragOver(false); };
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    if (e.dataTransfer?.files?.length) addFiles(e.dataTransfer.files);
+  };
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.length) addFiles(e.target.files);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+  const openFilePicker = () => fileInputRef.current?.click();
 
   /* ================================================================= */
   /*  SUBMITTED STATE                                                  */
@@ -607,8 +721,21 @@ export default function Audit() {
                             <FileText className="w-4 h-4 inline mr-2" style={{ color: '#F59E0B' }} />
                             Dateien anhaengen (optional)
                           </Label>
-                          <div onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
-                            className="rounded-lg border-2 border-dashed p-8 text-center transition-all cursor-pointer"
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            aria-label="Dateien auswaehlen oder per Drag and Drop hochladen"
+                            onClick={openFilePicker}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                openFilePicker();
+                              }
+                            }}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                            className="rounded-lg border-2 border-dashed p-8 text-center transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2"
                             style={{
                               background: dragOver ? 'rgba(245,158,11,0.06)' : 'rgba(255,255,255,0.02)',
                               borderColor: dragOver ? 'rgba(245,158,11,0.4)' : 'rgba(255,255,255,0.1)',
@@ -616,12 +743,75 @@ export default function Audit() {
                             <Upload className="w-8 h-8 mx-auto mb-3"
                               style={{ color: dragOver ? '#F59E0B' : '#52525B' }} />
                             <p className="text-sm font-medium" style={{ color: '#A1A1AA' }}>
-                              {dragOver ? 'Dateien hier ablegen' : 'Dateien per Drag & Drop hierher ziehen'}
+                              {dragOver ? 'Dateien hier ablegen' : 'Klicken oder Dateien per Drag & Drop ziehen'}
                             </p>
                             <p className="text-xs mt-1" style={{ color: '#52525B' }}>
-                              PDF, DOCX, XLSX bis 10 MB
+                              PDF, DOCX, XLSX, CSV, PNG, JPG &mdash; max. 5 Dateien &agrave; 10 MB
                             </p>
                           </div>
+
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            multiple
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,image/png,image/jpeg"
+                            onChange={handleFileInputChange}
+                            className="hidden"
+                            aria-hidden="true"
+                          />
+
+                          {fileError && (
+                            <p
+                              className="text-xs mt-2 flex items-center gap-1.5"
+                              style={{ color: '#F59E0B' }}
+                            >
+                              <AlertCircle className="w-3.5 h-3.5" />
+                              {fileError}
+                            </p>
+                          )}
+
+                          {files.length > 0 && (
+                            <ul className="mt-4 space-y-2" aria-label="Hochgeladene Dateien">
+                              {files.map((f, idx) => (
+                                <li
+                                  key={`${f.name}-${f.size}-${idx}`}
+                                  className="flex items-center justify-between gap-3 rounded-lg p-3"
+                                  style={{
+                                    background: 'rgba(255,255,255,0.03)',
+                                    border: '1px solid rgba(255,255,255,0.06)',
+                                  }}
+                                >
+                                  <div className="flex items-center gap-3 min-w-0">
+                                    <FileText
+                                      className="w-4 h-4 flex-shrink-0"
+                                      style={{ color: '#F59E0B' }}
+                                    />
+                                    <div className="min-w-0">
+                                      <p
+                                        className="text-sm font-medium truncate"
+                                        style={{ color: '#F9FAFB' }}
+                                        title={f.name}
+                                      >
+                                        {f.name}
+                                      </p>
+                                      <p className="text-xs" style={{ color: '#52525B' }}>
+                                        {formatBytes(f.size)}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeFile(idx)}
+                                    aria-label={`Datei ${f.name} entfernen`}
+                                    className="flex-shrink-0 p-1.5 rounded-md transition-colors"
+                                    style={{ color: '#A1A1AA' }}
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                         </motion.div>
 
                         <Separator style={{ background: 'rgba(255,255,255,0.06)' }} />

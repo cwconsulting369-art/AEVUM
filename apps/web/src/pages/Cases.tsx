@@ -1,9 +1,8 @@
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   ArrowRight,
   MessageCircle,
-  Calendar,
   User,
   Building2,
   TrendingUp,
@@ -24,63 +23,91 @@ const fadeUp = {
 
 /* ──────────────────────── Types ──────────────────────── */
 
-interface CaseData {
-  name: string;
-  industry: string;
-  share_industry: boolean;
-  share_company_name: boolean;
-  share_kpis: boolean;
-  share_kpi_deltas: boolean;
-  kpi_delta: string | null;
-  story: string;
-  role?: string;
-  kpis?: { label: string; value: string }[];
+interface ApiCase {
+  slug: string;
+  client_zero?: boolean;
+  member_since?: string;
+  company?: string | null;
+  industry?: string | null;
+  revenue_band?: string | null;
+  team_size?: string | null;
+  vision?: string | null;
+  bio?: string | null;
+  kpis?: { label?: string; value?: string; delta?: string }[];
+  case_study?: string | null;
+  testimonial_quote?: string | null;
+  projects?: { slug?: string; name?: string; description?: string; status?: string; industry?: string }[];
+  permissions?: {
+    share_company_name?: boolean;
+    share_industry?: boolean;
+    share_kpis?: boolean;
+    share_kpi_deltas?: boolean;
+    share_case_study?: boolean;
+    anonymize_industry_detail?: boolean;
+  };
 }
 
-const cases: CaseData[] = [
-  {
-    name: 'Patrick',
-    industry: 'Real Estate Thailand',
-    share_industry: true,
-    share_company_name: false,
-    share_kpis: false,
-    share_kpi_deltas: true,
-    kpi_delta: 'Lead-System live',
-    story:
-      'Lead-Routing und CRM-Setup f&uuml;r Thailand Real Estate. Anfragen von Website &rarr; automatisiert qualifiziert &rarr; an passenden Agent geroutet.',
-  },
-  {
-    name: 'Miguel',
-    industry: 'Energy-Consulting',
-    share_industry: true,
-    share_company_name: false,
-    share_kpis: false,
-    share_kpi_deltas: false,
-    kpi_delta: null,
-    story:
-      'Technischer Partner f&uuml;r UtilityHub &mdash; Infrastruktur, DSGVO-Stack, Datenintegration.',
-  },
-  {
-    name: 'Kevin',
-    industry: 'E-Commerce',
-    share_industry: true,
-    share_company_name: false,
-    share_kpis: false,
-    share_kpi_deltas: false,
-    kpi_delta: null,
-    story: 'KI-Agenten-Stack f&uuml;r Performance-Marketing &mdash; laufender Pilot.',
-  },
-  {
-    name: 'Tim',
-    industry: 'Personal Brand',
-    share_industry: true,
-    share_company_name: false,
-    share_kpis: false,
-    share_kpi_deltas: false,
-    kpi_delta: null,
-    story: 'Automatisierter Content-Workflow von Idee bis Publishing.',
-  },
-];
+interface DisplayCase {
+  key: string;
+  displayName: string;
+  displayIndustry: string;
+  story: string;
+  kpiDelta: string | null;
+  showKpiDelta: boolean;
+  shareIndustry: boolean;
+  shareKpis: boolean;
+}
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.aevum-system.de';
+
+/* ──────────────────────── Mapping helpers ──────────────────────── */
+
+function mapApiCase(raw: ApiCase, index: number): DisplayCase | null {
+  // Skip Client Zero (Carlos) — handled in its own hero section.
+  if (raw.client_zero) return null;
+
+  const perms = raw.permissions || {};
+  const shareCompany = perms.share_company_name !== false && Boolean(raw.company);
+  const shareIndustry = perms.share_industry !== false && Boolean(raw.industry);
+  const shareKpis = perms.share_kpis === true;
+  const shareKpiDeltas = perms.share_kpi_deltas === true;
+
+  const displayName = shareCompany && raw.company
+    ? raw.company
+    : `Kunde ${index + 1}`;
+
+  const displayIndustry = shareIndustry && raw.industry
+    ? raw.industry
+    : 'Branche vertraulich';
+
+  // Choose the strongest available story snippet
+  const projectDesc = raw.projects?.find(p => p.description)?.description || '';
+  const storyRaw = (perms.share_case_study && raw.case_study)
+    || raw.testimonial_quote
+    || raw.bio
+    || projectDesc
+    || 'Projekt läuft — Details unter NDA.';
+
+  const story = String(storyRaw)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // First KPI delta (if any) as headline metric
+  const firstDelta = raw.kpis?.find(k => k.delta)?.delta || null;
+  const kpiDelta = shareKpiDeltas ? firstDelta : null;
+
+  return {
+    key: raw.slug || `case-${index}`,
+    displayName,
+    displayIndustry,
+    story,
+    kpiDelta,
+    showKpiDelta: Boolean(shareKpiDeltas && firstDelta),
+    shareIndustry,
+    shareKpis: shareKpis || shareKpiDeltas,
+  };
+}
 
 /* ──────────────────────── Section 1: Hero ──────────────────────── */
 
@@ -117,7 +144,7 @@ function HeroSection() {
   );
 }
 
-/* ──────────────────────── Section 2: Client Zero &mdash; Carlos ──────────────────────── */
+/* ──────────────────────── Section 2: Client Zero — Carlos ──────────────────────── */
 
 function ClientZeroSection() {
   const ref = useRef(null);
@@ -186,6 +213,9 @@ function ClientZeroSection() {
                   </div>
                 </div>
               </div>
+              <p className="text-xs text-[#52525B] mt-6 font-mono">
+                Live-Tracking unter <a href="/#/about" className="text-[#F59E0B] hover:underline">/about</a>.
+              </p>
             </div>
           </div>
         </motion.div>
@@ -196,17 +226,9 @@ function ClientZeroSection() {
 
 /* ──────────────────────── Section 3: Weitere Cases ──────────────────────── */
 
-function CaseCard({ caseData, index }: { caseData: CaseData; index: number }) {
+function CaseCard({ caseData, index }: { caseData: DisplayCase; index: number }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
-
-  const displayIndustry = caseData.share_industry
-    ? caseData.industry
-    : 'Branche vertraulich';
-  const displayName = caseData.share_company_name
-    ? caseData.name
-    : `Kunde ${caseData.name}`;
-  const showKpiDelta = caseData.share_kpi_deltas && caseData.kpi_delta;
 
   return (
     <motion.div
@@ -223,14 +245,14 @@ function CaseCard({ caseData, index }: { caseData: CaseData; index: number }) {
             <Building2 size={18} className="text-[#F59E0B]" />
           </div>
           <div>
-            <h3 className="text-base font-medium text-[#F9FAFB]">{displayName}</h3>
-            <span className="text-xs text-[#A1A1AA]">{displayIndustry}</span>
+            <h3 className="text-base font-medium text-[#F9FAFB]">{caseData.displayName}</h3>
+            <span className="text-xs text-[#A1A1AA]">{caseData.displayIndustry}</span>
           </div>
         </div>
-        {showKpiDelta && (
+        {caseData.showKpiDelta && caseData.kpiDelta && (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#F59E0B]/10 text-[#F59E0B] text-xs font-mono whitespace-nowrap">
             <TrendingUp size={12} />
-            {caseData.kpi_delta}
+            {caseData.kpiDelta}
           </span>
         )}
       </div>
@@ -241,12 +263,12 @@ function CaseCard({ caseData, index }: { caseData: CaseData; index: number }) {
       />
 
       <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap gap-2">
-        {caseData.share_industry && (
+        {caseData.shareIndustry && (
           <span className="text-[10px] font-mono text-[#52525B] uppercase tracking-wider">
             Branche freigegeben
           </span>
         )}
-        {caseData.share_kpi_deltas && (
+        {caseData.shareKpis && (
           <span className="text-[10px] font-mono text-[#52525B] uppercase tracking-wider">
             KPI freigegeben
           </span>
@@ -256,9 +278,69 @@ function CaseCard({ caseData, index }: { caseData: CaseData; index: number }) {
   );
 }
 
+function FallbackNotice({ message }: { message: string }) {
+  return (
+    <div className="bg-[#15161A] border border-white/10 p-8 md:p-10 text-center">
+      <p className="text-sm text-[#A1A1AA] leading-relaxed">
+        {message}
+      </p>
+      <p className="text-xs text-[#52525B] font-mono mt-3">
+        Client Zero: Wir selbst. Live-Tracking unter{' '}
+        <a href="/#/about" className="text-[#F59E0B] hover:underline">/about</a>.
+      </p>
+    </div>
+  );
+}
+
 function MoreCasesSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  const [cases, setCases] = useState<DisplayCase[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/cases`, {
+          signal: controller.signal,
+          headers: { Accept: 'application/json' },
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (cancelled) return;
+        if (!json?.ok || !Array.isArray(json.cases)) {
+          throw new Error('Invalid response shape');
+        }
+        const mapped = json.cases
+          .map((c: ApiCase, i: number) => mapApiCase(c, i))
+          .filter((c: DisplayCase | null): c is DisplayCase => c !== null);
+        setCases(mapped);
+      } catch (e) {
+        if (cancelled) return;
+        const msg = e instanceof Error ? e.message : 'unknown';
+        if (msg !== 'The user aborted a request.' && !msg.includes('aborted')) {
+          setError(msg);
+        } else {
+          setError('timeout');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+        clearTimeout(timeout);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+      clearTimeout(timeout);
+    };
+  }, []);
 
   return (
     <section className="px-6 lg:px-16 py-16" ref={ref}>
@@ -281,11 +363,48 @@ function MoreCasesSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {cases.map((c, i) => (
-            <CaseCard key={c.name} caseData={c} index={i} />
-          ))}
-        </div>
+        {loading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[0, 1, 2, 3].map(i => (
+              <div
+                key={i}
+                className="bg-[#15161A] border border-white/10 p-6 md:p-8 animate-pulse"
+                aria-hidden="true"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-white/5" />
+                    <div className="space-y-2">
+                      <div className="h-3.5 w-32 bg-white/5 rounded" />
+                      <div className="h-2.5 w-20 bg-white/5 rounded" />
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 w-full bg-white/5 rounded" />
+                  <div className="h-3 w-5/6 bg-white/5 rounded" />
+                  <div className="h-3 w-2/3 bg-white/5 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!loading && !error && cases.length === 0 && (
+          <FallbackNotice message="Aktuell keine ver&ouml;ffentlichten Kunden-Cases — alles &uuml;ber NDA geschützt." />
+        )}
+
+        {!loading && error && (
+          <FallbackNotice message="Cases werden gerade aktualisiert. Schau gleich nochmal vorbei." />
+        )}
+
+        {!loading && !error && cases.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {cases.map((c, i) => (
+              <CaseCard key={c.key} caseData={c} index={i} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -344,3 +463,4 @@ export default function Cases() {
     </div>
   );
 }
+
