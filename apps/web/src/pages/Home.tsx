@@ -135,7 +135,7 @@ function ParticleCanvas() {
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle =
           Math.random() > 0.7
-            ? `rgba(245, 158, 11, ${p.alpha})`
+            ? `rgba(224, 164, 88, ${p.alpha})`
             : `rgba(255, 255, 255, ${p.alpha * 0.5})`;
         ctx.fill();
       }
@@ -149,7 +149,7 @@ function ParticleCanvas() {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(245, 158, 11, ${0.05 * (1 - dist / 120)})`;
+            ctx.strokeStyle = `rgba(224, 164, 88, ${0.05 * (1 - dist / 120)})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -196,6 +196,8 @@ function ParticleCanvas() {
 function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <div className="mesh-bg" aria-hidden />
+      <div className="noise-overlay absolute inset-0 pointer-events-none" aria-hidden />
       <ParticleCanvas />
       <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
         <motion.h1
@@ -214,7 +216,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="text-base md:text-lg text-[#A1A1AA] max-w-2xl mx-auto mb-8 leading-relaxed"
+          className="text-base md:text-lg text-[#a4a4ad] max-w-2xl mx-auto mb-8 leading-relaxed"
         >
           Mit klarer Analyse, passendem Setup, laufender Optimierung und einer
           Deal-Struktur, die zum Wachstum des Kunden passt.
@@ -237,7 +239,7 @@ function HeroSection() {
             href={CONTACT.whatsapp}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm text-[#A1A1AA] hover:text-[#F59E0B] underline-offset-4 hover:underline transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-[#a4a4ad] hover:text-[#e0a458] underline-offset-4 hover:underline transition-colors"
           >
             <MessageCircle size={14} />
             Direkt schreiben
@@ -247,7 +249,7 @@ function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.7 }}
-          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-[#52525B] font-mono mt-6"
+          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-[#7a7a85] font-mono mt-6"
         >
           <span>Deutsch</span>
           <span className="hidden sm:inline">|</span>
@@ -268,7 +270,7 @@ function HeroSection() {
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
-            className="w-1 h-2 rounded-full bg-[#F59E0B]"
+            className="w-1 h-2 rounded-full bg-[#e0a458]"
           />
         </div>
       </motion.div>
@@ -330,7 +332,7 @@ function ThesisSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             Die Story
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
@@ -346,16 +348,16 @@ function ThesisSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className={`bg-[#15161A] border border-white/10 hover:border-[#F59E0B]/30 transition-all p-8 lg:p-10 ${
-                step.isCTA ? 'border-[#F59E0B]/40' : ''
+              className={`bg-[#111116] border border-white/10 hover:border-[#e0a458]/30 transition-all p-8 lg:p-10 ${
+                step.isCTA ? 'border-[#e0a458]/40' : ''
               }`}
             >
               <div className="flex items-start gap-6">
-                <span className="font-mono text-sm text-[#52525B] shrink-0 mt-1">
+                <span className="font-mono text-sm text-[#7a7a85] shrink-0 mt-1">
                   {step.num}
                 </span>
                 <div>
-                  <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-[#F59E0B] mb-3 block">
+                  <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-[#e0a458] mb-3 block">
                     {step.tag}
                   </span>
                   <p className="text-base md:text-lg leading-relaxed text-[#F9FAFB]">
@@ -419,7 +421,7 @@ function PillarsSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16 bg-[#15161A]" ref={ref}>
+    <section className="section-padding px-6 lg:px-16 bg-[#111116]" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -427,7 +429,7 @@ function PillarsSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             Die drei Saeulen
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
@@ -443,17 +445,17 @@ function PillarsSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#0B0C10] p-8 lg:p-10 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1"
+              className="bg-[#08080a] p-8 lg:p-10 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
             >
-              <p.icon size={32} className="text-[#F59E0B] mb-6" />
-              <h3 className="font-mono text-sm uppercase tracking-[0.1em] text-[#F59E0B] mb-3">
+              <p.icon size={32} className="text-[#e0a458] mb-6" />
+              <h3 className="font-mono text-sm uppercase tracking-[0.1em] text-[#e0a458] mb-3">
                 {p.name}
               </h3>
               <p className="text-lg text-[#F9FAFB] font-medium mb-6">{p.pitch}</p>
               <ul className="space-y-3">
                 {p.bullets.map((b) => (
-                  <li key={b} className="flex items-start gap-2 text-sm text-[#A1A1AA]">
-                    <span className="text-[#F59E0B] mt-0.5 shrink-0">-</span>
+                  <li key={b} className="flex items-start gap-2 text-sm text-[#a4a4ad]">
+                    <span className="text-[#e0a458] mt-0.5 shrink-0">-</span>
                     {b}
                   </li>
                 ))}
@@ -514,13 +516,13 @@ function ModulesSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             Bausteine
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
             Module die zu deinem Setup andocken
           </h2>
-          <p className="text-[#A1A1AA] text-lg max-w-2xl leading-relaxed">
+          <p className="text-[#a4a4ad] text-lg max-w-2xl leading-relaxed">
             Im Audit klaeren wir, welche bei dir Sinn machen.
           </p>
         </motion.div>
@@ -533,14 +535,14 @@ function ModulesSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#15161A] p-8 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1 group"
+              className="bg-[#111116] p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1 group"
             >
               <m.icon
                 size={28}
-                className="text-[#A1A1AA] group-hover:text-[#F59E0B] transition-colors mb-4"
+                className="text-[#a4a4ad] group-hover:text-[#e0a458] transition-colors mb-4"
               />
               <h3 className="text-lg font-medium mb-2">{m.name}</h3>
-              <p className="text-sm text-[#A1A1AA] leading-relaxed">{m.desc}</p>
+              <p className="text-sm text-[#a4a4ad] leading-relaxed">{m.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -574,7 +576,7 @@ function WhatYouGetSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16 bg-[#15161A]" ref={ref}>
+    <section className="section-padding px-6 lg:px-16 bg-[#111116]" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -582,7 +584,7 @@ function WhatYouGetSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             Lieferumfang
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
@@ -598,11 +600,11 @@ function WhatYouGetSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#0B0C10] p-8 lg:p-10 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1"
+              className="bg-[#08080a] p-8 lg:p-10 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
             >
-              <item.icon size={32} className="text-[#F59E0B] mb-6" />
+              <item.icon size={32} className="text-[#e0a458] mb-6" />
               <h3 className="text-xl font-medium mb-4">{item.title}</h3>
-              <p className="text-sm text-[#A1A1AA] leading-relaxed">{item.desc}</p>
+              <p className="text-sm text-[#a4a4ad] leading-relaxed">{item.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -649,7 +651,7 @@ function CasesSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             Live-Cases
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
@@ -665,16 +667,16 @@ function CasesSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#15161A] p-8 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1"
+              className="bg-[#111116] p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center text-black font-bold text-lg">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#e0a458] to-[#a86d27] flex items-center justify-center text-black font-bold text-lg">
                   {c.name[0]}
                 </div>
                 <div>
                   <h3 className="font-medium">{c.name}</h3>
                   {c.share_industry && (
-                    <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-[#F59E0B]">
+                    <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-[#e0a458]">
                       {c.industry}
                     </span>
                   )}
@@ -688,11 +690,11 @@ function CasesSection() {
               )}
 
               {c.share_company_name && c.share_industry && (
-                <p className="text-sm text-[#A1A1AA] leading-relaxed">{c.story}</p>
+                <p className="text-sm text-[#a4a4ad] leading-relaxed">{c.story}</p>
               )}
 
               {!c.share_company_name && c.share_industry && (
-                <p className="text-sm text-[#A1A1AA] leading-relaxed">
+                <p className="text-sm text-[#a4a4ad] leading-relaxed">
                   Projekt laeuft — Details auf Anfrage.
                 </p>
               )}
@@ -708,7 +710,7 @@ function CasesSection() {
         >
           <a
             href="#/cases"
-            className="inline-flex items-center gap-2 text-sm text-[#A1A1AA] hover:text-[#F59E0B] transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-[#a4a4ad] hover:text-[#e0a458] transition-colors"
           >
             Alle Cases <ArrowRight size={14} />
           </a>
@@ -743,7 +745,7 @@ function PricingSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16 bg-[#15161A]" ref={ref}>
+    <section className="section-padding px-6 lg:px-16 bg-[#111116]" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -751,13 +753,13 @@ function PricingSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             Investment
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
             Jedes Setup wird individuell kalkuliert
           </h2>
-          <p className="text-[#A1A1AA] text-lg max-w-2xl leading-relaxed">
+          <p className="text-[#a4a4ad] text-lg max-w-2xl leading-relaxed">
             Setup-Fee + Retainer + optional Revenue-Share. Abhaengig von
             Komplexitaet, Datenlage, Zielbild und Wachstumspotenzial.
           </p>
@@ -771,13 +773,13 @@ function PricingSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#0B0C10] p-8 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1"
+              className="bg-[#08080a] p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
             >
-              <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-3 block">
+              <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-3 block">
                 {m.label}
               </span>
               <h3 className="text-lg font-medium mb-4">{m.name}</h3>
-              <p className="text-sm text-[#A1A1AA] leading-relaxed">{m.desc}</p>
+              <p className="text-sm text-[#a4a4ad] leading-relaxed">{m.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -821,7 +823,7 @@ function TrustSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             Vertrauen
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
@@ -837,10 +839,10 @@ function TrustSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#15161A] p-8 border border-white/10 hover:border-[#F59E0B]/30 transition-all hover:-translate-y-1 text-center"
+              className="bg-[#111116] p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1 text-center"
             >
-              <b.icon size={32} className="text-[#F59E0B] mx-auto mb-4" />
-              <p className="text-sm text-[#A1A1AA] leading-relaxed">{b.text}</p>
+              <b.icon size={32} className="text-[#e0a458] mx-auto mb-4" />
+              <p className="text-sm text-[#a4a4ad] leading-relaxed">{b.text}</p>
             </motion.div>
           ))}
         </div>
@@ -852,12 +854,12 @@ function TrustSection() {
           animate={isInView ? 'visible' : 'hidden'}
           className="flex items-center gap-6 justify-center"
         >
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center text-black font-bold text-xl">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#e0a458] to-[#a86d27] flex items-center justify-center text-black font-bold text-xl">
             C
           </div>
           <div>
             <p className="font-medium text-lg">Carlos Wrusch</p>
-            <p className="font-mono text-xs text-[#A1A1AA] uppercase tracking-wider">
+            <p className="font-mono text-xs text-[#a4a4ad] uppercase tracking-wider">
               Founder
             </p>
           </div>
@@ -909,7 +911,7 @@ function FAQSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16 bg-[#15161A]" ref={ref}>
+    <section className="section-padding px-6 lg:px-16 bg-[#111116]" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -917,7 +919,7 @@ function FAQSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             FAQ
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
@@ -937,12 +939,12 @@ function FAQSection() {
               <AccordionItem
                 key={i}
                 value={`faq-${i}`}
-                className="bg-[#0B0C10] border border-white/10 px-6"
+                className="bg-[#08080a] border border-white/10 px-6"
               >
                 <AccordionTrigger className="text-left text-sm md:text-base font-medium py-5 hover:no-underline">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-sm text-[#A1A1AA] leading-relaxed pb-5">
+                <AccordionContent className="text-sm text-[#a4a4ad] leading-relaxed pb-5">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
@@ -998,7 +1000,7 @@ function FinalCTASection() {
           </a>
         </div>
 
-        <p className="font-mono text-xs text-[#52525B]">
+        <p className="font-mono text-xs text-[#7a7a85]">
           Deutsch · DSGVO · Massgeschneidert
         </p>
       </motion.div>
@@ -1010,7 +1012,7 @@ function FinalCTASection() {
 
 export default function Home() {
   return (
-    <div className="bg-[#0B0C10]">
+    <div className="bg-[#08080a]">
       <HeroSection />
       <ThesisSection />
       <PillarsSection />

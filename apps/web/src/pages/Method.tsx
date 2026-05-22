@@ -34,7 +34,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block"
+          className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block"
         >
           Unser Prozess
         </motion.span>
@@ -50,7 +50,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="text-base md:text-lg text-[#A1A1AA] max-w-2xl mx-auto leading-relaxed"
+          className="text-base md:text-lg text-[#a4a4ad] max-w-2xl mx-auto leading-relaxed"
         >
           Analyse &rarr; Setup &rarr; Run. Kein vordefiniertes Paket — nur was dein Business braucht.
         </motion.p>
@@ -128,13 +128,13 @@ function ProcessSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="text-center mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             Der AEVUM-Prozess
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-4">
             Drei Phasen, ein <span className="text-gradient font-medium">System</span>
           </h2>
-          <p className="text-[#A1A1AA] max-w-xl mx-auto">
+          <p className="text-[#a4a4ad] max-w-xl mx-auto">
             Kein Cookie-Cutter. Jede Phase wird auf dein Business zugeschnitten.
           </p>
         </motion.div>
@@ -153,7 +153,7 @@ function ProcessSection() {
         >
           <a
             href="#pillars"
-            className="flex flex-col items-center gap-2 text-[#52525B] hover:text-[#F59E0B] transition-colors"
+            className="flex flex-col items-center gap-2 text-[#7a7a85] hover:text-[#e0a458] transition-colors"
           >
             <span className="text-xs font-mono uppercase tracking-wider">Die 3 S&auml;ulen</span>
             <ChevronDown size={18} className="animate-bounce" />
@@ -185,26 +185,26 @@ function StepCard({ step, index }: { step: StepData; index: number }) {
       className="relative flex-1"
     >
       {index < steps.length - 1 && (
-        <div className="hidden lg:block absolute top-12 left-[60%] right-0 h-[2px] bg-gradient-to-r from-[#F59E0B]/30 to-transparent" />
+        <div className="hidden lg:block absolute top-12 left-[60%] right-0 h-[2px] bg-gradient-to-r from-[#e0a458]/30 to-transparent" />
       )}
 
-      <div className="bg-[#15161A] border border-white/10 p-8 h-full flex flex-col hover:border-[#F59E0B]/30 transition-all">
+      <div className="bg-[#111116] border border-white/10 p-8 h-full flex flex-col hover:border-[#e0a458]/30 transition-all">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-lg bg-[#F59E0B]/10 flex items-center justify-center">
-            <step.icon size={22} className="text-[#F59E0B]" />
+          <div className="w-12 h-12 rounded-lg bg-[#e0a458]/10 flex items-center justify-center">
+            <step.icon size={22} className="text-[#e0a458]" />
           </div>
-          <span className="font-mono text-xs text-[#52525B] uppercase tracking-wider">
+          <span className="font-mono text-xs text-[#7a7a85] uppercase tracking-wider">
             {step.label}
           </span>
         </div>
 
         <h3 className="text-xl font-medium tracking-tight mb-2 text-[#F9FAFB]">{step.title}</h3>
-        <p className="text-sm text-[#A1A1AA] mb-6 leading-relaxed">{step.description}</p>
+        <p className="text-sm text-[#a4a4ad] mb-6 leading-relaxed">{step.description}</p>
 
         <ul className="space-y-3 mb-8 flex-1">
           {step.bullets.map((bullet) => (
-            <li key={bullet} className="flex items-start gap-3 text-sm text-[#A1A1AA]">
-              <span className="w-1 h-1 rounded-full bg-[#F59E0B] mt-2 flex-shrink-0" />
+            <li key={bullet} className="flex items-start gap-3 text-sm text-[#a4a4ad]">
+              <span className="w-1 h-1 rounded-full bg-[#e0a458] mt-2 flex-shrink-0" />
               {bullet}
             </li>
           ))}
@@ -291,13 +291,13 @@ function PillarsSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="text-center mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             Das Fundament
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-4">
             Die 3 <span className="text-gradient font-medium">S&auml;ulen</span> im Detail
           </h2>
-          <p className="text-[#A1A1AA] max-w-xl mx-auto">
+          <p className="text-[#a4a4ad] max-w-xl mx-auto">
             Jedes AEVUM-System baut auf diesen drei Prinzipien auf &mdash; von Tag 1 an.
           </p>
         </motion.div>
@@ -323,14 +323,14 @@ function PillarCard({ pillar, index }: { pillar: PillarData; index: number }) {
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className="bg-[#15161A] border border-white/10 p-8 md:p-10 hover:border-[#F59E0B]/30 transition-all"
+      className="bg-[#111116] border border-white/10 p-8 md:p-10 hover:border-[#e0a458]/30 transition-all"
     >
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-xl bg-[#F59E0B]/10 flex items-center justify-center">
-          <pillar.icon size={26} className="text-[#F59E0B]" />
+        <div className="w-14 h-14 rounded-xl bg-[#e0a458]/10 flex items-center justify-center">
+          <pillar.icon size={26} className="text-[#e0a458]" />
         </div>
         <div>
-          <span className="font-mono text-xs text-[#52525B] uppercase tracking-wider">
+          <span className="font-mono text-xs text-[#7a7a85] uppercase tracking-wider">
             S&auml;ule {index + 1}
           </span>
           <h3 className="text-xl font-medium tracking-tight text-[#F9FAFB]">
@@ -344,14 +344,14 @@ function PillarCard({ pillar, index }: { pillar: PillarData; index: number }) {
         dangerouslySetInnerHTML={{ __html: pillar.headline }}
       />
       <p
-        className="text-sm text-[#A1A1AA] mb-6 leading-relaxed"
+        className="text-sm text-[#a4a4ad] mb-6 leading-relaxed"
         dangerouslySetInnerHTML={{ __html: pillar.description }}
       />
 
       <ul className="space-y-3">
         {pillar.features.map((feature) => (
-          <li key={feature} className="flex items-start gap-3 text-sm text-[#A1A1AA]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] mt-1.5 flex-shrink-0" />
+          <li key={feature} className="flex items-start gap-3 text-sm text-[#a4a4ad]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#e0a458] mt-1.5 flex-shrink-0" />
             <span dangerouslySetInnerHTML={{ __html: feature }} />
           </li>
         ))}
@@ -372,12 +372,12 @@ function CTASection() {
         initial={{ opacity: 0, y: 40 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="max-w-3xl mx-auto text-center bg-[#15161A] border border-white/10 p-10 md:p-16"
+        className="max-w-3xl mx-auto text-center bg-[#111116] border border-white/10 p-10 md:p-16"
       >
         <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-4">
           Bereit f&uuml;r dein <span className="text-gradient font-medium">Operating-System</span>?
         </h2>
-        <p className="text-[#A1A1AA] mb-10 max-w-lg mx-auto">
+        <p className="text-[#a4a4ad] mb-10 max-w-lg mx-auto">
           Starte mit einem kostenlosen Audit. Wir analysieren dein Setup und zeigen dir, wo
           Automatisierung den gr&ouml;&szlig;ten Impact hat.
         </p>
@@ -405,7 +405,7 @@ function CTASection() {
 
 export default function Method() {
   return (
-    <div className="bg-[#0B0C10] min-h-screen">
+    <div className="bg-[#08080a] min-h-screen">
       <HeroSection />
       <ProcessSection />
       <PillarsSection />

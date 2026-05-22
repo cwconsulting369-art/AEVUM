@@ -81,7 +81,7 @@ export default function CookieBanner() {
             }}
           >
             <div className="flex flex-col md:flex-row md:items-start gap-4">
-              <div className="flex-1 text-sm text-[#A1A1AA] leading-relaxed">
+              <div className="flex-1 text-sm text-[#a4a4ad] leading-relaxed">
                 <p className="text-[#F8FAFC] font-medium mb-2">
                   Hinweis zu Cookies und Datenverarbeitung
                 </p>
@@ -94,7 +94,7 @@ export default function CookieBanner() {
                   unserer{' '}
                   <a
                     href="#/datenschutz"
-                    className="text-[#F59E0B] hover:underline whitespace-nowrap"
+                    className="text-[#e0a458] hover:underline whitespace-nowrap"
                   >
                     Datenschutzerklärung
                   </a>
@@ -105,14 +105,14 @@ export default function CookieBanner() {
                 <button
                   type="button"
                   onClick={acknowledge}
-                  className="w-full md:w-auto px-5 py-2.5 rounded-lg bg-[#F59E0B] hover:bg-[#FBBF24] text-[#0B0C10] text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#F59E0B] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
+                  className="w-full md:w-auto px-5 py-2.5 rounded-lg bg-[#e0a458] hover:bg-[#f5d68d] text-[#0B0C10] text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#e0a458] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
                 >
                   Verstanden
                 </button>
                 <a
                   href="#/datenschutz"
                   onClick={acknowledge}
-                  className="w-full md:w-auto text-center px-5 py-2 rounded-lg border border-white/10 hover:border-white/20 text-[#A1A1AA] hover:text-[#F8FAFC] text-sm transition-colors"
+                  className="w-full md:w-auto text-center px-5 py-2 rounded-lg border border-white/10 hover:border-white/20 text-[#a4a4ad] hover:text-[#F8FAFC] text-sm transition-colors"
                 >
                   Details ansehen
                 </a>

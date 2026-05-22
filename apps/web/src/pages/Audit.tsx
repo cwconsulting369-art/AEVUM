@@ -452,13 +452,13 @@ export default function Audit() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button onClick={() => { window.location.hash = '/'; }}
                 className="h-12 px-8 text-base font-semibold rounded-lg"
-                style={{ background: '#F59E0B', color: '#0B0C10' }}>
+                style={{ background: '#e0a458', color: '#0B0C10' }}>
                 <ArrowLeft className="w-4 h-4 mr-2" />Zur Startseite
               </Button>
               <Button variant="outline"
                 onClick={() => window.open('https://cal.com/lennox', '_blank')}
                 className="h-12 px-8 text-base font-semibold rounded-lg"
-                style={{ borderColor: 'rgba(245,158,11,0.4)', color: '#F59E0B', background: 'transparent' }}>
+                style={{ borderColor: 'rgba(224, 164, 88,0.4)', color: '#e0a458', background: 'transparent' }}>
                 <Calendar className="w-4 h-4 mr-2" />Call buchen
               </Button>
             </div>
@@ -483,7 +483,7 @@ export default function Audit() {
             <span className="text-sm font-medium" style={{ color: '#A1A1AA' }}>
               Schritt {step + 1} von {STEPS.length}
             </span>
-            <span className="text-sm font-semibold" style={{ color: '#F59E0B', fontFamily: "'Space Grotesk', sans-serif" }}>
+            <span className="text-sm font-semibold" style={{ color: '#e0a458', fontFamily: "'Space Grotesk', sans-serif" }}>
               {STEPS[step].label}
             </span>
           </div>
@@ -496,9 +496,9 @@ export default function Audit() {
                 className="cursor-pointer disabled:cursor-default">
                 <div className="w-2.5 h-2.5 rounded-full transition-all duration-300"
                   style={{
-                    background: i <= step ? '#F59E0B' : '#52525B',
+                    background: i <= step ? '#e0a458' : '#52525B',
                     transform: i === step ? 'scale(1.4)' : 'scale(1)',
-                    boxShadow: i === step ? '0 0 10px rgba(245,158,11,0.4)' : 'none',
+                    boxShadow: i === step ? '0 0 10px rgba(224, 164, 88,0.4)' : 'none',
                   }} />
               </button>
             ))}
@@ -514,10 +514,10 @@ export default function Audit() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
             className="mb-6 rounded-xl border p-4 flex items-start justify-between gap-4"
-            style={{ background: 'rgba(245, 158, 11, 0.08)', borderColor: 'rgba(245, 158, 11, 0.35)' }}
+            style={{ background: 'rgba(224, 164, 88, 0.08)', borderColor: 'rgba(224, 164, 88, 0.35)' }}
           >
             <div className="flex-1">
-              <div className="text-[11px] uppercase tracking-[0.16em] font-medium mb-1" style={{ color: '#F59E0B' }}>
+              <div className="text-[11px] uppercase tracking-[0.16em] font-medium mb-1" style={{ color: '#e0a458' }}>
                 Daten aus AI-Beratung übernommen
               </div>
               <div className="text-sm leading-relaxed" style={{ color: '#E4E4E7' }}>
@@ -529,7 +529,7 @@ export default function Audit() {
               type="button"
               onClick={() => { setShowHelpbotBanner(false); }}
               aria-label="Hinweis schließen"
-              className="p-1 rounded text-[#A1A1AA] hover:text-[#F9FAFB] hover:bg-white/5 transition-colors"
+              className="p-1 rounded text-[#a4a4ad] hover:text-[#F9FAFB] hover:bg-white/5 transition-colors"
             >
               <X className="w-4 h-4" strokeWidth={2} />
             </button>
@@ -553,7 +553,7 @@ export default function Audit() {
                     {/* Title */}
                     <div className="mb-8">
                       <Badge variant="outline" className="mb-3 text-xs"
-                        style={{ borderColor: 'rgba(245,158,11,0.3)', color: '#F59E0B', background: 'rgba(245,158,11,0.08)' }}>
+                        style={{ borderColor: 'rgba(224, 164, 88,0.3)', color: '#e0a458', background: 'rgba(224, 164, 88,0.08)' }}>
                         Schritt {step + 1}
                       </Badge>
                       <h2 className="text-2xl sm:text-3xl font-bold"
@@ -759,7 +759,7 @@ export default function Audit() {
                         <MotionFormField delay={2}>
                           <FormField control={form.control} name="budget_revshare_open" render={({ field }) => (
                             <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-lg p-4"
-                              style={{ background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.1)' }}>
+                              style={{ background: 'rgba(224, 164, 88,0.04)', border: '1px solid rgba(224, 164, 88,0.1)' }}>
                               <FormControl>
                                 <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                               </FormControl>
@@ -787,7 +787,7 @@ export default function Audit() {
                         {/* Drag & Drop Upload */}
                         <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
                           <Label className="text-sm font-medium mb-3 block" style={{ color: '#F9FAFB' }}>
-                            <FileText className="w-4 h-4 inline mr-2" style={{ color: '#F59E0B' }} />
+                            <FileText className="w-4 h-4 inline mr-2" style={{ color: '#e0a458' }} />
                             Dateien anhaengen (optional)
                           </Label>
                           <div
@@ -806,11 +806,11 @@ export default function Audit() {
                             onDrop={handleDrop}
                             className="rounded-lg border-2 border-dashed p-8 text-center transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2"
                             style={{
-                              background: dragOver ? 'rgba(245,158,11,0.06)' : 'rgba(255,255,255,0.02)',
-                              borderColor: dragOver ? 'rgba(245,158,11,0.4)' : 'rgba(255,255,255,0.1)',
+                              background: dragOver ? 'rgba(224, 164, 88,0.06)' : 'rgba(255,255,255,0.02)',
+                              borderColor: dragOver ? 'rgba(224, 164, 88,0.4)' : 'rgba(255,255,255,0.1)',
                             }}>
                             <Upload className="w-8 h-8 mx-auto mb-3"
-                              style={{ color: dragOver ? '#F59E0B' : '#52525B' }} />
+                              style={{ color: dragOver ? '#e0a458' : '#52525B' }} />
                             <p className="text-sm font-medium" style={{ color: '#A1A1AA' }}>
                               {dragOver ? 'Dateien hier ablegen' : 'Klicken oder Dateien per Drag & Drop ziehen'}
                             </p>
@@ -832,7 +832,7 @@ export default function Audit() {
                           {fileError && (
                             <p
                               className="text-xs mt-2 flex items-center gap-1.5"
-                              style={{ color: '#F59E0B' }}
+                              style={{ color: '#e0a458' }}
                             >
                               <AlertCircle className="w-3.5 h-3.5" />
                               {fileError}
@@ -853,7 +853,7 @@ export default function Audit() {
                                   <div className="flex items-center gap-3 min-w-0">
                                     <FileText
                                       className="w-4 h-4 flex-shrink-0"
-                                      style={{ color: '#F59E0B' }}
+                                      style={{ color: '#e0a458' }}
                                     />
                                     <div className="min-w-0">
                                       <p
@@ -904,7 +904,7 @@ export default function Audit() {
                                   zur Bearbeitung meiner Anfrage und Erstellung der Audit-Auswertung
                                   verarbeitet werden. Die Verarbeitung erfolgt gemäß unserer{' '}
                                   <a href="#/datenschutz" target="_blank" rel="noopener noreferrer"
-                                     style={{ color: '#F59E0B', textDecoration: 'underline' }}>
+                                     style={{ color: '#e0a458', textDecoration: 'underline' }}>
                                     Datenschutzerklärung
                                   </a>. Ich kann diese Einwilligung jederzeit mit Wirkung für die Zukunft
                                   per E-Mail an cwconsulting369@gmail.com widerrufen.
@@ -944,7 +944,7 @@ export default function Audit() {
               {step < STEPS.length - 1 ? (
                 <Button type="button" onClick={goNext}
                   className="h-12 px-8 rounded-lg font-semibold"
-                  style={{ background: '#F59E0B', color: '#0B0C10' }}>
+                  style={{ background: '#e0a458', color: '#0B0C10' }}>
                   Weiter<ChevronRight className="w-4 h-4 ml-2" />
                 </Button>
               ) : (
@@ -1073,7 +1073,7 @@ function RHFSelectField({
 function ReviewSection({ values }: { values: Partial<AuditFormData> }) {
   const sections = [
     {
-      title: 'Unternehmen', icon: <Building2 className="w-4 h-4" style={{ color: '#F59E0B' }} />,
+      title: 'Unternehmen', icon: <Building2 className="w-4 h-4" style={{ color: '#e0a458' }} />,
       items: [
         { label: 'Name', value: values.unternehmen_name },
         { label: 'Firma', value: values.unternehmen_company },
@@ -1084,7 +1084,7 @@ function ReviewSection({ values }: { values: Partial<AuditFormData> }) {
       ],
     },
     {
-      title: 'Kontakt', icon: <Check className="w-4 h-4" style={{ color: '#F59E0B' }} />,
+      title: 'Kontakt', icon: <Check className="w-4 h-4" style={{ color: '#e0a458' }} />,
       items: [
         { label: 'E-Mail', value: values.kontakt_email },
         { label: 'Telefon', value: values.kontakt_phone },
@@ -1092,7 +1092,7 @@ function ReviewSection({ values }: { values: Partial<AuditFormData> }) {
       ],
     },
     {
-      title: 'Aktueller Stack', icon: <Check className="w-4 h-4" style={{ color: '#F59E0B' }} />,
+      title: 'Aktueller Stack', icon: <Check className="w-4 h-4" style={{ color: '#e0a458' }} />,
       items: [
         { label: 'Tools', value: values.stack_tools },
         { label: 'CRM', value: values.stack_crm },
@@ -1101,7 +1101,7 @@ function ReviewSection({ values }: { values: Partial<AuditFormData> }) {
       ],
     },
     {
-      title: 'Daten-Landschaft', icon: <Check className="w-4 h-4" style={{ color: '#F59E0B' }} />,
+      title: 'Daten-Landschaft', icon: <Check className="w-4 h-4" style={{ color: '#e0a458' }} />,
       items: [
         { label: 'Data Sources', value: values.daten_sources },
         { label: 'Daten-Qualitaet', value: values.daten_quality_score ? `${values.daten_quality_score}/10` : undefined },
@@ -1109,7 +1109,7 @@ function ReviewSection({ values }: { values: Partial<AuditFormData> }) {
       ],
     },
     {
-      title: 'Pain-Points', icon: <Check className="w-4 h-4" style={{ color: '#F59E0B' }} />,
+      title: 'Pain-Points', icon: <Check className="w-4 h-4" style={{ color: '#e0a458' }} />,
       items: [
         { label: 'Groesster Zeitfresser', value: values.pain_biggest },
         { label: 'Manuelle Tasks/Woche', value: values.pain_manual_hours },
@@ -1117,7 +1117,7 @@ function ReviewSection({ values }: { values: Partial<AuditFormData> }) {
       ],
     },
     {
-      title: 'Ziele', icon: <Check className="w-4 h-4" style={{ color: '#F59E0B' }} />,
+      title: 'Ziele', icon: <Check className="w-4 h-4" style={{ color: '#e0a458' }} />,
       items: [
         { label: '90-Tage-Ziel', value: values.ziele_90_days },
         { label: '12-Monate-Ziel', value: values.ziele_12_months },
@@ -1125,14 +1125,14 @@ function ReviewSection({ values }: { values: Partial<AuditFormData> }) {
       ],
     },
     {
-      title: 'Team', icon: <Check className="w-4 h-4" style={{ color: '#F59E0B' }} />,
+      title: 'Team', icon: <Check className="w-4 h-4" style={{ color: '#e0a458' }} />,
       items: [
         { label: 'Decision Makers', value: values.team_decision_makers },
         { label: 'Team Roles', value: values.team_roles },
       ],
     },
     {
-      title: 'Budget', icon: <Check className="w-4 h-4" style={{ color: '#F59E0B' }} />,
+      title: 'Budget', icon: <Check className="w-4 h-4" style={{ color: '#e0a458' }} />,
       items: [
         { label: 'Monatliches Budget', value: values.budget_monthly ? MONTHLY_RANGE_LABELS[values.budget_monthly as keyof typeof MONTHLY_RANGE_LABELS] : undefined },
         { label: 'Setup-Budget', value: values.budget_setup ? SETUP_LABELS[values.budget_setup as keyof typeof SETUP_LABELS] : undefined },
@@ -1154,7 +1154,7 @@ function ReviewSection({ values }: { values: Partial<AuditFormData> }) {
             style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
             <div className="flex items-center gap-2 mb-3">
               {section.icon}
-              <h4 className="text-sm font-semibold" style={{ color: '#F59E0B' }}>{section.title}</h4>
+              <h4 className="text-sm font-semibold" style={{ color: '#e0a458' }}>{section.title}</h4>
             </div>
             <div className="space-y-2">
               {section.items.map(item => {

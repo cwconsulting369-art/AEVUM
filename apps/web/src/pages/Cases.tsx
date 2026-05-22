@@ -119,7 +119,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block"
+          className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block"
         >
           Referenzen
         </motion.span>
@@ -135,7 +135,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="text-base md:text-lg text-[#A1A1AA] max-w-2xl mx-auto leading-relaxed"
+          className="text-base md:text-lg text-[#a4a4ad] max-w-2xl mx-auto leading-relaxed"
         >
           Echte Projekte. Ehrlich dokumentiert. Nur was unsere Kunden freigeben.
         </motion.p>
@@ -159,7 +159,7 @@ function ClientZeroSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="mb-10"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             Client Zero
           </span>
           <h2 className="text-2xl md:text-4xl font-light tracking-tight">
@@ -171,50 +171,50 @@ function ClientZeroSection() {
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-          className="bg-[#15161A] border border-[#F59E0B]/30 p-8 md:p-12 relative overflow-hidden"
+          className="bg-[#111116] border border-[#e0a458]/30 p-8 md:p-12 relative overflow-hidden"
         >
-          <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-[#F59E0B]/5 blur-3xl" />
+          <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-[#e0a458]/5 blur-3xl" />
 
           <div className="relative z-10 flex flex-col md:flex-row gap-8 md:gap-12">
             <div className="flex flex-col items-center md:items-start flex-shrink-0">
-              <div className="w-20 h-20 rounded-full bg-[#F59E0B]/10 border border-[#F59E0B]/30 flex items-center justify-center mb-4">
-                <User size={32} className="text-[#F59E0B]" />
+              <div className="w-20 h-20 rounded-full bg-[#e0a458]/10 border border-[#e0a458]/30 flex items-center justify-center mb-4">
+                <User size={32} className="text-[#e0a458]" />
               </div>
               <h3 className="text-xl font-medium text-[#F9FAFB]">Carlos Wrusch</h3>
-              <p className="text-sm text-[#A1A1AA]">Founder, AEVUM-system</p>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 mt-3 rounded-full bg-[#F59E0B]/10 text-[#F59E0B] text-xs font-mono uppercase tracking-wider">
+              <p className="text-sm text-[#a4a4ad]">Founder, AEVUM-system</p>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 mt-3 rounded-full bg-[#e0a458]/10 text-[#e0a458] text-xs font-mono uppercase tracking-wider">
                 <CheckCircle2 size={12} />
                 AEVUM &mdash; Client Zero
               </span>
             </div>
 
             <div className="flex-1">
-              <p className="text-[#A1A1AA] leading-relaxed mb-8 text-base">
+              <p className="text-[#a4a4ad] leading-relaxed mb-8 text-base">
                 Ich baue AEVUM auf mir selbst auf, bevor es zu Kunden kommt. Das ist Client Zero:
                 eat your own dog food. Jeder Workflow, jeder Agent, jedes Dashboard l&auml;uft erst bei
                 mir, bevor es externalisiert wird.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 p-4 bg-[#0B0C10] border border-white/10">
-                  <TrendingUp size={20} className="text-[#F59E0B]" />
+                <div className="flex items-center gap-3 p-4 bg-[#08080a] border border-white/10">
+                  <TrendingUp size={20} className="text-[#e0a458]" />
                   <div>
                     <p className="text-sm font-medium text-[#F9FAFB]">System live seit 2024</p>
-                    <p className="text-xs text-[#52525B]">Kontinuierliche Entwicklung</p>
+                    <p className="text-xs text-[#7a7a85]">Kontinuierliche Entwicklung</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 bg-[#0B0C10] border border-white/10">
-                  <CheckCircle2 size={20} className="text-[#F59E0B]" />
+                <div className="flex items-center gap-3 p-4 bg-[#08080a] border border-white/10">
+                  <CheckCircle2 size={20} className="text-[#e0a458]" />
                   <div>
                     <p className="text-sm font-medium text-[#F9FAFB]">
                       Alle Workflows selbst getestet
                     </p>
-                    <p className="text-xs text-[#52525B]">Dogfooding vor Delivery</p>
+                    <p className="text-xs text-[#7a7a85]">Dogfooding vor Delivery</p>
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-[#52525B] mt-6 font-mono">
-                Live-Tracking unter <a href="/#/about" className="text-[#F59E0B] hover:underline">/about</a>.
+              <p className="text-xs text-[#7a7a85] mt-6 font-mono">
+                Live-Tracking unter <a href="/#/about" className="text-[#e0a458] hover:underline">/about</a>.
               </p>
             </div>
           </div>
@@ -237,20 +237,20 @@ function CaseCard({ caseData, index }: { caseData: DisplayCase; index: number })
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className="bg-[#15161A] border border-white/10 p-6 md:p-8 hover:border-[#F59E0B]/20 transition-all"
+      className="bg-[#111116] border border-white/10 p-6 md:p-8 hover:border-[#e0a458]/20 transition-all"
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-[#F59E0B]/10 flex items-center justify-center flex-shrink-0">
-            <Building2 size={18} className="text-[#F59E0B]" />
+          <div className="w-10 h-10 rounded-lg bg-[#e0a458]/10 flex items-center justify-center flex-shrink-0">
+            <Building2 size={18} className="text-[#e0a458]" />
           </div>
           <div>
             <h3 className="text-base font-medium text-[#F9FAFB]">{caseData.displayName}</h3>
-            <span className="text-xs text-[#A1A1AA]">{caseData.displayIndustry}</span>
+            <span className="text-xs text-[#a4a4ad]">{caseData.displayIndustry}</span>
           </div>
         </div>
         {caseData.showKpiDelta && caseData.kpiDelta && (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#F59E0B]/10 text-[#F59E0B] text-xs font-mono whitespace-nowrap">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#e0a458]/10 text-[#e0a458] text-xs font-mono whitespace-nowrap">
             <TrendingUp size={12} />
             {caseData.kpiDelta}
           </span>
@@ -258,18 +258,18 @@ function CaseCard({ caseData, index }: { caseData: DisplayCase; index: number })
       </div>
 
       <p
-        className="text-sm text-[#A1A1AA] leading-relaxed"
+        className="text-sm text-[#a4a4ad] leading-relaxed"
         dangerouslySetInnerHTML={{ __html: caseData.story }}
       />
 
       <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap gap-2">
         {caseData.shareIndustry && (
-          <span className="text-[10px] font-mono text-[#52525B] uppercase tracking-wider">
+          <span className="text-[10px] font-mono text-[#7a7a85] uppercase tracking-wider">
             Branche freigegeben
           </span>
         )}
         {caseData.shareKpis && (
-          <span className="text-[10px] font-mono text-[#52525B] uppercase tracking-wider">
+          <span className="text-[10px] font-mono text-[#7a7a85] uppercase tracking-wider">
             KPI freigegeben
           </span>
         )}
@@ -280,13 +280,13 @@ function CaseCard({ caseData, index }: { caseData: DisplayCase; index: number })
 
 function FallbackNotice({ message }: { message: string }) {
   return (
-    <div className="bg-[#15161A] border border-white/10 p-8 md:p-10 text-center">
-      <p className="text-sm text-[#A1A1AA] leading-relaxed">
+    <div className="bg-[#111116] border border-white/10 p-8 md:p-10 text-center">
+      <p className="text-sm text-[#a4a4ad] leading-relaxed">
         {message}
       </p>
-      <p className="text-xs text-[#52525B] font-mono mt-3">
+      <p className="text-xs text-[#7a7a85] font-mono mt-3">
         Client Zero: Wir selbst. Live-Tracking unter{' '}
-        <a href="/#/about" className="text-[#F59E0B] hover:underline">/about</a>.
+        <a href="/#/about" className="text-[#e0a458] hover:underline">/about</a>.
       </p>
     </div>
   );
@@ -351,13 +351,13 @@ function MoreCasesSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="mb-10"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#F59E0B] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             Weitere Projekte
           </span>
           <h2 className="text-2xl md:text-4xl font-light tracking-tight mb-4">
             Vertraulich. Aber <span className="text-gradient font-medium">echt</span>.
           </h2>
-          <p className="text-[#A1A1AA] max-w-2xl">
+          <p className="text-[#a4a4ad] max-w-2xl">
             Nicht alle Kunden k&ouml;nnen Details &ouml;ffentlich teilen. Was du hier siehst, ist exakt das,
             wof&uuml;r wir jeweils die Freigabe haben. Keine erfundenen KPIs &mdash; nur ehrliche Updates.
           </p>
@@ -368,7 +368,7 @@ function MoreCasesSection() {
             {[0, 1, 2, 3].map(i => (
               <div
                 key={i}
-                className="bg-[#15161A] border border-white/10 p-6 md:p-8 animate-pulse"
+                className="bg-[#111116] border border-white/10 p-6 md:p-8 animate-pulse"
                 aria-hidden="true"
               >
                 <div className="flex items-start justify-between mb-4">
@@ -422,12 +422,12 @@ function CTASection() {
         initial={{ opacity: 0, y: 40 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="max-w-3xl mx-auto text-center bg-[#15161A] border border-white/10 p-10 md:p-16"
+        className="max-w-3xl mx-auto text-center bg-[#111116] border border-white/10 p-10 md:p-16"
       >
         <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-4">
           Willst du auch ein <span className="text-gradient font-medium">Live-Case</span> werden?
         </h2>
-        <p className="text-[#A1A1AA] mb-10 max-w-lg mx-auto">
+        <p className="text-[#a4a4ad] mb-10 max-w-lg mx-auto">
           Starte mit einem Audit. Wir schauen uns dein Setup an und zeigen dir, wo Automatisierung
           den gr&ouml;&szlig;ten Hebel hat.
         </p>
@@ -455,7 +455,7 @@ function CTASection() {
 
 export default function Cases() {
   return (
-    <div className="bg-[#0B0C10] min-h-screen">
+    <div className="bg-[#08080a] min-h-screen">
       <HeroSection />
       <ClientZeroSection />
       <MoreCasesSection />

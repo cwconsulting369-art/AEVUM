@@ -4,7 +4,36 @@ module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Manrope', 'Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
+        gold: {
+          50:  '#fdf6e7',
+          100: '#fbecc8',
+          200: '#f5d68d',
+          300: '#eebe5a',
+          400: '#e0a458',
+          500: '#cf8c3a',
+          600: '#a86d27',
+          700: '#7a4f1c',
+          800: '#553715',
+          900: '#33200d',
+        },
+        ink: {
+          950: '#08080a',
+          900: '#0d0d11',
+          850: '#111116',
+          800: '#1a1a22',
+          700: '#252531',
+          600: '#34343f',
+          500: '#4a4a55',
+          400: '#7a7a85',
+          300: '#a4a4ad',
+          200: '#c9c9d0',
+          100: '#e6e6ea',
+          50:  '#f4f4f6',
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -58,6 +87,12 @@ module.exports = {
       },
       boxShadow: {
         xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        'glow-gold': '0 0 0 1px rgba(224,164,88,0.4), 0 0 24px -4px rgba(224,164,88,0.35)',
+        'glass': '0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 32px -8px rgba(0,0,0,0.6)',
+      },
+      backgroundImage: {
+        'gold-gradient': 'linear-gradient(135deg, #f5d68d 0%, #e0a458 45%, #a86d27 100%)',
+        'gold-radial': 'radial-gradient(circle at 30% 20%, rgba(224,164,88,0.18), transparent 60%)',
       },
       keyframes: {
         "accordion-down": {

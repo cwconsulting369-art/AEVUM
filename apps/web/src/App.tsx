@@ -19,7 +19,7 @@ const CheckoutCancelled = lazy(() => import('./pages/CheckoutCancelled'));
 function LoadingFallback() {
   return (
     <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-[#F59E0B] border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-[#e0a458] border-t-transparent rounded-full animate-spin" />
     </div>
   );
 }

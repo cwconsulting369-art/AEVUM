@@ -6,7 +6,7 @@
  * - Streams Claude Sonnet 4.5 token-by-token via SSE
  * - Persists session to localStorage; resumes on reload
  * - CTAs auto-injected when bot mentions "audit" or "call/gespräch"
- * - Dark + gold AEVUM theme (#0B0C10 + #F59E0B)
+ * - Dark + gold AEVUM theme (#0B0C10 + #e0a458)
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
@@ -426,16 +426,16 @@ export default function Helpbot() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             transition={{ type: 'spring', stiffness: 180, damping: 22 }}
-            className="fixed bottom-24 right-5 lg:right-6 z-[90] max-w-[260px] rounded-2xl border border-[#F59E0B]/30 bg-[#101216]/95 backdrop-blur-md px-4 py-3 text-left shadow-[0_10px_40px_-8px_rgba(245,158,11,0.4)] cursor-pointer hover:border-[#F59E0B]/50 transition-colors"
+            className="fixed bottom-24 right-5 lg:right-6 z-[90] max-w-[260px] rounded-2xl border border-[#e0a458]/30 bg-[#101216]/95 backdrop-blur-md px-4 py-3 text-left shadow-[0_10px_40px_-8px_rgba(224, 164, 88,0.4)] cursor-pointer hover:border-[#e0a458]/50 transition-colors"
             aria-label="Helpbot öffnen"
           >
-            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#F59E0B] font-medium mb-1">
+            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#e0a458] font-medium mb-1">
               <Sparkles className="w-3 h-3" /> AEVUM Assistant
             </div>
             <div className="text-sm text-[#F9FAFB] leading-snug">
               Frag mich was zu KI in deinem Unternehmen.
             </div>
-            <div className="absolute -bottom-1.5 right-7 w-3 h-3 rotate-45 bg-[#101216] border-r border-b border-[#F59E0B]/30" />
+            <div className="absolute -bottom-1.5 right-7 w-3 h-3 rotate-45 bg-[#101216] border-r border-b border-[#e0a458]/30" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -452,10 +452,10 @@ export default function Helpbot() {
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.94 }}
-            className="fixed bottom-5 right-5 lg:bottom-6 lg:right-6 z-[95] w-14 h-14 rounded-full bg-[#F59E0B] text-[#0B0C10] flex items-center justify-center shadow-[0_8px_30px_-4px_rgba(245,158,11,0.55)] hover:bg-[#FBBF24] focus:outline-none focus:ring-2 focus:ring-[#F59E0B] focus:ring-offset-2 focus:ring-offset-[#0B0C10] group"
+            className="fixed bottom-5 right-5 lg:bottom-6 lg:right-6 z-[95] w-14 h-14 rounded-full bg-[#e0a458] text-[#0B0C10] flex items-center justify-center shadow-[0_8px_30px_-4px_rgba(224, 164, 88,0.55)] hover:bg-[#f5d68d] focus:outline-none focus:ring-2 focus:ring-[#e0a458] focus:ring-offset-2 focus:ring-offset-[#0B0C10] group"
             aria-label="AEVUM Assistant öffnen"
           >
-            <span className="absolute inset-0 rounded-full bg-[#F59E0B]/40 animate-ping opacity-40 group-hover:opacity-0 pointer-events-none" />
+            <span className="absolute inset-0 rounded-full bg-[#e0a458]/40 animate-ping opacity-40 group-hover:opacity-0 pointer-events-none" />
             <MessageCircle className="w-6 h-6 relative" strokeWidth={2.2} />
           </motion.button>
         )}
@@ -483,7 +483,7 @@ export default function Helpbot() {
               transition={{ type: 'spring', stiffness: 240, damping: 26 }}
               role="dialog"
               aria-label="AEVUM Assistant Chat"
-              className="fixed z-[99] inset-0 sm:inset-auto sm:bottom-5 sm:right-5 lg:bottom-6 lg:right-6 sm:w-[420px] sm:max-w-[calc(100vw-2.5rem)] sm:h-[600px] sm:max-h-[calc(100vh-3rem)] flex flex-col bg-[#0B0C10] sm:rounded-2xl overflow-hidden border-0 sm:border sm:border-white/10 shadow-[0_20px_60px_-12px_rgba(0,0,0,0.7)]"
+              className="fixed z-[99] inset-0 sm:inset-auto sm:bottom-5 sm:right-5 lg:bottom-6 lg:right-6 sm:w-[420px] sm:max-w-[calc(100vw-2.5rem)] sm:h-[600px] sm:max-h-[calc(100vh-3rem)] flex flex-col bg-[#08080a] sm:rounded-2xl overflow-hidden border-0 sm:border sm:border-white/10 shadow-[0_20px_60px_-12px_rgba(0,0,0,0.7)]"
               style={{ fontFamily: 'inherit' }}
             >
               {/* Header */}
@@ -491,7 +491,7 @@ export default function Helpbot() {
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center text-[#0B0C10] shadow-[0_2px_12px_rgba(245,158,11,0.4)]">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#e0a458] to-[#a86d27] flex items-center justify-center text-[#0B0C10] shadow-[0_2px_12px_rgba(224, 164, 88,0.4)]">
                         <Sparkles className="w-4 h-4" strokeWidth={2.4} />
                       </div>
                       <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#22C55E] border-2 border-[#0B0C10]" />
@@ -544,8 +544,8 @@ export default function Helpbot() {
                 style={{ scrollbarColor: '#3F3F46 transparent', scrollbarWidth: 'thin' }}
               >
                 {!hasConsent && (
-                  <div className="rounded-xl border border-[#F59E0B]/30 bg-[#F59E0B]/[0.04] p-4 text-[13px] leading-relaxed text-[#E4E4E7]">
-                    <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-[#F59E0B] font-medium mb-2">
+                  <div className="rounded-xl border border-[#e0a458]/30 bg-[#e0a458]/[0.04] p-4 text-[13px] leading-relaxed text-[#E4E4E7]">
+                    <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-[#e0a458] font-medium mb-2">
                       <Sparkles className="w-3 h-3" /> Bevor wir loslegen
                     </div>
                     <p className="mb-3">
@@ -554,12 +554,12 @@ export default function Helpbot() {
                       wird alles automatisch gelöscht. Du kannst den Verlauf jederzeit über das{' '}
                       <Trash2 className="inline w-3 h-3 -mt-0.5" />-Symbol löschen.
                     </p>
-                    <p className="mb-3 text-[#A1A1AA]">
+                    <p className="mb-3 text-[#a4a4ad]">
                       Mehr Details unter{' '}
                       <a
                         href="#/datenschutz"
                         onClick={() => setOpen(false)}
-                        className="text-[#F59E0B] hover:underline"
+                        className="text-[#e0a458] hover:underline"
                       >
                         Datenschutz
                       </a>.
@@ -567,7 +567,7 @@ export default function Helpbot() {
                     <button
                       type="button"
                       onClick={acceptConsent}
-                      className="w-full rounded-lg bg-[#F59E0B] text-[#0B0C10] text-[13px] font-semibold py-2.5 hover:bg-[#FBBF24] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F59E0B] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
+                      className="w-full rounded-lg bg-[#e0a458] text-[#0B0C10] text-[13px] font-semibold py-2.5 hover:bg-[#f5d68d] transition-colors focus:outline-none focus:ring-2 focus:ring-[#e0a458] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
                     >
                       Verstanden, los geht&apos;s
                     </button>
@@ -585,16 +585,16 @@ export default function Helpbot() {
                 {sending && session.messages[session.messages.length - 1]?.streaming &&
                   !session.messages[session.messages.length - 1]?.content && (
                   <div className="flex items-center gap-1.5 px-3 -mt-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]/70 animate-pulse" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]/70 animate-pulse" style={{ animationDelay: '0.2s' }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]/70 animate-pulse" style={{ animationDelay: '0.4s' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#e0a458]/70 animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#e0a458]/70 animate-pulse" style={{ animationDelay: '0.2s' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#e0a458]/70 animate-pulse" style={{ animationDelay: '0.4s' }} />
                   </div>
                 )}
               </div>
 
               {/* Input */}
-              <div className="flex-shrink-0 border-t border-white/[0.06] bg-[#0B0C10] px-3 pt-3 pb-3 sm:pb-3" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
-                <div className="relative flex items-end gap-2 rounded-xl border border-white/10 bg-[#101216] focus-within:border-[#F59E0B]/50 focus-within:shadow-[0_0_0_3px_rgba(245,158,11,0.08)] transition-all">
+              <div className="flex-shrink-0 border-t border-white/[0.06] bg-[#08080a] px-3 pt-3 pb-3 sm:pb-3" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
+                <div className="relative flex items-end gap-2 rounded-xl border border-white/10 bg-[#101216] focus-within:border-[#e0a458]/50 focus-within:shadow-[0_0_0_3px_rgba(224, 164, 88,0.08)] transition-all">
                   <textarea
                     ref={inputRef}
                     value={input}
@@ -611,13 +611,13 @@ export default function Helpbot() {
                     type="button"
                     onClick={sendMessage}
                     disabled={!input.trim() || sending}
-                    className="mb-1.5 mr-1.5 w-9 h-9 rounded-lg bg-[#F59E0B] text-[#0B0C10] flex-shrink-0 flex items-center justify-center disabled:bg-white/10 disabled:text-[#52525B] hover:bg-[#FBBF24] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F59E0B] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
+                    className="mb-1.5 mr-1.5 w-9 h-9 rounded-lg bg-[#e0a458] text-[#0B0C10] flex-shrink-0 flex items-center justify-center disabled:bg-white/10 disabled:text-[#7a7a85] hover:bg-[#f5d68d] transition-colors focus:outline-none focus:ring-2 focus:ring-[#e0a458] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
                     aria-label="Nachricht senden"
                   >
                     <Send className="w-4 h-4" strokeWidth={2.4} />
                   </button>
                 </div>
-                <div className="mt-2 px-1 text-[10px] text-[#52525B] tracking-wide">
+                <div className="mt-2 px-1 text-[10px] text-[#7a7a85] tracking-wide">
                   Powered by Claude Sonnet 4.5 · keine Daten an Dritte
                 </div>
               </div>
@@ -664,13 +664,13 @@ function MessageBubble({ msg, onCta, onHandoff, isLast }: BubbleProps) {
         <div
           className={`px-4 py-2.5 rounded-2xl text-[14px] leading-relaxed whitespace-pre-wrap break-words ${
             isUser
-              ? 'bg-[#F59E0B] text-[#0B0C10] rounded-br-md font-medium'
+              ? 'bg-[#e0a458] text-[#0B0C10] rounded-br-md font-medium'
               : 'bg-[#16181D] text-[#E4E4E7] rounded-bl-md border border-white/[0.04]'
           }`}
         >
           {displayContent || (msg.streaming ? '' : ' ')}
           {msg.streaming && displayContent && (
-            <span className="inline-block w-1.5 h-3.5 ml-0.5 -mb-0.5 bg-[#F59E0B] animate-pulse" />
+            <span className="inline-block w-1.5 h-3.5 ml-0.5 -mb-0.5 bg-[#e0a458] animate-pulse" />
           )}
         </div>
 
@@ -679,11 +679,11 @@ function MessageBubble({ msg, onCta, onHandoff, isLast }: BubbleProps) {
             <button
               type="button"
               onClick={() => (onHandoff ? onHandoff() : onCta('/audit'))}
-              className="w-full px-4 py-3 rounded-xl bg-[#F59E0B] hover:bg-[#FBBF24] text-[#0B0C10] text-[14px] font-semibold transition-all shadow-[0_4px_20px_-4px_rgba(245,158,11,0.45)] focus:outline-none focus:ring-2 focus:ring-[#F59E0B] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
+              className="w-full px-4 py-3 rounded-xl bg-[#e0a458] hover:bg-[#f5d68d] text-[#0B0C10] text-[14px] font-semibold transition-all shadow-[0_4px_20px_-4px_rgba(224, 164, 88,0.45)] focus:outline-none focus:ring-2 focus:ring-[#e0a458] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
             >
               → Audit starten (Vorab-Daten werden übernommen)
             </button>
-            <div className="mt-1.5 px-1 text-[10px] text-[#52525B] tracking-wide">
+            <div className="mt-1.5 px-1 text-[10px] text-[#7a7a85] tracking-wide">
               15-20 Min · Pitch-Report binnen 24-48h
             </div>
           </div>
@@ -695,7 +695,7 @@ function MessageBubble({ msg, onCta, onHandoff, isLast }: BubbleProps) {
               <button
                 type="button"
                 onClick={() => (onHandoff ? onHandoff() : onCta('/audit'))}
-                className="px-3.5 py-1.5 rounded-lg bg-[#F59E0B]/10 hover:bg-[#F59E0B]/20 border border-[#F59E0B]/30 hover:border-[#F59E0B]/60 text-[#F59E0B] text-[12px] font-medium transition-all"
+                className="px-3.5 py-1.5 rounded-lg bg-[#e0a458]/10 hover:bg-[#e0a458]/20 border border-[#e0a458]/30 hover:border-[#e0a458]/60 text-[#e0a458] text-[12px] font-medium transition-all"
               >
                 → Audit starten
               </button>

@@ -15,9 +15,9 @@ export default function Impressum() {
           Impressum
         </h1>
 
-        <p className="text-sm text-[#52525B] mb-12">Stand: 20. Mai 2026</p>
+        <p className="text-sm text-[#7a7a85] mb-12">Stand: 20. Mai 2026</p>
 
-        <article className="space-y-8 text-[#A1A1AA] leading-relaxed">
+        <article className="space-y-8 text-[#a4a4ad] leading-relaxed">
 
           <section>
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Angaben gemäß § 5 DDG</h2>
@@ -32,8 +32,8 @@ export default function Impressum() {
           <section>
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Kontakt</h2>
             <p>
-              E-Mail: <a href="mailto:cwconsulting369@gmail.com" className="text-[#F59E0B] hover:underline">cwconsulting369@gmail.com</a><br />
-              Telefon: <a href="tel:+491772288372" className="text-[#F59E0B] hover:underline">+49 177 228 83 72</a>
+              E-Mail: <a href="mailto:cwconsulting369@gmail.com" className="text-[#e0a458] hover:underline">cwconsulting369@gmail.com</a><br />
+              Telefon: <a href="tel:+491772288372" className="text-[#e0a458] hover:underline">+49 177 228 83 72</a>
             </p>
           </section>
 
@@ -64,7 +64,7 @@ export default function Impressum() {
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">EU-Streitschlichtung</h2>
             <p>
               Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:{' '}
-              <a href="https://ec.europa.eu/consumers/odr/" className="text-[#F59E0B] hover:underline" target="_blank" rel="noopener noreferrer">
+              <a href="https://ec.europa.eu/consumers/odr/" className="text-[#e0a458] hover:underline" target="_blank" rel="noopener noreferrer">
                 https://ec.europa.eu/consumers/odr/
               </a>
               <br />

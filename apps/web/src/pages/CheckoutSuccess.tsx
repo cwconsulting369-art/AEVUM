@@ -20,8 +20,8 @@ export default function CheckoutSuccess() {
         transition={{ duration: 0.6 }}
         className="max-w-2xl mx-auto text-center"
       >
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#F59E0B]/10 mb-8">
-          <CheckCircle size={32} className="text-[#F59E0B]" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#e0a458]/10 mb-8">
+          <CheckCircle size={32} className="text-[#e0a458]" />
         </div>
 
         <h1 className="text-4xl md:text-5xl font-light tracking-tight mb-6">
@@ -29,21 +29,21 @@ export default function CheckoutSuccess() {
           <span className="text-gradient">Kauf</span>
         </h1>
 
-        <p className="text-[#A1A1AA] text-lg leading-relaxed mb-10">
+        <p className="text-[#a4a4ad] text-lg leading-relaxed mb-10">
           Wir haben deine Bestellung erhalten. Eine Bestätigung mit Rechnung wurde per E-Mail
           versendet. Innerhalb von <strong>1 Werktag</strong> melde ich mich persönlich mit
           den nächsten Onboarding-Schritten.
         </p>
 
         {sessionId && (
-          <p className="text-xs text-[#52525B] font-mono mb-10">
+          <p className="text-xs text-[#7a7a85] font-mono mb-10">
             Order-ID: {sessionId.slice(0, 24)}…
           </p>
         )}
 
-        <div className="bg-[#15161A] border border-white/10 p-8 mb-10 text-left">
+        <div className="bg-[#111116] border border-white/10 p-8 mb-10 text-left">
           <h2 className="text-lg font-medium mb-4">Was passiert jetzt?</h2>
-          <ol className="space-y-3 text-sm text-[#A1A1AA] list-decimal pl-5">
+          <ol className="space-y-3 text-sm text-[#a4a4ad] list-decimal pl-5">
             <li>Du erhältst innerhalb weniger Minuten eine Stripe-Zahlungsbestätigung per E-Mail.</li>
             <li>Innerhalb von 1 Werktag schicke ich dir eine Onboarding-Mail mit Kickoff-Terminvorschlag.</li>
             <li>Wir richten gemeinsame Kommunikationswege ein (Slack/TG/E-Mail nach deiner Wahl).</li>
@@ -70,9 +70,9 @@ export default function CheckoutSuccess() {
           </a>
         </div>
 
-        <p className="text-xs text-[#52525B] mt-12">
+        <p className="text-xs text-[#7a7a85] mt-12">
           Hinweis: Bei Verbrauchern (B2C) besteht ein gesetzliches Widerrufsrecht von 14 Tagen
-          (siehe <a href="#/widerrufsbelehrung" className="text-[#F59E0B] hover:underline">Widerrufsbelehrung</a>).
+          (siehe <a href="#/widerrufsbelehrung" className="text-[#e0a458] hover:underline">Widerrufsbelehrung</a>).
           Bei Unternehmen (B2B) gilt das vereinbarte Refund-Window aus den AGB.
         </p>
       </motion.div>
