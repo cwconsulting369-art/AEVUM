@@ -15,7 +15,7 @@ export default function Datenschutz() {
           Datenschutz<span className="text-[#F59E0B]">erklärung</span>
         </h1>
 
-        <p className="text-sm text-[#52525B] mb-12">Stand: 20. Mai 2026 · Version: datenschutz-v2-2026-05-20</p>
+        <p className="text-sm text-[#52525B] mb-12">Stand: 22. Mai 2026 · Version: datenschutz-v3-2026-05-22</p>
 
         <article className="prose prose-invert max-w-none space-y-8 text-[#A1A1AA] leading-relaxed">
 
@@ -108,10 +108,10 @@ export default function Datenschutz() {
                     <td className="px-3 py-2 border-b border-white/10">AVV + EU-SCCs, PCI-DSS Level 1</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2">Telegram Messenger Inc.</td>
-                    <td className="px-3 py-2">Interne Admin-Benachrichtigung mit minimierten Auszügen (keine Rohdaten)</td>
-                    <td className="px-3 py-2">VAE / global</td>
-                    <td className="px-3 py-2">Datenminimierung, kein PII-Versand</td>
+                    <td className="px-3 py-2">Anthropic PBC</td>
+                    <td className="px-3 py-2">AI-gestützte Audit-Analyse (Verarbeitung der vom Nutzer eingegebenen Audit-Antworten zur Erstellung der Workflow-Empfehlung; keine Trainings-Nutzung gemäß Anthropic Commercial Terms)</td>
+                    <td className="px-3 py-2">USA</td>
+                    <td className="px-3 py-2">AVV (Anthropic DPA) + EU-SCCs (Modul 2), Zero-Retention API</td>
                   </tr>
                 </tbody>
               </table>
