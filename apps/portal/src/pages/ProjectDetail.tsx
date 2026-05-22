@@ -2,19 +2,36 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
-import { Trash2, ArrowLeft, KeyRound, Lock, Plus, Shield } from 'lucide-react';
+import { Trash2, ArrowLeft, KeyRound, Lock, Plus, Shield, BarChart3, Layers, Workflow } from 'lucide-react';
 import Spinner from '@/components/Spinner';
 import { stagger } from '@/lib/animations';
+import { useAuth } from '@/lib/auth';
+import {
+  loadIndustryTemplate,
+  type IndustryTemplate,
+} from '@/templates/industry-dashboards';
+import { formatKpiValue, resolveSource } from '@/templates/industry-dashboards/format';
 
 type ApiRow = { id: string; service: string; key_label: string | null; scope: string; health: string; added_at: string; last_used_at: string | null };
 
+type ProjectDetailPayload = {
+  id: string;
+  slug: string;
+  name: string;
+  industry?: string | null;
+  metrics?: Record<string, unknown> | null;
+};
+
 export default function ProjectDetail() {
   const { slug = '' } = useParams();
+  const { me } = useAuth();
   const [apis, setApis] = useState<ApiRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ service: '', key_label: '', key: '' });
   const [submitting, setSubmitting] = useState(false);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [template, setTemplate] = useState<IndustryTemplate | null>(null);
+  const [projectDetail, setProjectDetail] = useState<ProjectDetailPayload | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -27,6 +44,35 @@ export default function ProjectDetail() {
       setLoading(false);
     }
   };
+
+  /**
+   * Industry-Template laden.
+   *
+   * project.industry kommt momentan nur via auth.me NICHT — die Me-Liste
+   * hat keine industry. Wir versuchen daher einen Detail-Endpoint und
+   * fallen sonst auf den Slug-Heuristik / default zurück. Existing Backend
+   * ohne /detail-Endpoint führt nur zum default-Template (kein Crash).
+   */
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      let industry: string | null | undefined = null;
+      let detail: ProjectDetailPayload | null = null;
+      try {
+        // Optional Detail-Endpoint; existiert evtl. noch nicht — silent fallback.
+        detail = await api<ProjectDetailPayload>(`/api/me/projects/${slug}`);
+        industry = detail?.industry ?? null;
+      } catch {
+        // ignore — Detail-Endpoint optional
+      }
+      if (cancelled) return;
+      setProjectDetail(detail);
+      const tpl = await loadIndustryTemplate(industry);
+      if (!cancelled) setTemplate(tpl);
+    })();
+    return () => { cancelled = true; };
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [slug, me?.account?.id]);
 
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [slug]);
 
@@ -74,6 +120,8 @@ export default function ProjectDetail() {
           <Shield size={11} /> AES-256-GCM
         </div>
       </header>
+
+      <IndustryDashboard template={template} projectDetail={projectDetail} />
 
       <section className="mb-10">
         <h2 className="text-sm font-semibold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -180,6 +228,123 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="block text-xs font-medium mb-1.5 text-ink-200">{label}</span>
       {children}
     </label>
+  );
+}
+
+/**
+ * Industry-spezifisches Dashboard.
+ *
+ * - Lädt template lazy via loadIndustryTemplate
+ * - Rendert KPI-Strip mit "—" für nicht-vorhandene Sources
+ * - Zeigt Empty-State, wenn keinerlei project.metrics existiert
+ * - Listet Module + Recommended-Workflows als Outline (Renderer-Stubs
+ *   für Sections sind out-of-scope dieser Phase)
+ */
+function IndustryDashboard({
+  template,
+  projectDetail,
+}: {
+  template: IndustryTemplate | null;
+  projectDetail: ProjectDetailPayload | null;
+}) {
+  if (!template) {
+    return (
+      <section className="mb-10">
+        <div className="card-premium p-6 flex items-center justify-center min-h-[120px]">
+          <Spinner size="sm" />
+        </div>
+      </section>
+    );
+  }
+
+  // Source-Pfade beginnen mit "project." → wir wrappen die Detail-Payload
+  // unter dem Schlüssel "project", damit "project.metrics.x" auflösbar ist.
+  const sourceRoot = { project: projectDetail ?? { metrics: null } };
+  const hasAnyMetrics =
+    !!projectDetail?.metrics && Object.keys(projectDetail.metrics).length > 0;
+
+  return (
+    <>
+      <section className="mb-10">
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <h2 className="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
+            <BarChart3 size={14} className="text-gold-300" />
+            {template.display_name}
+          </h2>
+          <span className="badge text-[0.65rem]">{template.industry}</span>
+        </div>
+
+        {/* KPI-Strip */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {template.kpi_strip.map((kpi, i) => {
+            const raw = resolveSource(sourceRoot, kpi.source);
+            const display = formatKpiValue(raw, kpi.format);
+            return (
+              <div
+                key={kpi.id}
+                className="card-premium p-4 animate-fade-up"
+                style={stagger(i, 40, 30)}
+                title={kpi.hint || ''}
+              >
+                <div className="text-[0.65rem] text-ink-400 uppercase tracking-wider mb-1.5 truncate">
+                  {kpi.label}
+                </div>
+                <div className="text-xl font-bold text-white font-mono tabular-nums">
+                  {display}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Empty-State-Hint, wenn keine echten Daten */}
+        {!hasAnyMetrics && (
+          <div className="mt-4 card-premium p-4 flex items-start gap-3 border-dashed">
+            <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/25 flex items-center justify-center shrink-0">
+              <Layers size={14} className="text-gold-300" />
+            </div>
+            <div className="text-xs text-ink-300 leading-relaxed">
+              {template.empty_state_hint}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Recommended Workflows */}
+      {template.recommended_workflows.length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-sm font-semibold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+            <Workflow size={14} className="text-gold-300" /> Empfohlene Workflows
+            <span className="badge ml-auto">{template.recommended_workflows.length}</span>
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-2">
+            {template.recommended_workflows.map((wf, i) => (
+              <div
+                key={wf}
+                className="card-premium p-3 flex items-center justify-between gap-3 animate-fade-up"
+                style={stagger(i, 30, 20)}
+              >
+                <div className="font-mono text-xs text-white truncate">{wf}</div>
+                <span className="badge shrink-0">blueprint</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Module-Outline (Renderer-Stubs) */}
+      <section className="mb-10">
+        <h2 className="text-sm font-semibold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+          <Layers size={14} className="text-gold-300" /> Dashboard-Module
+          <span className="badge ml-auto">{template.default_modules.length}</span>
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {template.default_modules.map(m => (
+            <span key={m} className="badge font-mono text-[0.7rem]">{m}</span>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
 
