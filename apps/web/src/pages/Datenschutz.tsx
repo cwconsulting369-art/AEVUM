@@ -15,7 +15,7 @@ export default function Datenschutz() {
           Datenschutz<span className="text-[#F59E0B]">erklärung</span>
         </h1>
 
-        <p className="text-sm text-[#52525B] mb-12">Stand: 22. Mai 2026 · Version: datenschutz-v3-2026-05-22</p>
+        <p className="text-sm text-[#52525B] mb-12">Stand: 22. Mai 2026 · Version: datenschutz-v4-helpbot-2026-05-22</p>
 
         <article className="prose prose-invert max-w-none space-y-8 text-[#A1A1AA] leading-relaxed">
 
@@ -46,6 +46,7 @@ export default function Datenschutz() {
               <li><strong>Server-Log-Daten:</strong> IP-Adresse, User-Agent, Referrer, Zeitstempel (zur Missbrauchsabwehr, IP-Anonymisierung nach 30 Tagen)</li>
               <li><strong>Einwilligungs-Metadaten:</strong> Zeitpunkt, Version und Inhalt der erteilten Einwilligung (Art 7 DSGVO Nachweispflicht)</li>
               <li><strong>Bestell- und Rechnungs-Daten:</strong> Vertragsdaten, Buchungs-Metadaten</li>
+              <li><strong>Helpbot / AI-Chat:</strong> Anonyme Session-ID (zufällig vergeben, kein Personenbezug), Inhalt der Nachrichten an den AEVUM-Assistant, anonymisierte IP (letztes Oktett genullt /24), User-Agent, Referrer, Sprache. <em>Keine</em> Erfassung von Name, E-Mail oder Telefon im Helpbot.</li>
             </ul>
             <p>
               Es findet <strong>kein automatisiertes Profiling</strong> und keine automatisierte
@@ -109,7 +110,7 @@ export default function Datenschutz() {
                   </tr>
                   <tr>
                     <td className="px-3 py-2">Anthropic PBC</td>
-                    <td className="px-3 py-2">AI-gestützte Audit-Analyse (Verarbeitung der vom Nutzer eingegebenen Audit-Antworten zur Erstellung der Workflow-Empfehlung; keine Trainings-Nutzung gemäß Anthropic Commercial Terms)</td>
+                    <td className="px-3 py-2">AI-gestützte Audit-Analyse + Helpbot-Chat (Verarbeitung der vom Nutzer eingegebenen Audit-Antworten und Chat-Nachrichten zur Erstellung der Workflow-Empfehlung bzw. Beantwortung der Anfrage; keine Trainings-Nutzung gemäß Anthropic Commercial Terms, Zero-Retention API)</td>
                     <td className="px-3 py-2">USA</td>
                     <td className="px-3 py-2">AVV (Anthropic DPA) + EU-SCCs (Modul 2), Zero-Retention API</td>
                   </tr>
@@ -173,6 +174,56 @@ export default function Datenschutz() {
           </section>
 
           <section>
+            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">6a. Helpbot / AI-Chat</h2>
+            <p>
+              Der auf der AEVUM-Website verfügbare Helpbot (AEVUM Assistant) beantwortet Fragen rund
+              um KI-Betriebssysteme. Er ist <strong>anonym</strong> nutzbar — wir erfassen keine Namen,
+              E-Mails oder Telefonnummern.
+            </p>
+            <p>
+              <strong>Verarbeitete Daten:</strong> Inhalt der von dir eingegebenen Nachrichten,
+              eine zufällig generierte Session-ID (nicht personenbezogen), anonymisierte IP-Adresse
+              (letztes Oktett genullt, /24), User-Agent, Referrer und Sprach-Kennung.
+            </p>
+            <p>
+              <strong>Zweck:</strong> Beantwortung deiner Anfrage, Verbesserung der Antwort-Qualität,
+              Missbrauchsabwehr (Rate-Limiting, Pattern-basierte Filterung gegen Injection-Angriffe
+              und Spam).
+            </p>
+            <p>
+              <strong>Rechtsgrundlage:</strong> Art 6 Abs 1 lit a DSGVO (deine Einwilligung, die du
+              vor der ersten Nachricht im Chat-Fenster erteilst). Die Einwilligung kann jederzeit
+              widerrufen werden, indem du den Verlauf über das Mülleimer-Symbol im Chat löschst.
+              Zusätzlich Art 6 Abs 1 lit f DSGVO für die Missbrauchsabwehr (berechtigtes Interesse an
+              IT-Sicherheit).
+            </p>
+            <p>
+              <strong>Empfänger / Sub-Processor:</strong> Die eingegebenen Nachrichten werden für die
+              Generierung der Antwort an <strong>Anthropic PBC</strong> (Modell „Claude Sonnet 4.5",
+              USA) übermittelt. Anthropic verarbeitet die Daten als unser Auftragsverarbeiter unter
+              EU-Standardvertragsklauseln (Modul 2), nutzt sie nicht zum Modell-Training (Anthropic
+              Commercial Terms, Zero-Retention API). Übermittlung über die AEVUM-API
+              (api.lennoxos.com) als ergänzender Sub-Prozess.
+            </p>
+            <p>
+              <strong>Speicherdauer:</strong> Chat-Verläufe werden maximal <strong>30 Tage</strong>{' '}
+              gespeichert und danach automatisch (täglicher Cron-Job) gelöscht.
+            </p>
+            <p>
+              <strong>Recht auf Löschung:</strong> Du kannst deinen Chat-Verlauf jederzeit selbst
+              löschen über:
+            </p>
+            <ul className="list-disc pl-6 space-y-1">
+              <li>das <strong>Mülleimer-Symbol</strong> im Chat-Header bzw. „Verlauf löschen" unter dem Eingabefeld</li>
+              <li>oder per E-Mail an <a href="mailto:dsgvo@aevum-system.de" className="text-[#F59E0B] hover:underline">dsgvo@aevum-system.de</a> mit deiner Session-ID</li>
+            </ul>
+            <p className="text-sm text-[#52525B] mt-2">
+              Die Lösch-Funktion ruft den API-Endpunkt <code className="text-[#F59E0B]">POST /api/helpbot/erase</code>{' '}
+              auf, der den entsprechenden Datenbank-Eintrag unverzüglich entfernt.
+            </p>
+          </section>
+
+          <section>
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">7. Speicherdauer</h2>
             <ul className="list-disc pl-6 space-y-1">
               <li>Aktive Audit-Anfragen: bis Vertragsabschluss oder begründeter Ablehnung</li>
@@ -180,6 +231,7 @@ export default function Datenschutz() {
               <li>Bestell- und Rechnungs-Daten: 10 Jahre (§ 257 HGB, § 147 AO)</li>
               <li>Stripe-Zahlungsdaten: gemäß Stripe-Datenschutzerklärung, in der Regel ebenfalls 10 Jahre wegen handels- und steuerrechtlicher Aufbewahrungspflichten</li>
               <li>Server-Logs: 30 Tage (danach IP-Anonymisierung), aggregierte Security-Statistiken bis zu 90 Tage</li>
+              <li>Helpbot / AI-Chat Verläufe: 30 Tage ab letzter Nachricht, danach automatische Löschung; jederzeit vom Nutzer selbst löschbar</li>
               <li>Einwilligungs-Nachweise (Art 7 Abs 1 DSGVO): bis Widerruf zzgl. 3 Jahre Regelverjährung (§ 195 BGB)</li>
             </ul>
           </section>
