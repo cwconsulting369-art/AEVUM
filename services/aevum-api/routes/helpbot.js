@@ -35,7 +35,7 @@ export const helpbotRouter = Router();
 
 // ─── Constants ──────────────────────────────────────────────
 const MODEL = 'claude-sonnet-4-5-20250929';
-const EXTRACT_MODEL = process.env.ANTHROPIC_EXTRACT_MODEL || 'claude-3-5-haiku-20241022';
+const EXTRACT_MODEL = process.env.ANTHROPIC_EXTRACT_MODEL || 'claude-haiku-4-5';
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 
 // Hard limits
