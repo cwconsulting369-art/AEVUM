@@ -640,7 +640,15 @@ export default function Audit() {
                                   DSGVO-Einwilligung <span style={{ color: '#EF4444' }}>*</span>
                                 </FormLabel>
                                 <p className="text-xs" style={{ color: '#A1A1AA' }}>
-                                  Ich stimme der Verarbeitung meiner Daten gemaess DSGVO zu.
+                                  Ich willige ein, dass meine angegebenen Daten (Name, Firma, E-Mail,
+                                  optional Telefon sowie meine Antworten zum Workflow-Audit) durch AEVUM
+                                  zur Bearbeitung meiner Anfrage und Erstellung der Audit-Auswertung
+                                  verarbeitet werden. Die Verarbeitung erfolgt gemäß unserer{' '}
+                                  <a href="#/datenschutz" target="_blank" rel="noopener noreferrer"
+                                     style={{ color: '#F59E0B', textDecoration: 'underline' }}>
+                                    Datenschutzerklärung
+                                  </a>. Ich kann diese Einwilligung jederzeit mit Wirkung für die Zukunft
+                                  per E-Mail an cwconsulting369@gmail.com widerrufen.
                                 </p>
                               </div>
                             </FormItem>
