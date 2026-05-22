@@ -25,9 +25,9 @@ const MAX_MESSAGES_PER_SESSION = 40;       // safety cap (20 turns)
 const MAX_CHARS_PER_MESSAGE = 4000;
 const MAX_OUTPUT_TOKENS = 800;
 
-const SYSTEM_PROMPT = `Du bist der AEVUM-Assistant — der AI-Helpbot von AEVUM Systems.
+const SYSTEM_PROMPT = `Du bist der AEVUM-Assistant — der AI-Helpbot von AEVUM-system.
 
-AEVUM Systems baut individuelle KI-Betriebssysteme für Unternehmen.
+AEVUM-system baut individuelle KI-Betriebssysteme für Unternehmen.
 Drei Säulen: Monitoring, Anpassung, Wachstum.
 
 Tonalität: deutsch (sofern Nutzer nicht englisch schreibt), professionell, direkt, kein Marketing-Geschwurbel, kein "Wir freuen uns…"-Geschwafel. Konkret, kompetent, kurz.

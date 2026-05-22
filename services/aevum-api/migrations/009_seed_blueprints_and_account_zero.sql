@@ -236,7 +236,7 @@ ON CONFLICT (slug) DO NOTHING;
 -- Account-Profile für Carlos
 INSERT INTO public.account_profiles (account_id, display_name, industry, vision, visibility, bio, member_since)
 SELECT id, 'Carlos Wrusch', 'ai-systems', 'AEVUM zu 300 Mio. Eigentümer-Business bis 2030', 'private',
-  'Founder AEVUM Systems. Client Zero. Baut KI-Betriebssysteme für Unternehmen.',
+  'Founder AEVUM-system. Client Zero. Baut KI-Betriebssysteme für Unternehmen.',
   '2026-05-22'
 FROM public.accounts WHERE slug = 'carlos'
 ON CONFLICT (account_id) DO NOTHING;
@@ -263,7 +263,7 @@ ON CONFLICT (account_id) DO NOTHING;
 -- ============================================================
 
 INSERT INTO public.projects (account_id, slug, name, description, status, tier, industry, marketing_thesis, pricing)
-SELECT a.id, 'aevum', 'AEVUM Systems', 'AEVUM Operating Layer für Customer-Beziehungen', 'active', NULL, 'ai-systems',
+SELECT a.id, 'aevum', 'AEVUM-system', 'AEVUM Operating Layer für Customer-Beziehungen', 'active', NULL, 'ai-systems',
   '{"blueprint_id": "aevum-own"}'::jsonb,
   '{"deal_type": "internal", "notes": "Client Zero — eigene Plattform"}'::jsonb
 FROM public.accounts a WHERE a.slug = 'carlos'

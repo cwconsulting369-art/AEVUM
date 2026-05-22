@@ -64,7 +64,7 @@ export function magicLinkHtml({ name, link, purpose }) {
 <p style="font-size:13px;color:#666;margin:0 0 8px;">Falls der Button nicht funktioniert, kopiere diesen Link:</p>
 <p style="font-size:13px;color:#666;word-break:break-all;margin:0 0 32px;">${link}</p>
 <hr style="border:none;border-top:1px solid #eee;margin:32px 0;">
-<p style="font-size:12px;color:#999;margin:0;">Diese Mail wurde von AEVUM Systems versendet. Wenn du nichts angefordert hast, ignoriere sie einfach.</p>
+<p style="font-size:12px;color:#999;margin:0;">Diese Mail wurde von AEVUM-system versendet. Wenn du nichts angefordert hast, ignoriere sie einfach.</p>
 </body></html>`;
 }
 
