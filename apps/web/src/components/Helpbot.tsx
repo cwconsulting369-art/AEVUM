@@ -11,12 +11,39 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, RotateCcw, Sparkles } from 'lucide-react';
+import { MessageCircle, X, Send, RotateCcw, Sparkles, Trash2 } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.lennoxos.com';
 const STORAGE_KEY = 'aevum_helpbot_session';
 const FIRST_VISIT_KEY = 'aevum_helpbot_first_visit';
+const CONSENT_KEY = 'aevum_helpbot_consent';
+const CONSENT_VERSION = 'v1-2026-05-22';
 const HIDDEN_ROUTES = ['/audit', '/checkout/success', '/checkout/cancelled'];
+
+interface StoredConsent {
+  version: string;
+  timestamp: string;
+}
+
+function loadConsent(): StoredConsent | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(CONSENT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredConsent;
+    if (parsed.version !== CONSENT_VERSION) return null;
+    return parsed;
+  } catch { return null; }
+}
+
+function saveConsent() {
+  try {
+    localStorage.setItem(
+      CONSENT_KEY,
+      JSON.stringify({ version: CONSENT_VERSION, timestamp: new Date().toISOString() })
+    );
+  } catch { /* quota — ignore */ }
+}
 
 type Role = 'user' | 'assistant';
 interface ChatMsg {
@@ -80,10 +107,37 @@ export default function Helpbot() {
   const [sending, setSending] = useState(false);
   const [showTip, setShowTip] = useState(false);
   const [route, setRoute] = useState(getCurrentHash);
+  const [hasConsent, setHasConsent] = useState<boolean>(() => !!loadConsent());
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  const acceptConsent = useCallback(() => {
+    saveConsent();
+    setHasConsent(true);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  }, []);
+
+  const eraseHistory = useCallback(async () => {
+    const sid = session.session_id;
+    if (typeof window !== 'undefined' && !window.confirm('Verlauf wirklich löschen? Diese Aktion ist endgültig.')) return;
+    if (sid) {
+      try {
+        await fetch(`${API_BASE}/api/helpbot/erase`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: sid }),
+        });
+      } catch { /* network error: continue anyway, server has its own retention */ }
+    }
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* noop */ }
+    abortRef.current?.abort();
+    setSession({ session_id: null, messages: [WELCOME] });
+    setSending(false);
+    setInput('');
+    setOpen(false);
+  }, [session.session_id]);
 
   // Hash-route watcher (hides on /audit + /checkout/*)
   useEffect(() => {
@@ -152,6 +206,7 @@ export default function Helpbot() {
   const sendMessage = useCallback(async () => {
     const text = input.trim();
     if (!text || sending) return;
+    if (!hasConsent) return; // safety net — UI already blocks but defense-in-depth
     setInput('');
 
     const userMsg: ChatMsg = { role: 'user', content: text };
@@ -275,7 +330,7 @@ export default function Helpbot() {
       setSending(false);
       abortRef.current = null;
     }
-  }, [input, sending, session]);
+  }, [input, sending, session, hasConsent]);
 
   const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -401,6 +456,15 @@ export default function Helpbot() {
                     </button>
                     <button
                       type="button"
+                      onClick={eraseHistory}
+                      title="Verlauf endgültig löschen (DSGVO)"
+                      className="p-2 rounded-lg text-[#71717A] hover:text-[#EF4444] hover:bg-white/5 transition-colors"
+                      aria-label="Verlauf löschen"
+                    >
+                      <Trash2 className="w-4 h-4" strokeWidth={2} />
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => setOpen(false)}
                       title="Schließen"
                       className="p-2 rounded-lg text-[#71717A] hover:text-[#F9FAFB] hover:bg-white/5 transition-colors"
@@ -418,6 +482,36 @@ export default function Helpbot() {
                 className="flex-1 overflow-y-auto px-5 py-5 space-y-4 scrollbar-thin"
                 style={{ scrollbarColor: '#3F3F46 transparent', scrollbarWidth: 'thin' }}
               >
+                {!hasConsent && (
+                  <div className="rounded-xl border border-[#F59E0B]/30 bg-[#F59E0B]/[0.04] p-4 text-[13px] leading-relaxed text-[#E4E4E7]">
+                    <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-[#F59E0B] font-medium mb-2">
+                      <Sparkles className="w-3 h-3" /> Bevor wir loslegen
+                    </div>
+                    <p className="mb-3">
+                      Hi! Kurz zur Transparenz: Deine Nachrichten werden <strong>anonymisiert</strong>
+                      {' '}(IP gekürzt /24) gespeichert, um den Bot zu verbessern. Nach <strong>30 Tagen</strong>{' '}
+                      wird alles automatisch gelöscht. Du kannst den Verlauf jederzeit über das{' '}
+                      <Trash2 className="inline w-3 h-3 -mt-0.5" />-Symbol löschen.
+                    </p>
+                    <p className="mb-3 text-[#A1A1AA]">
+                      Mehr Details unter{' '}
+                      <a
+                        href="#/datenschutz"
+                        onClick={() => setOpen(false)}
+                        className="text-[#F59E0B] hover:underline"
+                      >
+                        Datenschutz
+                      </a>.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={acceptConsent}
+                      className="w-full rounded-lg bg-[#F59E0B] text-[#0B0C10] text-[13px] font-semibold py-2.5 hover:bg-[#FBBF24] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F59E0B] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
+                    >
+                      Verstanden, los geht&apos;s
+                    </button>
+                  </div>
+                )}
                 {session.messages.map((m, i) => (
                   <MessageBubble
                     key={i}
