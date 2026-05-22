@@ -1,12 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
-import { Trash2, ArrowLeft, KeyRound, Lock, Plus, Shield } from 'lucide-react';
+import {
+  Trash2, ArrowLeft, KeyRound, Lock, Plus, Shield,
+  LayoutDashboard, Workflow, Settings as SettingsIcon
+} from 'lucide-react';
 import Spinner from '@/components/Spinner';
 import { stagger } from '@/lib/animations';
+import BusinessDashboard from '@/components/dashboard/BusinessDashboard';
 
 type ApiRow = { id: string; service: string; key_label: string | null; scope: string; health: string; added_at: string; last_used_at: string | null };
+type MeAccount = { id: string; slug: string; name: string; client_zero: boolean };
+type MeProject = { id: string; slug: string; name: string };
+
+type TabKey = 'dashboard' | 'apis' | 'workflows' | 'settings';
 
 export default function ProjectDetail() {
   const { slug = '' } = useParams();
@@ -15,20 +23,44 @@ export default function ProjectDetail() {
   const [form, setForm] = useState({ service: '', key_label: '', key: '' });
   const [submitting, setSubmitting] = useState(false);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [account, setAccount] = useState<MeAccount | null>(null);
+  const [project, setProject] = useState<MeProject | null>(null);
+  const [tab, setTab] = useState<TabKey>('apis');
 
-  const load = async () => {
-    setLoading(true);
+  const isClientZeroAevum = useMemo(
+    () => !!(account?.client_zero && slug === 'aevum'),
+    [account, slug]
+  );
+
+  const loadApis = async () => {
     try {
       const data = await api<{ ok: boolean; apis: ApiRow[] }>(`/api/me/projects/${slug}/apis`);
       setApis(data.apis);
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'Laden fehlgeschlagen');
-    } finally {
-      setLoading(false);
     }
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [slug]);
+  const loadMe = async () => {
+    try {
+      const me = await api<{ ok: boolean; account: MeAccount; projects: MeProject[] }>(`/api/me`);
+      setAccount(me.account);
+      const p = me.projects.find(pr => pr.slug === slug) || null;
+      setProject(p);
+      // Default tab: dashboard for client-zero AEVUM, APIs otherwise.
+      if (me.account?.client_zero && slug === 'aevum') setTab('dashboard');
+    } catch {
+      /* non-fatal — tabs gracefully degrade */
+    }
+  };
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    Promise.all([loadApis(), loadMe()]).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [slug]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +69,7 @@ export default function ProjectDetail() {
       await api(`/api/me/projects/${slug}/apis`, { method: 'POST', body: JSON.stringify(form) });
       toast.success(`API-Key "${form.service}" eingereicht — AES-256-GCM verschlüsselt`);
       setForm({ service: '', key_label: '', key: '' });
-      await load();
+      await loadApis();
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'Einreichen fehlgeschlagen');
     } finally {
@@ -50,11 +82,13 @@ export default function ProjectDetail() {
       await api(`/api/me/projects/${slug}/apis/${id}`, { method: 'DELETE' });
       toast.success('API-Key entfernt');
       setConfirmId(null);
-      await load();
+      await loadApis();
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'Löschen fehlgeschlagen');
     }
   };
+
+  const projectName = project?.name || `/${slug}`;
 
   return (
     <div>
@@ -62,19 +96,123 @@ export default function ProjectDetail() {
         <ArrowLeft size={14} /> Projekte
       </Link>
 
-      <header className="mb-10 flex flex-wrap items-end justify-between gap-4">
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs text-gold-300 mb-3 uppercase tracking-wider font-semibold">
             <KeyRound size={12} /> Projekt
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-mono">/{slug}</h1>
-          <p className="text-ink-400 mt-2">Read-only API-Keys deines Projekts verwalten.</p>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">{projectName}</h1>
+          <p className="text-ink-400 mt-2 font-mono text-sm">/{slug}</p>
         </div>
-        <div className="badge badge-gold">
-          <Shield size={11} /> AES-256-GCM
+        <div className="flex items-center gap-2">
+          {isClientZeroAevum && <span className="badge badge-gold">Client Zero</span>}
+          <span className="badge badge-gold"><Shield size={11} /> AES-256-GCM</span>
         </div>
       </header>
 
+      {/* Tabs (only for client-zero AEVUM — keeps existing UX unchanged for everyone else) */}
+      {isClientZeroAevum && (
+        <div className="border-b border-white/[0.06] mb-8 overflow-x-auto">
+          <nav className="flex items-center gap-1 min-w-max" role="tablist" aria-label="Projekt-Bereiche">
+            <TabButton tab="dashboard" active={tab} onClick={setTab} icon={<LayoutDashboard size={13} />}>
+              Übersicht
+            </TabButton>
+            <TabButton tab="apis" active={tab} onClick={setTab} icon={<KeyRound size={13} />}>
+              API-Keys
+            </TabButton>
+            <TabButton tab="workflows" active={tab} onClick={setTab} icon={<Workflow size={13} />}>
+              Workflows
+            </TabButton>
+            <TabButton tab="settings" active={tab} onClick={setTab} icon={<SettingsIcon size={13} />}>
+              Settings
+            </TabButton>
+          </nav>
+        </div>
+      )}
+
+      {loading && (
+        <div className="card-premium p-16 flex justify-center"><Spinner size="md" /></div>
+      )}
+
+      {!loading && tab === 'dashboard' && isClientZeroAevum && (
+        <BusinessDashboard slug={slug} />
+      )}
+
+      {!loading && tab === 'apis' && (
+        <ApisSection
+          apis={apis}
+          form={form}
+          setForm={setForm}
+          submit={submit}
+          submitting={submitting}
+          confirmId={confirmId}
+          setConfirmId={setConfirmId}
+          remove={remove}
+        />
+      )}
+
+      {!loading && tab === 'workflows' && isClientZeroAevum && (
+        <PlaceholderCard label="Workflows" hint="Workflow-Übersicht folgt — n8n-Scenarios werden hier sichtbar." />
+      )}
+      {!loading && tab === 'settings' && isClientZeroAevum && (
+        <PlaceholderCard label="Settings" hint="Projekt-Konfiguration folgt — Blueprint-Version, Permissions, Deployment." />
+      )}
+    </div>
+  );
+}
+
+function TabButton({
+  tab, active, onClick, icon, children
+}: {
+  tab: TabKey;
+  active: TabKey;
+  onClick: (t: TabKey) => void;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const isActive = tab === active;
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={isActive}
+      onClick={() => onClick(tab)}
+      className={[
+        'inline-flex items-center gap-2 px-3.5 py-2.5 text-xs font-medium transition rounded-t-md border-b-2 -mb-px',
+        isActive
+          ? 'text-white border-gold-300 bg-white/[0.025]'
+          : 'text-ink-400 hover:text-white border-transparent hover:bg-white/[0.02]'
+      ].join(' ')}
+    >
+      {icon}
+      {children}
+    </button>
+  );
+}
+
+function PlaceholderCard({ label, hint }: { label: string; hint: string }) {
+  return (
+    <div className="card-premium p-12 text-center">
+      <div className="text-sm text-ink-300 font-medium mb-1">{label}</div>
+      <div className="text-xs text-ink-400">{hint}</div>
+    </div>
+  );
+}
+
+function ApisSection({
+  apis, form, setForm, submit, submitting, confirmId, setConfirmId, remove
+}: {
+  apis: ApiRow[];
+  form: { service: string; key_label: string; key: string };
+  setForm: React.Dispatch<React.SetStateAction<{ service: string; key_label: string; key: string }>>;
+  submit: (e: React.FormEvent) => Promise<void>;
+  submitting: boolean;
+  confirmId: string | null;
+  setConfirmId: (id: string | null) => void;
+  remove: (id: string) => Promise<void>;
+}) {
+  return (
+    <>
       <section className="mb-10">
         <h2 className="text-sm font-semibold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
           <Plus size={14} className="text-gold-300" /> Neuen API-Key einreichen
@@ -114,9 +252,7 @@ export default function ProjectDetail() {
           <KeyRound size={14} className="text-gold-300" /> Eingereichte API-Keys
           <span className="badge ml-auto">{apis.length}</span>
         </h2>
-        {loading ? (
-          <div className="card-premium p-10 flex justify-center"><Spinner size="md" /></div>
-        ) : apis.length === 0 ? (
+        {apis.length === 0 ? (
           <EmptyKeys />
         ) : (
           <div className="space-y-2">
@@ -170,7 +306,7 @@ export default function ProjectDetail() {
           </div>
         )}
       </section>
-    </div>
+    </>
   );
 }
 
