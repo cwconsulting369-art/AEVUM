@@ -61,14 +61,26 @@ function ParticleCanvas() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    // Respect prefers-reduced-motion — skip animation entirely
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    const isMobile = window.innerWidth < 768;
 
     let w = (canvas.width = window.innerWidth);
     let h = (canvas.height = window.innerHeight);
 
     const particles: { x: number; y: number; r: number; vx: number; vy: number; alpha: number }[] = [];
-    const COUNT = Math.min(120, Math.floor((w * h) / 12000));
+    // Mobile: hard cap 40 (was 120). Reduces O(n^2) connect-line loop ~9x on phones.
+    const MAX = isMobile ? 40 : 120;
+    const COUNT = Math.min(MAX, Math.floor((w * h) / (isMobile ? 18000 : 12000)));
 
     for (let i = 0; i < COUNT; i++) {
       particles.push({
@@ -92,6 +104,17 @@ function ParticleCanvas() {
       mouseRef.current.y = e.clientY / h;
     };
     window.addEventListener('mousemove', onMouse);
+
+    // Pause RAF when tab not visible — saves CPU/battery
+    let visible = true;
+    const onVisibility = () => {
+      const wasHidden = !visible;
+      visible = !document.hidden;
+      if (visible && wasHidden && !rafRef.current) {
+        rafRef.current = requestAnimationFrame(draw);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
 
     const draw = () => {
       ctx.clearRect(0, 0, w, h);
