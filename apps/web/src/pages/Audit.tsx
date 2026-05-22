@@ -89,6 +89,32 @@ type AuditFormData = z.infer<typeof auditFormSchema>;
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.lennoxos.com';
 const STORAGE_KEY = 'audit-form-draft';
+const HELPBOT_PREFILL_KEY = 'aevum_audit_prefill'; // written by Helpbot.tsx on hand-off
+
+interface HelpbotPrefill {
+  helpbot_session_id?: string | null;
+  saved_at?: string;
+}
+
+function loadHelpbotPrefill(): HelpbotPrefill | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(HELPBOT_PREFILL_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as HelpbotPrefill;
+    if (!parsed.helpbot_session_id) return null;
+    // Expire after 24h — old prefills are stale
+    if (parsed.saved_at) {
+      const age = Date.now() - new Date(parsed.saved_at).getTime();
+      if (age > 24 * 60 * 60 * 1000) return null;
+    }
+    return parsed;
+  } catch { return null; }
+}
+
+function clearHelpbotPrefill() {
+  try { localStorage.removeItem(HELPBOT_PREFILL_KEY); } catch { /* noop */ }
+}
 
 const STEPS = [
   { id: 1, label: 'Unternehmen', fields: ['unternehmen_name', 'unternehmen_company', 'unternehmen_industry', 'unternehmen_team_size', 'unternehmen_location', 'unternehmen_revenue_band'] },
@@ -211,6 +237,10 @@ export default function Audit() {
   const [files, setFiles] = useState<File[]>([]);
   const [fileError, setFileError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Helpbot hand-off: session id is forwarded so the backend can merge the
+  // bot's pre-qualification extraction into this audit row.
+  const [helpbotSessionId, setHelpbotSessionId] = useState<string | null>(null);
+  const [showHelpbotBanner, setShowHelpbotBanner] = useState(false);
 
   const form = useForm<AuditFormData>({
     resolver: zodResolver(auditFormSchema),
@@ -238,6 +268,16 @@ export default function Audit() {
         const parsed = JSON.parse(draft);
         form.reset({ ...form.getValues(), ...parsed });
       } catch { /* ignore */ }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* -- Helpbot Hand-off Prefill -- */
+  useEffect(() => {
+    const prefill = loadHelpbotPrefill();
+    if (prefill?.helpbot_session_id) {
+      setHelpbotSessionId(prefill.helpbot_session_id);
+      setShowHelpbotBanner(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -333,7 +373,7 @@ export default function Audit() {
       }
 
       // Step B: submit audit with uploaded-file metadata
-      const payload = {
+      const payload: Record<string, unknown> = {
         form_version: 'v2',
         email: data.kontakt_email,
         name: data.unternehmen_name,
@@ -344,6 +384,7 @@ export default function Audit() {
         uploaded_files: uploadedFiles,
         submitted_email: data.kontakt_email,
       };
+      if (helpbotSessionId) payload.helpbot_session_id = helpbotSessionId;
       const res = await fetch(`${API_BASE}/api/audit/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -351,6 +392,7 @@ export default function Audit() {
       });
       if (res.ok) {
         localStorage.removeItem(STORAGE_KEY);
+        clearHelpbotPrefill();
         setSubmitted(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
@@ -466,6 +508,33 @@ export default function Audit() {
 
       {/* --- Form --- */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-8 pb-24">
+        {showHelpbotBanner && helpbotSessionId && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="mb-6 rounded-xl border p-4 flex items-start justify-between gap-4"
+            style={{ background: 'rgba(245, 158, 11, 0.08)', borderColor: 'rgba(245, 158, 11, 0.35)' }}
+          >
+            <div className="flex-1">
+              <div className="text-[11px] uppercase tracking-[0.16em] font-medium mb-1" style={{ color: '#F59E0B' }}>
+                Daten aus AI-Beratung übernommen
+              </div>
+              <div className="text-sm leading-relaxed" style={{ color: '#E4E4E7' }}>
+                Wir haben dich aus dem Chat erkannt und verknüpfen den Audit mit deiner Beratung.
+                Bitte ergänze die Felder unten — unsere Analyse läuft sonst auf Lückenwerten.
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setShowHelpbotBanner(false); }}
+              aria-label="Hinweis schließen"
+              className="p-1 rounded text-[#A1A1AA] hover:text-[#F9FAFB] hover:bg-white/5 transition-colors"
+            >
+              <X className="w-4 h-4" strokeWidth={2} />
+            </button>
+          </motion.div>
+        )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <AnimatePresence mode="wait" custom={direction}>

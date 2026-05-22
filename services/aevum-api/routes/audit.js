@@ -8,6 +8,7 @@ import { notifyCarlos } from '../lib/tg-notify.js';
 import { scanPayload, clean } from '../lib/security.js';
 import { logBlock } from '../lib/monitor.js';
 import { runAutoPlan } from '../lib/auto-plan.js';
+import { extractFromSession } from './helpbot.js';
 
 export const auditRouter = Router();
 
@@ -70,7 +71,9 @@ const AuditV2Schema = z.object({
     url: z.string().url().max(1000),
     type: z.string().max(50).optional(),
     size_bytes: z.number().int().nonnegative().optional()
-  })).max(5).optional().default([])
+  })).max(5).optional().default([]),
+  // Optional link back to the helpbot conversation that originated this audit
+  helpbot_session_id: z.string().min(8).max(64).optional()
 });
 
 auditRouter.post('/submit', async (req, res) => {
@@ -215,6 +218,44 @@ async function handleAuditV2(req, res, ctx, ip, ua) {
     return res.status(400).json({ ok: false, error: 'invalid_input' });
   }
 
+  // ─── Helpbot hand-off enrichment (optional) ───
+  // If the audit was initiated from a Helpbot conversation, fetch the cached
+  // (or freshly LLM-extracted) prequalification fields and merge them into
+  // `answers` WITHOUT overwriting any explicit form values the user typed.
+  let helpbotExtract = null;
+  if (f.helpbot_session_id) {
+    try {
+      const extracted = await extractFromSession(f.helpbot_session_id);
+      if (extracted?.ok && extracted.data && typeof extracted.data === 'object') {
+        helpbotExtract = extracted.data;
+      }
+    } catch (err) {
+      console.warn('[audit/v2] helpbot extract failed (non-fatal):', err.message || err);
+    }
+  }
+
+  // Merge: explicit form-fields ALWAYS win over helpbot extraction.
+  const mergedAnswers = { ...(f.answers || {}) };
+  if (helpbotExtract) {
+    // Cherry-pick under a `_helpbot` namespace so downstream consumers can see provenance.
+    mergedAnswers._helpbot = helpbotExtract;
+    // Soft-merge: only fill empty top-level keys
+    const map = {
+      industry: 'unternehmen_industry',
+      team_size: 'unternehmen_team_size',
+      biggest_pain: 'pain_biggest',
+      current_tools: 'stack_tools',
+      goal_90_days: 'ziele_90_days',
+      timing: 'ziele_success_metric'
+    };
+    for (const [src, dst] of Object.entries(map)) {
+      const val = helpbotExtract[src];
+      if (val && (mergedAnswers[dst] == null || mergedAnswers[dst] === '')) {
+        mergedAnswers[dst] = val;
+      }
+    }
+  }
+
   const consentAt = new Date().toISOString();
   const row = {
     // Legacy required fields (still NOT NULL on table)
@@ -222,8 +263,8 @@ async function handleAuditV2(req, res, ctx, ip, ua) {
     company: clean(f.company),
     email: clean(f.email),
     phone: clean(f.phone),
-    // v2 structured payload
-    answers: f.answers,
+    // v2 structured payload (with helpbot enrichment)
+    answers: mergedAnswers,
     uploaded_files: f.uploaded_files,
     form_version: 'v2',
     audit_form_blueprint_id: f.audit_form_blueprint_id ?? 'aevum-audit-v2',
@@ -233,7 +274,9 @@ async function handleAuditV2(req, res, ctx, ip, ua) {
       user_agent: ua,
       ip,
       form_open_ms: f.formStartedAt ? Date.now() - f.formStartedAt : null,
-      submission_type: 'v2'
+      submission_type: 'v2',
+      helpbot_session_id: f.helpbot_session_id || null,
+      helpbot_extracted: !!helpbotExtract
     },
     status: 'new'
   };

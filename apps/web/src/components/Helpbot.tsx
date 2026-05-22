@@ -59,7 +59,7 @@ interface StoredSession {
 
 const WELCOME: ChatMsg = {
   role: 'assistant',
-  content: 'Moin! Ich bin der AEVUM Assistant. Was beschäftigt dich rund um KI in deinem Unternehmen?',
+  content: 'Moin! Ich bin der AEVUM-Assistant. Erzähl mir kurz: aus welcher Branche kommst du und was beschäftigt dich gerade rund um KI in deinem Unternehmen?',
 };
 
 function loadSession(): StoredSession {
@@ -91,6 +91,42 @@ function detectCtas(text: string): { audit: boolean; call: boolean } {
     audit: /\baudit\b|\/audit\b/.test(lc),
     call: /\b(call|erstgespr|strategiegespr|gespräch)\b/.test(lc),
   };
+}
+
+// ─── Hand-off marker (set by the bot when it recommends the Audit) ──────
+// Format:  <aevum-handoff>{"to":"audit"}</aevum-handoff>
+// We strip the marker from displayed text, surface a prominent CTA, and
+// persist the helpbot_session_id to localStorage so /audit can submit it.
+const HANDOFF_MARKER_RE = /<aevum-handoff>([\s\S]*?)<\/aevum-handoff>/i;
+const AUDIT_PREFILL_KEY = 'aevum_audit_prefill';
+
+interface HandoffPrefill {
+  helpbot_session_id?: string | null;
+  saved_at?: string;
+}
+
+function parseHandoff(text: string): { stripped: string; hasHandoff: boolean } {
+  if (typeof text !== 'string' || !text) return { stripped: text || '', hasHandoff: false };
+  const match = text.match(HANDOFF_MARKER_RE);
+  if (!match) return { stripped: text, hasHandoff: false };
+  // Validate the JSON-payload roughly. If invalid, still strip the marker but no handoff.
+  let valid = false;
+  try {
+    const parsed = JSON.parse(match[1].trim() || '{}');
+    valid = parsed && parsed.to === 'audit';
+  } catch { /* tolerate */ }
+  const stripped = text.replace(HANDOFF_MARKER_RE, '').trim();
+  return { stripped, hasHandoff: valid };
+}
+
+function persistAuditPrefill(session_id: string | null): void {
+  try {
+    const payload: HandoffPrefill = {
+      helpbot_session_id: session_id || null,
+      saved_at: new Date().toISOString(),
+    };
+    localStorage.setItem(AUDIT_PREFILL_KEY, JSON.stringify(payload));
+  } catch { /* quota — ignore */ }
 }
 
 function getCurrentHash(): string {
@@ -351,6 +387,14 @@ export default function Helpbot() {
     setOpen(false);
   };
 
+  // Triggered by the prominent handoff CTA — persists the helpbot_session_id
+  // so /audit can include it in its submit payload.
+  const handoffToAudit = useCallback(() => {
+    persistAuditPrefill(session.session_id);
+    goToHash('/audit');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session.session_id]);
+
   if (hideOnRoute) return null;
 
   return (
@@ -517,6 +561,7 @@ export default function Helpbot() {
                     key={i}
                     msg={m}
                     onCta={goToHash}
+                    onHandoff={handoffToAudit}
                     isLast={i === session.messages.length - 1}
                   />
                 ))}
@@ -571,13 +616,25 @@ export default function Helpbot() {
 interface BubbleProps {
   msg: ChatMsg;
   onCta: (hash: string) => void;
+  onHandoff?: () => void;
   isLast: boolean;
 }
 
-function MessageBubble({ msg, onCta, isLast }: BubbleProps) {
+function MessageBubble({ msg, onCta, onHandoff, isLast }: BubbleProps) {
   const isUser = msg.role === 'user';
-  const ctas = !isUser && msg.content ? detectCtas(msg.content) : { audit: false, call: false };
-  const showCtas = !isUser && !msg.streaming && isLast && (ctas.audit || ctas.call);
+
+  // Parse the optional <aevum-handoff>…</aevum-handoff> marker.  The marker is
+  // ALWAYS stripped from the visible bubble (even mid-stream) so the user never
+  // sees raw XML; if the JSON validates, we surface a prominent CTA instead.
+  const { stripped, hasHandoff } = !isUser && msg.content
+    ? parseHandoff(msg.content)
+    : { stripped: msg.content, hasHandoff: false };
+
+  const displayContent = stripped || msg.content;
+  const ctas = !isUser && displayContent ? detectCtas(displayContent) : { audit: false, call: false };
+  // Only show secondary CTAs when there is NO handoff (handoff CTA wins).
+  const showCtas = !isUser && !msg.streaming && isLast && !hasHandoff && (ctas.audit || ctas.call);
+  const showHandoff = !isUser && !msg.streaming && isLast && hasHandoff;
 
   return (
     <motion.div
@@ -594,18 +651,33 @@ function MessageBubble({ msg, onCta, isLast }: BubbleProps) {
               : 'bg-[#16181D] text-[#E4E4E7] rounded-bl-md border border-white/[0.04]'
           }`}
         >
-          {msg.content || (msg.streaming ? '' : ' ')}
-          {msg.streaming && msg.content && (
+          {displayContent || (msg.streaming ? '' : ' ')}
+          {msg.streaming && displayContent && (
             <span className="inline-block w-1.5 h-3.5 ml-0.5 -mb-0.5 bg-[#F59E0B] animate-pulse" />
           )}
         </div>
+
+        {showHandoff && (
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => (onHandoff ? onHandoff() : onCta('/audit'))}
+              className="w-full px-4 py-3 rounded-xl bg-[#F59E0B] hover:bg-[#FBBF24] text-[#0B0C10] text-[14px] font-semibold transition-all shadow-[0_4px_20px_-4px_rgba(245,158,11,0.45)] focus:outline-none focus:ring-2 focus:ring-[#F59E0B] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
+            >
+              → Audit starten (Vorab-Daten werden übernommen)
+            </button>
+            <div className="mt-1.5 px-1 text-[10px] text-[#52525B] tracking-wide">
+              15-20 Min · Pitch-Report binnen 24-48h
+            </div>
+          </div>
+        )}
 
         {showCtas && (
           <div className="flex flex-wrap gap-2 mt-2.5">
             {ctas.audit && (
               <button
                 type="button"
-                onClick={() => onCta('/audit')}
+                onClick={() => (onHandoff ? onHandoff() : onCta('/audit'))}
                 className="px-3.5 py-1.5 rounded-lg bg-[#F59E0B]/10 hover:bg-[#F59E0B]/20 border border-[#F59E0B]/30 hover:border-[#F59E0B]/60 text-[#F59E0B] text-[12px] font-medium transition-all"
               >
                 → Audit starten
