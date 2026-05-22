@@ -4,9 +4,9 @@ import CONTACT from '../config/contact';
 
 const navLinks = [
   { label: 'Home', path: '/' },
-  { label: 'Services', path: '/services' },
   { label: 'Cases', path: '/cases' },
-  { label: 'Workflow-Audit', path: '/workflow-audit' },
+  { label: 'Method', path: '/method' },
+  { label: 'Audit', path: '/audit' },
 ];
 
 function getCurrentPath() {
@@ -69,8 +69,16 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Desktop CTAs */}
+        {/* Desktop Right Side */}
         <div className="hidden md:flex items-center gap-3">
+          <a
+            href="https://app.aevum-system.de"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-[#52525B] hover:text-[#F59E0B] transition-colors mr-2"
+          >
+            Login &rarr;
+          </a>
           <a
             href={CONTACT.whatsapp}
             target="_blank"
@@ -118,6 +126,14 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
+            <a
+              href="https://app.aevum-system.de"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-lg text-[#52525B] hover:text-[#F59E0B] transition-colors"
+            >
+              Login &rarr; app.aevum-system.de
+            </a>
             <div className="flex flex-col items-center gap-4 mt-8">
               <a
                 href={CONTACT.whatsapp}

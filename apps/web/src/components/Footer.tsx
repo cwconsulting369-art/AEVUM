@@ -2,18 +2,18 @@
 import { MessageCircle, Calendar, Mail, Phone } from 'lucide-react';
 import CONTACT from '../config/contact';
 
-const serviceLinks = [
-  { label: 'Websites', path: '/services/websites' },
-  { label: 'Lead Generation', path: '/services/lead-generation' },
-  { label: 'Content Workflows', path: '/services/content-workflows' },
-  { label: 'AI Automation', path: '/services/ai-automation' },
+const productLinks = [
+  { label: 'Dashboard', path: '/method' },
+  { label: 'Agent', path: '/method' },
+  { label: 'Workflows', path: '/method' },
 ];
 
 const navLinks = [
   { label: 'Home', path: '/' },
-  { label: 'Services', path: '/services' },
   { label: 'Cases', path: '/cases' },
-  { label: 'Workflow-Audit', path: '/workflow-audit' },
+  { label: 'Method', path: '/method' },
+  { label: 'Audit', path: '/audit' },
+  { label: 'About', path: '/about' },
 ];
 
 export default function Footer() {
@@ -30,11 +30,11 @@ export default function Footer() {
               <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
             </a>
             <p className="text-sm text-[#A1A1AA] leading-relaxed mb-3">
-              Vollständige KI-Systeme für Unternehmen, die wachsen wollen.
+              Individuelle KI-Betriebssysteme fuer Unternehmen.
             </p>
             <p className="text-xs text-[#52525B] leading-relaxed mb-6">
-              Solo geführt aus Augsburg. Wenn dir jemand schreibt — ich bin's selbst.
-              Keine Account-Manager-Kette, keine Übergaben.
+              Solo gefuehrt aus Augsburg. Wenn dir jemand schreibt — ich bin's selbst.
+              Keine Account-Manager-Kette, keine Uebergaben.
             </p>
             <div className="flex gap-3">
               <a
@@ -58,14 +58,14 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Services Column */}
+          {/* Product Column */}
           <div>
             <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#52525B] mb-6">
-              Services
+              Produkt
             </h4>
             <ul className="space-y-3">
-              {serviceLinks.map((link) => (
-                <li key={link.path}>
+              {productLinks.map((link) => (
+                <li key={link.label}>
                   <a
                     href={"#" + link.path}
                     className="text-sm text-[#A1A1AA] hover:text-[#F59E0B] transition-colors"
