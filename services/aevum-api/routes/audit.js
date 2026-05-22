@@ -1,5 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import multer from 'multer';
+import crypto from 'node:crypto';
+import path from 'node:path';
 import { supabase } from '../lib/supabase.js';
 import { notifyCarlos } from '../lib/tg-notify.js';
 import { scanPayload, clean } from '../lib/security.js';
@@ -489,11 +492,139 @@ auditRouter.post('/withdraw-consent', async (req, res) => {
   });
 });
 
+// ─── File Upload Endpoint — Audit-Form v2 ─────────────────────────
+// POST /api/audit/upload-file (multipart/form-data, field "file")
+// Uploads file to Supabase Storage bucket "audit-uploads", returns {ok, url, size_bytes}.
+// Used by aevum-system.de Audit.tsx before the JSON submit. Validates size+type.
+const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB — schema rule
+const ALLOWED_MIME = new Set([
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'text/csv',
+  'image/png',
+  'image/jpeg'
+]);
+const ALLOWED_EXT = /\.(pdf|docx?|xlsx?|csv|png|jpe?g)$/i;
+const AUDIT_BUCKET = 'audit-uploads';
+
+const uploadMw = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_FILE_BYTES, files: 1 },
+  fileFilter: (_req, file, cb) => {
+    const mimeOk = ALLOWED_MIME.has(file.mimetype);
+    const extOk = ALLOWED_EXT.test(file.originalname || '');
+    if (mimeOk || extOk) return cb(null, true);
+    cb(new Error('unsupported_file_type'));
+  }
+});
+
+function sanitiseFilename(name) {
+  const base = path.basename(name || 'file').replace(/[^\w.\-]+/g, '_').slice(0, 120);
+  return base || 'file';
+}
+
+async function uploadToSupabaseStorage(bucket, objectPath, buffer, contentType) {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error('supabase_creds_missing');
+  const endpoint = `${url}/storage/v1/object/${bucket}/${objectPath}`;
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'apikey': key,
+      'Authorization': `Bearer ${key}`,
+      'Content-Type': contentType || 'application/octet-stream',
+      'x-upsert': 'false'
+    },
+    body: buffer
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    throw new Error(`storage_upload_failed_${res.status}:${txt.slice(0, 200)}`);
+  }
+  return endpoint;
+}
+
+async function createSignedUrl(bucket, objectPath, expiresInSec = 60 * 60 * 24 * 30) {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const endpoint = `${url}/storage/v1/object/sign/${bucket}/${objectPath}`;
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'apikey': key,
+      'Authorization': `Bearer ${key}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ expiresIn: expiresInSec })
+  });
+  if (!res.ok) return null;
+  const json = await res.json().catch(() => null);
+  if (!json?.signedURL && !json?.signedUrl) return null;
+  const rel = json.signedURL || json.signedUrl;
+  return `${url}/storage/v1${rel.startsWith('/') ? rel : '/' + rel}`;
+}
+
+auditRouter.post('/upload-file', (req, res) => {
+  uploadMw.single('file')(req, res, async (err) => {
+    const ip = clientIp(req);
+    const ctx = { ip, user_agent: req.get('user-agent') || '', endpoint: 'POST /api/audit/upload-file' };
+
+    if (err) {
+      const code = err.code === 'LIMIT_FILE_SIZE'
+        ? 'file_too_large'
+        : err.message === 'unsupported_file_type'
+          ? 'unsupported_file_type'
+          : 'upload_failed';
+      logBlock({ ...ctx, type: 'upload_reject', reason: code });
+      return res.status(400).json({ ok: false, error: code });
+    }
+    if (!req.file) {
+      return res.status(400).json({ ok: false, error: 'no_file' });
+    }
+
+    try {
+      const safe = sanitiseFilename(req.file.originalname);
+      const random = crypto.randomBytes(8).toString('hex');
+      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+      const objectPath = `${today}/${Date.now()}-${random}-${safe}`;
+
+      await uploadToSupabaseStorage(
+        AUDIT_BUCKET,
+        objectPath,
+        req.file.buffer,
+        req.file.mimetype
+      );
+
+      // Signed URL (30 days) — bucket is private by default for DSGVO safety
+      const signedUrl = await createSignedUrl(AUDIT_BUCKET, objectPath);
+      const finalUrl = signedUrl
+        || `${process.env.SUPABASE_URL}/storage/v1/object/public/${AUDIT_BUCKET}/${objectPath}`;
+
+      return res.json({
+        ok: true,
+        url: finalUrl,
+        path: objectPath,
+        size_bytes: req.file.size,
+        type: req.file.mimetype
+      });
+    } catch (e) {
+      console.error('[audit/upload-file] failed:', e?.message || e);
+      logBlock({ ...ctx, type: 'upload_storage_error', reason: String(e?.message || e).slice(0, 200) });
+      return res.status(500).json({ ok: false, error: 'storage_error' });
+    }
+  });
+});
+
 auditRouter.get('/', async (_req, res) => {
   res.json({
     ok: true,
     endpoints: {
       submit: 'POST /submit',
+      upload_file: 'POST /upload-file (multipart, field=file) — returns {url, size_bytes}',
       export: 'POST /export { email }       — Art 15/20',
       erase: 'POST /erase { email }         — Art 17',
       withdraw_consent: 'POST /withdraw-consent { email, consent_type? } — Art 7(3)'

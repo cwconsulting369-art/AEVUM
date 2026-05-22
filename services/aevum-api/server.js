@@ -136,6 +136,21 @@ const auditSubmitLimiter = rateLimit({
   skip: (req) => req.method !== 'POST' || req.path !== '/submit'
 });
 
+// Upload limiter — 15 file uploads / hour / IP (5 files * 3 submits)
+const auditUploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 15,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: clientIpKey,
+  message: {
+    ok: false,
+    error: 'rate_limit_upload',
+    hint: 'Maximal 15 Datei-Uploads pro Stunde.'
+  },
+  skip: (req) => req.method !== 'POST' || req.path !== '/upload-file'
+});
+
 // DSGVO self-service limiter — 5 requests / 10 min / IP for export/erase/withdraw
 const dsgvoLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
@@ -159,7 +174,7 @@ const dsgvoLimiter = rateLimit({
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, service: 'aevum-api', uptime: process.uptime() });
 });
-app.use('/api/audit', auditSubmitLimiter, dsgvoLimiter, auditRouter);
+app.use('/api/audit', auditSubmitLimiter, auditUploadLimiter, dsgvoLimiter, auditRouter);
 
 // Checkout — create-session + pilot-status. Webhook is mounted above
 // with raw-body parser before express.json().
