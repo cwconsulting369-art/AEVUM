@@ -144,6 +144,11 @@ export default function Helpbot() {
   const [showTip, setShowTip] = useState(false);
   const [route, setRoute] = useState(getCurrentHash);
   const [hasConsent, setHasConsent] = useState<boolean>(() => !!loadConsent());
+  // P1-Fix: hide FAB while CookieBanner is open (prevents click-blocker overlap)
+  const [cookieBannerOpen, setCookieBannerOpen] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try { return !window.localStorage.getItem('aevum_cookie_notice_ack_v1'); } catch { return false; }
+  });
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -180,6 +185,16 @@ export default function Helpbot() {
     const onHash = () => setRoute(getCurrentHash());
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  // P1-Fix: listen to CookieBanner visibility — hide FAB while banner is up
+  useEffect(() => {
+    const onCookie = (e: Event) => {
+      const visible = (e as CustomEvent<{ visible: boolean }>).detail?.visible;
+      setCookieBannerOpen(!!visible);
+    };
+    window.addEventListener('aevum:cookie-banner-visibility', onCookie as EventListener);
+    return () => window.removeEventListener('aevum:cookie-banner-visibility', onCookie as EventListener);
   }, []);
 
   const hideOnRoute = useMemo(
@@ -396,6 +411,8 @@ export default function Helpbot() {
   }, [session.session_id]);
 
   if (hideOnRoute) return null;
+  // P1-Fix: hide entire widget while CookieBanner overlay is visible (avoids FAB tap-blocker)
+  if (cookieBannerOpen && !open) return null;
 
   return (
     <>
