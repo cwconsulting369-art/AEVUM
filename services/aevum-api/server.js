@@ -216,7 +216,17 @@ const helpbotDayLimiter = rateLimit({
   message: { ok: false, error: 'rate_limit_helpbot_day', hint: 'Tageslimit erreicht. Buche ein Erstgespräch unter /audit.' },
   skip: (req) => req.method !== 'POST' || req.path !== '/chat'
 });
-app.use('/api/helpbot', helpbotHourLimiter, helpbotDayLimiter, helpbotRouter);
+// Erase-Endpoint: 5/hour/IP — abuse prevention but not too tight for legit users
+const helpbotEraseLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: clientIpKey,
+  message: { ok: false, error: 'rate_limit_helpbot_erase', hint: 'Maximal 5 Lösch-Anfragen pro Stunde.' },
+  skip: (req) => req.method !== 'POST' || req.path !== '/erase'
+});
+app.use('/api/helpbot', helpbotHourLimiter, helpbotDayLimiter, helpbotEraseLimiter, helpbotRouter);
 
 // 404
 app.use((req, res) => {
