@@ -5,6 +5,7 @@ import CookieBanner from './components/CookieBanner';
 import Spinner from './components/Spinner';
 import Login from './pages/Login';
 import AuthVerify from './pages/AuthVerify';
+import AuthToken from './pages/AuthToken';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Permissions from './pages/Permissions';
@@ -36,6 +37,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/auth/verify" element={<AuthVerify />} />
+        <Route path="/auth/token" element={<AuthToken />} />
         <Route path="/datenschutz" element={<Datenschutz />} />
         <Route path="/impressum" element={<Impressum />} />
         <Route path="/agb" element={<AGB />} />
