@@ -22,15 +22,16 @@ export async function api<T = unknown>(
   return res.json() as Promise<T>;
 }
 
-/* ──────────────────────── Checkout ──────────────────────── */
+/* ──────────────────────── Blueprint Checkout ──────────────────────── */
 
 export interface CreateCheckoutParams {
   product_id: string;
-  price_cents: number;
+  stripe_price_id: string;
   mode: 'payment' | 'subscription';
   metadata?: Record<string, string>;
   success_url: string;
   cancel_url: string;
+  account_id?: string;
 }
 
 export interface CreateCheckoutResponse {
@@ -41,7 +42,7 @@ export interface CreateCheckoutResponse {
 export async function createCheckoutSession(
   params: CreateCheckoutParams
 ): Promise<CreateCheckoutResponse> {
-  return api<CreateCheckoutResponse>('/api/checkout/create-session', {
+  return api<CreateCheckoutResponse>('/api/checkout/blueprint', {
     method: 'POST',
     body: JSON.stringify(params),
   });

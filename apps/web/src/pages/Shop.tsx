@@ -50,6 +50,7 @@ interface Blueprint {
   description: string;
   includes: string[];
   price: number;
+  stripePriceId: string;
   tag?: string;
 }
 
@@ -81,6 +82,7 @@ const blueprints: Blueprint[] = [
       'Prompt-Library (30+ Prompts)',
     ],
     price: 197,
+    stripePriceId: 'price_1TaLJD200IKJdPeh0e0WPc6v',
     tag: 'Beliebt',
   },
   {
@@ -97,6 +99,7 @@ const blueprints: Blueprint[] = [
       'PDF-Guide (18 Seiten)',
     ],
     price: 297,
+    stripePriceId: 'price_1TaLJE200IKJdPehRxbH0aVN',
     tag: 'Premium',
   },
   {
@@ -113,6 +116,7 @@ const blueprints: Blueprint[] = [
       'PDF-Setup-Guide (8 Seiten)',
     ],
     price: 147,
+    stripePriceId: 'price_1TaLJF200IKJdPehGo8zalDs',
   },
   {
     id: 4,
@@ -124,6 +128,7 @@ const blueprints: Blueprint[] = [
       'Neukunden-Onboarding vollst&auml;ndig automatisiert &mdash; Welcome-Mail, Task-Creation, Slack-Ping.',
     includes: ['n8n-Workflow JSON', 'PDF-Guide (6 Seiten)'],
     price: 97,
+    stripePriceId: 'price_1TaLJF200IKJdPehFYkIC1Au',
   },
   {
     id: 5,
@@ -139,6 +144,7 @@ const blueprints: Blueprint[] = [
       'PDF-Guide (10 Seiten)',
     ],
     price: 127,
+    stripePriceId: 'price_1TaLJG200IKJdPehnXDCVoPS',
   },
   {
     id: 6,
@@ -154,6 +160,7 @@ const blueprints: Blueprint[] = [
       'PDF-Guide (15 Seiten)',
     ],
     price: 247,
+    stripePriceId: 'price_1TaLJH200IKJdPehM6Npgour',
     tag: 'Neu',
   },
 ];
@@ -500,7 +507,7 @@ function useBuyBlueprint() {
       }
       const { url } = await createCheckoutSession({
         product_id: blueprint.slug,
-        price_cents: blueprint.price * 100,
+        stripe_price_id: blueprint.stripePriceId,
         mode: 'payment',
         metadata: { blueprint_slug: blueprint.slug },
         success_url: window.location.origin + '/#/checkout/success',

@@ -378,3 +378,46 @@ checkoutRouter.get('/pilot-status', async (req, res) => {
     free: Math.max(0, row.total_slots - row.slots_taken),
   });
 });
+
+// ─── POST /api/checkout/blueprint ───────────────────────────────
+// Direct blueprint purchase via Stripe Price ID (no tier/addon logic)
+// Body: { stripe_price_id, product_id, metadata, success_url, cancel_url, account_id? }
+const BlueprintCheckoutSchema = z.object({
+  stripe_price_id: z.string().min(1),
+  product_id: z.string().min(1),
+  mode: z.enum(['payment', 'subscription']).optional().default('payment'),
+  metadata: z.record(z.string()).optional().default({}),
+  success_url: z.string().url(),
+  cancel_url: z.string().url(),
+  account_id: z.string().uuid().optional(),
+});
+
+checkoutRouter.post('/blueprint', async (req, res) => {
+  if (!stripe) return res.status(503).json({ ok: false, error: 'stripe_not_configured' });
+
+  const parsed = BlueprintCheckoutSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ ok: false, error: 'validation_failed', details: parsed.error.flatten() });
+  }
+  const f = parsed.data;
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: f.mode,
+      line_items: [{ price: f.stripe_price_id, quantity: 1 }],
+      allow_promotion_codes: true,
+      success_url: f.success_url,
+      cancel_url: f.cancel_url,
+      metadata: {
+        ...f.metadata,
+        product_id: f.product_id,
+        ...(f.account_id ? { account_id: f.account_id } : {}),
+      },
+    });
+
+    return res.json({ ok: true, url: session.url, session_id: session.id });
+  } catch (err) {
+    console.error('[blueprint-checkout] stripe error:', err.message);
+    return res.status(500).json({ ok: false, error: 'stripe_error', detail: err.message });
+  }
+});
