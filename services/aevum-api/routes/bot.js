@@ -39,7 +39,7 @@ function fmtEur(n) { return `€${Number(n).toLocaleString('de-DE')}`; }
 
 async function aevumSection(sectionSlug) {
   const [accRes, projRes] = await Promise.all([
-    supabase.select('accounts', 'select=id,slug,name,status,industry,client_zero,created_at&order=created_at.asc'),
+    supabase.select('accounts', 'select=id,slug,name,status,client_zero,created_at&order=created_at.asc'),
     supabase.select('projects', 'select=id,account_id,slug,name,status,tier,industry,pricing&order=created_at.asc')
   ]);
   const accounts = accRes.data ?? [];
@@ -83,7 +83,7 @@ async function aevumSection(sectionSlug) {
     });
     return {
       formatted: `*👥 Kunden (${enriched.length})*\n\n${rows.join('\n') || '—'}\n\n_MRR gesamt: ${fmtEur(totalMrr)}/Mo_`,
-      raw: enriched.map(a => ({ name: a.name, status: a.status, mrr: a.mrr, industry: a.industry, tier: a.projects[0]?.tier }))
+      raw: enriched.map(a => ({ name: a.name, status: a.status, mrr: a.mrr, tier: a.projects[0]?.tier }))
     };
   }
 
@@ -143,7 +143,7 @@ async function projectSection(customerSlug, projectSlug, sectionSlug) {
   if (sectionSlug === 'overview') {
     const apiList = apis.length ? apis.map(a => `${a.health === 'ok' ? '✅' : '⚠️'} ${a.service}`).join(', ') : 'Keine APIs verknüpft';
     return {
-      formatted: `*📊 ${account.name} — ${project.name}*\n\nStatus: ${statusEmoji(project.status)} ${project.status}\nTier: ${project.tier || '—'}\nAPIs: ${apiList}`,
+      formatted: `*📊 Übersicht*\n\nStatus: ${statusEmoji(project.status)} ${project.status}\nTier: ${project.tier || '—'}\nAPIs: ${apiList}`,
       raw: { account: account.name, project: project.name, status: project.status, apis: apis.map(a => a.service) }
     };
   }
@@ -151,7 +151,7 @@ async function projectSection(customerSlug, projectSlug, sectionSlug) {
   if (sectionSlug === 'intelligence' && intel?.full_report) {
     const rpt = intel.full_report;
     const lines = [
-      `*🧠 Intelligence — ${account.name}*\n`,
+      `*🧠 Intelligence*\n`,
       rpt.executive_summary ? `*Summary:*\n${rpt.executive_summary}` : '',
       rpt.top_priorities?.length ? `\n*Top Prioritäten:*\n${rpt.top_priorities.map((p, i) => `${i + 1}. ${p}`).join('\n')}` : '',
       rpt.quick_wins_this_week?.length ? `\n*Quick Wins:*\n${rpt.quick_wins_this_week.map(w => `• ${w}`).join('\n')}` : ''
@@ -164,10 +164,10 @@ async function projectSection(customerSlug, projectSlug, sectionSlug) {
   const neededApis = sectionApiMap[sectionSlug] || [];
   const liveApis = neededApis.filter(s => connected(s));
 
+  const labels = { ads: 'Ads', spend: 'Spend', email: 'E-Mail', shop: 'Shop' };
   if (liveApis.length === 0) {
-    const labels = { ads: 'Ads', spend: 'Spend', email: 'E-Mail', shop: 'Shop' };
     return {
-      formatted: `*${labels[sectionSlug] || sectionSlug} — ${account.name}*\n\nKeine API-Verbindung aktiv.\nVerknüpfe ${neededApis.join(' / ')} im Portal → API-Keys.`,
+      formatted: `*${labels[sectionSlug] || sectionSlug}*\n\nKeine API-Verbindung aktiv.\nVerknüpfe ${neededApis.join(' / ')} im Portal → API-Keys.`,
       raw: null
     };
   }
@@ -175,7 +175,7 @@ async function projectSection(customerSlug, projectSlug, sectionSlug) {
   // Live data available — return from intelligence if present
   const workflowSummary = intel?.workflow_analysis ? JSON.stringify(intel.workflow_analysis).slice(0, 500) : null;
   return {
-    formatted: `*${sectionSlug} — ${account.name}*\n\n✅ ${liveApis.join(', ')} verbunden.\n${workflowSummary ? `\nWorkflow-Analyse: ${workflowSummary}` : 'Frag mich zu aktuellen Metriken.'}`,
+    formatted: `*${labels[sectionSlug] || sectionSlug}*\n\n✅ ${liveApis.join(', ')} verbunden.\n${workflowSummary ? `\nWorkflow-Analyse: ${workflowSummary}` : 'Frag mich zu aktuellen Metriken.'}`,
     raw: intel?.workflow_analysis ?? null
   };
 }
