@@ -3,7 +3,7 @@ import { useAuth } from '@/lib/auth';
 import {
   LogOut, LayoutDashboard, User, ShieldCheck, FolderGit2,
   BarChart2, DollarSign, Mail, ShoppingBag, Globe, Bot,
-  KeyRound, TrendingUp, ChevronLeft
+  KeyRound, TrendingUp, ChevronLeft, Users
 } from 'lucide-react';
 import { Link } from 'react-router';
 import Footer from './Footer';
@@ -30,6 +30,15 @@ const PROJECT_SECTIONS: Record<string, ProjectSection[]> = {
     { s: 'intelligence',  label: 'Intelligence', icon: Globe, dividerBefore: true },
     { s: 'agent',         label: 'Agent',        icon: Bot },
     { s: 'apis',          label: 'API-Keys',     icon: KeyRound },
+  ],
+  aevum: [
+    { s: 'overview',   label: 'Übersicht',  icon: LayoutDashboard },
+    { s: 'pipeline',   label: 'Pipeline',   icon: TrendingUp },
+    { s: 'revenue',    label: 'Revenue',    icon: DollarSign },
+    { s: 'kunden',     label: 'Kunden',     icon: Users },
+    { s: 'content',    label: 'Content',    icon: Globe },
+    { s: 'agent',      label: 'Agent',      icon: Bot, dividerBefore: true },
+    { s: 'apis',       label: 'API-Keys',   icon: KeyRound },
   ],
 };
 
@@ -171,7 +180,7 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="flex-1 px-8 py-8 w-full max-w-6xl mx-auto" key={loc.pathname + currentSection}>
+        <main className="flex-1 px-8 py-8 w-full" key={loc.pathname + currentSection}>
           <div className="animate-fade-up">
             <Outlet />
           </div>

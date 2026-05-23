@@ -6,7 +6,7 @@ import { Trash2, Lock, Plus, Shield, KeyRound } from 'lucide-react';
 import Spinner from '@/components/Spinner';
 import { stagger } from '@/lib/animations';
 import CollaGlowDashboard from '@/components/dashboard/CollaGlowDashboard';
-import BusinessDashboard from '@/components/dashboard/BusinessDashboard';
+import AEVUMDashboard from '@/components/dashboard/AEVUMDashboard';
 import ProjectAgentChat from '@/components/agent/ProjectAgentChat';
 
 type ApiRow = { id: string; service: string; key_label: string | null; scope: string; health: string; added_at: string; last_used_at: string | null };
@@ -69,7 +69,7 @@ export default function ProjectDetail() {
     if (section === 'apis') {
       return <ApisSection apis={apis} slug={slug} onRefresh={loadApis} />;
     }
-    return <BusinessDashboard slug={slug} />;
+    return <AEVUMDashboard section={section} />;
   }
 
   // Generic project: agent + api keys
