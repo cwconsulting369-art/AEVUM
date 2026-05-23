@@ -329,10 +329,35 @@ http.createServer(async (req, res) => {
 
 // ── Command Handler ───────────────────────────────────────────────────────────
 
-async function handleCommand(cmd, chat_id) {
+async function handleCommand(cmd, chat_id, fullText) {
   const activeProj = getActiveProject(chat_id);
 
-  if (cmd === '/start' || cmd === '/menu') {
+  if (cmd === '/start') {
+    const payload = fullText ? fullText.split(' ')[1] : undefined;
+
+    if (payload === 'login' || payload === 'dashboard') {
+      // Deep-link from portal login page → sofort Magic-Link generieren
+      const editReply = await thinkingPlaceholder(chat_id, 'Dashboard');
+      const result = await fetchDashboardLink();
+      if (result?.ok && result.url) {
+        await editReply(
+          `🖥 *Dein Dashboard-Zugang*\n\n_15 Minuten gültig, einmalig._`,
+          { reply_markup: { inline_keyboard: [[{ text: '🚀 Dashboard öffnen', url: result.url }]] } }
+        );
+      } else {
+        await editReply('❌ Dashboard-Link konnte nicht generiert werden. Tippe auf 🖥 Dashboard im Menü.');
+      }
+      // Keyboard danach anzeigen
+      const kb = buildReplyKeyboard(activeProj.slug);
+      if (kb) await send(chat_id, `Willkommen zurück! Wähle einen Bereich:`, { reply_markup: kb });
+      return;
+    }
+
+    // Normaler /start ohne Payload → Menü zeigen (fall-through to /menu)
+    return handleCommand('/menu', chat_id);
+  }
+
+  if (cmd === '/menu') {
     const kb = buildReplyKeyboard(activeProj.slug);
     if (kb) {
       return send(chat_id,
@@ -426,7 +451,7 @@ async function poll() {
     const activeProj = getActiveProject(chat_id);
 
     if (text.startsWith('/')) {
-      await handleCommand(text.split(' ')[0], chat_id).catch(e => console.error('[cmd]', e.message));
+      await handleCommand(text.split(' ')[0], chat_id, text).catch(e => console.error('[cmd]', e.message));
       continue;
     }
 
