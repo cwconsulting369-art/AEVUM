@@ -14,11 +14,47 @@ type KPIItem = { id: string; label: string; value: string | null; unit: string; 
 type Integration = { service: string; label: string; connected: boolean; icon: string };
 type WebsiteIssue = { type: string; severity: 'critical' | 'high' | 'medium' | 'low'; msg: string };
 type Optimization = { priority: 'high' | 'medium' | 'low'; category: string; title: string; action: string };
+type CopyQuickWin     = { fix: string; example?: string; impact: 'high' | 'medium' | 'low' };
+type CopyRewrite      = { element: string; current: string; improved: string };
+type CopyAnalysis = {
+  headline_score?: number; cta_score?: number; clarity_score?: number;
+  value_prop_score?: number; overall_copy_score?: number;
+  headline_verdict?: string; cta_verdict?: string; value_prop_verdict?: string;
+  tone?: string; target_audience_match?: string;
+  quick_wins?: CopyQuickWin[];
+  rewrite_suggestions?: CopyRewrite[];
+};
+type WorkflowOpp = { title: string; category: string; description: string; ai_component?: string; effort: string; impact: string; revenue_potential?: string };
+type WorkflowAnalysis = {
+  workflow_score?: number;
+  pain_points?: Array<{ area: string; problem: string; severity: string }>;
+  automation_opportunities?: WorkflowOpp[];
+  quick_wins?: Array<{ action: string; tool?: string; timeline?: string }>;
+  missing_integrations?: string[];
+};
+type SpeedData = {
+  score?: number; responseMs?: number; scriptCount?: number;
+  styleCount?: number; imgCount?: number; imgNoAlt?: number;
+  issues?: WebsiteIssue[];
+};
+type FullReport = {
+  executive_summary?: string; overall_score?: number;
+  top_priorities?: Array<{ rank: number; category: string; action: string; impact: string; effort: string; revenue_impact?: string }>;
+  quick_wins_this_week?: string[];
+  estimated_revenue_impact?: string;
+  aevum_fit?: string;
+};
 type Intelligence = {
   seo_score: number | null;
   website_issues: WebsiteIssue[];
   linkedin_data: { name?: string; followers?: string; reachable?: boolean } | null;
   optimizations: Optimization[];
+  copy_analysis: CopyAnalysis | null;
+  workflow_analysis: WorkflowAnalysis | null;
+  speed_data: SpeedData | null;
+  full_report: FullReport | null;
+  audit_summary: string | null;
+  status: string;
   generated_at: string;
 };
 type DashboardPayload = {
@@ -331,86 +367,251 @@ function SectionShop({ data }: { data: DashboardPayload }) {
   );
 }
 
-// ── Section: Intelligence ─────────────────────────────────────────────────────
+// ── Section: Intelligence (Full Audit) ───────────────────────────────────────
+
+function ScoreRing({ score, label, size = 72 }: { score: number; label: string; size?: number }) {
+  const r = (size / 2) - 6;
+  const circ = 2 * Math.PI * r;
+  const color = score >= 70 ? '#4ade80' : score >= 40 ? '#facc15' : '#f87171';
+  return (
+    <div className="flex flex-col items-center gap-1.5 shrink-0">
+      <svg width={size} height={size}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="5"
+          strokeDasharray={`${(score / 100) * circ} ${circ}`}
+          strokeLinecap="round" transform={`rotate(-90 ${size/2} ${size/2})`} />
+        <text x={size/2} y={size/2 + 5} textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{score}</text>
+      </svg>
+      <span className="text-[0.6rem] text-ink-400 uppercase tracking-wider">{label}</span>
+    </div>
+  );
+}
+
+const EFFORT_COLOR: Record<string, string> = { low: 'text-emerald-300', medium: 'text-yellow-300', high: 'text-rose-300' };
+const IMPACT_COLOR: Record<string, string> = { high: 'text-emerald-300', medium: 'text-yellow-300', low: 'text-ink-400' };
+const CAT_LABELS: Record<string, string> = {
+  seo: 'SEO', copy: 'Copy', speed: 'Speed', workflow: 'Workflow',
+  marketing: 'Marketing', sales: 'Sales', ops: 'Ops',
+  customer_service: 'Support', data: 'Data', content: 'Content'
+};
 
 function SectionIntelligence({ data }: { data: DashboardPayload }) {
   const intel = data.intelligence;
+
+  if (!intel || intel.status === 'running') {
+    return (
+      <div className="card-premium p-16 text-center space-y-3">
+        <Globe size={32} className="mx-auto text-ink-600 animate-pulse" />
+        <div className="text-sm text-ink-300">{intel?.status === 'running' ? 'Audit läuft…' : 'Kein Audit vorhanden.'}</div>
+        {intel?.status === 'running' && <div className="text-xs text-ink-500">Wird im Hintergrund analysiert — in 1-2 Min fertig.</div>}
+      </div>
+    );
+  }
+
+  const fr  = intel.full_report;
+  const seo = intel.seo_score;
+  const spd = intel.speed_data?.score;
+  const cpy = intel.copy_analysis?.overall_copy_score;
+  const wfl = intel.workflow_analysis?.workflow_score;
+
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Intelligence</h1>
-        <p className="text-sm text-ink-400">Automatischer Unternehmens-Audit — SEO, Website, LinkedIn</p>
+    <div className="space-y-8 animate-fade-in">
+
+      {/* Executive Summary */}
+      {fr?.executive_summary && (
+        <div className="card-premium p-6 border-l-2 border-gold-400/50">
+          <div className="text-xs font-semibold text-gold-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <Zap size={12} /> Executive Summary
+            {fr.overall_score != null && <span className="ml-auto badge badge-gold">{fr.overall_score}/100</span>}
+          </div>
+          <p className="text-sm text-ink-200 leading-relaxed">{fr.executive_summary}</p>
+          {fr.estimated_revenue_impact && (
+            <div className="mt-3 text-xs text-emerald-300 flex items-center gap-1.5">
+              <TrendingUp size={11} /> {fr.estimated_revenue_impact}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Score Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'SEO', score: seo ?? 0 },
+          { label: 'Speed', score: spd ?? 0 },
+          { label: 'Copy', score: cpy ?? 0 },
+          { label: 'Workflow', score: wfl ?? 0 },
+        ].map(({ label, score }) => (
+          <div key={label} className="card-premium p-5 flex flex-col items-center gap-2">
+            <ScoreRing score={score} label={label} />
+          </div>
+        ))}
       </div>
 
-      {!intel ? (
-        <div className="card-premium p-12 text-center space-y-2">
-          <Globe size={32} className="mx-auto text-ink-600" />
-          <div className="text-sm text-ink-300">Kein Audit vorhanden.</div>
-        </div>
-      ) : (
-        <>
-          <section className="card-premium p-6">
-            <div className="text-xs font-semibold text-white uppercase tracking-wider mb-5 flex items-center gap-2">
-              <Globe size={13} className="text-gold-300" /> Website-Audit
-            </div>
-            <div className="flex items-start gap-6 flex-wrap">
-              {intel.seo_score != null && <SeoRing score={intel.seo_score} />}
-              <div className="flex-1 min-w-0 space-y-2">
-                {(intel.website_issues ?? []).length === 0 ? (
-                  <div className="text-xs text-emerald-300 flex items-center gap-2"><CheckCircle2 size={13} /> Keine kritischen Issues.</div>
-                ) : intel.website_issues.map((issue, i) => (
-                  <div key={i} className={`flex items-start gap-2 px-3 py-2 rounded-lg border text-xs animate-fade-up ${SEV_COLOR[issue.severity] ?? SEV_COLOR.low}`} style={{ animationDelay: `${i * 40}ms` }}>
-                    <AlertCircle size={13} className="shrink-0 mt-0.5" />
-                    <div>
-                      <span className="font-semibold uppercase text-[0.6rem] tracking-wider opacity-70">{issue.severity} · {issue.type}</span>
-                      <div>{issue.msg}</div>
-                    </div>
+      {/* Top Priorities */}
+      {fr?.top_priorities && fr.top_priorities.length > 0 && (
+        <section>
+          <div className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <Zap size={12} className="text-gold-300" /> Top-Prioritäten
+          </div>
+          <div className="space-y-2">
+            {fr.top_priorities.map((p, i) => (
+              <div key={i} className="card-premium p-4 flex items-start gap-4 animate-fade-up" style={stagger(i, 40, 40)}>
+                <div className="w-7 h-7 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center text-[0.7rem] font-bold text-gold-300 shrink-0">{p.rank}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-medium text-white">{p.action}</span>
+                    <span className="badge text-[0.6rem]">{CAT_LABELS[p.category] ?? p.category}</span>
                   </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {intel.linkedin_data && (
-            <section className="card-premium p-5">
-              <div className="text-xs font-semibold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Linkedin size={13} className="text-gold-300" /> LinkedIn
-              </div>
-              <div className="flex items-center gap-6 text-sm">
-                <div><div className="text-[0.65rem] text-ink-400">Profil</div><div className="text-white font-medium">{intel.linkedin_data.name ?? '—'}</div></div>
-                <div><div className="text-[0.65rem] text-ink-400">Follower</div><div className="text-white font-medium">{intel.linkedin_data.followers ?? '—'}</div></div>
-                <div><div className="text-[0.65rem] text-ink-400">Erreichbar</div><div className={intel.linkedin_data.reachable ? 'text-emerald-300' : 'text-rose-300'}>{intel.linkedin_data.reachable ? 'Ja' : 'Nein'}</div></div>
-              </div>
-            </section>
-          )}
-
-          {(intel.optimizations ?? []).length > 0 && (
-            <section>
-              <div className="text-xs font-semibold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Zap size={13} className="text-gold-300" /> KI-Empfehlungen
-                <span className="badge ml-auto">{intel.optimizations.length}</span>
-              </div>
-              <div className="space-y-2">
-                {intel.optimizations.map((opt, i) => (
-                  <div key={i} className="card-premium p-4 flex items-start gap-3 animate-fade-up" style={{ animationDelay: `${i * 40}ms` }}>
-                    <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${PRIO_DOT[opt.priority] ?? 'bg-ink-400'}`} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium text-white">{opt.title}</span>
-                        <span className="badge text-[0.6rem]">{opt.category}</span>
-                      </div>
-                      <div className="text-xs text-ink-400 mt-1">{opt.action}</div>
-                    </div>
-                    <ChevronRight size={13} className="text-ink-600 shrink-0 mt-0.5" />
+                  <div className="mt-1.5 flex items-center gap-3 text-[0.65rem]">
+                    <span className={IMPACT_COLOR[p.impact] ?? 'text-ink-400'}>Impact: {p.impact}</span>
+                    <span className={EFFORT_COLOR[p.effort] ?? 'text-ink-400'}>Aufwand: {p.effort}</span>
+                    {p.revenue_impact && <span className="text-emerald-300">{p.revenue_impact}</span>}
                   </div>
-                ))}
+                </div>
               </div>
-            </section>
-          )}
-
-          <div className="text-[0.65rem] text-ink-600 text-right">Audit: {new Date(intel.generated_at).toLocaleString('de-DE')}</div>
-        </>
+            ))}
+          </div>
+        </section>
       )}
+
+      {/* Quick Wins this Week */}
+      {fr?.quick_wins_this_week && fr.quick_wins_this_week.length > 0 && (
+        <section className="card-premium p-5">
+          <div className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <CheckCircle2 size={12} className="text-emerald-400" /> Diese Woche umsetzbar
+          </div>
+          <ul className="space-y-2">
+            {fr.quick_wins_this_week.map((w, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-ink-200">
+                <CheckCircle2 size={13} className="text-emerald-400 shrink-0 mt-0.5" />
+                {w}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* SEO Details */}
+      <section className="card-premium p-6">
+        <div className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-5 flex items-center gap-2">
+          <Globe size={12} className="text-gold-300" /> SEO + Website
+          {seo != null && <span className="badge ml-auto">{seo}/100</span>}
+        </div>
+        <div className="space-y-2">
+          {(intel.website_issues ?? []).length === 0
+            ? <div className="text-xs text-emerald-300 flex items-center gap-2"><CheckCircle2 size={13} /> Keine Issues gefunden.</div>
+            : intel.website_issues.map((issue, i) => (
+                <div key={i} className={`flex items-start gap-2 px-3 py-2 rounded-lg border text-xs ${SEV_COLOR[issue.severity] ?? SEV_COLOR.low}`}>
+                  <AlertCircle size={13} className="shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold uppercase text-[0.6rem] tracking-wider opacity-70">{issue.severity} · {issue.type}</span>
+                    <div>{issue.msg}</div>
+                  </div>
+                </div>
+              ))
+          }
+        </div>
+      </section>
+
+      {/* Copy Analysis */}
+      {intel.copy_analysis && (
+        <section className="card-premium p-6">
+          <div className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-5 flex items-center gap-2">
+            <Zap size={12} className="text-gold-300" /> Copy & Wording
+            {cpy != null && <span className="badge ml-auto">{cpy}/100</span>}
+          </div>
+          <div className="grid sm:grid-cols-3 gap-4 mb-5">
+            {[
+              { l: 'Headline', v: intel.copy_analysis.headline_score },
+              { l: 'CTA',      v: intel.copy_analysis.cta_score },
+              { l: 'Clarity',  v: intel.copy_analysis.clarity_score },
+            ].map(({ l, v }) => (
+              <div key={l} className="text-center">
+                <ScoreRing score={v ?? 0} label={l} size={60} />
+              </div>
+            ))}
+          </div>
+          {intel.copy_analysis.headline_verdict && (
+            <div className="text-xs text-ink-300 mb-2"><span className="text-ink-500">Headline: </span>{intel.copy_analysis.headline_verdict}</div>
+          )}
+          {intel.copy_analysis.cta_verdict && (
+            <div className="text-xs text-ink-300 mb-4"><span className="text-ink-500">CTA: </span>{intel.copy_analysis.cta_verdict}</div>
+          )}
+          {(intel.copy_analysis.rewrite_suggestions ?? []).length > 0 && (
+            <div className="space-y-3 mt-4">
+              <div className="text-[0.65rem] font-semibold text-ink-500 uppercase tracking-wider">Rewrite-Vorschläge</div>
+              {intel.copy_analysis.rewrite_suggestions!.slice(0, 4).map((r, i) => (
+                <div key={i} className="grid sm:grid-cols-2 gap-2 text-xs">
+                  <div className="bg-rose-500/5 border border-rose-500/20 rounded-lg p-3">
+                    <div className="text-[0.6rem] text-ink-500 mb-1">{r.element} — Aktuell</div>
+                    <div className="text-ink-300">{r.current}</div>
+                  </div>
+                  <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-3">
+                    <div className="text-[0.6rem] text-ink-500 mb-1">Verbessert</div>
+                    <div className="text-emerald-200">{r.improved}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Workflow Analysis */}
+      {intel.workflow_analysis && (
+        <section className="card-premium p-6">
+          <div className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-5 flex items-center gap-2">
+            <TrendingUp size={12} className="text-gold-300" /> Workflow & AI-Automationen
+            {wfl != null && <span className="badge ml-auto">{wfl}/100</span>}
+          </div>
+          {(intel.workflow_analysis.automation_opportunities ?? []).length > 0 && (
+            <div className="space-y-3">
+              {intel.workflow_analysis.automation_opportunities!.map((opp, i) => (
+                <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-4 animate-fade-up" style={stagger(i, 40, 60)}>
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="font-medium text-sm text-white">{opp.title}</div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className={`text-[0.6rem] font-semibold ${IMPACT_COLOR[opp.impact] ?? 'text-ink-400'}`}>Impact: {opp.impact}</span>
+                      <span className="text-ink-600">·</span>
+                      <span className={`text-[0.6rem] font-semibold ${EFFORT_COLOR[opp.effort] ?? 'text-ink-400'}`}>Aufwand: {opp.effort}</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-ink-400 mb-2">{opp.description}</div>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="badge text-[0.6rem]">{CAT_LABELS[opp.category] ?? opp.category}</span>
+                    {opp.ai_component && <span className="text-[0.6rem] text-blue-300 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">{opp.ai_component}</span>}
+                    {opp.revenue_potential && <span className="text-[0.6rem] text-emerald-300">{opp.revenue_potential}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {intel.workflow_analysis.missing_integrations && intel.workflow_analysis.missing_integrations.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-white/5">
+              <div className="text-[0.65rem] text-ink-500 mb-2">Empfohlene Integrationen</div>
+              <div className="flex flex-wrap gap-2">
+                {intel.workflow_analysis.missing_integrations.map(t => (
+                  <span key={t} className="badge">{t}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* AEVUM Fit */}
+      {fr?.aevum_fit && (
+        <div className="card-premium p-5 border border-gold-400/20 bg-gold-400/5">
+          <div className="text-xs font-semibold text-gold-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+            <Zap size={12} /> Was AEVUM konkret tut
+          </div>
+          <p className="text-sm text-ink-200">{fr.aevum_fit}</p>
+        </div>
+      )}
+
+      <div className="text-[0.65rem] text-ink-600 text-right">
+        Audit v2 · {new Date(intel.generated_at).toLocaleString('de-DE')}
+      </div>
     </div>
   );
 }

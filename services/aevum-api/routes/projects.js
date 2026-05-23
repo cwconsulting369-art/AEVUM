@@ -184,6 +184,9 @@ projectsRouter.post('/:id/intelligence', requireAdmin, async (req, res) => {
   const project = projRes.data[0];
   const { website_url, linkedin_url } = req.body;
   res.json({ ok: true, message: 'intelligence audit started' });
+  // Bestehende API-Keys als Tool-Kontext mitgeben
+  const apisRes = await supabase.select('project_apis', `select=service,scope&project_id=eq.${project.id}`);
+  const existingTools = apisRes.data ?? [];
   setImmediate(() => {
     runIntelligenceAudit({
       projectId: project.id,
@@ -191,7 +194,8 @@ projectsRouter.post('/:id/intelligence', requireAdmin, async (req, res) => {
       businessName: project.name,
       websiteUrl: website_url ?? null,
       linkedinUrl: linkedin_url ?? null,
-      industry: project.industry ?? null
+      industry: project.industry ?? null,
+      existingTools
     }).catch(err => console.error('[intelligence] Manual audit failed:', err.message));
   });
 });

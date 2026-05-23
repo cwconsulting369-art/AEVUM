@@ -318,11 +318,17 @@ meRouter.get('/projects/:slug/dashboard', async (req, res) => {
     kpis,
     integrations,
     intelligence: intelligence ? {
-      seo_score: intelligence.seo_score,
-      website_issues: intelligence.website_issues,
-      linkedin_data: intelligence.linkedin_data,
-      optimizations: intelligence.optimizations,
-      generated_at: intelligence.created_at
+      seo_score:         intelligence.seo_score,
+      website_issues:    intelligence.website_issues,
+      linkedin_data:     intelligence.linkedin_data,
+      optimizations:     intelligence.optimizations,
+      copy_analysis:     intelligence.copy_analysis ?? null,
+      workflow_analysis: intelligence.workflow_analysis ?? null,
+      speed_data:        intelligence.speed_data ?? null,
+      full_report:       intelligence.full_report ?? null,
+      audit_summary:     intelligence.audit_summary ?? null,
+      status:            intelligence.status,
+      generated_at:      intelligence.created_at
     } : null,
     generated_at: new Date().toISOString()
   });
