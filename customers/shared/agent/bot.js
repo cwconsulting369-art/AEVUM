@@ -35,12 +35,32 @@ const CARLOS_ID   = parseInt(process.env.CARLOS_TG_USER_ID || '6436074677', 10);
 const ADMIN_IDS   = new Set([CARLOS_ID, ...(config.adminIds || []).map(Number)]);
 const OWNER_IDS   = new Set([...ADMIN_IDS, ...(config.ownerIds || []).map(Number)]);
 
-const STATE_FILE = path.join(CONFIG_DIR, 'state.json');
-const CHATS_DIR  = path.join(CONFIG_DIR, 'chats');
+const STATE_FILE    = path.join(CONFIG_DIR, 'state.json');
+const CHATS_DIR     = path.join(CONFIG_DIR, 'chats');
 const KNOWLEDGE_DIR = path.join(CONFIG_DIR, '..', 'knowledge');
+const DATA_API_URL  = config.dataApiUrl || 'http://localhost:3210';
+const ADMIN_TOKEN   = process.env.AEVUM_ADMIN_TOKEN || '';
 
 const BOT_NAME = config.customerName || config.customerSlug;
 const DEFAULT_PROJECT = config.projects?.[0]?.slug || 'default';
+
+// ── Section Data Fetch ───────────────────────────────────────────────────────
+
+function fetchSectionData(projectSlug, sectionSlug) {
+  if (!ADMIN_TOKEN) return Promise.resolve(null);
+  const url = new URL(`/bot/section-data`, DATA_API_URL);
+  url.searchParams.set('customerSlug', config.customerSlug);
+  url.searchParams.set('projectSlug', projectSlug);
+  url.searchParams.set('sectionSlug', sectionSlug);
+  return new Promise(resolve => {
+    http.get({ hostname: 'localhost', port: 3210, path: url.pathname + url.search,
+      headers: { 'x-aevum-admin-token': ADMIN_TOKEN } }, res => {
+      let d = '';
+      res.on('data', c => d += c);
+      res.on('end', () => { try { resolve(JSON.parse(d)); } catch { resolve(null); } });
+    }).on('error', () => resolve(null));
+  });
+}
 
 // ── Idle Mode ────────────────────────────────────────────────────────────────
 
@@ -63,7 +83,7 @@ const saveState = () => fs.writeFileSync(STATE_FILE, JSON.stringify(state, null,
 
 // ── Knowledge Loader ─────────────────────────────────────────────────────────
 
-function loadPersona(projectSlug, sectionSlug, isAdmin) {
+function loadPersona(projectSlug, sectionSlug, isAdmin, sectionData) {
   const parts = [];
   const proj = config.projects?.find(p => p.slug === projectSlug);
   const section = sectionSlug ? proj?.sections?.find(s => s.slug === sectionSlug) : null;
@@ -93,6 +113,11 @@ Sprache: Deutsch. Fokus auf Cashflow, Pipeline, Execution.`);
     for (const f of files) {
       try { parts.push(fs.readFileSync(path.join(KNOWLEDGE_DIR, f), 'utf8')); } catch {}
     }
+  }
+
+  // Live section data injected as context block
+  if (sectionData) {
+    parts.push(`## Aktuelle Daten — ${sectionSlug || 'Bereich'}\n${JSON.stringify(sectionData, null, 2)}`);
   }
 
   return parts.join('\n\n---\n\n');
@@ -202,8 +227,9 @@ async function llm(chat_id, userText, projectSlug) {
 
   const activeSection = state.activeSection?.[chat_id]?.[projectSlug];
   const isAdmin = ADMIN_IDS.has(chat_id);
+  const sectionData = state.sectionData?.[chat_id]?.[projectSlug]?.[activeSection] ?? null;
   const now = new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' });
-  const systemPrompt = `NOW: ${now} (Europe/Berlin)\n\n` + loadPersona(projectSlug, activeSection, isAdmin);
+  const systemPrompt = `NOW: ${now} (Europe/Berlin)\n\n` + loadPersona(projectSlug, activeSection, isAdmin, sectionData);
 
   const body = JSON.stringify({
     model: OR_MODEL,
@@ -378,8 +404,20 @@ async function poll() {
       if (!state.activeSection) state.activeSection = {};
       if (!state.activeSection[chat_id]) state.activeSection[chat_id] = {};
       state.activeSection[chat_id][activeProj.slug] = matchedSection.slug;
+      if (!state.sectionData) state.sectionData = {};
+      if (!state.sectionData[chat_id]) state.sectionData[chat_id] = {};
+      if (!state.sectionData[chat_id][activeProj.slug]) state.sectionData[chat_id][activeProj.slug] = {};
       saveState();
-      await send(chat_id, `${matchedSection.label} aktiv — stell mir eine Frage:`);
+
+      const editReply = await thinkingPlaceholder(chat_id, matchedSection.label.replace(/^\S+\s/, ''));
+      const sectionResult = await fetchSectionData(activeProj.slug, matchedSection.slug);
+      if (sectionResult?.ok && sectionResult.formatted) {
+        state.sectionData[chat_id][activeProj.slug][matchedSection.slug] = sectionResult.raw;
+        saveState();
+        await editReply(sectionResult.formatted);
+      } else {
+        await editReply(`${matchedSection.label} aktiv — stell mir eine Frage:`);
+      }
       continue;
     }
 
