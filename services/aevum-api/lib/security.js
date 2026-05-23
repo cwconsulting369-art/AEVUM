@@ -1,5 +1,61 @@
 // Input-sanitization + suspicious pattern detection
 // Reject obvious code-injection / XSS / weird payloads BEFORE persisting
+// + Internal "firewall" helpers: IP anonymization, timing-safe token compare,
+//   email masking. Single source of truth — every route imports from here.
+
+import { timingSafeEqual, createHash, randomBytes } from 'node:crypto';
+
+// IP anonymization — IPv4 /24, IPv6 /64. Returns null for unknown/empty.
+// Use this EVERYWHERE before persisting an IP. Datenschutzerklärung promises
+// 30-day rolling anonymization, but for non-essential telemetry we anonymize
+// at write-time.
+export function anonymizeIp(ip) {
+  if (!ip || typeof ip !== 'string' || ip === 'unknown') return null;
+  const clean = ip.trim();
+  if (clean.includes(':')) {
+    const parts = clean.split(':');
+    return parts.slice(0, 4).join(':') + '::';
+  }
+  const parts = clean.split('.');
+  if (parts.length === 4 && parts.every((p) => /^\d+$/.test(p))) {
+    return `${parts[0]}.${parts[1]}.${parts[2]}.0`;
+  }
+  return null;
+}
+
+// Timing-safe equality check for tokens / secrets.
+// Returns false on any length mismatch or invalid input — never throws.
+export function safeCompare(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  try {
+    return timingSafeEqual(ab, bb);
+  } catch {
+    return false;
+  }
+}
+
+// Hash an arbitrary token (sha256/hex). Used for magic-link single-use tracking
+// and DSGVO challenge-token lookups.
+export function hashToken(token) {
+  return createHash('sha256').update(String(token)).digest('hex');
+}
+
+// Cryptographically strong random token (URL-safe base64, no padding).
+export function randomToken(bytes = 32) {
+  return randomBytes(bytes).toString('base64url');
+}
+
+// Mask an email for logging: "carlos.wrusch@example.com" → "c***@example.com"
+export function maskEmail(email) {
+  if (typeof email !== 'string') return '***';
+  const at = email.indexOf('@');
+  if (at < 1) return '***';
+  return email[0] + '***' + email.slice(at);
+}
+
 
 // Patterns that indicate code/script/injection attempts (HARD REJECT)
 const ATTACK_PATTERNS = [

@@ -1,6 +1,7 @@
 // Security monitoring — log blocked attempts + TG-alert on attack patterns
 import { supabase } from './supabase.js';
 import { notifyCarlos } from './tg-notify.js';
+import { anonymizeIp } from './security.js';
 
 const ALERT_THRESHOLD = 5;       // 5 blocks → alert
 const ALERT_WINDOW_MS = 5 * 60 * 1000;  // within 5 minutes
@@ -8,13 +9,14 @@ const recentBlocks = [];  // in-memory rolling list
 
 export async function logBlock(event) {
   // event: { type, reason, ip, user_agent, payload_summary, endpoint }
-  console.log(`[BLOCK] ${event.type} from ${event.ip} — ${event.reason}`);
+  const ipAnon = anonymizeIp(event.ip);
+  console.log(`[BLOCK] ${event.type} from ${ipAnon || 'unknown'} — ${event.reason}`);
 
-  // Persist to security_events table (fire-and-forget)
+  // Persist to security_events table (fire-and-forget) — IP anonymized at write
   supabase.insert('security_events', {
     event_type: event.type,
     reason: event.reason,
-    ip: event.ip || '',
+    ip_anonymized: ipAnon,
     user_agent: event.user_agent || '',
     endpoint: event.endpoint || '',
     payload_summary: event.payload_summary || null
@@ -37,7 +39,7 @@ export async function logBlock(event) {
       `*Letztes Event:*`,
       `Type: \`${event.type}\``,
       `Reason: \`${event.reason}\``,
-      `IP: \`${event.ip}\``,
+      `IP: \`${ipAnon || 'unknown'}\``,
       `Endpoint: \`${event.endpoint}\``,
       ``,
       `→ Check Supabase security_events Tabelle für Details`
