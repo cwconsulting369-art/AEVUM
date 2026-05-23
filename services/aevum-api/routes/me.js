@@ -279,12 +279,130 @@ meRouter.post('/projects/:slug/apis', async (req, res) => {
 
 // ────────────────────────────────────────────────────────────
 // GET /api/me/projects/:slug/dashboard
-// Returns live KPIs from stored project_apis keys (or mock if no keys yet)
+// aevum slug → AEVUM business ops dashboard (DashboardData type)
+// other slugs → ad-platform KPI dashboard
 // ────────────────────────────────────────────────────────────
 meRouter.get('/projects/:slug/dashboard', async (req, res) => {
   const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug);
   if (!project) return res.status(404).json({ ok: false, error: 'project_not_found' });
 
+  // ── AEVUM client-zero business dashboard ──────────────────
+  if (req.params.slug === 'aevum') {
+    const now = new Date();
+    const weekStart = new Date(now); weekStart.setDate(now.getDate() - now.getDay() + 1); weekStart.setHours(0,0,0,0);
+    const prevWeekStart = new Date(weekStart); prevWeekStart.setDate(weekStart.getDate() - 7);
+    const weekStartIso = weekStart.toISOString();
+    const prevWeekIso = prevWeekStart.toISOString();
+
+    const [auditsThisW, auditsPrevW, auditsRecent, allAccounts, helpbotW, helpbotRecent] = await Promise.all([
+      supabase.select('audits', `select=id&created_at=gte.${weekStartIso}`),
+      supabase.select('audits', `select=id&created_at=gte.${prevWeekIso}&created_at=lt.${weekStartIso}`),
+      supabase.select('audits', `select=id,created_at,name,email,company,industry,status,plan_pdf_url,analysis_result,meta&order=created_at.desc&limit=20`),
+      supabase.select('accounts', `select=id,slug,name,status,client_zero,contact_data,created_at&order=created_at.desc`),
+      supabase.select('helpbot_conversations', `select=id&started_at=gte.${weekStartIso}`),
+      supabase.select('helpbot_conversations', `select=id,session_id,started_at,last_msg_at,message_count,extracted_data&order=last_msg_at.desc&limit=10`),
+    ]);
+
+    const thisW = auditsThisW.data?.length ?? 0;
+    const prevW = auditsPrevW.data?.length ?? 0;
+    const allAudits = Array.isArray(auditsRecent.data) ? auditsRecent.data : [];
+    const accounts = Array.isArray(allAccounts.data) ? allAccounts.data : [];
+
+    const totalAudits = allAudits.length;
+    const withPlan = allAudits.filter(a => ['plan_ready','call_booked','won','lost'].includes(a.status)).length;
+    const withCall = allAudits.filter(a => ['call_booked','won','lost'].includes(a.status)).length;
+    const deals = allAudits.filter(a => a.status === 'won').length;
+
+    const funnel = [
+      { stage: 'audit', label: 'Audit eingegangen', count: totalAudits,   conversion_pct: 100 },
+      { stage: 'plan',  label: 'Plan erstellt',      count: withPlan,      conversion_pct: totalAudits ? Math.round(withPlan/totalAudits*100) : null },
+      { stage: 'call',  label: 'Call vereinbart',    count: withCall,      conversion_pct: withPlan   ? Math.round(withCall/withPlan*100)   : null },
+      { stage: 'deal',  label: 'Deal geschlossen',   count: deals,         conversion_pct: withCall   ? Math.round(deals/withCall*100)      : null },
+    ];
+
+    // MRR aus account contact_data.retainer_monthly_eur
+    let mrrEur = 0;
+    accounts.forEach(acc => {
+      const p = acc.contact_data;
+      if (p?.retainer_monthly_eur) mrrEur += Number(p.retainer_monthly_eur);
+    });
+
+    const activeAccounts = accounts.filter(a => a.status === 'active' && !a.client_zero);
+    const customerList = accounts
+      .filter(a => !a.client_zero)
+      .map(a => ({
+        id: a.id, slug: a.slug, name: a.name, status: a.status,
+        health: a.status === 'active' ? 'green' : a.status === 'onboarding' ? 'yellow' : 'red',
+        created_at: a.created_at
+      }));
+
+    const recentConvsRaw = Array.isArray(helpbotRecent.data) ? helpbotRecent.data : [];
+    const allExtracted = recentConvsRaw.map(c => c.extracted_data).filter(Boolean);
+    const allPains = allExtracted.flatMap(e => e.pain_points ?? []);
+    const painCounts = {};
+    allPains.forEach(p => { painCounts[p] = (painCounts[p] || 0) + 1; });
+    const topPains = Object.entries(painCounts)
+      .sort((a, b) => b[1] - a[1]).slice(0, 8)
+      .map(([text, count]) => ({ text, count }));
+    const handoffs = allExtracted.filter(e => e.handoff_requested).length;
+    const handoffRate = allExtracted.length ? Math.round(handoffs / allExtracted.length * 100) : null;
+
+    const recentConvs = recentConvsRaw.map(c => ({
+      id_hash: c.session_id?.slice(0,8) || c.id?.slice(0,8),
+      started_at: c.started_at,
+      last_msg_at: c.last_msg_at || c.started_at,
+      message_count: c.message_count || 0,
+      first_msg_preview: '—',
+    }));
+
+    const weeklyMap = {};
+    allAudits.forEach(a => {
+      const d = new Date(a.created_at);
+      d.setDate(d.getDate() - d.getDay() + 1); d.setHours(0,0,0,0);
+      const k = d.toISOString().slice(0,10);
+      weeklyMap[k] = (weeklyMap[k] || 0) + 1;
+    });
+    const funnelWeekly = Object.entries(weeklyMap)
+      .sort((a, b) => a[0].localeCompare(b[0])).slice(-8)
+      .map(([week_start, count]) => ({ week_start, count }));
+
+    return res.json({
+      ok: true,
+      project: { id: project.id, slug: project.slug, name: project.name },
+      generated_at: new Date().toISOString(),
+      kpis: {
+        audits_this_week: thisW, audits_last_week: prevW, audits_delta: thisW - prevW,
+        audit_to_plan_pct: totalAudits ? Math.round(withPlan/totalAudits*100) : null,
+        plan_to_call_pct: withPlan ? Math.round(withCall/withPlan*100) : null,
+        call_to_deal_pct: withCall ? Math.round(deals/withCall*100) : null,
+        mrr_eur: mrrEur,
+        helpbot_conversations_week: helpbotW.data?.length ?? 0,
+      },
+      funnel, funnel_weekly: funnelWeekly,
+      recent_audits: allAudits.slice(0, 10).map(a => ({
+        id: a.id, created_at: a.created_at, name: a.name, email: a.email,
+        company: a.company, industry: a.industry, status: a.status,
+        deal_recommendation: a.analysis_result?.deal_recommendation ?? a.meta?.deal_recommendation ?? null,
+        confidence: a.analysis_result?.confidence ?? a.meta?.confidence ?? null,
+        plan_pdf_url: a.plan_pdf_url ?? null,
+        has_analysis: !!(a.analysis_result),
+      })),
+      customers: { total: customerList.length, active: activeAccounts.length, list: customerList },
+      helpbot_insights: {
+        recent: recentConvs, top_pains: topPains,
+        handoff_rate_pct: handoffRate, total_extractions: allExtracted.length,
+      },
+      marketing: { cold_calls_week: null, linkedin_posts_week: null, lead_magnet_downloads_week: null, note: 'Tracking noch nicht verknüpft' },
+      finance: {
+        stripe_mrr_eur: mrrEur, pending_invoices_count: 0, pending_invoices_eur: 0,
+        setup_fees_collected_month_eur: 0,
+        customer_ltv_estimate_eur: mrrEur > 0 ? mrrEur * 18 : null,
+        has_stripe: false, note: 'Stripe-Anbindung ausstehend — MRR aus account.contact_data berechnet',
+      },
+    });
+  }
+
+  // ── Standard ad-platform dashboard (CollaGlow etc.) ───────
   const apisRes = await supabase.select('project_apis',
     `select=service,health,last_used_at&project_id=eq.${project.id}`);
   const apis = apisRes.data ?? [];
@@ -294,7 +412,6 @@ meRouter.get('/projects/:slug/dashboard', async (req, res) => {
     `select=*&project_id=eq.${project.id}&order=created_at.desc&limit=1`);
   const intelligence = intelligenceRes.data?.[0] ?? null;
 
-  // KPI-Strip: live wenn keys vorhanden, sonst placeholder
   const kpis = [
     { id: 'roas',     label: 'ROAS Meta',    value: connected('meta_ads')    ? null : '—', unit: 'x',   trend: null, source: 'meta_ads',    live: connected('meta_ads') },
     { id: 'cpa',      label: 'CPA Meta',     value: connected('meta_ads')    ? null : '—', unit: '€',   trend: null, source: 'meta_ads',    live: connected('meta_ads') },
@@ -303,32 +420,24 @@ meRouter.get('/projects/:slug/dashboard', async (req, res) => {
     { id: 'open_rate',label: 'Email Open%',  value: connected('klaviyo')     ? null : '—', unit: '%',   trend: null, source: 'klaviyo',     live: connected('klaviyo') },
     { id: 'g_roas',   label: 'ROAS Google',  value: connected('google_ads')  ? null : '—', unit: 'x',   trend: null, source: 'google_ads',  live: connected('google_ads') },
   ];
-
   const integrations = [
-    { service: 'meta_ads',   label: 'Meta Ads',    connected: connected('meta_ads'),   icon: 'Meta' },
-    { service: 'google_ads', label: 'Google Ads',  connected: connected('google_ads'), icon: 'Google' },
-    { service: 'klaviyo',    label: 'Klaviyo',     connected: connected('klaviyo'),    icon: 'Mail' },
-    { service: 'shopify',    label: 'Shopify',     connected: connected('shopify'),    icon: 'Shop' },
-    { service: 'tiktok_ads', label: 'TikTok Ads',  connected: connected('tiktok_ads'), icon: 'TikTok' },
+    { service: 'meta_ads',   label: 'Meta Ads',   connected: connected('meta_ads'),   icon: 'Meta' },
+    { service: 'google_ads', label: 'Google Ads', connected: connected('google_ads'), icon: 'Google' },
+    { service: 'klaviyo',    label: 'Klaviyo',    connected: connected('klaviyo'),    icon: 'Mail' },
+    { service: 'shopify',    label: 'Shopify',    connected: connected('shopify'),    icon: 'Shop' },
+    { service: 'tiktok_ads', label: 'TikTok Ads', connected: connected('tiktok_ads'), icon: 'TikTok' },
   ];
-
   res.json({
     ok: true,
     project: { id: project.id, slug: project.slug, name: project.name, industry: project.industry },
-    kpis,
-    integrations,
+    kpis, integrations,
     intelligence: intelligence ? {
-      seo_score:         intelligence.seo_score,
-      website_issues:    intelligence.website_issues,
-      linkedin_data:     intelligence.linkedin_data,
-      optimizations:     intelligence.optimizations,
-      copy_analysis:     intelligence.copy_analysis ?? null,
-      workflow_analysis: intelligence.workflow_analysis ?? null,
-      speed_data:        intelligence.speed_data ?? null,
-      full_report:       intelligence.full_report ?? null,
-      audit_summary:     intelligence.audit_summary ?? null,
-      status:            intelligence.status,
-      generated_at:      intelligence.created_at
+      seo_score: intelligence.seo_score, website_issues: intelligence.website_issues,
+      linkedin_data: intelligence.linkedin_data, optimizations: intelligence.optimizations,
+      copy_analysis: intelligence.copy_analysis ?? null, workflow_analysis: intelligence.workflow_analysis ?? null,
+      speed_data: intelligence.speed_data ?? null, full_report: intelligence.full_report ?? null,
+      audit_summary: intelligence.audit_summary ?? null, status: intelligence.status,
+      generated_at: intelligence.created_at
     } : null,
     generated_at: new Date().toISOString()
   });

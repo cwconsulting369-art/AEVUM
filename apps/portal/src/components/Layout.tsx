@@ -1,9 +1,10 @@
 import { NavLink, Outlet, useLocation, useMatch } from 'react-router';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import {
   LogOut, LayoutDashboard, User, ShieldCheck, FolderGit2,
   BarChart2, DollarSign, Mail, ShoppingBag, Globe, Bot,
-  KeyRound, TrendingUp, ChevronLeft, Users
+  KeyRound, TrendingUp, ChevronLeft, Users, Menu, X
 } from 'lucide-react';
 import { Link } from 'react-router';
 import Footer from './Footer';
@@ -60,6 +61,10 @@ export default function Layout() {
   const projectMatch = useMatch('/projects/:slug');
   const projectMatchDeep = useMatch('/projects/:slug/*');
   const slug = projectMatch?.params.slug || projectMatchDeep?.params.slug;
+  const [mobileNav, setMobileNav] = useState(false);
+
+  // Close mobile nav on route change
+  useEffect(() => { setMobileNav(false); }, [loc.pathname, loc.search]);
 
   const inProject = !!slug;
   const sections = slug ? (PROJECT_SECTIONS[slug] ?? DEFAULT_PROJECT_SECTIONS) : null;
@@ -72,10 +77,29 @@ export default function Layout() {
     <div className="relative min-h-screen flex bg-ink-950 text-ink-100 overflow-hidden">
       <div aria-hidden className="absolute inset-0 pointer-events-none bg-gold-radial opacity-50" />
 
+      {/* Mobile backdrop */}
+      {mobileNav && (
+        <div
+          className="fixed inset-0 bg-black/60 z-20 md:hidden"
+          onClick={() => setMobileNav(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="relative w-56 shrink-0 border-r border-white/5 flex flex-col bg-ink-900/60 backdrop-blur-xl z-10">
-        <div className="px-5 pt-6 pb-5">
+      <aside className={[
+        'flex flex-col bg-ink-900/80 backdrop-blur-xl border-r border-white/5',
+        'fixed inset-y-0 left-0 w-64 z-30 transition-transform duration-200',
+        'md:relative md:w-56 md:shrink-0 md:translate-x-0',
+        mobileNav ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      ].join(' ')}>
+        <div className="px-5 pt-6 pb-5 flex items-center justify-between">
           <Brand size={28} />
+          <button
+            className="md:hidden p-1 rounded text-ink-500 hover:text-white transition"
+            onClick={() => setMobileNav(false)}
+          >
+            <X size={16} />
+          </button>
         </div>
 
         {/* Project mode: back link + project sections */}
@@ -158,8 +182,14 @@ export default function Layout() {
       {/* Main */}
       <div className="relative flex-1 flex flex-col min-w-0 z-10">
         {/* Top-bar */}
-        <header className="sticky top-0 z-20 backdrop-blur-xl bg-ink-950/70 border-b border-white/5 px-8 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm">
+        <header className="sticky top-0 z-20 backdrop-blur-xl bg-ink-950/70 border-b border-white/5 px-4 md:px-8 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-3 text-sm">
+            <button
+              className="md:hidden p-1.5 rounded-md text-ink-400 hover:text-white hover:bg-white/5 transition"
+              onClick={() => setMobileNav(v => !v)}
+            >
+              <Menu size={16} />
+            </button>
             {inProject ? (
               <>
                 <span className="text-ink-500 text-xs capitalize">{slug}</span>
@@ -180,7 +210,7 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="flex-1 px-8 py-8 w-full" key={loc.pathname + currentSection}>
+        <main className="flex-1 px-4 md:px-8 py-6 md:py-8 w-full" key={loc.pathname + currentSection}>
           <div className="animate-fade-up">
             <Outlet />
           </div>

@@ -184,7 +184,7 @@ function SectionPipeline({ data }: { data: DashboardData }) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {convRates.map(({ label, value, icon: Icon }) => (
           <div key={label} className="card-premium p-5 text-center">
             <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center mx-auto mb-3">
@@ -260,7 +260,7 @@ function SectionKunden({ data }: { data: DashboardData }) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { label: 'Gesamt', value: total, icon: Users },
           { label: 'Aktiv',  value: active, icon: CheckCircle2 },
@@ -314,7 +314,7 @@ function SectionContent({ data }: { data: DashboardData }) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {stats.map(({ label, value, icon: Icon }) => (
           <div key={label} className="card-premium p-5 text-center">
             <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center mx-auto mb-3">

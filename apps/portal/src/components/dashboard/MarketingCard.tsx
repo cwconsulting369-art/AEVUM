@@ -28,7 +28,7 @@ export default function MarketingCard({ marketing }: Props) {
           </div>
         </div>
       ) : (
-        <dl className="grid grid-cols-3 gap-3">
+        <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Cell label="Cold Calls" value={marketing.cold_calls_week} />
           <Cell label="LinkedIn-Posts" value={marketing.linkedin_posts_week} />
           <Cell label="Lead-Magnet-DL" value={marketing.lead_magnet_downloads_week} />
