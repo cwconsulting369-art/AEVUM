@@ -9,7 +9,15 @@
     {
       "slug": "collaglow",
       "label": "CollaGlow",
-      "description": "DTC E-Commerce CollaGlow — Ads, Revenue, Growth"
+      "description": "DTC E-Commerce CollaGlow — Ads, Revenue, Growth",
+      "sections": [
+        { "slug": "overview",     "label": "📊 Übersicht" },
+        { "slug": "ads",          "label": "📱 Ads" },
+        { "slug": "spend",        "label": "💸 Spend" },
+        { "slug": "email",        "label": "📧 E-Mail" },
+        { "slug": "shop",         "label": "🛍️ Shop" },
+        { "slug": "intelligence", "label": "🧠 Intelligence" }
+      ]
     }
   ]
 }

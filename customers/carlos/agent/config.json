@@ -9,7 +9,14 @@
     {
       "slug": "aevum",
       "label": "AEVUM",
-      "description": "AEVUM Productized Agency — Cashflow, Pipeline, Execution"
+      "description": "AEVUM Productized Agency — Cashflow, Pipeline, Execution",
+      "sections": [
+        { "slug": "overview",  "label": "📊 Übersicht" },
+        { "slug": "pipeline",  "label": "🔥 Pipeline" },
+        { "slug": "revenue",   "label": "💰 Revenue" },
+        { "slug": "kunden",    "label": "👥 Kunden" },
+        { "slug": "content",   "label": "📣 Content" }
+      ]
     }
   ]
 }

@@ -58,18 +58,20 @@ fs.mkdirSync(CHATS_DIR, { recursive: true });
 
 // ── State ────────────────────────────────────────────────────────────────────
 
-let state = { lastUpdateId: 0, activeProject: {} };
+let state = { lastUpdateId: 0, activeProject: {}, activeSection: {} };
 try { state = { ...state, ...JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')) }; } catch {}
 const saveState = () => fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
 
 // ── Knowledge Loader ─────────────────────────────────────────────────────────
 
-function loadPersona(projectSlug) {
+function loadPersona(projectSlug, sectionSlug) {
   const parts = [];
   const proj = config.projects?.find(p => p.slug === projectSlug);
+  const section = sectionSlug ? proj?.sections?.find(s => s.slug === sectionSlug) : null;
 
   parts.push(`Du bist der AEVUM Business Agent für ${BOT_NAME}.
 Aktives Projekt: ${proj?.label || projectSlug}${proj?.description ? ` — ${proj.description}` : ''}.
+${section ? `Aktiver Bereich: ${section.label.replace(/^\S+\s/, '')} — beantworte Fragen mit Fokus auf diesen Bereich.` : ''}
 Stil: direkt, datengetrieben, brutal ehrlich. Kein Bullshit, keine Sycophantie.
 Sprache: Deutsch. Fokus auf Cashflow, Pipeline, Execution.`);
 
@@ -165,6 +167,21 @@ function buildProjectMenu() {
   return { inline_keyboard: rows };
 }
 
+function buildSectionMenu(projectSlug) {
+  const proj = config.projects?.find(p => p.slug === projectSlug);
+  if (!proj?.sections?.length) return undefined;
+  const rows = [];
+  for (let i = 0; i < proj.sections.length; i += 2) {
+    const row = [{ text: proj.sections[i].label, callback_data: `sec:${projectSlug}:${proj.sections[i].slug}` }];
+    if (proj.sections[i + 1]) row.push({ text: proj.sections[i + 1].label, callback_data: `sec:${projectSlug}:${proj.sections[i + 1].slug}` });
+    rows.push(row);
+  }
+  const bottom = [{ text: '🔄 Reset', callback_data: 'cmd:reset' }];
+  if (config.projects?.length > 1) bottom.unshift({ text: '◀ Projekte', callback_data: 'cmd:menu' });
+  rows.push(bottom);
+  return { inline_keyboard: rows };
+}
+
 function getActiveProject(chat_id) {
   return config.projects?.find(p => p.slug === (state.activeProject[chat_id] || DEFAULT_PROJECT))
     || config.projects?.[0]
@@ -178,8 +195,9 @@ async function llm(chat_id, userText, projectSlug) {
   const history = loadHistory(chat_id, projectSlug);
   history.push({ role: 'user', content: userText });
 
+  const activeSection = state.activeSection?.[chat_id]?.[projectSlug];
   const now = new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' });
-  const systemPrompt = `NOW: ${now} (Europe/Berlin)\n\n` + loadPersona(projectSlug);
+  const systemPrompt = `NOW: ${now} (Europe/Berlin)\n\n` + loadPersona(projectSlug, activeSection);
 
   const body = JSON.stringify({
     model: OR_MODEL,
@@ -243,6 +261,13 @@ async function handleCommand(cmd, chat_id) {
   const activeProj = getActiveProject(chat_id);
 
   if (cmd === '/start' || cmd === '/menu') {
+    const sectionMenu = buildSectionMenu(activeProj.slug);
+    if (sectionMenu) {
+      return send(chat_id,
+        `🏛 *AEVUM Agent — ${BOT_NAME}*\nProjekt: *${activeProj.label}*\n\nWähle einen Bereich:`,
+        { reply_markup: sectionMenu }
+      );
+    }
     const menu = buildProjectMenu();
     const projList = config.projects?.map(p => `• ${p.label}`).join('\n') || '';
     return send(chat_id,
@@ -278,7 +303,35 @@ async function handleCallback(callbackQuery) {
     if (!proj) return;
     state.activeProject[chat_id] = slug;
     saveState();
+    const sectionMenu = buildSectionMenu(slug);
+    if (sectionMenu) {
+      return send(chat_id, `📂 *${proj.label}* aktiv.\n\nWähle einen Bereich:`, { reply_markup: sectionMenu });
+    }
     return send(chat_id, `📂 *${proj.label}* aktiv.\n\n${proj.description || 'Stell mir eine Frage.'}`);
+  }
+
+  if (data.startsWith('sec:')) {
+    const parts = data.split(':');
+    const projectSlug = parts[1];
+    const sectionSlug = parts[2];
+    const proj = config.projects?.find(p => p.slug === projectSlug);
+    const section = proj?.sections?.find(s => s.slug === sectionSlug);
+    if (!proj || !section) return;
+    if (!state.activeSection) state.activeSection = {};
+    if (!state.activeSection[chat_id]) state.activeSection[chat_id] = {};
+    state.activeSection[chat_id][projectSlug] = sectionSlug;
+    state.activeProject[chat_id] = projectSlug;
+    saveState();
+    const sectionMenu = buildSectionMenu(projectSlug);
+    return send(chat_id,
+      `${section.label} aktiv.\n\nStell mir eine Frage zu *${section.label.replace(/^\S+\s/, '')}*:`,
+      sectionMenu ? { reply_markup: sectionMenu } : {}
+    );
+  }
+
+  if (data === 'cmd:menu') {
+    const menu = buildProjectMenu();
+    return send(chat_id, `Welches Projekt?`, menu ? { reply_markup: menu } : {});
   }
 
   if (data === 'cmd:reset') {
