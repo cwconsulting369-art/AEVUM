@@ -2,7 +2,9 @@
 // Part of: AEVUM Customer Stack / Ketolabs / CollaGlow
 // Pattern: AEVUM Client Bot Template v1
 
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config({ path: '/home/carlos/.envs/_shared.env' });
+dotenv.config({ path: '/home/carlos/.envs/ketolabs.env', override: true });
 import https from 'https';
 import http from 'http';
 import fs from 'fs';
