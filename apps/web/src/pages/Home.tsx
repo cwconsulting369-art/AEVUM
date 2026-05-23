@@ -755,22 +755,10 @@ function PricingSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const models = [
-    {
-      label: 'Modell A',
-      name: 'Setup + Standard-Retainer',
-      desc: 'Standard-Weg fuer Kunden mit Budget. Volles Setup, monatlicher Retainer fuer laufende Optimierung.',
-    },
-    {
-      label: 'Modell B',
-      name: 'Reduced-Setup + Hoeherer Retainer',
-      desc: 'Cashflow-freundlich. Geringere Setup-Kosten dafuer etwas hoeherer monatlicher Retainer.',
-    },
-    {
-      label: 'Modell C',
-      name: 'Minimal-Setup + Retainer + Revenue-Share',
-      desc: 'Fuer Wachstums-Cases mit low budget. Wir teilen das Risiko und den Erfolg.',
-    },
+  const trustSignals = [
+    { icon: Lock, text: 'Kein Lock-in' },
+    { icon: ShieldCheck, text: '14 Tage Ergebnis-Garantie' },
+    { icon: Globe, text: 'EU-Hosting' },
   ];
 
   return (
@@ -786,46 +774,77 @@ function PricingSection() {
             Investment
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
-            Jedes Setup wird individuell kalkuliert
+            Kein Standard-Paket. Kein Preisschild.
           </h2>
           <p className="text-[#a4a4ad] text-lg max-w-2xl leading-relaxed">
-            Setup-Fee + Retainer + optional Revenue-Share. Abhaengig von
-            Komplexitaet, Datenlage, Zielbild und Wachstumspotenzial.
+            Dein System ist individuell — dein Angebot auch.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {models.map((m, i) => (
-            <motion.div
-              key={m.label}
-              custom={i}
-              variants={fadeUp}
-              initial="hidden"
-              animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#08080a] p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
-            >
-              <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-3 block">
-                {m.label}
-              </span>
-              <h3 className="text-lg font-medium mb-4">{m.name}</h3>
-              <p className="text-sm text-[#a4a4ad] leading-relaxed">{m.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          className="text-center"
+          custom={0}
+          variants={fadeUp}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          className="bg-[#08080a] border border-white/10 p-10 lg:p-14 mb-10 max-w-3xl"
         >
+          <p className="text-base md:text-lg text-[#a4a4ad] leading-relaxed mb-8">
+            Nach dem kostenlosen Audit analysieren wir gemeinsam:
+          </p>
+          <ul className="space-y-4 mb-10">
+            {[
+              'Was du brauchst (und was du nicht brauchst)',
+              'Was das realistisch kostet',
+              'Wann du den ROI siehst',
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-3 text-[#F9FAFB]">
+                <ArrowRight size={16} className="text-[#e0a458] shrink-0 mt-1" />
+                <span className="text-base leading-relaxed">{item}</span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="border-t border-white/10 pt-8 mb-10 space-y-3">
+            <p className="text-sm text-[#7a7a85] font-mono uppercase tracking-[0.08em] mb-4">
+              Typischer Rahmen
+            </p>
+            <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8">
+              <span className="text-[#a4a4ad] text-sm w-48 shrink-0">Setup einmalig</span>
+              <span className="text-xl md:text-2xl font-light text-gradient">
+                € 2.500 – 8.000
+              </span>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8">
+              <span className="text-[#a4a4ad] text-sm w-48 shrink-0">Monatliche Begleitung</span>
+              <span className="text-xl md:text-2xl font-light text-gradient">
+                € 700 – 2.500 / Monat
+              </span>
+            </div>
+          </div>
+
           <a
             href="#/audit"
             className="btn-primary inline-flex items-center gap-2"
           >
-            Im kostenlosen Audit-Call klaeren wir das passende Modell <ArrowRight size={18} />
+            Audit buchen — kostenlos & unverbindlich <ArrowRight size={18} />
           </a>
         </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl">
+          {trustSignals.map((t, i) => (
+            <motion.div
+              key={t.text}
+              custom={i + 1}
+              variants={fadeUp}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+              className="flex items-center gap-3 bg-[#08080a] border border-white/10 px-5 py-4"
+            >
+              <t.icon size={16} className="text-[#e0a458] shrink-0" />
+              <span className="text-sm text-[#a4a4ad]">{t.text}</span>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
