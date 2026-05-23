@@ -206,11 +206,11 @@ function HeroSection() {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light tracking-tight leading-[1.1] mb-6"
         >
-          <span className="text-gradient font-medium">AEVUM</span> entwickelt
+          Wir bauen das KI-System,
           <span className="block mt-2 text-gradient font-medium">
-            individuelle KI-Betriebssysteme
+            das dein Unternehmen in 90 Tagen
           </span>
-          fuer Unternehmen
+          <span className="block mt-1">unabhaengig macht.</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -218,8 +218,8 @@ function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           className="text-base md:text-lg text-[#a4a4ad] max-w-2xl mx-auto mb-8 leading-relaxed"
         >
-          Fuer Agenturen, die skalieren. Personal Brands, die professionalisieren.
-          Mittelstaendler, die KI wirklich zum Laufen bringen.
+          Fuer Unternehmer, die KI richtig einsetzen wollen — nicht einfach nur ausprobieren.
+          Weniger manuelle Arbeit. Mehr Output. Klare Ergebnisse.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -229,7 +229,7 @@ function HeroSection() {
         >
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full max-w-lg">
             <a href="#/audit" className="btn-primary flex items-center justify-center gap-2 sm:flex-1">
-              Audit starten
+              Kostenlosen Audit buchen
             </a>
             <a href="#/method" className="btn-secondary flex items-center justify-center gap-2 sm:flex-1">
               Wie wir arbeiten
@@ -257,7 +257,7 @@ function HeroSection() {
           <span className="hidden sm:inline">·</span>
           <span>Mittelstand</span>
           <span className="hidden sm:inline">|</span>
-          <span>DSGVO</span>
+          <span>DSGVO-konform</span>
         </motion.div>
       </div>
 
@@ -370,7 +370,7 @@ function ThesisSection() {
                       href="#/audit"
                       className="btn-primary inline-flex items-center gap-2 mt-6"
                     >
-                      Audit starten <ArrowRight size={18} />
+                      Kostenlosen Audit buchen <ArrowRight size={18} />
                     </a>
                   )}
                 </div>
@@ -553,27 +553,33 @@ function ModulesSection() {
   );
 }
 
-/* ──────────────────────── Section 5: Was du bekommst ──────────────────────── */
+/* ──────────────────────── Section 5: Services ──────────────────────── */
 
-function WhatYouGetSection() {
+function ServicesSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const items = [
+  const services = [
     {
-      icon: LayoutDashboard,
-      title: 'AEVUM-OS Dashboard',
-      desc: 'Dein zentrales Kommandozentrum. KPIs, Workflows, Reports — alles an einem Ort.',
+      icon: Zap,
+      tag: 'Fuer Agenturen + Personal Brands',
+      title: 'Content- & Workflow-Automatisierung',
+      desc: 'Wir automatisieren deine Content-Produktion, Briefing-Prozesse und internen Workflows — von der Idee bis zum Publishing. Dein Team arbeitet, ohne dass du jeden Schritt koordinieren musst.',
+      result: 'Typisches Ergebnis: 8-15 Stunden manuelle Arbeit pro Woche eliminiert.',
     },
     {
-      icon: Bot,
-      title: 'Personal Assistant Agent',
-      desc: 'Ein KI-Agent, der dein Business versteht. Verfuegbar via Chat, rund um die Uhr.',
+      icon: Target,
+      tag: 'Fuer alle drei Segmente',
+      title: 'Lead-Qualifizierung + CRM-Automatisierung',
+      desc: 'Kein Lead faellt mehr durchs Raster. Automatische Qualifizierung, CRM-Sync und Follow-up-Sequenzen — abgestimmt auf deinen Sales-Prozess.',
+      result: 'Typisches Ergebnis: Antwortzeit von Tagen auf Minuten, Abschlussrate steigt.',
     },
     {
-      icon: GitBranch,
-      title: 'Workflow-Orchestration',
-      desc: 'Automatisierte Prozesse, die Daten verbinden und manuelle Arbeit eliminieren.',
+      icon: BarChart3,
+      tag: 'Fuer ambitionierte Mittelstaendler',
+      title: 'KI-gestuetztes Reporting & Dashboard',
+      desc: 'Ein zentrales Echtzeit-Dashboard fuer alle relevanten KPIs. Kein Excel-Export mehr, keine verstreuten Datenquellen. Entscheidungen auf Basis echter Zahlen — nicht aus dem Bauchgefuehl.',
+      result: 'Typisches Ergebnis: Vollstaendige Datentransparenz, Reportingzeit halbiert.',
     },
   ];
 
@@ -587,29 +593,50 @@ function WhatYouGetSection() {
           className="mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
-            Lieferumfang
+            Leistungen
           </span>
-          <h2 className="text-3xl md:text-5xl font-light tracking-tight">
-            Was du bekommst
+          <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
+            Drei Systeme. Konkrete Ergebnisse.
           </h2>
+          <p className="text-[#a4a4ad] text-lg max-w-2xl leading-relaxed">
+            Kein generischer AI-Hype. Jedes System wird auf dein Unternehmen zugeschnitten
+            und liefert messbare Resultate.
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {items.map((item, i) => (
+          {services.map((s, i) => (
             <motion.div
-              key={item.title}
+              key={s.title}
               custom={i}
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#08080a] p-8 lg:p-10 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
+              className="bg-[#08080a] p-8 lg:p-10 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1 flex flex-col"
             >
-              <item.icon size={32} className="text-[#e0a458] mb-6" />
-              <h3 className="text-xl font-medium mb-4">{item.title}</h3>
-              <p className="text-sm text-[#a4a4ad] leading-relaxed">{item.desc}</p>
+              <s.icon size={32} className="text-[#e0a458] mb-6" />
+              <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-[#7a7a85] mb-3 block">
+                {s.tag}
+              </span>
+              <h3 className="text-xl font-medium mb-4">{s.title}</h3>
+              <p className="text-sm text-[#a4a4ad] leading-relaxed mb-6 flex-1">{s.desc}</p>
+              <div className="border-t border-white/10 pt-4">
+                <p className="text-sm text-[#e0a458] font-mono">{s.result}</p>
+              </div>
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className="mt-10 text-center"
+        >
+          <a href="#/audit" className="btn-primary inline-flex items-center gap-2">
+            Kostenlosen Audit buchen <ArrowRight size={18} />
+          </a>
+        </motion.div>
       </div>
     </section>
   );
@@ -796,7 +823,7 @@ function PricingSection() {
             href="#/audit"
             className="btn-primary inline-flex items-center gap-2"
           >
-            Im Audit-Call klaeren wir das passende Modell <ArrowRight size={18} />
+            Im kostenlosen Audit-Call klaeren wir das passende Modell <ArrowRight size={18} />
           </a>
         </motion.div>
       </div>
@@ -989,7 +1016,7 @@ function FinalCTASection() {
             href="#/audit"
             className="btn-primary flex items-center gap-2"
           >
-            Audit starten <ArrowRight size={18} />
+            Kostenlosen Audit buchen <ArrowRight size={18} />
           </a>
           <a
             href={CONTACT.calendly}
@@ -1019,7 +1046,7 @@ export default function Home() {
       <ThesisSection />
       <PillarsSection />
       <ModulesSection />
-      <WhatYouGetSection />
+      <ServicesSection />
       <CasesSection />
       <PricingSection />
       <TrustSection />
