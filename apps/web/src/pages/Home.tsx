@@ -218,8 +218,8 @@ function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           className="text-base md:text-lg text-[#a4a4ad] max-w-2xl mx-auto mb-8 leading-relaxed"
         >
-          Mit klarer Analyse, passendem Setup, laufender Optimierung und einer
-          Deal-Struktur, die zum Wachstum des Kunden passt.
+          Fuer Agenturen, die skalieren. Personal Brands, die professionalisieren.
+          Mittelstaendler, die KI wirklich zum Laufen bringen.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -251,11 +251,13 @@ function HeroSection() {
           transition={{ duration: 0.8, delay: 0.7 }}
           className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-[#7a7a85] font-mono mt-6"
         >
-          <span>Deutsch</span>
+          <span>Agenturen</span>
+          <span className="hidden sm:inline">·</span>
+          <span>Personal Brands</span>
+          <span className="hidden sm:inline">·</span>
+          <span>Mittelstand</span>
           <span className="hidden sm:inline">|</span>
           <span>DSGVO</span>
-          <span className="hidden sm:inline">|</span>
-          <span>Massgeschneidert</span>
         </motion.div>
       </div>
 
@@ -636,7 +638,7 @@ function CasesSection() {
       share_industry: true,
       share_kpi_deltas: true,
       kpi_delta: 'Lead-Setup live',
-      story: 'Immobilien-Lead-System mit CRM-Integration.',
+      story: 'Lead-System mit CRM-Integration fuer internationales Immobilien-Business.',
       share_logo: false,
       share_company_name: false,
     },
