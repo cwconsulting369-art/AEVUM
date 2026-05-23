@@ -167,19 +167,24 @@ function buildProjectMenu() {
   return { inline_keyboard: rows };
 }
 
-function buildSectionMenu(projectSlug) {
+function buildReplyKeyboard(projectSlug) {
   const proj = config.projects?.find(p => p.slug === projectSlug);
   if (!proj?.sections?.length) return undefined;
   const rows = [];
   for (let i = 0; i < proj.sections.length; i += 2) {
-    const row = [{ text: proj.sections[i].label, callback_data: `sec:${projectSlug}:${proj.sections[i].slug}` }];
-    if (proj.sections[i + 1]) row.push({ text: proj.sections[i + 1].label, callback_data: `sec:${projectSlug}:${proj.sections[i + 1].slug}` });
+    const row = [{ text: proj.sections[i].label }];
+    if (proj.sections[i + 1]) row.push({ text: proj.sections[i + 1].label });
     rows.push(row);
   }
-  const bottom = [{ text: '🔄 Reset', callback_data: 'cmd:reset' }];
-  if (config.projects?.length > 1) bottom.unshift({ text: '◀ Projekte', callback_data: 'cmd:menu' });
+  const bottom = [{ text: '🔄 Reset' }, { text: '📊 Status' }];
+  if (config.projects?.length > 1) rows.push([{ text: '◀ Projekte' }]);
   rows.push(bottom);
-  return { inline_keyboard: rows };
+  return { keyboard: rows, resize_keyboard: true, is_persistent: true };
+}
+
+function sectionByLabel(projectSlug, label) {
+  const proj = config.projects?.find(p => p.slug === projectSlug);
+  return proj?.sections?.find(s => s.label === label) || null;
 }
 
 function getActiveProject(chat_id) {
@@ -262,11 +267,11 @@ async function handleCommand(cmd, chat_id) {
   const activeProj = getActiveProject(chat_id);
 
   if (cmd === '/start' || cmd === '/menu') {
-    const sectionMenu = buildSectionMenu(activeProj.slug);
-    if (sectionMenu) {
+    const kb = buildReplyKeyboard(activeProj.slug);
+    if (kb) {
       return send(chat_id,
         `🏛 *AEVUM Agent — ${BOT_NAME}*\nProjekt: *${activeProj.label}*\n\nWähle einen Bereich:`,
-        { reply_markup: sectionMenu }
+        { reply_markup: kb }
       );
     }
     const menu = buildProjectMenu();
@@ -304,35 +309,11 @@ async function handleCallback(callbackQuery) {
     if (!proj) return;
     state.activeProject[chat_id] = slug;
     saveState();
-    const sectionMenu = buildSectionMenu(slug);
-    if (sectionMenu) {
-      return send(chat_id, `📂 *${proj.label}* aktiv.\n\nWähle einen Bereich:`, { reply_markup: sectionMenu });
-    }
-    return send(chat_id, `📂 *${proj.label}* aktiv.\n\n${proj.description || 'Stell mir eine Frage.'}`);
-  }
-
-  if (data.startsWith('sec:')) {
-    const parts = data.split(':');
-    const projectSlug = parts[1];
-    const sectionSlug = parts[2];
-    const proj = config.projects?.find(p => p.slug === projectSlug);
-    const section = proj?.sections?.find(s => s.slug === sectionSlug);
-    if (!proj || !section) return;
-    if (!state.activeSection) state.activeSection = {};
-    if (!state.activeSection[chat_id]) state.activeSection[chat_id] = {};
-    state.activeSection[chat_id][projectSlug] = sectionSlug;
-    state.activeProject[chat_id] = projectSlug;
-    saveState();
-    const sectionMenu = buildSectionMenu(projectSlug);
+    const kb = buildReplyKeyboard(slug);
     return send(chat_id,
-      `${section.label} aktiv.\n\nStell mir eine Frage zu *${section.label.replace(/^\S+\s/, '')}*:`,
-      sectionMenu ? { reply_markup: sectionMenu } : {}
+      `📂 *${proj.label}* aktiv.\n\nWähle einen Bereich:`,
+      kb ? { reply_markup: kb } : {}
     );
-  }
-
-  if (data === 'cmd:menu') {
-    const menu = buildProjectMenu();
-    return send(chat_id, `Welches Projekt?`, menu ? { reply_markup: menu } : {});
   }
 
   if (data === 'cmd:reset') {
@@ -376,14 +357,35 @@ async function poll() {
     }
 
     const text = msg.text.trim();
+    const activeProj = getActiveProject(chat_id);
+
     if (text.startsWith('/')) {
       await handleCommand(text.split(' ')[0], chat_id).catch(e => console.error('[cmd]', e.message));
-    } else {
-      const activeProj = getActiveProject(chat_id);
-      const editReply  = await thinkingPlaceholder(chat_id, activeProj.label);
-      const reply      = await llm(chat_id, text, activeProj.slug);
-      await editReply(reply);
+      continue;
     }
+
+    // Reply-Keyboard button intercepts
+    if (text === '🔄 Reset') { await handleCommand('/reset', chat_id); continue; }
+    if (text === '📊 Status') { await handleCommand('/status', chat_id); continue; }
+    if (text === '◀ Projekte') {
+      const menu = buildProjectMenu();
+      await send(chat_id, `Welches Projekt?`, menu ? { reply_markup: menu } : {});
+      continue;
+    }
+
+    const matchedSection = sectionByLabel(activeProj.slug, text);
+    if (matchedSection) {
+      if (!state.activeSection) state.activeSection = {};
+      if (!state.activeSection[chat_id]) state.activeSection[chat_id] = {};
+      state.activeSection[chat_id][activeProj.slug] = matchedSection.slug;
+      saveState();
+      await send(chat_id, `${matchedSection.label} aktiv — stell mir eine Frage:`);
+      continue;
+    }
+
+    const editReply = await thinkingPlaceholder(chat_id, activeProj.label);
+    const reply     = await llm(chat_id, text, activeProj.slug);
+    await editReply(reply);
   }
 
   saveState();
