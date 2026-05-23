@@ -62,6 +62,73 @@ function fetchSectionData(projectSlug, sectionSlug) {
   });
 }
 
+// ── TG Access Check + Request ────────────────────────────────────────────────
+
+function checkTgAccess(telegramId) {
+  return new Promise(resolve => {
+    http.get({
+      hostname: 'localhost', port: 3210,
+      path: `/bot/tg-access?telegram_id=${telegramId}`,
+      headers: { 'x-aevum-admin-token': ADMIN_TOKEN }
+    }, res => {
+      let d = '';
+      res.on('data', c => d += c);
+      res.on('end', () => { try { resolve(JSON.parse(d)); } catch { resolve(null); } });
+    }).on('error', () => resolve(null));
+  });
+}
+
+function requestTgAccess(telegramId, username, name) {
+  if (!ADMIN_TOKEN) return Promise.resolve(null);
+  const body = JSON.stringify({ telegram_id: telegramId, telegram_username: username || null, telegram_name: name || null });
+  return new Promise(resolve => {
+    const req = http.request({
+      hostname: 'localhost', port: 3210, path: '/bot/request-access', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body), 'x-aevum-admin-token': ADMIN_TOKEN }
+    }, res => {
+      let d = '';
+      res.on('data', c => d += c);
+      res.on('end', () => { try { resolve(JSON.parse(d)); } catch { resolve(null); } });
+    });
+    req.on('error', () => resolve(null));
+    req.write(body); req.end();
+  });
+}
+
+function grantTgAccess(telegramId, accountSlug) {
+  if (!ADMIN_TOKEN) return Promise.resolve(null);
+  const body = JSON.stringify({ telegram_id: telegramId, account_slug: accountSlug });
+  return new Promise(resolve => {
+    const req = http.request({
+      hostname: 'localhost', port: 3210, path: '/bot/grant-access', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body), 'x-aevum-admin-token': ADMIN_TOKEN }
+    }, res => {
+      let d = '';
+      res.on('data', c => d += c);
+      res.on('end', () => { try { resolve(JSON.parse(d)); } catch { resolve(null); } });
+    });
+    req.on('error', () => resolve(null));
+    req.write(body); req.end();
+  });
+}
+
+function fetchDashboardLinkForSlug(customerSlug) {
+  if (!ADMIN_TOKEN) return Promise.resolve(null);
+  const body = JSON.stringify({ customerSlug });
+  return new Promise(resolve => {
+    const req = http.request({
+      hostname: 'localhost', port: 3210, path: '/bot/magic-link', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body), 'x-aevum-admin-token': ADMIN_TOKEN }
+    }, res => {
+      let d = '';
+      res.on('data', c => d += c);
+      res.on('end', () => { try { resolve(JSON.parse(d)); } catch { resolve(null); } });
+    });
+    req.on('error', () => resolve(null));
+    req.write(body); req.end();
+  });
+}
+
 // ── Dashboard Magic-Link Fetch ───────────────────────────────────────────────
 
 function fetchDashboardLink() {
@@ -329,27 +396,55 @@ http.createServer(async (req, res) => {
 
 // ── Command Handler ───────────────────────────────────────────────────────────
 
-async function handleCommand(cmd, chat_id, fullText) {
+async function handleCommand(cmd, chat_id, fullText, msg) {
   const activeProj = getActiveProject(chat_id);
 
   if (cmd === '/start') {
     const payload = fullText ? fullText.split(' ')[1] : undefined;
 
     if (payload === 'login' || payload === 'dashboard') {
-      // Deep-link from portal login page → sofort Magic-Link generieren
-      const editReply = await thinkingPlaceholder(chat_id, 'Dashboard');
-      const result = await fetchDashboardLink();
-      if (result?.ok && result.url) {
-        await editReply(
-          `🖥 *Dein Dashboard-Zugang*\n\n_15 Minuten gültig, einmalig._`,
-          { reply_markup: { inline_keyboard: [[{ text: '🚀 Dashboard öffnen', url: result.url }]] } }
-        );
-      } else {
-        await editReply('❌ Dashboard-Link konnte nicht generiert werden. Tippe auf 🖥 Dashboard im Menü.');
+      // Owner/admin → direkte Magic-Link-Generierung
+      if (OWNER_IDS.has(chat_id)) {
+        const editReply = await thinkingPlaceholder(chat_id, 'Dashboard');
+        const result = await fetchDashboardLink();
+        if (result?.ok && result.url) {
+          await editReply(
+            `🖥 *Dein Dashboard-Zugang*\n\n_15 Minuten gültig, einmalig._`,
+            { reply_markup: { inline_keyboard: [[{ text: '🚀 Dashboard öffnen', url: result.url }]] } }
+          );
+        } else {
+          await editReply('❌ Dashboard-Link konnte nicht generiert werden. Tippe auf 🖥 Dashboard im Menü.');
+        }
+        const kb = buildReplyKeyboard(activeProj.slug);
+        if (kb) await send(chat_id, `Willkommen zurück! Wähle einen Bereich:`, { reply_markup: kb });
+        return;
       }
-      // Keyboard danach anzeigen
-      const kb = buildReplyKeyboard(activeProj.slug);
-      if (kb) await send(chat_id, `Willkommen zurück! Wähle einen Bereich:`, { reply_markup: kb });
+
+      // Unbekannter User → TG Verification Gate
+      const access = await checkTgAccess(chat_id);
+      if (access?.has_access) {
+        // Freigeschalteter Kunde → Magic-Link für seinen Account
+        const editReply = await thinkingPlaceholder(chat_id, 'Dashboard');
+        const result = await fetchDashboardLinkForSlug(access.account_slug);
+        if (result?.ok && result.url) {
+          await editReply(
+            `🖥 *Dein Dashboard-Zugang*\n\nWillkommen, ${access.account_name || ''}!\n_30 Minuten gültig._`,
+            { reply_markup: { inline_keyboard: [[{ text: '🚀 Dashboard öffnen', url: result.url }]] } }
+          );
+        } else {
+          await editReply('❌ Dashboard-Link konnte nicht generiert werden. Bitte wende dich an deinen Ansprechpartner.');
+        }
+        return;
+      }
+      if (access?.status === 'pending') {
+        await send(chat_id, '⏳ Dein Zugangsantrag wird bearbeitet. Du erhältst eine Benachrichtigung sobald du freigeschaltet bist.');
+        return;
+      }
+      // Nicht bekannt → Antrag stellen
+      const from = msg?.from;
+      const name = [from?.first_name, from?.last_name].filter(Boolean).join(' ');
+      await requestTgAccess(chat_id, from?.username, name);
+      await send(chat_id, '🔔 Kein Zugang gefunden.\n\nDein Antrag wurde weitergeleitet. Du wirst benachrichtigt sobald dein Zugang freigeschaltet wurde.');
       return;
     }
 
@@ -382,6 +477,25 @@ async function handleCommand(cmd, chat_id, fullText) {
     const file = chatFile(chat_id, activeProj.slug);
     try { fs.writeFileSync(file, JSON.stringify({ messages: [], expiresAt: '' })); } catch {}
     return send(chat_id, `🔄 Chat-History für *${activeProj.label}* gelöscht.`);
+  }
+
+  // /grant TG_ID ACCOUNT_SLUG — Admin-only: Zugang für neuen Kunden freischalten
+  if (cmd === '/grant' && ADMIN_IDS.has(chat_id)) {
+    const parts = fullText.trim().split(/\s+/);
+    if (parts.length < 3) {
+      return send(chat_id, '❌ Usage: `/grant <telegram_id> <account_slug>`\nBeispiel: `/grant 123456789 vogt-hv`', { parse_mode: 'Markdown' });
+    }
+    const tgId = parseInt(parts[1]);
+    const slug = parts[2];
+    if (!tgId || isNaN(tgId)) return send(chat_id, '❌ Ungültige Telegram ID.');
+    const editReply = await thinkingPlaceholder(chat_id, 'Zugang erteilen');
+    const result = await grantTgAccess(tgId, slug);
+    if (result?.ok) {
+      await editReply(`✅ Zugang erteilt!\n\nAccount: *${result.account?.name || slug}*\nTelegram ID: \`${tgId}\`\n\nDer Nutzer wurde benachrichtigt und erhält automatisch seinen Dashboard-Link.`, { parse_mode: 'Markdown' });
+    } else {
+      await editReply(`❌ Fehler: ${result?.error || 'Unbekannt'}. Account-Slug korrekt?`);
+    }
+    return;
   }
 }
 
@@ -442,8 +556,14 @@ async function poll() {
     if (!msg?.text) continue;
 
     const chat_id = msg.chat.id;
+    // Unknown users: only allow /start login (verification gate), block everything else
     if (!OWNER_IDS.has(chat_id)) {
-      await send(chat_id, '⛔ Privater Bot.');
+      const txt = msg.text?.trim() || '';
+      if (txt.startsWith('/start')) {
+        await handleCommand('/start', chat_id, txt, msg).catch(e => console.error('[cmd]', e.message));
+      } else {
+        await send(chat_id, '⛔ Privater Bot. Kein Zugang.');
+      }
       continue;
     }
 
