@@ -14,6 +14,7 @@ import ProjectDetail from './pages/ProjectDetail';
 import Datenschutz from './pages/Datenschutz';
 import Impressum from './pages/Impressum';
 import AGB from './pages/AGB';
+import Credits from './pages/Credits';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { me, loading } = useAuth();
@@ -47,6 +48,7 @@ export default function App() {
           <Route path="/permissions" element={<Permissions />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:slug" element={<ProjectDetail />} />
+          <Route path="/credits" element={<Credits />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/auth';
 import {
   LogOut, LayoutDashboard, User, ShieldCheck, FolderGit2,
   BarChart2, DollarSign, Mail, ShoppingBag, Globe, Bot,
-  KeyRound, TrendingUp, ChevronLeft, Users, Menu, X
+  KeyRound, TrendingUp, ChevronLeft, Users, Menu, X, Coins
 } from 'lucide-react';
 import { Link } from 'react-router';
 import Footer from './Footer';
@@ -14,6 +14,7 @@ import Brand from './Brand';
 const portalNav = [
   { to: '/dashboard',   label: 'Dashboard',   icon: LayoutDashboard },
   { to: '/projects',    label: 'Projekte',     icon: FolderGit2 },
+  { to: '/credits',     label: 'Credits',      icon: Coins },
   { to: '/profile',     label: 'Profil',       icon: User },
   { to: '/permissions', label: 'Freigaben',    icon: ShieldCheck },
 ];
@@ -63,7 +64,6 @@ export default function Layout() {
   const slug = projectMatch?.params.slug || projectMatchDeep?.params.slug;
   const [mobileNav, setMobileNav] = useState(false);
 
-  // Close mobile nav on route change
   useEffect(() => { setMobileNav(false); }, [loc.pathname, loc.search]);
 
   const inProject = !!slug;
@@ -74,8 +74,8 @@ export default function Layout() {
     : portalNav.find(n => loc.pathname.startsWith(n.to))?.label;
 
   return (
-    <div className="relative min-h-screen flex bg-ink-950 text-ink-100 overflow-hidden">
-      <div aria-hidden className="absolute inset-0 pointer-events-none bg-gold-radial opacity-50" />
+    <div className="min-h-screen bg-ink-950 text-ink-100">
+      <div aria-hidden className="fixed inset-0 pointer-events-none bg-gold-radial opacity-50 z-0" />
 
       {/* Mobile backdrop */}
       {mobileNav && (
@@ -85,11 +85,10 @@ export default function Layout() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar — fixed on all screen sizes */}
       <aside className={[
-        'flex flex-col bg-ink-900/80 backdrop-blur-xl border-r border-white/5',
-        'fixed inset-y-0 left-0 w-64 z-30 transition-transform duration-200',
-        'md:relative md:w-56 md:shrink-0 md:translate-x-0',
+        'fixed inset-y-0 left-0 flex flex-col bg-ink-900/80 backdrop-blur-xl border-r border-white/5 z-30',
+        'w-64 md:w-56 transition-transform duration-200',
         mobileNav ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       ].join(' ')}>
         <div className="px-5 pt-6 pb-5 flex items-center justify-between">
@@ -102,7 +101,7 @@ export default function Layout() {
           </button>
         </div>
 
-        {/* Project mode: back link + project sections */}
+        {/* Project mode */}
         {inProject && sections ? (
           <div className="flex-1 flex flex-col overflow-y-auto">
             <div className="px-3 mb-3">
@@ -119,7 +118,7 @@ export default function Layout() {
               <div className="text-sm font-semibold text-white capitalize">{slug}</div>
             </div>
 
-            <nav className="flex-1 px-3 space-y-0.5">
+            <nav className="flex-1 px-3 space-y-0.5 pb-4">
               {sections.map(({ s, label, icon: Icon, dividerBefore }, i) => {
                 const isActive = s === currentSection;
                 return (
@@ -144,7 +143,7 @@ export default function Layout() {
           </div>
         ) : (
           /* Generic portal nav */
-          <nav className="flex-1 px-3 space-y-0.5">
+          <nav className="flex-1 px-3 space-y-0.5 pb-4">
             {portalNav.map(({ to, label, icon: Icon }, i) => (
               <NavLink
                 key={to}
@@ -158,29 +157,10 @@ export default function Layout() {
             ))}
           </nav>
         )}
-
-        {/* User card */}
-        <div className="m-3 mb-4 rounded-xl border border-white/5 bg-white/[0.02] p-3">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gold-gradient flex items-center justify-center text-[0.7rem] font-bold text-ink-950 shadow-glow-gold shrink-0">
-              {initials(me?.account.name, me?.account.email)}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-xs font-medium text-white truncate">{me?.account.name || '—'}</div>
-              <div className="text-[0.6rem] text-ink-500 truncate">{me?.account.email}</div>
-            </div>
-          </div>
-          <button
-            onClick={logout}
-            className="mt-2.5 w-full flex items-center justify-center gap-2 text-[0.65rem] text-ink-400 hover:text-white py-1.5 rounded-md hover:bg-white/[0.04] transition"
-          >
-            <LogOut size={11} /> Abmelden
-          </button>
-        </div>
       </aside>
 
-      {/* Main */}
-      <div className="relative flex-1 flex flex-col min-w-0 z-10">
+      {/* Main — offset by sidebar width on desktop */}
+      <div className="relative md:ml-56 flex flex-col min-h-screen z-10">
         {/* Top-bar */}
         <header className="sticky top-0 z-20 backdrop-blur-xl bg-ink-950/70 border-b border-white/5 px-4 md:px-8 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3 text-sm">
@@ -210,12 +190,33 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="flex-1 px-4 md:px-8 py-6 md:py-8 w-full" key={loc.pathname + currentSection}>
+        <main className="flex-1 px-4 md:px-8 py-6 md:py-8 w-full pb-24" key={loc.pathname + currentSection}>
           <div className="animate-fade-up">
             <Outlet />
           </div>
         </main>
         <Footer />
+      </div>
+
+      {/* Floating user card — fixed bottom right */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3 border border-white/10 shadow-lg">
+          <div className="w-7 h-7 rounded-full bg-gold-gradient flex items-center justify-center text-[0.65rem] font-bold text-ink-950 shadow-glow-gold shrink-0">
+            {initials(me?.account.name, me?.account.email)}
+          </div>
+          <div className="min-w-0 hidden sm:block">
+            <div className="text-xs font-medium text-white truncate max-w-[120px]">
+              {me?.account.name || me?.account.email || '—'}
+            </div>
+          </div>
+          <button
+            onClick={logout}
+            className="p-1.5 text-ink-400 hover:text-rose-300 transition rounded-md hover:bg-white/5"
+            title="Abmelden"
+          >
+            <LogOut size={13} />
+          </button>
+        </div>
       </div>
     </div>
   );
