@@ -62,6 +62,33 @@ function fetchSectionData(projectSlug, sectionSlug) {
   });
 }
 
+// ── Dashboard Magic-Link Fetch ───────────────────────────────────────────────
+
+function fetchDashboardLink() {
+  if (!ADMIN_TOKEN) return Promise.resolve(null);
+  const body = JSON.stringify({ customerSlug: config.customerSlug });
+  return new Promise(resolve => {
+    const req = http.request({
+      hostname: 'localhost',
+      port: 3210,
+      path: '/bot/magic-link',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+        'x-aevum-admin-token': ADMIN_TOKEN
+      }
+    }, res => {
+      let d = '';
+      res.on('data', c => d += c);
+      res.on('end', () => { try { resolve(JSON.parse(d)); } catch { resolve(null); } });
+    });
+    req.on('error', () => resolve(null));
+    req.write(body);
+    req.end();
+  });
+}
+
 // ── Idle Mode ────────────────────────────────────────────────────────────────
 
 if (!TOKEN) {
@@ -169,13 +196,27 @@ function tg(method, params = {}) {
 
 const send = (chat_id, text, extra = {}) => tg('sendMessage', { chat_id, text, parse_mode: 'Markdown', ...extra });
 
+// Native typing-indicator. Returns stop()-fn — caller MUSS aufrufen wenn fertig.
+function startTyping(chat_id) {
+  tg('sendChatAction', { chat_id, action: 'typing' }).catch(() => {});
+  const interval = setInterval(() => {
+    tg('sendChatAction', { chat_id, action: 'typing' }).catch(() => {});
+  }, 4000);
+  return () => clearInterval(interval);
+}
+
 async function thinkingPlaceholder(chat_id, projectLabel) {
+  // Native typing zusätzlich aktivieren (Header: "Bot schreibt...")
+  const stopTyping = startTyping(chat_id);
   const msg = await tg('sendMessage', { chat_id, text: `💭 *${projectLabel || BOT_NAME}* denkt nach…`, parse_mode: 'Markdown' });
   const id = msg?.result?.message_id;
-  return async (text, extra = {}) => {
+  const editFn = async (text, extra = {}) => {
+    stopTyping();
     if (!id) return send(chat_id, text, extra);
     return tg('editMessageText', { chat_id, message_id: id, text, parse_mode: 'Markdown', ...extra });
   };
+  editFn.stop = stopTyping;
+  return editFn;
 }
 
 // ── Project Menu ──────────────────────────────────────────────────────────────
@@ -201,9 +242,8 @@ function buildReplyKeyboard(projectSlug) {
     if (proj.sections[i + 1]) row.push({ text: proj.sections[i + 1].label });
     rows.push(row);
   }
-  const bottom = [{ text: '🔄 Reset' }, { text: '📊 Status' }];
   if (config.projects?.length > 1) rows.push([{ text: '◀ Projekte' }]);
-  rows.push(bottom);
+  rows.push([{ text: '🖥 Dashboard' }, { text: '🔄 Reset' }, { text: '📊 Status' }]);
   return { keyboard: rows, resize_keyboard: true, is_persistent: true };
 }
 
@@ -396,6 +436,20 @@ async function poll() {
     if (text === '◀ Projekte') {
       const menu = buildProjectMenu();
       await send(chat_id, `Welches Projekt?`, menu ? { reply_markup: menu } : {});
+      continue;
+    }
+
+    if (text === '🖥 Dashboard') {
+      const editReply = await thinkingPlaceholder(chat_id, 'Dashboard');
+      const result = await fetchDashboardLink();
+      if (result?.ok && result.url) {
+        await editReply(
+          `🖥 *Dashboard-Zugang*\n\n_Einmaliger Link — 15 Min gültig._`,
+          { reply_markup: { inline_keyboard: [[{ text: '🚀 Dashboard öffnen', url: result.url }]] } }
+        );
+      } else {
+        await editReply('❌ Dashboard-Link konnte nicht generiert werden.');
+      }
       continue;
     }
 

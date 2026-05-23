@@ -8,6 +8,7 @@
 
 import { Router } from 'express';
 import { supabase } from '../lib/supabase.js';
+import { issueMagicLinkToken } from '../lib/crypto.js';
 
 export const botRouter = Router();
 
@@ -179,6 +180,32 @@ async function projectSection(customerSlug, projectSlug, sectionSlug) {
     raw: intel?.workflow_analysis ?? null
   };
 }
+
+// ── Magic-Link Generator (bot → portal login without email) ──────────────────
+
+botRouter.post('/magic-link', async (req, res) => {
+  const { customerSlug } = req.body || {};
+  if (!customerSlug) return res.status(400).json({ ok: false, error: 'missing_customerSlug' });
+
+  const accRes = await supabase.select('accounts', `select=id,slug,name,email,status&slug=eq.${customerSlug}`);
+  const account = accRes.data?.[0];
+  if (!account) return res.status(404).json({ ok: false, error: 'account_not_found' });
+  if (account.status === 'churned') return res.status(403).json({ ok: false, error: 'account_inactive' });
+  if (!account.email) return res.status(400).json({ ok: false, error: 'account_has_no_email' });
+
+  const token = issueMagicLinkToken({
+    account_id: account.id,
+    email: account.email,
+    purpose: 'login',
+    ttlSeconds: 60 * 15
+  });
+
+  const PORTAL_BASE = process.env.AEVUM_PORTAL_BASE_URL || 'https://app.aevum-system.de';
+  const url = `${PORTAL_BASE}/auth/verify?token=${encodeURIComponent(token)}`;
+
+  console.log(`[bot-magic-link] Generated for ${account.slug} (${account.name})`);
+  res.json({ ok: true, url, account: { name: account.name, slug: account.slug } });
+});
 
 // ── Main Route ────────────────────────────────────────────────────────────────
 

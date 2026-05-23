@@ -1,0 +1,21 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "yo"
+    },
+    {
+      "role": "assistant",
+      "content": "Yo. \n\nWann hast du zuletzt in die Pipeline geschaut? \n\nWie steht es mit:\n- **Audit-Anfragen diese Woche?**\n- **CollaGlow-KPIs?** (Umsatz, ROAS, Systeme live?)\n- **LinkedIn Content** — hast du was geplant oder sollen wir einen Plan machen?\n\nWas ist gerade Hot und was blockiert dich?"
+    },
+    {
+      "role": "user",
+      "content": "wie viele kunden ahben wir ?"
+    },
+    {
+      "role": "assistant",
+      "content": "**Aktiv zahlend: 1**\n\n- **Ketolabs (Tommy Beretta)** — Retainer Light €2.500-4.000/Mo, CollaGlow DTC E-Commerce\n\n**Du selbst**: Client_zero, AEVUM läuft als internes Referenz-System.\n\n---\n\n**Das ist deine Baseline.**\n\nDas bedeutet: \n- ~€2.500-4.000 MRR aus Ketolabs\n- Runway hängt von deinen Kosten ab\n- Du brauchst **mindestens 2-3 weitere Kunden im nächsten Monat**, um echte Traction zu haben\n\n**Fragen die zählen:**\n1. Wie viele Audit-Anfragen sind in Pipeline?\n2. Wie viele Menschen kennst du, die du in den nächsten 2 Wochen ansprechen könntest?\n3. Wie viel Zeit steckst du gerade in **aktiven Sales** statt nur Content?\n\nWo ist die Reibung? Content läuft, aber Conversion nicht? Oder hast du grad wenig Traffic?"
+    }
+  ],
+  "expiresAt": "2026-05-23T18:29:12.378Z"
+}

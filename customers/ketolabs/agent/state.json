@@ -1,0 +1,28 @@
+{
+  "lastUpdateId": 476619964,
+  "activeProject": {
+    "6436074677": "collaglow"
+  },
+  "activeSection": {
+    "6436074677": {
+      "collaglow": "shop"
+    }
+  },
+  "sectionData": {
+    "6436074677": {
+      "collaglow": {
+        "spend": null,
+        "email": null,
+        "intelligence": null,
+        "overview": {
+          "account": "Tommy Beretta",
+          "project": "CollaGlow",
+          "status": "active",
+          "apis": []
+        },
+        "ads": null,
+        "shop": null
+      }
+    }
+  }
+}

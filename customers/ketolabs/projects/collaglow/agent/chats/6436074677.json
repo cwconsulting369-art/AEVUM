@@ -1,0 +1,13 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "hey"
+    },
+    {
+      "role": "assistant",
+      "content": "Yo Tommy 👋\n\nWas ist los? Gib mir Bescheid, was du brauchst:\n\n- **Performance-Check?** (ROAS, CPC, CPM, CVR — was brennt?)\n- **Creative-Analyse?** (Welche Ads laufen, welche floppen?)\n- **Offer/Funnel-Review?** (AOV, LTV, Retention?)\n- **Kampagnen-Status?** (Was läuft gerade auf Meta/Google/TikTok?)\n- **Daten-Deep-Dive?** (Klaviyo, Juicy, Tracking — was willst du sehen?)\n\nOder was ganz anderes?\n\nSpit it out. 📊"
+    }
+  ],
+  "expiresAt": "2026-05-23T16:29:22.959Z"
+}
