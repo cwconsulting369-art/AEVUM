@@ -277,6 +277,57 @@ meRouter.post('/projects/:slug/apis', async (req, res) => {
   }
 });
 
+// ────────────────────────────────────────────────────────────
+// GET /api/me/projects/:slug/dashboard
+// Returns live KPIs from stored project_apis keys (or mock if no keys yet)
+// ────────────────────────────────────────────────────────────
+meRouter.get('/projects/:slug/dashboard', async (req, res) => {
+  const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug);
+  if (!project) return res.status(404).json({ ok: false, error: 'project_not_found' });
+
+  const apisRes = await supabase.select('project_apis',
+    `select=service,health,last_used_at&project_id=eq.${project.id}`);
+  const apis = apisRes.data ?? [];
+  const connected = (svc) => apis.some(a => a.service === svc);
+
+  const intelligenceRes = await supabase.select('project_intelligence',
+    `select=*&project_id=eq.${project.id}&order=created_at.desc&limit=1`);
+  const intelligence = intelligenceRes.data?.[0] ?? null;
+
+  // KPI-Strip: live wenn keys vorhanden, sonst placeholder
+  const kpis = [
+    { id: 'roas',     label: 'ROAS Meta',    value: connected('meta_ads')    ? null : '—', unit: 'x',   trend: null, source: 'meta_ads',    live: connected('meta_ads') },
+    { id: 'cpa',      label: 'CPA Meta',     value: connected('meta_ads')    ? null : '—', unit: '€',   trend: null, source: 'meta_ads',    live: connected('meta_ads') },
+    { id: 'aov',      label: 'AOV Shopify',  value: connected('shopify')     ? null : '—', unit: '€',   trend: null, source: 'shopify',     live: connected('shopify') },
+    { id: 'revenue',  label: 'Revenue',      value: connected('shopify')     ? null : '—', unit: '€',   trend: null, source: 'shopify',     live: connected('shopify') },
+    { id: 'open_rate',label: 'Email Open%',  value: connected('klaviyo')     ? null : '—', unit: '%',   trend: null, source: 'klaviyo',     live: connected('klaviyo') },
+    { id: 'g_roas',   label: 'ROAS Google',  value: connected('google_ads')  ? null : '—', unit: 'x',   trend: null, source: 'google_ads',  live: connected('google_ads') },
+  ];
+
+  const integrations = [
+    { service: 'meta_ads',   label: 'Meta Ads',    connected: connected('meta_ads'),   icon: 'Meta' },
+    { service: 'google_ads', label: 'Google Ads',  connected: connected('google_ads'), icon: 'Google' },
+    { service: 'klaviyo',    label: 'Klaviyo',     connected: connected('klaviyo'),    icon: 'Mail' },
+    { service: 'shopify',    label: 'Shopify',     connected: connected('shopify'),    icon: 'Shop' },
+    { service: 'tiktok_ads', label: 'TikTok Ads',  connected: connected('tiktok_ads'), icon: 'TikTok' },
+  ];
+
+  res.json({
+    ok: true,
+    project: { id: project.id, slug: project.slug, name: project.name, industry: project.industry },
+    kpis,
+    integrations,
+    intelligence: intelligence ? {
+      seo_score: intelligence.seo_score,
+      website_issues: intelligence.website_issues,
+      linkedin_data: intelligence.linkedin_data,
+      optimizations: intelligence.optimizations,
+      generated_at: intelligence.created_at
+    } : null,
+    generated_at: new Date().toISOString()
+  });
+});
+
 meRouter.delete('/projects/:slug/apis/:id', async (req, res) => {
   const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug);
   if (!project) return res.status(404).json({ ok: false, error: 'project_not_found' });

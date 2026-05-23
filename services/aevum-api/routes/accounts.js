@@ -13,6 +13,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { supabase } from '../lib/supabase.js';
+import { runIntelligenceAudit } from '../lib/intelligence.js';
 
 export const accountsRouter = Router();
 
@@ -329,6 +330,13 @@ accountsRouter.post('/', requireAdmin, async (req, res) => {
   ]);
 
   res.status(201).json({ ok: true, account });
+
+  // Fire-and-forget: Intelligence Audit im Hintergrund
+  const websiteUrl = a.contact_data?.website ?? null;
+  const linkedinUrl = a.contact_data?.linkedin ?? null;
+  // Needs a project — will be triggered from projects.js POST instead
+  // Stored on account for later pickup
+  console.log(`[accounts] Account ${account.slug} created — intelligence audit will run after first project`);
 });
 
 // ──────────────────────────────────────────────────────────

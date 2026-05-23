@@ -10,6 +10,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { supabase } from '../lib/supabase.js';
+import { runIntelligenceAudit } from '../lib/intelligence.js';
 
 export const projectsRouter = Router();
 
@@ -157,6 +158,42 @@ projectsRouter.post('/', requireAdmin, async (req, res) => {
   ]);
 
   res.status(201).json({ ok: true, project });
+
+  // Fire-and-forget: Intelligence Audit im Hintergrund
+  const websiteUrl = p.contact_data?.website ?? acc.data[0]?.contact_data?.website ?? null;
+  const linkedinUrl = p.contact_data?.linkedin ?? acc.data[0]?.contact_data?.linkedin ?? null;
+  setImmediate(() => {
+    runIntelligenceAudit({
+      projectId: project.id,
+      accountId: accountId,
+      businessName: p.name,
+      websiteUrl,
+      linkedinUrl,
+      industry: p.industry ?? null
+    }).catch(err => console.error('[intelligence] Background audit failed:', err.message));
+  });
+});
+
+// ──────────────────────────────────────────────────────────
+// POST /api/projects/:id/intelligence — manueller Re-Trigger
+// ──────────────────────────────────────────────────────────
+projectsRouter.post('/:id/intelligence', requireAdmin, async (req, res) => {
+  const id = req.params.id;
+  const projRes = await supabase.select('projects', `select=id,name,account_id,industry&id=eq.${encodeURIComponent(id)}`);
+  if (!projRes.data?.length) return res.status(404).json({ ok: false, error: 'project_not_found' });
+  const project = projRes.data[0];
+  const { website_url, linkedin_url } = req.body;
+  res.json({ ok: true, message: 'intelligence audit started' });
+  setImmediate(() => {
+    runIntelligenceAudit({
+      projectId: project.id,
+      accountId: project.account_id,
+      businessName: project.name,
+      websiteUrl: website_url ?? null,
+      linkedinUrl: linkedin_url ?? null,
+      industry: project.industry ?? null
+    }).catch(err => console.error('[intelligence] Manual audit failed:', err.message));
+  });
 });
 
 // ──────────────────────────────────────────────────────────

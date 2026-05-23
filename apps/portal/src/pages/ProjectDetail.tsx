@@ -9,6 +9,7 @@ import {
 import Spinner from '@/components/Spinner';
 import { stagger } from '@/lib/animations';
 import BusinessDashboard from '@/components/dashboard/BusinessDashboard';
+import CollaGlowDashboard from '@/components/dashboard/CollaGlowDashboard';
 import ProjectAgentChat from '@/components/agent/ProjectAgentChat';
 
 type ApiRow = { id: string; service: string; key_label: string | null; scope: string; health: string; added_at: string; last_used_at: string | null };
@@ -33,6 +34,9 @@ export default function ProjectDetail() {
     [account, slug]
   );
 
+  const isCollaGlow = slug === 'collaglow';
+  const showDashboard = isClientZeroAevum || isCollaGlow;
+
   const loadApis = async () => {
     try {
       const data = await api<{ ok: boolean; apis: ApiRow[] }>(`/api/me/projects/${slug}/apis`);
@@ -48,8 +52,8 @@ export default function ProjectDetail() {
       setAccount(me.account);
       const p = me.projects.find(pr => pr.slug === slug) || null;
       setProject(p);
-      // Default tab: dashboard for client-zero AEVUM, APIs otherwise.
-      if (me.account?.client_zero && slug === 'aevum') setTab('dashboard');
+      // Default tab: dashboard for client-zero AEVUM + collaglow, APIs otherwise.
+      if ((me.account?.client_zero && slug === 'aevum') || slug === 'collaglow') setTab('dashboard');
     } catch {
       /* non-fatal — tabs gracefully degrade */
     }
@@ -114,7 +118,7 @@ export default function ProjectDetail() {
       {/* Tabs — Agent tab always available; dashboard/workflows/settings gated to client-zero. */}
       <div className="border-b border-white/[0.06] mb-8 overflow-x-auto">
         <nav className="flex items-center gap-1 min-w-max" role="tablist" aria-label="Projekt-Bereiche">
-          {isClientZeroAevum && (
+          {showDashboard && (
             <TabButton tab="dashboard" active={tab} onClick={setTab} icon={<LayoutDashboard size={13} />}>
               Übersicht
             </TabButton>
@@ -135,6 +139,7 @@ export default function ProjectDetail() {
               Settings
             </TabButton>
           )}
+
         </nav>
       </div>
 
@@ -144,6 +149,9 @@ export default function ProjectDetail() {
 
       {!loading && tab === 'dashboard' && isClientZeroAevum && (
         <BusinessDashboard slug={slug} />
+      )}
+      {!loading && tab === 'dashboard' && isCollaGlow && (
+        <CollaGlowDashboard />
       )}
 
       {!loading && tab === 'agent' && (
