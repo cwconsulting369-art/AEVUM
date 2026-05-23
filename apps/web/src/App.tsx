@@ -15,6 +15,7 @@ const AGB = lazy(() => import('./pages/AGB'));
 const Widerrufsbelehrung = lazy(() => import('./pages/Widerrufsbelehrung'));
 const CheckoutSuccess = lazy(() => import('./pages/CheckoutSuccess'));
 const CheckoutCancelled = lazy(() => import('./pages/CheckoutCancelled'));
+const Shop = lazy(() => import('./pages/Shop'));
 
 function LoadingFallback() {
   return (
@@ -42,6 +43,7 @@ const routeComponents: Record<string, React.ComponentType> = {
   '/widerrufsbelehrung': Widerrufsbelehrung,
   '/checkout/success': CheckoutSuccess,
   '/checkout/cancelled': CheckoutCancelled,
+  '/shop': Shop,
 };
 
 export default function App() {
