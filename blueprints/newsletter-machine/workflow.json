@@ -1,0 +1,455 @@
+{
+  "name": "AEVUM — Newsletter Machine",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 3"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule: Mittwoch 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "config-review-email",
+              "name": "reviewEmail",
+              "value": "DEINE_EMAIL@domain.de",
+              "type": "string"
+            },
+            {
+              "id": "config-beehiiv-pub",
+              "name": "beehiivPublicationId",
+              "value": "pub_YOUR_PUBLICATION_ID",
+              "type": "string"
+            },
+            {
+              "id": "config-topic",
+              "name": "newsletterTopic",
+              "value": "Marketing Automatisierung und Prozessoptimierung für Agenturen",
+              "type": "string"
+            },
+            {
+              "id": "config-audience",
+              "name": "targetAudience",
+              "value": "Agenturinhaber, Freelancer und Marketing-Verantwortliche in KMUs",
+              "type": "string"
+            },
+            {
+              "id": "config-tone",
+              "name": "toneOfVoice",
+              "value": "Direkt und praxisnah, keine Theorie, konkrete Taktiken mit echten Beispielen",
+              "type": "string"
+            },
+            {
+              "id": "config-date",
+              "name": "publishDate",
+              "value": "={{ (() => { const d = new Date(); d.setDate(d.getDate() + 3); return d.toISOString().split('T')[0]; })() }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-config",
+      "name": "Set: Konfiguration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-4o\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist ein erfahrener Newsletter-Stratege. Generiere 5 Newsletter-Themenideen.\\n\\nThemenbereich: {{ $json.newsletterTopic }}\\nZielgruppe: {{ $json.targetAudience }}\\n\\nKriterien für gute Themen:\\n- Aktuell und praxisrelevant\\n- Bietet konkreten, umsetzbaren Mehrwert\\n- Erzeugt Neugier im Betreff\\n- Passt zu einem 800–1.200-Wörter-Format\\n- Kein generisches Blabla\\n\\nFormat: Nummerierte Liste (1. bis 5.). Nur die Themen, keine weiteren Erklärungen.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Generiere 5 Themen für diese Woche.\"\n    }\n  ],\n  \"max_tokens\": 400,\n  \"temperature\": 0.9\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-topic-ideas",
+      "name": "HTTP: Themen-Ideen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "openrouter-api",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "extract-ideas",
+              "name": "topicIdeas",
+              "value": "={{ $json.choices[0].message.content.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "extract-first-topic",
+              "name": "selectedTopic",
+              "value": "={{ $json.choices[0].message.content.trim().split('\\n')[0].replace(/^1\\.\\s*/, '').trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "passthrough-config",
+              "name": "config",
+              "value": "={{ $('Set: Konfiguration').item.json }}",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "id": "set-extract-topic",
+      "name": "Set: Thema extrahieren",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-4o\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Erstelle eine Newsletter-Outline. Ton: {{ $json.config.toneOfVoice }}\\n\\nFormat der Outline:\\n- Betreff-Zeile (max 60 Zeichen, neugierig machend)\\n- Preview Text (max 90 Zeichen)\\n- Einleitung: Hook (2-3 Sätze)\\n- Abschnitt 1: [Titel] — Kernpunkt\\n- Abschnitt 2: [Titel] — Kernpunkt\\n- Abschnitt 3: [Titel] — Kernpunkt\\n- Fazit: Kernbotschaft + CTA\\n\\nAntworte NUR mit der Outline im obigen Format.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Thema: {{ $json.selectedTopic }}\\nZielgruppe: {{ $json.config.targetAudience }}\"\n    }\n  ],\n  \"max_tokens\": 600,\n  \"temperature\": 0.7\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-build-outline",
+      "name": "HTTP: Outline bauen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "openrouter-api",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "extract-outline",
+              "name": "outline",
+              "value": "={{ $json.choices[0].message.content.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "passthrough-topic",
+              "name": "selectedTopic",
+              "value": "={{ $('Set: Thema extrahieren').item.json.selectedTopic }}",
+              "type": "string"
+            },
+            {
+              "id": "passthrough-config2",
+              "name": "config",
+              "value": "={{ $('Set: Thema extrahieren').item.json.config }}",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "id": "set-extract-outline",
+      "name": "Set: Outline extrahieren",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-4o\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist ein erfahrener Newsletter-Autor. Schreibe den vollständigen Newsletter-Text.\\n\\nVorgaben:\\n- Länge: 800–1.200 Wörter\\n- Ton: {{ $json.config.toneOfVoice }}\\n- Zielgruppe: {{ $json.config.targetAudience }}\\n- Keine leeren Floskeln, keine Theorie ohne Praxis\\n- Jeder Abschnitt bringt einen konkreten, umsetzbaren Tipp\\n- Persönliche Ansprache (du/Sie je nach Ton)\\n\\nVerwende die Outline als Struktur. Schreibe Fließtext, keine Markdown-Überschriften — der Text muss als E-Mail funktionieren.\\n\\nAntworte NUR mit dem Newsletter-Text.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Thema: {{ $json.selectedTopic }}\\n\\nOutline:\\n{{ $json.outline }}\"\n    }\n  ],\n  \"max_tokens\": 2000,\n  \"temperature\": 0.75\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-write-draft",
+      "name": "HTTP: Full Draft schreiben",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1560, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "openrouter-api",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "extract-draft",
+              "name": "draftContent",
+              "value": "={{ $json.choices[0].message.content.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "passthrough-topic2",
+              "name": "selectedTopic",
+              "value": "={{ $('Set: Outline extrahieren').item.json.selectedTopic }}",
+              "type": "string"
+            },
+            {
+              "id": "passthrough-outline",
+              "name": "outline",
+              "value": "={{ $('Set: Outline extrahieren').item.json.outline }}",
+              "type": "string"
+            },
+            {
+              "id": "passthrough-config3",
+              "name": "config",
+              "value": "={{ $('Set: Outline extrahieren').item.json.config }}",
+              "type": "object"
+            },
+            {
+              "id": "extract-subject",
+              "name": "subjectLine",
+              "value": "={{ $('Set: Outline extrahieren').item.json.outline.split('\\n').find(l => l.toLowerCase().includes('betreff') || l.toLowerCase().includes('subject'))?.replace(/^.*?:\\s*/, '').trim() || $('Set: Outline extrahieren').item.json.selectedTopic }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-extract-draft",
+      "name": "Set: Draft extrahieren",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "newsletter@YOUR_DOMAIN.de",
+        "toEmail": "={{ $json.config.reviewEmail }}",
+        "subject": "=[REVIEW] Newsletter Draft: {{ $json.selectedTopic }}",
+        "emailFormat": "html",
+        "message": "=<!DOCTYPE html><html><body style=\"font-family:sans-serif;max-width:700px;margin:0 auto;padding:20px;\">\n<div style=\"background:#fff3cd;border:1px solid #ffc107;padding:16px;border-radius:8px;margin-bottom:20px;\">\n  <strong>Dieser Newsletter wartet auf deine Freigabe.</strong><br>\n  Prüfe den Entwurf unten und klicke auf Freigeben wenn er gut ist.\n</div>\n\n<h2 style=\"color:#1a1a2e;\">{{ $json.selectedTopic }}</h2>\n\n<div style=\"background:#f8f9fa;padding:16px;border-radius:8px;margin-bottom:20px;\">\n  <strong>Outline:</strong><br>\n  <pre style=\"white-space:pre-wrap;font-family:inherit;font-size:13px;\">{{ $json.outline }}</pre>\n</div>\n\n<hr>\n<h3>Vollständiger Draft:</h3>\n<div style=\"line-height:1.7;\">\n{{ $json.draftContent.split('\\n').map(p => p.trim() ? '<p>' + p + '</p>' : '').join('') }}\n</div>\n<hr>\n\n<div style=\"margin-top:24px;text-align:center;\">\n  <a href=\"YOUR_N8N_BASE_URL/webhook/newsletter-approval?token={{ $json.approvalToken }}\" \n     style=\"background:#27ae60;color:white;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:700;font-size:16px;display:inline-block;\">\n    Newsletter freigeben\n  </a>\n</div>\n\n</body></html>",
+        "options": {}
+      },
+      "id": "email-review",
+      "name": "Email: Draft zur Review",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [2000, 300],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "options": {
+          "webhookSuffix": "newsletter-approval"
+        }
+      },
+      "id": "wait-approval",
+      "name": "Wait for Webhook: Approval",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2220, 300],
+      "webhookId": "newsletter-approval-webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.beehiiv.com/v2/publications/{{ $('Set: Draft extrahieren').item.json.config.beehiivPublicationId }}/posts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subject\": \"{{ $('Set: Draft extrahieren').item.json.subjectLine }}\",\n  \"content\": \"<p>{{ $('Set: Draft extrahieren').item.json.draftContent.replace(/\\n/g, '</p><p>') }}</p>\",\n  \"status\": \"draft\",\n  \"send_at\": null\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-beehiiv-push",
+      "name": "HTTP: Beehiiv Push",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2440, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "beehiiv-api",
+          "name": "Beehiiv API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule: Mittwoch 09:00": {
+      "main": [
+        [
+          {
+            "node": "Set: Konfiguration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Konfiguration": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Themen-Ideen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Themen-Ideen": {
+      "main": [
+        [
+          {
+            "node": "Set: Thema extrahieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Thema extrahieren": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Outline bauen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Outline bauen": {
+      "main": [
+        [
+          {
+            "node": "Set: Outline extrahieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Outline extrahieren": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Full Draft schreiben",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Full Draft schreiben": {
+      "main": [
+        [
+          {
+            "node": "Set: Draft extrahieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Draft extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Email: Draft zur Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email: Draft zur Review": {
+      "main": [
+        [
+          {
+            "node": "Wait for Webhook: Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Webhook: Approval": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Beehiiv Push",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "staticData": null,
+  "meta": {
+    "instanceId": "aevum-blueprint"
+  },
+  "tags": [
+    {
+      "name": "AEVUM Newsletter"
+    }
+  ],
+  "versionId": "1.0.0",
+  "id": "newsletter-machine-v1",
+  "active": false
+}

@@ -1,0 +1,408 @@
+{
+  "name": "AEVUM — Lead Qualifier",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-qualifier",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook: Lead Eingang",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "lead-qualifier-webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "normalize-firstname",
+              "name": "firstName",
+              "value": "={{ $json.body.firstName || $json.body.vorname || $json.body.first_name || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "normalize-lastname",
+              "name": "lastName",
+              "value": "={{ $json.body.lastName || $json.body.nachname || $json.body.last_name || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "normalize-email",
+              "name": "email",
+              "value": "={{ $json.body.email || $json.body.Email || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "normalize-company",
+              "name": "company",
+              "value": "={{ $json.body.company || $json.body.unternehmen || $json.body.Unternehmen || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "normalize-message",
+              "name": "message",
+              "value": "={{ $json.body.message || $json.body.nachricht || $json.body.Nachricht || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "normalize-budget",
+              "name": "budget",
+              "value": "={{ $json.body.budget || $json.body.Budget || 'nicht_angegeben' }}",
+              "type": "string"
+            },
+            {
+              "id": "normalize-timing",
+              "name": "timing",
+              "value": "={{ $json.body.timing || $json.body.Zeitrahmen || 'nicht_angegeben' }}",
+              "type": "string"
+            },
+            {
+              "id": "normalize-role",
+              "name": "role",
+              "value": "={{ $json.body.role || $json.body.position || $json.body.Position || 'nicht_angegeben' }}",
+              "type": "string"
+            },
+            {
+              "id": "normalize-size",
+              "name": "companySize",
+              "value": "={{ $json.body.companySize || $json.body.mitarbeiter || $json.body.employees || 'nicht_angegeben' }}",
+              "type": "string"
+            },
+            {
+              "id": "normalize-industry",
+              "name": "industry",
+              "value": "={{ $json.body.industry || $json.body.branche || $json.body.Branche || 'nicht_angegeben' }}",
+              "type": "string"
+            },
+            {
+              "id": "normalize-source",
+              "name": "source",
+              "value": "={{ $json.body.source || $json.body.herkunft || 'formular' }}",
+              "type": "string"
+            },
+            {
+              "id": "timestamp",
+              "name": "submittedAt",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-normalize",
+      "name": "Set: Normalisierung",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// AEVUM Lead Qualifier — BANT+ Scoring Engine\n// Anpassen: weights, thresholds, targetIndustries\n\nconst lead = items[0].json;\n\n// === KONFIGURATION ===\nconst weights = {\n  budget: 25,\n  authority: 20,\n  need: 20,\n  timing: 15,\n  companySize: 10,\n  industry: 5,\n  engagement: 5\n};\n\nconst thresholds = {\n  hot: 70,\n  warm: 40\n};\n\n// Deine Ziel-Branchen (lowercase)\nconst targetIndustries = [\n  'immobilien', 'hausverwaltung', 'makler', 'real estate',\n  'agentur', 'marketing', 'beratung', 'consulting',\n  'dienstleistung', 'ecommerce', 'e-commerce'\n];\n\n// === SCORING LOGIK ===\n\n// 1. Budget (0 / 50% / 100% der Gewichtung)\nlet budgetScore = 0;\nconst b = lead.budget?.toLowerCase() || '';\nif (b.includes('5000') || b.includes('15000') || b.includes('5.000') || b.includes('15.000')) {\n  budgetScore = Math.round(weights.budget * 0.5);\n} else if (b.includes('15') || b.includes('>') || b.includes('gross') || b.includes('groß')) {\n  budgetScore = weights.budget;\n}\n\n// 2. Authority (Entscheider-Rolle)\nlet authorityScore = 0;\nconst r = lead.role?.toLowerCase() || '';\nif (r.includes('geschäftsführer') || r.includes('gf') || r.includes('ceo') || r.includes('inhaber') || r.includes('owner') || r.includes('founder')) {\n  authorityScore = weights.authority;\n} else if (r.includes('manager') || r.includes('leiter') || r.includes('head') || r.includes('direktor')) {\n  authorityScore = Math.round(weights.authority * 0.5);\n}\n\n// 3. Need (Nachricht-Analyse)\nlet needScore = 0;\nconst msg = lead.message?.toLowerCase() || '';\nconst urgentKeywords = ['sofort', 'dringend', 'asap', 'problem', 'verlieren', 'fehlt', 'broken', 'funktioniert nicht', 'chaos'];\nconst concreteKeywords = ['automatisierung', 'prozess', 'workflow', 'system', 'effizienz', 'skalierung', 'wachstum', 'leads', 'umsatz'];\nif (urgentKeywords.some(k => msg.includes(k))) {\n  needScore = weights.need;\n} else if (concreteKeywords.some(k => msg.includes(k)) || msg.length > 100) {\n  needScore = Math.round(weights.need * 0.6);\n} else if (msg.length > 30) {\n  needScore = Math.round(weights.need * 0.3);\n}\n\n// 4. Timing\nlet timingScore = 0;\nconst t = lead.timing?.toLowerCase() || '';\nif (t.includes('sofort') || t.includes('diesen monat') || t.includes('1 monat') || t.includes('<3') || t.includes('asap')) {\n  timingScore = weights.timing;\n} else if (t.includes('3 monate') || t.includes('quartal') || t.includes('bald')) {\n  timingScore = Math.round(weights.timing * 0.5);\n}\n\n// 5. Unternehmensgröße\nlet companySizeScore = 0;\nconst cs = lead.companySize?.toLowerCase() || '';\nif (cs.includes('>50') || cs.includes('50+') || cs.includes('100') || cs.includes('mittelstand') || cs.includes('enterprise')) {\n  companySizeScore = weights.companySize;\n} else if (cs.includes('10') || cs.includes('20') || cs.includes('30') || cs.includes('40') || cs.includes('kmu')) {\n  companySizeScore = Math.round(weights.companySize * 0.5);\n}\n\n// 6. Branche\nlet industryScore = 0;\nconst ind = lead.industry?.toLowerCase() || '';\nif (targetIndustries.some(i => ind.includes(i))) {\n  industryScore = weights.industry;\n}\n\n// 7. Engagement / Source\nlet engagementScore = 0;\nconst src = lead.source?.toLowerCase() || '';\nif (src.includes('empfehlung') || src.includes('referral') || src.includes('weiterempfehlung')) {\n  engagementScore = weights.engagement;\n} else if (src.includes('linkedin') || src.includes('instagram') || src.includes('google')) {\n  engagementScore = Math.round(weights.engagement * 0.4);\n}\n\n// === GESAMTSCORE ===\nconst totalScore = budgetScore + authorityScore + needScore + timingScore + companySizeScore + industryScore + engagementScore;\n\n// Routing bestimmen\nlet routing = 'cold';\nlet priority = 'niedrig';\nif (totalScore >= thresholds.hot) {\n  routing = 'hot';\n  priority = 'hoch';\n} else if (totalScore >= thresholds.warm) {\n  routing = 'warm';\n  priority = 'mittel';\n}\n\nreturn [{\n  json: {\n    ...lead,\n    score: totalScore,\n    routing: routing,\n    priority: priority,\n    scoreBreakdown: {\n      budget: budgetScore,\n      authority: authorityScore,\n      need: needScore,\n      timing: timingScore,\n      companySize: companySizeScore,\n      industry: industryScore,\n      engagement: engagementScore\n    }\n  }\n}];"
+      },
+      "id": "code-bant-scoring",
+      "name": "Code: BANT Scoring",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "hot-lead-condition",
+                    "leftValue": "={{ $json.routing }}",
+                    "rightValue": "hot",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Hot Lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "warm-lead-condition",
+                    "leftValue": "={{ $json.routing }}",
+                    "rightValue": "warm",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Warm Lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "cold-lead-condition",
+                    "leftValue": "={{ $json.routing }}",
+                    "rightValue": "cold",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cold Lead"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "switch-routing",
+      "name": "Switch: Score Routing",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.airtable.com/v0/YOUR_AIRTABLE_BASE_ID/Leads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": {\n    \"Name\": \"{{ $json.firstName }} {{ $json.lastName }}\",\n    \"E-Mail\": \"{{ $json.email }}\",\n    \"Unternehmen\": \"{{ $json.company }}\",\n    \"Score\": {{ $json.score }},\n    \"Status\": \"Hot Lead\",\n    \"Priorität\": \"Hoch\",\n    \"Nachricht\": \"{{ $json.message }}\",\n    \"Quelle\": \"{{ $json.source }}\",\n    \"Eingegangen am\": \"{{ $json.submittedAt }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "http-crm-hot",
+      "name": "HTTP: CRM Push (Hot)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 160],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "airtable-api",
+          "name": "Airtable API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.airtable.com/v0/YOUR_AIRTABLE_BASE_ID/Leads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": {\n    \"Name\": \"{{ $json.firstName }} {{ $json.lastName }}\",\n    \"E-Mail\": \"{{ $json.email }}\",\n    \"Unternehmen\": \"{{ $json.company }}\",\n    \"Score\": {{ $json.score }},\n    \"Status\": \"Warm Lead\",\n    \"Priorität\": \"Mittel\",\n    \"Nachricht\": \"{{ $json.message }}\",\n    \"Quelle\": \"{{ $json.source }}\",\n    \"Eingegangen am\": \"{{ $json.submittedAt }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "http-crm-warm",
+      "name": "HTTP: CRM Push (Warm)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "airtable-api",
+          "name": "Airtable API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.airtable.com/v0/YOUR_AIRTABLE_BASE_ID/Leads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": {\n    \"Name\": \"{{ $json.firstName }} {{ $json.lastName }}\",\n    \"E-Mail\": \"{{ $json.email }}\",\n    \"Unternehmen\": \"{{ $json.company }}\",\n    \"Score\": {{ $json.score }},\n    \"Status\": \"Archiv\",\n    \"Priorität\": \"Niedrig\",\n    \"Nachricht\": \"{{ $json.message }}\",\n    \"Quelle\": \"{{ $json.source }}\",\n    \"Eingegangen am\": \"{{ $json.submittedAt }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "http-crm-cold",
+      "name": "HTTP: CRM Push (Cold)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 440],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "airtable-api",
+          "name": "Airtable API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@YOUR_DOMAIN.de",
+        "toEmail": "DEINE_EMAIL@domain.de",
+        "subject": "=HOT LEAD (Score: {{ $json.score }}) — {{ $json.firstName }} {{ $json.lastName }} | {{ $json.company }}",
+        "emailFormat": "html",
+        "message": "=<h2>Neuer Hot Lead eingegangen</h2>\n<p><strong>Name:</strong> {{ $json.firstName }} {{ $json.lastName }}</p>\n<p><strong>Unternehmen:</strong> {{ $json.company }}</p>\n<p><strong>E-Mail:</strong> {{ $json.email }}</p>\n<p><strong>Score:</strong> {{ $json.score }}/100</p>\n<p><strong>Eingegangen:</strong> {{ $json.submittedAt }}</p>\n<hr>\n<h3>Score-Aufschlüsselung</h3>\n<ul>\n<li>Budget: {{ $json.scoreBreakdown.budget }}/25</li>\n<li>Entscheidungsbefugnis: {{ $json.scoreBreakdown.authority }}/20</li>\n<li>Bedarf: {{ $json.scoreBreakdown.need }}/20</li>\n<li>Timing: {{ $json.scoreBreakdown.timing }}/15</li>\n<li>Unternehmensgröße: {{ $json.scoreBreakdown.companySize }}/10</li>\n<li>Branche: {{ $json.scoreBreakdown.industry }}/5</li>\n<li>Engagement: {{ $json.scoreBreakdown.engagement }}/5</li>\n</ul>\n<hr>\n<h3>Nachricht</h3>\n<p>{{ $json.message }}</p>\n<p><strong>Empfehlung: Innerhalb von 2 Stunden zurückrufen/melden.</strong></p>",
+        "options": {}
+      },
+      "id": "email-hot-notify",
+      "name": "Email: Hot Lead Alert",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [1340, 160],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@YOUR_DOMAIN.de",
+        "toEmail": "={{ $json.email }}",
+        "subject": "=Ihre Anfrage bei [DEIN UNTERNEHMEN] — wir melden uns",
+        "emailFormat": "html",
+        "message": "=<p>Hallo {{ $json.firstName }},</p>\n<p>vielen Dank für Ihre Anfrage. Wir haben Ihre Kontaktdaten erhalten und melden uns innerhalb von 24 Stunden bei Ihnen.</p>\n<p>Mit freundlichen Grüßen,<br>[DEIN TEAM]</p>",
+        "options": {}
+      },
+      "id": "email-warm-confirm",
+      "name": "Email: Warm Lead Bestätigung",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [1340, 300],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook: Lead Eingang": {
+      "main": [
+        [
+          {
+            "node": "Set: Normalisierung",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Normalisierung": {
+      "main": [
+        [
+          {
+            "node": "Code: BANT Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: BANT Scoring": {
+      "main": [
+        [
+          {
+            "node": "Switch: Score Routing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: Score Routing": {
+      "main": [
+        [
+          {
+            "node": "HTTP: CRM Push (Hot)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP: CRM Push (Warm)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP: CRM Push (Cold)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: CRM Push (Hot)": {
+      "main": [
+        [
+          {
+            "node": "Email: Hot Lead Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: CRM Push (Warm)": {
+      "main": [
+        [
+          {
+            "node": "Email: Warm Lead Bestätigung",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "meta": {
+    "instanceId": "aevum-blueprint"
+  },
+  "tags": [
+    {
+      "name": "AEVUM Sales"
+    }
+  ],
+  "versionId": "1.0.0",
+  "id": "lead-qualifier-v1",
+  "active": false
+}

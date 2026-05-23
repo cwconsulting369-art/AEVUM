@@ -1,0 +1,568 @@
+{
+  "name": "AEVUM — Content Factory",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "topics-array",
+              "name": "topics",
+              "value": "={{ [\n  'Warum 80% der Agenturen nach Jahr 1 scheitern',\n  '5 Automatisierungen die sofort 10h/Woche sparen',\n  'Was ein gutes Kunden-Briefing wirklich ausmacht',\n  'Der größte Fehler beim Onboarding neuer Kunden',\n  'Wie wir mit einem Workflow 10h/Woche einsparen',\n  'Der Unterschied zwischen busy und produktiv',\n  'Warum Standardprozesse dein bestes Produkt sind',\n  'Content ohne Strategie ist nur Lärm'\n] }}",
+              "type": "array"
+            },
+            {
+              "id": "topic-index",
+              "name": "topic",
+              "value": "={{ $json.topics[new Date().getDay() % $json.topics.length] }}",
+              "type": "string"
+            },
+            {
+              "id": "platform",
+              "name": "platform",
+              "value": "LinkedIn",
+              "type": "string"
+            },
+            {
+              "id": "tone",
+              "name": "tone_of_voice",
+              "value": "Direkt, professionell, keine leeren Worthülsen",
+              "type": "string"
+            },
+            {
+              "id": "industry",
+              "name": "industry",
+              "value": "Marketing Agenturen und Dienstleister",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-topic-queue",
+      "name": "Set: Topic Queue",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://aevum-system.de"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": []
+        },
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-4o\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist ein erfahrener Social-Media-Texter für B2B-Agenturen und Personal Brands.\\nDeine Aufgabe: Schreibe einen Hook für folgenden Post.\\n\\nRegeln:\\n- Maximal 2 Sätze (unter 150 Zeichen gesamt)\\n- Starte mit einer provokanten Aussage, Zahl oder Frage\\n- Kein Clickbait — die Aussage muss im Post eingelöst werden\\n- Sprache: Direkt, klar, kein Marketingsprech\\n- Kein Emoji am Anfang\\n\\nAntworte NUR mit dem Hook. Kein Kommentar, keine Erklärung.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Thema: {{ $json.topic }}\"\n    }\n  ],\n  \"max_tokens\": 200,\n  \"temperature\": 0.8\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-generate-hook",
+      "name": "HTTP: Generate Hook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "openrouter-api",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "hook-extract",
+              "name": "hook",
+              "value": "={{ $json.choices[0].message.content.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "topic-passthrough",
+              "name": "topic",
+              "value": "={{ $('Set: Topic Queue').item.json.topic }}",
+              "type": "string"
+            },
+            {
+              "id": "platform-passthrough",
+              "name": "platform",
+              "value": "={{ $('Set: Topic Queue').item.json.platform }}",
+              "type": "string"
+            },
+            {
+              "id": "tone-passthrough",
+              "name": "tone_of_voice",
+              "value": "={{ $('Set: Topic Queue').item.json.tone_of_voice }}",
+              "type": "string"
+            },
+            {
+              "id": "industry-passthrough",
+              "name": "industry",
+              "value": "={{ $('Set: Topic Queue').item.json.industry }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-extract-hook",
+      "name": "Set: Extract Hook",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-4o\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist ein erfahrener Social-Media-Texter. Schreibe einen vollständigen Post.\\n\\nPlattform: {{ $json.platform }}\\nTon: {{ $json.tone_of_voice }}\\nLänge: 300–500 Zeichen\\n\\nStruktur:\\n1. Hook (bereits vorgegeben, direkt übernehmen)\\n2. Kernaussage in 3-4 kurzen Sätzen\\n3. Call-to-Action (z.B. Kommentar, Speichern, DM)\\n\\nAntworte NUR mit dem fertigen Post-Text.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Hook: {{ $json.hook }}\\nThema: {{ $json.topic }}\"\n    }\n  ],\n  \"max_tokens\": 600,\n  \"temperature\": 0.7\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-write-caption",
+      "name": "HTTP: Write Caption",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "openrouter-api",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "caption-extract",
+              "name": "caption",
+              "value": "={{ $json.choices[0].message.content.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "hook-passthrough2",
+              "name": "hook",
+              "value": "={{ $('Set: Extract Hook').item.json.hook }}",
+              "type": "string"
+            },
+            {
+              "id": "topic-passthrough2",
+              "name": "topic",
+              "value": "={{ $('Set: Extract Hook').item.json.topic }}",
+              "type": "string"
+            },
+            {
+              "id": "platform-passthrough2",
+              "name": "platform",
+              "value": "={{ $('Set: Extract Hook').item.json.platform }}",
+              "type": "string"
+            },
+            {
+              "id": "industry-passthrough2",
+              "name": "industry",
+              "value": "={{ $('Set: Extract Hook').item.json.industry }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-extract-caption",
+      "name": "Set: Extract Caption",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "caption-length-check",
+              "leftValue": "={{ $json.caption.length }}",
+              "rightValue": 100,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-quality-check",
+      "name": "IF: Quality Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-4o\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist ein Hashtag-Spezialist für {{ $json.platform }}.\\n\\nErstelle 12 relevante Hashtags. Mix aus:\\n- 4 große Hashtags (>500k Posts)\\n- 5 mittlere Hashtags (50k–500k Posts)\\n- 3 Nischen-Hashtags (<50k Posts)\\n\\nBranche: {{ $json.industry }}\\n\\nFormat: Alle Hashtags in einer Zeile, mit # und Leerzeichen getrennt.\\nAntworte NUR mit der Hashtag-Zeile.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Thema: {{ $json.topic }}\"\n    }\n  ],\n  \"max_tokens\": 300,\n  \"temperature\": 0.5\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-build-hashtags",
+      "name": "HTTP: Build Hashtags",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1780, 180],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "openrouter-api",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "error-log",
+              "name": "error",
+              "value": "Caption zu kurz — Workflow gestoppt",
+              "type": "string"
+            },
+            {
+              "id": "caption-debug",
+              "name": "caption_received",
+              "value": "={{ $json.caption }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-error-log",
+      "name": "Set: Error Log",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [1780, 420]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "hashtags-extract",
+              "name": "hashtags",
+              "value": "={{ $json.choices[0].message.content.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "caption-final",
+              "name": "caption",
+              "value": "={{ $('Set: Extract Caption').item.json.caption }}",
+              "type": "string"
+            },
+            {
+              "id": "hook-final",
+              "name": "hook",
+              "value": "={{ $('Set: Extract Caption').item.json.hook }}",
+              "type": "string"
+            },
+            {
+              "id": "topic-final",
+              "name": "topic",
+              "value": "={{ $('Set: Extract Caption').item.json.topic }}",
+              "type": "string"
+            },
+            {
+              "id": "platform-final",
+              "name": "platform",
+              "value": "={{ $('Set: Extract Caption').item.json.platform }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-final-data",
+      "name": "Set: Final Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [2000, 180]
+    },
+    {
+      "parameters": {
+        "resource": "page",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "value": "YOUR_NOTION_DATABASE_ID",
+          "mode": "id"
+        },
+        "title": "={{ $json.topic }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status",
+              "selectValue": "Draft"
+            },
+            {
+              "key": "Plattform",
+              "multiSelectValue": "={{ [$json.platform] }}"
+            },
+            {
+              "key": "Caption",
+              "textValue": "={{ $json.caption }}"
+            },
+            {
+              "key": "Hashtags",
+              "textValue": "={{ $json.hashtags }}"
+            },
+            {
+              "key": "Erstellt am",
+              "dateValue": "={{ new Date().toISOString() }}"
+            }
+          ]
+        }
+      },
+      "id": "notion-create-page",
+      "name": "Notion: Create Page",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [2220, 180],
+      "credentials": {
+        "notionApi": {
+          "id": "notion-integration",
+          "name": "Notion API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=*Content-Factory: Neuer Draft bereit*\n\n*Thema:* {{ $('Set: Final Data').item.json.topic }}\n*Plattform:* {{ $('Set: Final Data').item.json.platform }}\n\n*Hook:*\n{{ $('Set: Final Data').item.json.hook }}\n\n*Caption-Vorschau:*\n{{ $('Set: Final Data').item.json.caption.substring(0, 200) }}...\n\nIn Notion zur Freigabe: https://notion.so/{{ $json.id.replace(/-/g, '') }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-notify",
+      "name": "Telegram: Notify",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [2440, 180],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot",
+          "name": "Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set: Topic Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Topic Queue": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Generate Hook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Generate Hook": {
+      "main": [
+        [
+          {
+            "node": "Set: Extract Hook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Extract Hook": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Write Caption",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Write Caption": {
+      "main": [
+        [
+          {
+            "node": "Set: Extract Caption",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Extract Caption": {
+      "main": [
+        [
+          {
+            "node": "IF: Quality Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Quality Check": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Build Hashtags",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set: Error Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Build Hashtags": {
+      "main": [
+        [
+          {
+            "node": "Set: Final Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Final Data": {
+      "main": [
+        [
+          {
+            "node": "Notion: Create Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion: Create Page": {
+      "main": [
+        [
+          {
+            "node": "Telegram: Notify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "aevum-blueprint"
+  },
+  "tags": [
+    {
+      "createdAt": "2026-05-23T00:00:00.000Z",
+      "updatedAt": "2026-05-23T00:00:00.000Z",
+      "id": "aevum-content",
+      "name": "AEVUM Content"
+    }
+  ],
+  "versionId": "1.0.0",
+  "id": "content-factory-v1",
+  "active": false
+}

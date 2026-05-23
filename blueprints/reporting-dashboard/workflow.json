@@ -1,0 +1,242 @@
+{
+  "name": "AEVUM — Reporting Dashboard",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule: Montag 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "config-property-id",
+              "name": "ga4PropertyId",
+              "value": "YOUR_GA4_PROPERTY_ID",
+              "type": "string"
+            },
+            {
+              "id": "config-recipients",
+              "name": "reportRecipients",
+              "value": "={{ ['DEINE_EMAIL@domain.de'] }}",
+              "type": "array"
+            },
+            {
+              "id": "config-title",
+              "name": "reportTitle",
+              "value": "Weekly Marketing Report",
+              "type": "string"
+            },
+            {
+              "id": "config-currency",
+              "name": "currency",
+              "value": "EUR",
+              "type": "string"
+            },
+            {
+              "id": "config-date-from",
+              "name": "dateFrom",
+              "value": "={{ (() => { const d = new Date(); d.setDate(d.getDate() - 7); return d.toISOString().split('T')[0]; })() }}",
+              "type": "string"
+            },
+            {
+              "id": "config-date-to",
+              "name": "dateTo",
+              "value": "={{ new Date().toISOString().split('T')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "config-week",
+              "name": "weekLabel",
+              "value": "={{ (() => { const now = new Date(); const start = new Date(now); start.setDate(now.getDate() - 7); return start.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'}) + ' – ' + now.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric'}); })() }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-config",
+      "name": "Set: Konfiguration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://analyticsdata.googleapis.com/v1beta/properties/{{ $json.ga4PropertyId }}:runReport",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"dateRanges\": [\n    {\n      \"startDate\": \"{{ $json.dateFrom }}\",\n      \"endDate\": \"{{ $json.dateTo }}\"\n    },\n    {\n      \"startDate\": \"{{ (() => { const d = new Date($json.dateFrom); d.setDate(d.getDate() - 7); return d.toISOString().split('T')[0]; })() }}\",\n      \"endDate\": \"{{ (() => { const d = new Date($json.dateTo); d.setDate(d.getDate() - 7); return d.toISOString().split('T')[0]; })() }}\"\n    }\n  ],\n  \"dimensions\": [\n    { \"name\": \"pagePath\" }\n  ],\n  \"metrics\": [\n    { \"name\": \"sessions\" },\n    { \"name\": \"conversions\" },\n    { \"name\": \"bounceRate\" },\n    { \"name\": \"averageSessionDuration\" }\n  ],\n  \"orderBys\": [\n    {\n      \"metric\": { \"metricName\": \"sessions\" },\n      \"desc\": true\n    }\n  ],\n  \"limit\": 10\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-ga4-report",
+      "name": "HTTP: GA4 Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 300],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "google-analytics-oauth",
+          "name": "Google Analytics OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "normalize-ga4",
+              "name": "ga4Data",
+              "value": "={{ $json.rows || [] }}",
+              "type": "array"
+            },
+            {
+              "id": "normalize-totals",
+              "name": "totals",
+              "value": "={{ $json.totals || [] }}",
+              "type": "array"
+            },
+            {
+              "id": "passthrough-config",
+              "name": "config",
+              "value": "={{ $('Set: Konfiguration').item.json }}",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "id": "set-normalize-data",
+      "name": "Set: Daten normalisieren",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// AEVUM Reporting Dashboard — HTML Report Builder\n\nconst data = items[0].json;\nconst config = data.config;\nconst rows = data.ga4Data || [];\nconst totals = data.totals || [];\n\n// === DATEN EXTRAHIEREN ===\n// GA4 gibt Totals als erstes Totals-Item (aktuelle Periode) und zweites (Vergleich)\nconst currentTotals = totals[0]?.metricValues || [];\nconst prevTotals = totals[1]?.metricValues || [];\n\nconst currentSessions = parseInt(currentTotals[0]?.value || 0);\nconst prevSessions = parseInt(prevTotals[0]?.value || 0);\nconst currentConversions = parseInt(currentTotals[1]?.value || 0);\nconst prevConversions = parseInt(prevTotals[1]?.value || 0);\n\nconst convRate = currentSessions > 0 ? ((currentConversions / currentSessions) * 100).toFixed(2) : 0;\nconst prevConvRate = prevSessions > 0 ? ((prevConversions / prevSessions) * 100).toFixed(2) : 0;\n\n// Deltas berechnen\nconst sessionDelta = prevSessions > 0 ? Math.round(((currentSessions - prevSessions) / prevSessions) * 100) : 0;\nconst convDelta = prevConversions > 0 ? Math.round(((currentConversions - prevConversions) / prevConversions) * 100) : 0;\nconst convRateDelta = (convRate - prevConvRate).toFixed(2);\n\n// Top 5 Seiten\nconst topPages = rows.slice(0, 5).map(row => ({\n  page: row.dimensionValues?.[0]?.value || '/',\n  sessions: parseInt(row.metricValues?.[0]?.value || 0)\n}));\n\n// Performance-Ampel\nlet statusColor = '#27ae60'; // Grün\nlet statusText = 'Gut';\nif (convRate < 0.5 || sessionDelta < -20) {\n  statusColor = '#e74c3c'; // Rot\n  statusText = 'Handlungsbedarf';\n} else if (convRate < 1.0 || sessionDelta < -10) {\n  statusColor = '#f39c12'; // Gelb\n  statusText = 'Beobachten';\n}\n\n// Delta-Farbe Helfer\nconst deltaColor = (val) => val >= 0 ? '#27ae60' : '#e74c3c';\nconst deltaSign = (val) => val >= 0 ? '+' : '';\n\n// === HTML REPORT BAUEN ===\nconst topPagesRows = topPages.map((p, i) => \n  `<tr style=\"border-bottom:1px solid #eee;\"><td style=\"padding:6px 12px;color:#666;\">${i+1}.</td><td style=\"padding:6px 12px;font-family:monospace;font-size:13px;\">${p.page}</td><td style=\"padding:6px 12px;text-align:right;font-weight:600;\">${p.sessions.toLocaleString('de-DE')}</td></tr>`\n).join('');\n\nconst html = `<!DOCTYPE html>\n<html>\n<head><meta charset=\"UTF-8\"><title>${config.reportTitle}</title></head>\n<body style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#f5f5f5; margin:0; padding:20px;\">\n\n<div style=\"max-width:600px; margin:0 auto;\">\n\n  <!-- Header -->\n  <div style=\"background:#1a1a2e; color:white; padding:24px 30px; border-radius:12px 12px 0 0;\">\n    <h1 style=\"margin:0; font-size:20px; font-weight:700;\">📊 ${config.reportTitle}</h1>\n    <p style=\"margin:6px 0 0; color:#aaa; font-size:14px;\">${config.weekLabel}</p>\n  </div>\n\n  <!-- KPI Grid -->\n  <div style=\"background:white; padding:24px 30px; display:flex; gap:16px; flex-wrap:wrap;\">\n    \n    <div style=\"flex:1; min-width:120px; background:#f8f9fa; border-radius:8px; padding:16px; text-align:center;\">\n      <div style=\"font-size:24px; font-weight:700; color:#1a1a2e;\">${currentSessions.toLocaleString('de-DE')}</div>\n      <div style=\"font-size:12px; color:#666; margin-top:4px;\">Sessions</div>\n      <div style=\"font-size:13px; color:${deltaColor(sessionDelta)}; margin-top:4px; font-weight:600;\">${deltaSign(sessionDelta)}${sessionDelta}%</div>\n    </div>\n\n    <div style=\"flex:1; min-width:120px; background:#f8f9fa; border-radius:8px; padding:16px; text-align:center;\">\n      <div style=\"font-size:24px; font-weight:700; color:#1a1a2e;\">${currentConversions.toLocaleString('de-DE')}</div>\n      <div style=\"font-size:12px; color:#666; margin-top:4px;\">Conversions</div>\n      <div style=\"font-size:13px; color:${deltaColor(convDelta)}; margin-top:4px; font-weight:600;\">${deltaSign(convDelta)}${convDelta}%</div>\n    </div>\n\n    <div style=\"flex:1; min-width:120px; background:#f8f9fa; border-radius:8px; padding:16px; text-align:center;\">\n      <div style=\"font-size:24px; font-weight:700; color:#1a1a2e;\">${convRate}%</div>\n      <div style=\"font-size:12px; color:#666; margin-top:4px;\">Conv. Rate</div>\n      <div style=\"font-size:13px; color:${deltaColor(parseFloat(convRateDelta))}; margin-top:4px; font-weight:600;\">${deltaSign(parseFloat(convRateDelta))}${convRateDelta}pp</div>\n    </div>\n\n    <div style=\"flex:1; min-width:120px; background:${statusColor}22; border:2px solid ${statusColor}; border-radius:8px; padding:16px; text-align:center;\">\n      <div style=\"font-size:18px; font-weight:700; color:${statusColor};\">● ${statusText}</div>\n      <div style=\"font-size:12px; color:#666; margin-top:4px;\">Status</div>\n    </div>\n\n  </div>\n\n  <!-- Top Seiten -->\n  <div style=\"background:white; border-top:1px solid #eee; padding:24px 30px;\">\n    <h3 style=\"margin:0 0 12px; font-size:15px; color:#1a1a2e;\">Top Seiten (nach Sessions)</h3>\n    <table style=\"width:100%; border-collapse:collapse;\">\n      ${topPagesRows}\n    </table>\n  </div>\n\n  <!-- Footer -->\n  <div style=\"background:#f8f9fa; padding:16px 30px; border-radius:0 0 12px 12px; font-size:12px; color:#999; border-top:1px solid #eee;\">\n    Automatisch generiert von AEVUM Reporting · ${new Date().toLocaleDateString('de-DE')} · Konfiguriert in n8n\n  </div>\n\n</div>\n</body></html>`;\n\nreturn [{\n  json: {\n    html,\n    subject: `${config.reportTitle} — ${config.weekLabel}`,\n    recipients: config.reportRecipients,\n    stats: { currentSessions, currentConversions, convRate, statusText }\n  }\n}];"
+      },
+      "id": "code-build-report",
+      "name": "Code: HTML Report bauen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "reporting@YOUR_DOMAIN.de",
+        "toEmail": "={{ $json.recipients.join(',') }}",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "html",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "send-email-report",
+      "name": "Email: Report versenden",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [1340, 300],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule: Montag 07:00": {
+      "main": [
+        [
+          {
+            "node": "Set: Konfiguration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Konfiguration": {
+      "main": [
+        [
+          {
+            "node": "HTTP: GA4 Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: GA4 Report": {
+      "main": [
+        [
+          {
+            "node": "Set: Daten normalisieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Daten normalisieren": {
+      "main": [
+        [
+          {
+            "node": "Code: HTML Report bauen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: HTML Report bauen": {
+      "main": [
+        [
+          {
+            "node": "Email: Report versenden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "staticData": null,
+  "meta": {
+    "instanceId": "aevum-blueprint"
+  },
+  "tags": [
+    {
+      "name": "AEVUM Reporting"
+    }
+  ],
+  "versionId": "1.0.0",
+  "id": "reporting-dashboard-v1",
+  "active": false
+}

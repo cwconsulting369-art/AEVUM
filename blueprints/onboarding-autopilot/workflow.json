@@ -1,0 +1,238 @@
+{
+  "name": "AEVUM — Onboarding Autopilot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "onboarding-new-customer",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook: Neuer Kunde",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "onboarding-webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "norm-firstname",
+              "name": "firstName",
+              "value": "={{ $json.body.firstName || $json.body.vorname || $json.body.first_name || 'Kunde' }}",
+              "type": "string"
+            },
+            {
+              "id": "norm-lastname",
+              "name": "lastName",
+              "value": "={{ $json.body.lastName || $json.body.nachname || $json.body.last_name || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "norm-email",
+              "name": "email",
+              "value": "={{ $json.body.email || $json.body.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "norm-company",
+              "name": "company",
+              "value": "={{ $json.body.company || $json.body.unternehmen || $json.body.Unternehmen || 'Ihr Unternehmen' }}",
+              "type": "string"
+            },
+            {
+              "id": "norm-product",
+              "name": "product",
+              "value": "={{ $json.body.product || $json.body.paket || 'Standard' }}",
+              "type": "string"
+            },
+            {
+              "id": "timestamp",
+              "name": "onboardingStart",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            },
+            {
+              "id": "calendly-link",
+              "name": "calendlyLink",
+              "value": "https://calendly.com/YOUR_HANDLE/kick-off",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-normalize",
+      "name": "Set: Daten normalisieren",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "willkommen@YOUR_DOMAIN.de",
+        "toEmail": "={{ $json.email }}",
+        "subject": "=Willkommen an Bord, {{ $json.firstName }} — deine nächsten Schritte",
+        "emailFormat": "html",
+        "message": "=<!DOCTYPE html>\n<html>\n<head><meta charset=\"UTF-8\"></head>\n<body style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width:600px; margin:0 auto; padding:20px; color:#333;\">\n\n<div style=\"background:#1a1a2e; color:white; padding:24px 30px; border-radius:12px 12px 0 0; text-align:center;\">\n  <h1 style=\"margin:0; font-size:24px;\">Willkommen, {{ $json.firstName }}!</h1>\n  <p style=\"margin:8px 0 0; color:#aaa;\">Wir freuen uns, dich an Bord zu haben.</p>\n</div>\n\n<div style=\"background:white; padding:30px; border:1px solid #eee; border-top:none;\">\n\n  <p>Hallo {{ $json.firstName }},</p>\n\n  <p>dein Onboarding ist jetzt aktiv. Hier sind deine nächsten Schritte:</p>\n\n  <div style=\"background:#f8f9fa; border-left:4px solid #1a1a2e; padding:16px 20px; margin:20px 0; border-radius:0 8px 8px 0;\">\n    <strong>Schritt 1:</strong> Kick-off Call buchen<br>\n    <a href=\"{{ $json.calendlyLink }}\" style=\"color:#1a1a2e; font-weight:700;\">→ Termin wählen</a>\n  </div>\n\n  <div style=\"background:#f8f9fa; border-left:4px solid #27ae60; padding:16px 20px; margin:20px 0; border-radius:0 8px 8px 0;\">\n    <strong>Schritt 2:</strong> Unterlagen bereithalten<br>\n    Für den Kick-off Call hilfreich: Zugang zu deinen aktuellen Tools, Ziele für das Projekt, offene Fragen.\n  </div>\n\n  <p>Bei Fragen antworte einfach auf diese Mail — wir melden uns innerhalb von 24h.</p>\n\n  <p>Mit freundlichen Grüßen,<br>\n  <strong>[DEIN TEAM]</strong><br>\n  [DEIN UNTERNEHMEN]</p>\n\n</div>\n\n<div style=\"padding:16px 30px; font-size:12px; color:#999; text-align:center;\">\n  [DEIN UNTERNEHMEN] · [DEINE ADRESSE] · <a href=\"[DEINE_WEBSITE]\" style=\"color:#999;\">Website</a>\n</div>\n\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "email-welcome",
+      "name": "Email: Welcome",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [680, 160],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.airtable.com/v0/YOUR_AIRTABLE_BASE_ID/Kunden",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": {\n    \"Name\": \"{{ $('Set: Daten normalisieren').item.json.firstName }} {{ $('Set: Daten normalisieren').item.json.lastName }}\",\n    \"E-Mail\": \"{{ $('Set: Daten normalisieren').item.json.email }}\",\n    \"Unternehmen\": \"{{ $('Set: Daten normalisieren').item.json.company }}\",\n    \"Produkt\": \"{{ $('Set: Daten normalisieren').item.json.product }}\",\n    \"Status\": \"Onboarding\",\n    \"Onboarding Start\": \"{{ $('Set: Daten normalisieren').item.json.onboardingStart }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "http-create-record",
+      "name": "HTTP: Datensatz anlegen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "airtable-api",
+          "name": "Airtable API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "YOUR_SLACK_WEBHOOK_URL",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": \":tada: *Neuer Kunde:* {{ $('Set: Daten normalisieren').item.json.firstName }} {{ $('Set: Daten normalisieren').item.json.lastName }} ({{ $('Set: Daten normalisieren').item.json.company }})\\nProdukt: {{ $('Set: Daten normalisieren').item.json.product }}\\nOnboarding läuft.\",\n  \"channel\": \"#neue-kunden\"\n}",
+        "options": {}
+      },
+      "id": "http-slack-ping",
+      "name": "HTTP: Slack Ping",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 440]
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "days"
+      },
+      "id": "wait-3-days",
+      "name": "Wait: 3 Tage",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [900, 160],
+      "webhookId": "wait-3-days-webhook"
+    },
+    {
+      "parameters": {
+        "fromEmail": "willkommen@YOUR_DOMAIN.de",
+        "toEmail": "={{ $('Set: Daten normalisieren').item.json.email }}",
+        "subject": "=Kurze Frage, {{ $('Set: Daten normalisieren').item.json.firstName }} — läuft alles?",
+        "emailFormat": "html",
+        "message": "=<!DOCTYPE html>\n<html>\n<head><meta charset=\"UTF-8\"></head>\n<body style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width:600px; margin:0 auto; padding:20px; color:#333;\">\n\n<p>Hallo {{ $('Set: Daten normalisieren').item.json.firstName }},</p>\n\n<p>es sind jetzt ein paar Tage seit deinem Start vergangen. Kurze Frage: Hast du alle Zugänge und Unterlagen erhalten? Gibt es irgendwo Stolpersteine?</p>\n\n<p>Wenn der Kick-off-Call noch nicht stattgefunden hat, hier noch einmal der Link:<br>\n<a href=\"{{ $('Set: Daten normalisieren').item.json.calendlyLink }}\">→ Termin buchen</a></p>\n\n<p>Einfach antworten — ich bin direkt für dich da.</p>\n\n<p>Viele Grüße,<br>\n<strong>[DEIN NAME]</strong><br>\n[DEIN UNTERNEHMEN]</p>\n\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "email-followup",
+      "name": "Email: Follow-up Check-in",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [1120, 160],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook: Neuer Kunde": {
+      "main": [
+        [
+          {
+            "node": "Set: Daten normalisieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Daten normalisieren": {
+      "main": [
+        [
+          {
+            "node": "Email: Welcome",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP: Datensatz anlegen",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP: Slack Ping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email: Welcome": {
+      "main": [
+        [
+          {
+            "node": "Wait: 3 Tage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: 3 Tage": {
+      "main": [
+        [
+          {
+            "node": "Email: Follow-up Check-in",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "staticData": null,
+  "meta": {
+    "instanceId": "aevum-blueprint"
+  },
+  "tags": [
+    {
+      "name": "AEVUM Onboarding"
+    }
+  ],
+  "versionId": "1.0.0",
+  "id": "onboarding-autopilot-v1",
+  "active": false
+}

@@ -1,0 +1,470 @@
+{
+  "name": "AEVUM — Cold Outreach System",
+  "nodes": [
+    {
+      "parameters": {
+        "inputDataFieldName": "data"
+      },
+      "id": "manual-trigger",
+      "name": "Manual Trigger: CSV Import",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "contacts-array",
+              "name": "contacts",
+              "value": "={{ [\n  { \"firstName\": \"Max\", \"lastName\": \"Mustermann\", \"email\": \"max@beispiel.de\", \"company\": \"Beispiel GmbH\", \"position\": \"Geschäftsführer\", \"note\": \"Auf LinkedIn aktiv zu Thema Digitalisierung\" },\n  { \"firstName\": \"Anna\", \"lastName\": \"Schmidt\", \"email\": \"anna@schmidt-gmbh.de\", \"company\": \"Schmidt & Partner\", \"position\": \"Inhaberin\", \"note\": \"\" }\n] }}",
+              "type": "array"
+            },
+            {
+              "id": "sender-name",
+              "name": "senderName",
+              "value": "DEIN NAME",
+              "type": "string"
+            },
+            {
+              "id": "sender-company",
+              "name": "senderCompany",
+              "value": "DEIN UNTERNEHMEN",
+              "type": "string"
+            },
+            {
+              "id": "sender-email",
+              "name": "senderEmail",
+              "value": "outreach@YOUR_DOMAIN.de",
+              "type": "string"
+            },
+            {
+              "id": "offer-description",
+              "name": "offerDescription",
+              "value": "Ich helfe Agenturen und KMUs dabei, wiederkehrende Prozesse zu automatisieren und so 10+ Stunden pro Woche einzusparen.",
+              "type": "string"
+            },
+            {
+              "id": "optout-base-url",
+              "name": "optoutBaseUrl",
+              "value": "YOUR_N8N_BASE_URL/webhook/outreach-optout",
+              "type": "string"
+            },
+            {
+              "id": "calendly-link",
+              "name": "calendlyLink",
+              "value": "https://calendly.com/YOUR_HANDLE/15min",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-campaign-config",
+      "name": "Set: Kampagnen-Konfiguration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "contacts",
+        "options": {}
+      },
+      "id": "split-contacts",
+      "name": "Split: Kontakte aufteilen",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "batch-contacts",
+      "name": "Batch: 10 pro Tag",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-4o\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist ein Outreach-Spezialist. Schreibe genau 2 Sätze: einen personalisierten Hook und einen Brücken-Satz zu folgendem Angebot.\\n\\nAngebot: {{ $('Set: Kampagnen-Konfiguration').item.json.offerDescription }}\\n\\nRegeln:\\n- Kein Clickbait, kein generisches Lob\\n- Beziehe dich auf die Position oder Branche der Person\\n- Falls eine Notiz vorhanden, nutze sie als Aufhänger\\n- Natürlich, nicht wie eine Vorlage\\n- Auf Deutsch\\n\\nAntworte NUR mit den 2 Sätzen. Kein Kommentar davor oder danach.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Name: {{ $json.firstName }} {{ $json.lastName }}\\nUnternehmen: {{ $json.company }}\\nPosition: {{ $json.position }}\\nNotiz: {{ $json.note || 'keine' }}\"\n    }\n  ],\n  \"max_tokens\": 200,\n  \"temperature\": 0.85\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-generate-hook",
+      "name": "HTTP: KI-Hook generieren",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "openrouter-api",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "extract-hook",
+              "name": "personalizedHook",
+              "value": "={{ $json.choices[0].message.content.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "contact-passthrough",
+              "name": "contact",
+              "value": "={{ $('Batch: 10 pro Tag').item.json }}",
+              "type": "object"
+            },
+            {
+              "id": "config-passthrough",
+              "name": "campaignConfig",
+              "value": "={{ $('Set: Kampagnen-Konfiguration').item.json }}",
+              "type": "object"
+            },
+            {
+              "id": "generate-subject",
+              "name": "subjectLine",
+              "value": "=Kurze Frage, {{ $('Batch: 10 pro Tag').item.json.firstName }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-extract-hook",
+      "name": "Set: Hook extrahieren",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.campaignConfig.senderEmail }}",
+        "toEmail": "={{ $json.contact.email }}",
+        "subject": "={{ $json.subjectLine }}",
+        "emailFormat": "html",
+        "message": "=<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:560px;line-height:1.6;color:#333;\">\n<p>Hallo {{ $json.contact.firstName }},</p>\n\n<p>{{ $json.personalizedHook }}</p>\n\n<p>{{ $json.campaignConfig.offerDescription }}</p>\n\n<p>Wäre ein kurzes 15-Minuten-Gespräch in den nächsten Tagen möglich?<br>\n<a href=\"{{ $json.campaignConfig.calendlyLink }}\">Termin wählen</a></p>\n\n<p>Viele Grüße,<br>\n<strong>{{ $json.campaignConfig.senderName }}</strong><br>\n{{ $json.campaignConfig.senderCompany }}</p>\n\n<hr style=\"border:none;border-top:1px solid #eee;margin:20px 0;\">\n<p style=\"font-size:11px;color:#999;\">Keine weiteren Nachrichten gewünscht? <a href=\"{{ $json.campaignConfig.optoutBaseUrl }}?email={{ $json.contact.email }}\" style=\"color:#999;\">Hier abmelden</a></p>\n</body></html>",
+        "options": {}
+      },
+      "id": "email-mail1",
+      "name": "Email: Mail 1",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [1560, 300],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "days"
+      },
+      "id": "wait-3-days",
+      "name": "Wait: 3 Tage",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1780, 300],
+      "webhookId": "outreach-wait-3d"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-reply-status",
+              "leftValue": "={{ $json.contact?.replied || false }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-replied-1",
+      "name": "IF: Antwort nach Mail 1?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.campaignConfig.senderEmail }}",
+        "toEmail": "={{ $json.contact.email }}",
+        "subject": "=Re: {{ $json.subjectLine }}",
+        "emailFormat": "html",
+        "message": "=<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:560px;line-height:1.6;color:#333;\">\n<p>Hallo {{ $json.contact.firstName }},</p>\n\n<p>ich hake kurz nach — vielleicht ist meine erste Nachricht untergegangen.</p>\n\n<p>Kurz zusammengefasst: {{ $json.campaignConfig.offerDescription }}</p>\n\n<p>Haben Sie 15 Minuten diese Woche?<br>\n<a href=\"{{ $json.campaignConfig.calendlyLink }}\">Termin wählen</a></p>\n\n<p>{{ $json.campaignConfig.senderName }}</p>\n\n<hr style=\"border:none;border-top:1px solid #eee;margin:20px 0;\">\n<p style=\"font-size:11px;color:#999;\"><a href=\"{{ $json.campaignConfig.optoutBaseUrl }}?email={{ $json.contact.email }}\" style=\"color:#999;\">Keine weiteren Nachrichten</a></p>\n</body></html>",
+        "options": {}
+      },
+      "id": "email-followup1",
+      "name": "Email: Follow-up 1",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [2220, 420],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 5,
+        "unit": "days"
+      },
+      "id": "wait-5-days",
+      "name": "Wait: 5 Tage",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2440, 420],
+      "webhookId": "outreach-wait-5d"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-reply-status-2",
+              "leftValue": "={{ $json.contact?.replied || false }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-replied-2",
+      "name": "IF: Antwort nach Follow-up?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2660, 420]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.campaignConfig.senderEmail }}",
+        "toEmail": "={{ $json.contact.email }}",
+        "subject": "=Letzte Nachricht von mir",
+        "emailFormat": "html",
+        "message": "=<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:560px;line-height:1.6;color:#333;\">\n<p>Hallo {{ $json.contact.firstName }},</p>\n\n<p>das ist meine letzte Nachricht — ich möchte nicht aufdringlich sein.</p>\n\n<p>Falls das Timing gerade nicht passt, ist das völlig verständlich. Sollten Sie irgendwann Bedarf an Prozessautomatisierung haben, freue ich mich über eine Nachricht.</p>\n\n<p>Alles Gute,<br>\n<strong>{{ $json.campaignConfig.senderName }}</strong><br>\n{{ $json.campaignConfig.senderCompany }}</p>\n\n<hr style=\"border:none;border-top:1px solid #eee;margin:20px 0;\">\n<p style=\"font-size:11px;color:#999;\"><a href=\"{{ $json.campaignConfig.optoutBaseUrl }}?email={{ $json.contact.email }}\" style=\"color:#999;\">Keine weiteren Nachrichten</a></p>\n</body></html>",
+        "options": {}
+      },
+      "id": "email-last-chance",
+      "name": "Email: Letzte Chance",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [2880, 540],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "outreach-optout",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-optout",
+      "name": "Webhook: Opt-out",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 560],
+      "webhookId": "outreach-optout-webhook",
+      "notes": "Separater Workflow oder parallel laufend — verarbeitet Abmelde-Requests"
+    }
+  ],
+  "connections": {
+    "Manual Trigger: CSV Import": {
+      "main": [
+        [
+          {
+            "node": "Set: Kampagnen-Konfiguration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Kampagnen-Konfiguration": {
+      "main": [
+        [
+          {
+            "node": "Split: Kontakte aufteilen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split: Kontakte aufteilen": {
+      "main": [
+        [
+          {
+            "node": "Batch: 10 pro Tag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch: 10 pro Tag": {
+      "main": [
+        [
+          {
+            "node": "HTTP: KI-Hook generieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: KI-Hook generieren": {
+      "main": [
+        [
+          {
+            "node": "Set: Hook extrahieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Hook extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Email: Mail 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email: Mail 1": {
+      "main": [
+        [
+          {
+            "node": "Wait: 3 Tage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: 3 Tage": {
+      "main": [
+        [
+          {
+            "node": "IF: Antwort nach Mail 1?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Antwort nach Mail 1?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Email: Follow-up 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email: Follow-up 1": {
+      "main": [
+        [
+          {
+            "node": "Wait: 5 Tage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: 5 Tage": {
+      "main": [
+        [
+          {
+            "node": "IF: Antwort nach Follow-up?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Antwort nach Follow-up?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Email: Letzte Chance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "staticData": null,
+  "meta": {
+    "instanceId": "aevum-blueprint"
+  },
+  "tags": [
+    {
+      "name": "AEVUM Outreach"
+    }
+  ],
+  "versionId": "1.0.0",
+  "id": "cold-outreach-system-v1",
+  "active": false
+}
