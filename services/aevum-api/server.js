@@ -19,6 +19,7 @@ import { approvalRouter } from './routes/approval.js';
 import { tgWebhookRouter } from './routes/tg-webhook.js';
 import { helpbotRouter } from './routes/helpbot.js';
 import { botRouter } from './routes/bot.js';
+import { creditsRouter } from './routes/credits.js';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3210', 10);
@@ -190,6 +191,9 @@ app.use('/api/blueprints', blueprintsRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/me', meRouter);
 app.use('/api/cases', casesRouter);
+
+// Credit + Loyalty System
+app.use('/api/credits', creditsRouter);
 
 // Bot-internal data endpoint (admin-token gated, localhost only in practice)
 app.use('/bot', botRouter);

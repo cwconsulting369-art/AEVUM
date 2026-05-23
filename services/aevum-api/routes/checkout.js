@@ -6,6 +6,7 @@ import { notifyCarlos } from '../lib/tg-notify.js';
 import { clean, scanPayload } from '../lib/security.js';
 import { logBlock } from '../lib/monitor.js';
 import { CONSENT_VERSION } from './audit.js';
+import { earnCredits, addStamp, checkStampReward } from '../lib/credits.js';
 
 export const checkoutRouter = Router();
 
@@ -343,6 +344,19 @@ checkoutRouter.post('/webhook', async (req, res) => {
     notifyCarlos(
       `💰 *Neuer AEVUM-Sale* — Paket ${tier}\n*Betrag:* ${totalEur} EUR\n*Kunde:* ${emailMasked}\n${session.metadata?.pilotApplied === 'true' ? `*Pilot-Slot:* ${session.metadata.pilotSlot}/10\n` : ''}_Volle Daten in Supabase orders-Tabelle_`
     );
+
+    // Credits + Loyalty: nur wenn account_id in Session-Metadata vorhanden
+    const accountId = session.metadata?.account_id;
+    if (accountId) {
+      try {
+        await earnCredits(accountId, amountTotal, session.id, 'Blueprint-Kauf');
+        await addStamp(accountId);
+        await checkStampReward(accountId);
+      } catch (credErr) {
+        // Loyalty-Fehler dürfen den Webhook nicht blockieren
+        console.error('[webhook] credits/loyalty error (non-fatal):', credErr.message);
+      }
+    }
   }
 
   // Other event types ignored for now (payment_intent.succeeded etc. — redundant with checkout.session.completed)
