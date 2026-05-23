@@ -768,7 +768,7 @@ function PricingSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-16"
+          className="mb-16 text-center"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
             Investment
@@ -776,7 +776,7 @@ function PricingSection() {
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
             Kein Standard-Paket. Kein Preisschild.
           </h2>
-          <p className="text-[#a4a4ad] text-lg max-w-2xl leading-relaxed">
+          <p className="text-[#a4a4ad] text-lg max-w-2xl leading-relaxed mx-auto">
             Dein System ist individuell — dein Angebot auch.
           </p>
         </motion.div>
@@ -786,7 +786,7 @@ function PricingSection() {
           variants={fadeUp}
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
-          className="bg-[#08080a] border border-white/10 p-10 lg:p-14 mb-10 max-w-3xl"
+          className="bg-[#08080a] border border-white/10 p-10 lg:p-14 mb-10 max-w-3xl mx-auto"
         >
           <p className="text-base md:text-lg text-[#a4a4ad] leading-relaxed mb-8">
             Nach dem kostenlosen Audit analysieren wir gemeinsam:
@@ -830,7 +830,7 @@ function PricingSection() {
           </a>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
           {trustSignals.map((t, i) => (
             <motion.div
               key={t.text}
