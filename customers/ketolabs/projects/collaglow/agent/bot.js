@@ -101,7 +101,15 @@ function tg(method, params = {}) {
 
 const send = (chat_id, text, extra = {}) =>
   tg('sendMessage', { chat_id, text, parse_mode: 'Markdown', ...extra });
-const typing = chat_id => tg('sendChatAction', { chat_id, action: 'typing' });
+
+async function thinkingPlaceholder(chat_id) {
+  const msg = await tg('sendMessage', { chat_id, text: '💭 *CollaGlow Agent* denkt nach…', parse_mode: 'Markdown' });
+  const id = msg?.result?.message_id;
+  return async (text) => {
+    if (!id) return send(chat_id, text);
+    return tg('editMessageText', { chat_id, message_id: id, text, parse_mode: 'Markdown' });
+  };
+}
 
 // ─── LLM ────────────────────────────────────────────────────────────────────
 async function llm(chat_id, userText) {
@@ -205,9 +213,9 @@ async function poll() {
     if (text.startsWith('/')) {
       await handleCommand(text.split(' ')[0], chat_id);
     } else {
-      await typing(chat_id);
+      const editReply = await thinkingPlaceholder(chat_id);
       const reply = await llm(chat_id, text);
-      await send(chat_id, reply);
+      await editReply(reply);
     }
   }
 
