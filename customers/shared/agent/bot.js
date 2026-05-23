@@ -31,10 +31,9 @@ const TOKEN       = process.env[config.tokenEnv];
 const OR_KEY      = process.env.OPENROUTER_API_KEY;
 const OR_MODEL    = config.model || process.env.AEVUM_BOT_MODEL || 'anthropic/claude-haiku-4-5';
 const NOTIFY_PORT = config.port || parseInt(process.env.AEVUM_BOT_PORT || '4131', 10);
-const OWNER_IDS   = new Set([
-  parseInt(process.env.CARLOS_TG_USER_ID || '6436074677', 10),
-  ...(config.ownerIds || []).map(Number)
-]);
+const CARLOS_ID   = parseInt(process.env.CARLOS_TG_USER_ID || '6436074677', 10);
+const ADMIN_IDS   = new Set([CARLOS_ID, ...(config.adminIds || []).map(Number)]);
+const OWNER_IDS   = new Set([...ADMIN_IDS, ...(config.ownerIds || []).map(Number)]);
 
 const STATE_FILE = path.join(CONFIG_DIR, 'state.json');
 const CHATS_DIR  = path.join(CONFIG_DIR, 'chats');
@@ -64,7 +63,7 @@ const saveState = () => fs.writeFileSync(STATE_FILE, JSON.stringify(state, null,
 
 // ── Knowledge Loader ─────────────────────────────────────────────────────────
 
-function loadPersona(projectSlug, sectionSlug) {
+function loadPersona(projectSlug, sectionSlug, isAdmin) {
   const parts = [];
   const proj = config.projects?.find(p => p.slug === projectSlug);
   const section = sectionSlug ? proj?.sections?.find(s => s.slug === sectionSlug) : null;
@@ -72,6 +71,7 @@ function loadPersona(projectSlug, sectionSlug) {
   parts.push(`Du bist der AEVUM Business Agent für ${BOT_NAME}.
 Aktives Projekt: ${proj?.label || projectSlug}${proj?.description ? ` — ${proj.description}` : ''}.
 ${section ? `Aktiver Bereich: ${section.label.replace(/^\S+\s/, '')} — beantworte Fragen mit Fokus auf diesen Bereich.` : ''}
+${isAdmin ? `[ADMIN-SESSION — Carlos Wrusch (AEVUM-Operator) testet/monitort diesen Bot. Antworte normal, aber du kannst Debuginfos oder interne Details teilen falls gefragt.]` : ''}
 Stil: direkt, datengetrieben, brutal ehrlich. Kein Bullshit, keine Sycophantie.
 Sprache: Deutsch. Fokus auf Cashflow, Pipeline, Execution.`);
 
@@ -196,8 +196,9 @@ async function llm(chat_id, userText, projectSlug) {
   history.push({ role: 'user', content: userText });
 
   const activeSection = state.activeSection?.[chat_id]?.[projectSlug];
+  const isAdmin = ADMIN_IDS.has(chat_id);
   const now = new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' });
-  const systemPrompt = `NOW: ${now} (Europe/Berlin)\n\n` + loadPersona(projectSlug, activeSection);
+  const systemPrompt = `NOW: ${now} (Europe/Berlin)\n\n` + loadPersona(projectSlug, activeSection, isAdmin);
 
   const body = JSON.stringify({
     model: OR_MODEL,

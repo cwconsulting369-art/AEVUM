@@ -5,6 +5,7 @@
   "port": 4130,
   "model": "anthropic/claude-haiku-4-5",
   "ownerIds": [6436074677],
+  "adminIds": [6436074677],
   "projects": [
     {
       "slug": "aevum",

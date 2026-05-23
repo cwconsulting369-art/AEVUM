@@ -5,6 +5,7 @@
   "port": 4131,
   "model": "anthropic/claude-haiku-4-5",
   "ownerIds": [1417469383],
+  "adminIds": [6436074677],
   "projects": [
     {
       "slug": "collaglow",
