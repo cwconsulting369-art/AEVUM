@@ -1,0 +1,15 @@
+{
+  "customerSlug": "ketolabs",
+  "customerName": "Ketolabs",
+  "tokenEnv": "COLLAGLOW_BOT_TOKEN",
+  "port": 4131,
+  "model": "anthropic/claude-haiku-4-5",
+  "ownerIds": [1417469383],
+  "projects": [
+    {
+      "slug": "collaglow",
+      "label": "CollaGlow",
+      "description": "DTC E-Commerce CollaGlow — Ads, Revenue, Growth"
+    }
+  ]
+}
