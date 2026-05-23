@@ -15,7 +15,14 @@ import {
   Building2,
   User,
   Briefcase,
+  ShoppingCart,
+  UserPlus,
+  CreditCard,
+  Star,
+  Lock,
+  X,
 } from 'lucide-react';
+import { createCheckoutSession } from '@/lib/api';
 
 /* ──────────────────────── Types ──────────────────────── */
 
@@ -36,6 +43,7 @@ type ICP = 'AG' | 'PB' | 'FI';
 
 interface Blueprint {
   id: number;
+  slug: string;
   name: string;
   category: Exclude<BlueprintCategory, 'Alle'>;
   security: SecurityLevel;
@@ -61,6 +69,7 @@ interface DFYService {
 const blueprints: Blueprint[] = [
   {
     id: 1,
+    slug: 'content-factory',
     name: 'Content-Factory',
     category: 'Content',
     security: 'business',
@@ -76,6 +85,7 @@ const blueprints: Blueprint[] = [
   },
   {
     id: 2,
+    slug: 'lead-qualifier-pro',
     name: 'Lead-Qualifier Pro',
     category: 'Leads',
     security: 'dsgvo',
@@ -91,6 +101,7 @@ const blueprints: Blueprint[] = [
   },
   {
     id: 3,
+    slug: 'reporting-dashboard-setup',
     name: 'Reporting Dashboard Setup',
     category: 'Reporting',
     security: 'business',
@@ -105,6 +116,7 @@ const blueprints: Blueprint[] = [
   },
   {
     id: 4,
+    slug: 'onboarding-autopilot',
     name: 'Onboarding Autopilot',
     category: 'Automatisierung',
     security: 'basic',
@@ -115,6 +127,7 @@ const blueprints: Blueprint[] = [
   },
   {
     id: 5,
+    slug: 'newsletter-growth-machine',
     name: 'Newsletter Growth Machine',
     category: 'Content',
     security: 'basic',
@@ -129,6 +142,7 @@ const blueprints: Blueprint[] = [
   },
   {
     id: 6,
+    slug: 'cold-outreach-system',
     name: 'Cold Outreach System',
     category: 'Leads',
     security: 'dsgvo',
@@ -412,6 +426,96 @@ function HeroStrip() {
   );
 }
 
+/* ──────────────────────── Credit Incentive Banner ──────────────────────── */
+
+function CreditIncentiveBanner() {
+  const [dismissed, setDismissed] = useState(false);
+
+  if (dismissed) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.4 }}
+      className="mx-6 lg:mx-16 mb-10 max-w-[1440px] xl:mx-auto relative"
+    >
+      <div className="border border-[#e0a458]/40 bg-[#e0a458]/5 px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
+        {/* dismiss */}
+        <button
+          onClick={() => setDismissed(true)}
+          className="absolute top-3 right-3 text-[#7a7a85] hover:text-[#F9FAFB] transition-colors"
+          aria-label="Banner schließen"
+        >
+          <X size={14} />
+        </button>
+
+        <div className="flex items-start gap-3">
+          <Star size={16} className="text-[#e0a458] flex-shrink-0 mt-0.5" />
+          <div>
+            <span className="font-mono text-xs uppercase tracking-widest text-[#e0a458] block mb-1">
+              AEVUM Credits — Sammle bei jedem Kauf
+            </span>
+            <p className="text-sm text-[#a4a4ad]">
+              10 Credits pro €1 &middot; Einlösbar gegen Tools &amp; Demos &middot; 5 Käufe = 1 Blueprint gratis
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <a
+            href="/#/register"
+            className="inline-flex items-center gap-1.5 text-xs font-medium bg-[#e0a458] text-[#08080a] px-4 py-2 hover:bg-[#f0b468] transition-colors whitespace-nowrap"
+          >
+            <UserPlus size={13} />
+            Account erstellen — kostenlos
+          </a>
+          <a
+            href="#ecosystem"
+            className="text-xs text-[#a4a4ad] hover:text-[#e0a458] transition-colors whitespace-nowrap"
+          >
+            Mehr erfahren
+          </a>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ──────────────────────── Checkout Hook ──────────────────────── */
+
+function useBuyBlueprint() {
+  const [loading, setLoading] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const buy = async (blueprint: Blueprint, withAccount = false) => {
+    setError(null);
+    setLoading(blueprint.id);
+    try {
+      if (withAccount) {
+        // Redirect to register with intent param, come back to checkout after login
+        window.location.href = `/#/register?intent=checkout&blueprint=${blueprint.slug}`;
+        return;
+      }
+      const { url } = await createCheckoutSession({
+        product_id: blueprint.slug,
+        price_cents: blueprint.price * 100,
+        mode: 'payment',
+        metadata: { blueprint_slug: blueprint.slug },
+        success_url: window.location.origin + '/#/checkout/success',
+        cancel_url: window.location.origin + '/#/shop',
+      });
+      window.location.href = url;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Checkout fehlgeschlagen. Bitte erneut versuchen.');
+      setLoading(null);
+    }
+  };
+
+  return { buy, loading, error };
+}
+
 /* ──────────────────────── Blueprints Section ──────────────────────── */
 
 function BlueprintFilterBar({
@@ -441,9 +545,21 @@ function BlueprintFilterBar({
   );
 }
 
-function BlueprintCard({ blueprint, index }: { blueprint: Blueprint; index: number }) {
+function BlueprintCard({
+  blueprint,
+  index,
+  onBuy,
+  buyLoading,
+}: {
+  blueprint: Blueprint;
+  index: number;
+  onBuy: (bp: Blueprint, withAccount?: boolean) => void;
+  buyLoading: number | null;
+}) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
+  const isLoading = buyLoading === blueprint.id;
+  const credits = blueprint.price * 10;
 
   return (
     <motion.div
@@ -479,7 +595,7 @@ function BlueprintCard({ blueprint, index }: { blueprint: Blueprint; index: numb
         dangerouslySetInnerHTML={{ __html: blueprint.description }}
       />
 
-      <ul className="space-y-2 mb-7">
+      <ul className="space-y-2 mb-6">
         {blueprint.includes.map((item) => (
           <li key={item} className="flex items-start gap-2 text-xs text-[#a4a4ad]">
             <IncludesIcon text={item} />
@@ -488,17 +604,47 @@ function BlueprintCard({ blueprint, index }: { blueprint: Blueprint; index: numb
         ))}
       </ul>
 
-      <div className="flex items-center justify-between gap-4 mt-auto">
-        <span className="text-2xl font-light text-[#F9FAFB]">
-          &euro;{blueprint.price}
+      {/* Price row */}
+      <div className="mb-5">
+        <div className="flex items-baseline gap-2">
+          <span className="text-2xl font-light text-[#F9FAFB]">
+            &euro;{blueprint.price}
+          </span>
+        </div>
+        {/* Credit hint */}
+        <span className="text-xs text-[#e0a458]/70 font-mono mt-0.5 block">
+          +{credits.toLocaleString('de-DE')} Credits mit Account
         </span>
-        <a
-          href="/#/audit"
-          className="btn-primary text-sm px-5 py-2 whitespace-nowrap"
+      </div>
+
+      {/* Dual CTA */}
+      <div className="flex flex-col gap-2 mt-auto">
+        <button
+          onClick={() => onBuy(blueprint, false)}
+          disabled={isLoading}
+          className="btn-primary text-sm px-5 py-2.5 inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Blueprint kaufen
-          <ArrowRight size={13} className="ml-1.5" />
-        </a>
+          {isLoading ? (
+            <>
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-[#08080a]/40 border-t-[#08080a] animate-spin" />
+              Wird gestartet...
+            </>
+          ) : (
+            <>
+              <ShoppingCart size={14} />
+              Jetzt kaufen
+            </>
+          )}
+        </button>
+        <button
+          onClick={() => onBuy(blueprint, true)}
+          disabled={isLoading}
+          className="inline-flex items-center justify-center gap-2 text-xs font-medium text-[#a4a4ad] border border-white/10 px-5 py-2 hover:border-[#e0a458]/40 hover:text-[#e0a458] transition-all disabled:opacity-50"
+        >
+          <UserPlus size={12} />
+          Mit Account kaufen
+          <span className="ml-auto text-[#e0a458]/60 font-mono">+{credits.toLocaleString('de-DE')} Credits</span>
+        </button>
       </div>
     </motion.div>
   );
@@ -506,6 +652,7 @@ function BlueprintCard({ blueprint, index }: { blueprint: Blueprint; index: numb
 
 function BlueprintsSection() {
   const [activeCategory, setActiveCategory] = useState<BlueprintCategory>('Alle');
+  const { buy, loading: buyLoading, error: buyError } = useBuyBlueprint();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
@@ -517,6 +664,9 @@ function BlueprintsSection() {
   return (
     <section className="px-6 lg:px-16 pb-24" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
+        {/* Credit Banner */}
+        <CreditIncentiveBanner />
+
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -541,9 +691,22 @@ function BlueprintsSection() {
 
         <BlueprintFilterBar active={activeCategory} onChange={setActiveCategory} />
 
+        {/* Checkout error */}
+        {buyError && (
+          <div className="mb-6 border border-rose-400/30 bg-rose-400/5 px-5 py-3 text-sm text-rose-400 font-mono">
+            {buyError}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((bp, i) => (
-            <BlueprintCard key={bp.id} blueprint={bp} index={i} />
+            <BlueprintCard
+              key={bp.id}
+              blueprint={bp}
+              index={i}
+              onBuy={buy}
+              buyLoading={buyLoading}
+            />
           ))}
         </div>
         {filtered.length === 0 && (
@@ -571,8 +734,11 @@ function BlueprintsSection() {
             <p className="text-sm text-[#7a7a85]">
               Content, Leads, Reporting + Automatisierung — komplett.
             </p>
+            <span className="text-xs text-[#e0a458]/70 font-mono mt-1 block">
+              +{(BUNDLE_PRICE * 10).toLocaleString('de-DE')} Credits mit Account
+            </span>
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-6 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-center gap-4 flex-shrink-0">
             <div className="text-center">
               <span className="block text-3xl font-light text-[#F9FAFB]">
                 &euro;{BUNDLE_PRICE}
@@ -585,11 +751,136 @@ function BlueprintsSection() {
                 )
               </span>
             </div>
-            <a href="/#/audit" className="btn-primary px-7 py-2.5 text-sm inline-flex items-center whitespace-nowrap">
-              Bundle kaufen
-              <ArrowRight size={14} className="ml-2" />
-            </a>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() =>
+                  buy(
+                    {
+                      id: 99,
+                      slug: 'bundle-all',
+                      name: 'Blueprint Bundle',
+                      category: 'Content',
+                      security: 'business',
+                      description: '',
+                      includes: [],
+                      price: BUNDLE_PRICE,
+                    },
+                    false
+                  )
+                }
+                className="btn-primary px-7 py-2.5 text-sm inline-flex items-center gap-2 whitespace-nowrap"
+              >
+                <ShoppingCart size={14} />
+                Bundle kaufen
+              </button>
+              <button
+                onClick={() =>
+                  buy(
+                    {
+                      id: 99,
+                      slug: 'bundle-all',
+                      name: 'Blueprint Bundle',
+                      category: 'Content',
+                      security: 'business',
+                      description: '',
+                      includes: [],
+                      price: BUNDLE_PRICE,
+                    },
+                    true
+                  )
+                }
+                className="inline-flex items-center justify-center gap-2 text-xs text-[#a4a4ad] border border-white/10 px-5 py-2 hover:border-[#e0a458]/40 hover:text-[#e0a458] transition-all"
+              >
+                <UserPlus size={12} />
+                Mit Account — +{(BUNDLE_PRICE * 10).toLocaleString('de-DE')} Credits
+              </button>
+            </div>
           </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────── Ecosystem Section ──────────────────────── */
+
+function EcosystemSection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
+
+  const pillars = [
+    {
+      icon: CreditCard,
+      title: 'Stempelkarte',
+      desc: '5 Blueprints kaufen, 1 gratis kriegen. Wird automatisch gezählt — kein Coupon nötig.',
+    },
+    {
+      icon: Zap,
+      title: 'Credits',
+      desc: '10 Credits pro €1. Einlösbar gegen Workflow-Demos, Tool-Zugang und exklusive Templates.',
+    },
+    {
+      icon: Lock,
+      title: 'Frühbucher',
+      desc: 'Neue Blueprints 20% günstiger für bestehende Kunden mit Account. Automatisch, dauerhaft.',
+    },
+  ];
+
+  return (
+    <section id="ecosystem" className="px-6 lg:px-16 py-20 bg-[#0c0c10]" ref={ref}>
+      <div className="max-w-[1440px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          className="text-center mb-12"
+        >
+          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-3 block">
+            Das AEVUM Ecosystem
+          </span>
+          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3">
+            Mehr Wert bei jedem{' '}
+            <span className="text-gradient font-medium">Kauf</span>
+          </h2>
+          <p className="text-sm text-[#7a7a85] max-w-xl mx-auto">
+            Ohne Account: kaufen &amp; herunterladen funktioniert. Credits und Stempelkarte gibt es nur für registrierte Kunden.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {pillars.map((p, i) => (
+            <motion.div
+              key={p.title}
+              custom={i}
+              variants={fadeUp}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+              className="bg-[#111116] border border-white/10 p-8 flex flex-col gap-4 hover:border-[#e0a458]/30 transition-all"
+            >
+              <div className="w-11 h-11 rounded-lg bg-[#e0a458]/10 flex items-center justify-center flex-shrink-0">
+                <p.icon size={20} className="text-[#e0a458]" />
+              </div>
+              <div>
+                <h3 className="text-base font-medium text-[#F9FAFB] mb-1.5">{p.title}</h3>
+                <p className="text-sm text-[#a4a4ad] leading-relaxed">{p.desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-center"
+        >
+          <a
+            href="/#/register"
+            className="inline-flex items-center gap-2 text-sm font-medium bg-[#e0a458] text-[#08080a] px-7 py-3 hover:bg-[#f0b468] transition-colors"
+          >
+            <UserPlus size={15} />
+            Kostenlosen Account erstellen
+          </a>
         </motion.div>
       </div>
     </section>
@@ -673,7 +964,7 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
         </span>
       </div>
 
-      {/* CTA */}
+      {/* CTA — audit only, no direct Stripe */}
       <a
         href="/#/audit"
         className="mt-auto inline-flex items-center justify-center gap-2 text-sm font-medium text-[#e0a458] border border-[#e0a458]/30 px-5 py-2.5 hover:bg-[#e0a458]/8 transition-all"
@@ -969,6 +1260,7 @@ export default function Shop() {
     <div className="bg-[#08080a] min-h-screen">
       <HeroStrip />
       <BlueprintsSection />
+      <EcosystemSection />
       <HowItWorksStrip />
       <SecurityLegend />
       <DFYSection />
