@@ -29,6 +29,7 @@ import { leadMagnetsRouter } from './routes/lead-magnets.js';
 import { scriptFactoryRouter } from './routes/factories/script.js';
 import { dsgvoFactoryRouter } from './routes/factories/dsgvo.js';
 import { subscriptionsRouter, projectSubscriptionsRouter } from './routes/subscriptions.js';
+import { subOsRouter } from './routes/sub-os.js';
 import { anonymizeIp } from './lib/security.js';
 
 const app = express();
@@ -289,6 +290,13 @@ app.use('/api/dashboard', dashboardStatsRouter);
 // SaaS Factories — Wave C (Pay-per-Run)
 app.use('/api/factories/script', scriptFactoryRouter);
 app.use('/api/factories/dsgvo', dsgvoFactoryRouter);
+
+// Sub-OS aevum-summary endpoints — Wave E3 (admin-token gated)
+//   /api/sub-os                      → list supported systems
+//   /api/sub-os/_all/summary         → aggregated (Master-Dashboard pull)
+//   /api/sub-os/:system/summary      → live cached KPIs per system
+//   /api/sub-os/snapshots/:system    → snapshot history (trends)
+app.use('/api/sub-os', subOsRouter);
 
 // 404
 app.use((req, res) => {
