@@ -15,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import CONTACT from '@/config/contact';
+import { track } from '@/lib/shop-track';
 
 /* ------------------------------------------------------------------ */
 /*  TYPES                                                             */
@@ -65,7 +66,7 @@ interface FormState {
 /*  CONSTANTS                                                         */
 /* ------------------------------------------------------------------ */
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.lennoxos.com';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.aevum-system.de';
 const STORAGE_KEY = 'audit-form-v3-draft';
 const HELPBOT_PREFILL_KEY = 'aevum_audit_prefill';
 
@@ -243,7 +244,7 @@ export default function Audit() {
   const [helpbotSessionId, setHelpbotSessionId] = useState<string | null>(null);
   const [showHelpbotBanner, setShowHelpbotBanner] = useState(false);
 
-  /* -- Draft persistence -- */
+  /* -- Draft persistence + audit_start funnel event -- */
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -257,6 +258,7 @@ export default function Audit() {
       setHelpbotSessionId(prefill.helpbot_session_id);
       setShowHelpbotBanner(true);
     }
+    track('audit_start');
   }, []);
 
   useEffect(() => {
@@ -343,6 +345,7 @@ export default function Audit() {
     if (!formState.consent_dsgvo) return;
     setSubmitError(null);
     setIsSubmitting(true);
+    track('audit_submit', { meta: { segment: formState.segment, urgency: formState.contact.urgency } });
     try {
       let uploadedFiles: UploadedFileMeta[] = [];
       if (files.length > 0) {

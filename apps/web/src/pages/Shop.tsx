@@ -23,6 +23,7 @@ import {
   X,
 } from 'lucide-react';
 import { createCheckoutSession } from '@/lib/api';
+import { track } from '@/lib/shop-track';
 
 /* ──────────────────────── Types ──────────────────────── */
 
@@ -499,6 +500,12 @@ function useBuyBlueprint() {
   const buy = async (blueprint: Blueprint, withAccount = false) => {
     setError(null);
     setLoading(blueprint.id);
+    // Fire BEFORE redirecting — keepalive ensures it survives unload
+    track('checkout_start', {
+      package_tier: blueprint.slug,
+      value_cents: Math.round(blueprint.price * 100),
+      meta: { with_account: withAccount, source: 'shop_blueprint' },
+    });
     try {
       if (withAccount) {
         // Redirect to register with intent param, come back to checkout after login
@@ -511,7 +518,7 @@ function useBuyBlueprint() {
         mode: 'payment',
         metadata: { blueprint_slug: blueprint.slug },
         success_url: window.location.origin + '/#/checkout/success',
-        cancel_url: window.location.origin + '/#/shop',
+        cancel_url: window.location.origin + '/#/checkout/cancelled',
       });
       window.location.href = url;
     } catch (err) {

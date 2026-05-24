@@ -20,12 +20,15 @@ import { tgWebhookRouter } from './routes/tg-webhook.js';
 import { helpbotRouter } from './routes/helpbot.js';
 import { botRouter } from './routes/bot.js';
 import { creditsRouter } from './routes/credits.js';
+import { shopTrackingRouter } from './routes/shop-tracking.js';
+import { dashboardStatsRouter } from './routes/dashboard-stats.js';
+import { anonymizeIp } from './lib/security.js';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3210', 10);
 
-// Behind cloudflared+CF tunnel — trust the proxy chain so real IPs work via CF-Connecting-IP
-app.set('trust proxy', true);
+// Behind cloudflared+CF tunnel — trust only the first hop (CR-03: prevent rate-limit bypass via spoofed XFF)
+app.set('trust proxy', 1);
 
 // Security headers via helmet (audit M2)
 // API serves JSON only; frontend on aevum-system.de must be able to call us cross-origin.
@@ -106,7 +109,7 @@ function clientIpKey(req) {
 
 // Basic request log
 app.use((req, _res, next) => {
-  console.log(`${new Date().toISOString()} ${req.method} ${req.path} ip=${clientIp(req)}`);
+  console.log(`${new Date().toISOString()} ${req.method} ${req.path} ip=${anonymizeIp(clientIp(req)) || 'unknown'}`);
   next();
 });
 
@@ -235,6 +238,22 @@ const helpbotEraseLimiter = rateLimit({
   skip: (req) => req.method !== 'POST' || req.path !== '/erase'
 });
 app.use('/api/helpbot', helpbotHourLimiter, helpbotDayLimiter, helpbotEraseLimiter, helpbotRouter);
+
+// Shop-tracking — fire-and-forget page-view + funnel capture.
+// Tight rate-limit: 100/min/IP, scoped to POST /track only.
+const shopTrackLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: clientIpKey,
+  message: { ok: false, error: 'rate_limit_shop_track' },
+  skip: (req) => req.method !== 'POST' || req.path !== '/track'
+});
+app.use('/api/shop', shopTrackLimiter, shopTrackingRouter);
+
+// Admin-token gated dashboard aggregate endpoints (shop / stripe / orders)
+app.use('/api/dashboard', dashboardStatsRouter);
 
 // 404
 app.use((req, res) => {

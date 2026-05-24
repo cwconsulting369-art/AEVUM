@@ -20,6 +20,8 @@ import { z } from 'zod';
 import { supabase } from '../lib/supabase.js';
 import { requireCustomerAuth, encryptSecret } from '../lib/crypto.js';
 import { projectAgentRouter } from './project-agent.js';
+import { stripe } from '../lib/stripe.js';
+import { buildShopStats, buildStripeStats, buildOrdersStats } from '../lib/dashboard-stats.js';
 
 export const meRouter = Router();
 
@@ -278,6 +280,293 @@ meRouter.post('/projects/:slug/apis', async (req, res) => {
 });
 
 // ────────────────────────────────────────────────────────────
+// Shop + Stripe analytics aggregation now in ../lib/dashboard-stats.js
+// (Legacy local definitions removed — imported above.)
+// ────────────────────────────────────────────────────────────
+/* eslint-disable */
+async function __unused_legacy_buildShopStats() {
+  const now = Date.now();
+  const dayMs = 86400000;
+  const todayIso = new Date(now - dayMs).toISOString();
+  const weekIso = new Date(now - 7 * dayMs).toISOString();
+  const prevWeekStartIso = new Date(now - 14 * dayMs).toISOString();
+  const monthIso = new Date(now - 30 * dayMs).toISOString();
+
+  // All events last 30d — we aggregate in JS to keep it simple.
+  const r = await supabase.select(
+    'shop_events',
+    `select=created_at,event_type,session_id,device_type,package_tier,value_cents,path&created_at=gte.${monthIso}&order=created_at.desc&limit=10000`
+  );
+  const events = Array.isArray(r.data) ? r.data : [];
+
+  // Traffic buckets — count unique sessions per period (page_view + shop_open)
+  const trafficEvents = events.filter(e => e.event_type === 'page_view' || e.event_type === 'shop_open');
+  const sessionsIn = (sinceIso) => {
+    const set = new Set();
+    for (const e of trafficEvents) {
+      if (e.created_at >= sinceIso) set.add(e.session_id);
+    }
+    return set.size;
+  };
+  const todaySessions = sessionsIn(todayIso);
+  const weekSessions = sessionsIn(weekIso);
+  const monthSessions = sessionsIn(monthIso);
+
+  // Previous week (for delta)
+  const prevWeekSessions = (() => {
+    const set = new Set();
+    for (const e of trafficEvents) {
+      if (e.created_at >= prevWeekStartIso && e.created_at < weekIso) set.add(e.session_id);
+    }
+    return set.size;
+  })();
+  const vsPrevWeekPct = prevWeekSessions > 0
+    ? Math.round(((weekSessions - prevWeekSessions) / prevWeekSessions) * 1000) / 10
+    : null;
+
+  // Funnel — over last 30 days, count UNIQUE sessions reaching each step
+  const sessionsByEvent = {};
+  for (const e of events) {
+    sessionsByEvent[e.event_type] = sessionsByEvent[e.event_type] || new Set();
+    sessionsByEvent[e.event_type].add(e.session_id);
+  }
+  const fn = (k) => (sessionsByEvent[k]?.size || 0);
+  const pageViewSessions = fn('page_view');
+  const shopOpenSessions = fn('shop_open');
+  const checkoutStart = fn('checkout_start');
+  const checkoutComplete = fn('checkout_complete');
+  const conversionRate = pageViewSessions > 0
+    ? Math.round((checkoutComplete / pageViewSessions) * 10000) / 100
+    : null;
+
+  // Device split (last 7d)
+  const deviceCounts = { mobile: 0, desktop: 0, tablet: 0 };
+  const deviceSessionMap = {};
+  for (const e of trafficEvents) {
+    if (e.created_at < weekIso || !e.device_type) continue;
+    if (deviceSessionMap[e.session_id]) continue;
+    deviceSessionMap[e.session_id] = e.device_type;
+    if (deviceCounts[e.device_type] !== undefined) deviceCounts[e.device_type]++;
+  }
+  const totalDev = deviceCounts.mobile + deviceCounts.desktop + deviceCounts.tablet;
+  const byDevice = totalDev > 0
+    ? {
+        mobile: Math.round((deviceCounts.mobile / totalDev) * 100),
+        desktop: Math.round((deviceCounts.desktop / totalDev) * 100),
+        tablet: Math.round((deviceCounts.tablet / totalDev) * 100),
+      }
+    : { mobile: 0, desktop: 0, tablet: 0 };
+
+  // Top packages from completed checkouts (last 30d)
+  const tierCounts = {};
+  const tierValue = {};
+  for (const e of events) {
+    if (e.event_type !== 'checkout_complete' || !e.package_tier) continue;
+    tierCounts[e.package_tier] = (tierCounts[e.package_tier] || 0) + 1;
+    tierValue[e.package_tier] = (tierValue[e.package_tier] || 0) + (e.value_cents || 0);
+  }
+  const topPackages = Object.entries(tierCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([tier, count]) => ({ tier, count, total_cents: tierValue[tier] || 0 }));
+
+  // Abandoned — sessions that started checkout but never completed (last 7d)
+  const startSessions = new Set();
+  const completeSessions = new Set();
+  const startMeta = {};
+  for (const e of events) {
+    if (e.created_at < weekIso) continue;
+    if (e.event_type === 'checkout_start') {
+      startSessions.add(e.session_id);
+      startMeta[e.session_id] = {
+        last_path: e.path,
+        package_tier: e.package_tier,
+        value_cents: e.value_cents,
+        at: e.created_at,
+      };
+    } else if (e.event_type === 'checkout_complete') {
+      completeSessions.add(e.session_id);
+    }
+  }
+  const abandoned = [...startSessions]
+    .filter(s => !completeSessions.has(s))
+    .slice(0, 20)
+    .map(s => ({
+      session_id: s.slice(0, 8),
+      last_path: startMeta[s]?.last_path,
+      package_tier: startMeta[s]?.package_tier,
+      value_cents: startMeta[s]?.value_cents,
+      time_ago_min: Math.round((now - new Date(startMeta[s]?.at).getTime()) / 60000),
+    }));
+
+  return {
+    traffic: {
+      today: todaySessions,
+      week: weekSessions,
+      month: monthSessions,
+      vs_prev_week_pct: vsPrevWeekPct,
+    },
+    funnel: {
+      page_view: pageViewSessions,
+      shop_open: shopOpenSessions,
+      checkout_start: checkoutStart,
+      checkout_complete: checkoutComplete,
+      conversion_rate: conversionRate,
+    },
+    abandoned,
+    top_packages: topPackages,
+    by_device: byDevice,
+    total_events_30d: events.length,
+  };
+}
+
+async function __unused_legacy_buildStripeStats() {
+  if (!stripe) {
+    return {
+      configured: false,
+      revenue_lifetime_cents: 0,
+      revenue_30d_cents: 0,
+      mrr_cents: 0,
+      active_subscriptions: 0,
+      refund_total_cents: 0,
+      recent_charges: [],
+      abandoned_sessions: [],
+      note: 'Stripe nicht konfiguriert (STRIPE_SECRET_KEY fehlt)',
+    };
+  }
+  const out = {
+    configured: true,
+    revenue_lifetime_cents: 0,
+    revenue_30d_cents: 0,
+    mrr_cents: 0,
+    active_subscriptions: 0,
+    refund_total_cents: 0,
+    recent_charges: [],
+    abandoned_sessions: [],
+  };
+  const dayMs = 86400000;
+  const thirtyDaysAgo = Math.floor((Date.now() - 30 * dayMs) / 1000);
+
+  try {
+    // Recent charges — first 30 succeeded
+    const charges = await stripe.charges.list({ limit: 30 });
+    out.recent_charges = (charges.data || []).map(c => ({
+      id: c.id,
+      amount: c.amount,
+      currency: c.currency,
+      status: c.status,
+      paid: c.paid,
+      refunded: c.refunded,
+      created: c.created,
+      customer_email: c.billing_details?.email || null,
+      description: c.description || null,
+    }));
+    out.revenue_lifetime_cents = (charges.data || [])
+      .filter(c => c.paid && !c.refunded)
+      .reduce((s, c) => s + (c.amount || 0), 0);
+    out.revenue_30d_cents = (charges.data || [])
+      .filter(c => c.paid && !c.refunded && c.created >= thirtyDaysAgo)
+      .reduce((s, c) => s + (c.amount || 0), 0);
+  } catch (e) {
+    console.error('[stripe-stats] charges fail:', e.message);
+  }
+
+  try {
+    const subs = await stripe.subscriptions.list({ status: 'active', limit: 100 });
+    out.active_subscriptions = subs.data?.length || 0;
+    out.mrr_cents = (subs.data || []).reduce((s, sub) => {
+      const items = sub.items?.data || [];
+      let monthly = 0;
+      for (const item of items) {
+        const price = item.price;
+        if (!price) continue;
+        const amt = price.unit_amount || 0;
+        const qty = item.quantity || 1;
+        const interval = price.recurring?.interval;
+        const count = price.recurring?.interval_count || 1;
+        let monthlyAmt = amt * qty;
+        if (interval === 'year') monthlyAmt = monthlyAmt / (12 * count);
+        else if (interval === 'week') monthlyAmt = monthlyAmt * (4 / count);
+        else if (interval === 'day') monthlyAmt = monthlyAmt * (30 / count);
+        else monthlyAmt = monthlyAmt / count;
+        monthly += monthlyAmt;
+      }
+      return s + Math.round(monthly);
+    }, 0);
+  } catch (e) {
+    console.error('[stripe-stats] subscriptions fail:', e.message);
+  }
+
+  try {
+    const refunds = await stripe.refunds.list({ limit: 30 });
+    out.refund_total_cents = (refunds.data || []).reduce((s, r) => s + (r.amount || 0), 0);
+  } catch (e) {
+    console.error('[stripe-stats] refunds fail:', e.message);
+  }
+
+  try {
+    // Abandoned = checkout sessions still "open" or "expired" without payment
+    const open = await stripe.checkout.sessions.list({ status: 'open', limit: 30 });
+    const expired = await stripe.checkout.sessions.list({ status: 'expired', limit: 20 });
+    const all = [...(open.data || []), ...(expired.data || [])];
+    out.abandoned_sessions = all
+      .filter(s => s.payment_status !== 'paid')
+      .slice(0, 25)
+      .map(s => ({
+        id: s.id.slice(0, 18) + '…',
+        amount_total: s.amount_total,
+        currency: s.currency,
+        expires_at: s.expires_at,
+        status: s.status,
+        customer_email: s.customer_details?.email || s.customer_email || null,
+        tier: s.metadata?.tier || s.metadata?.product_id || null,
+        created: s.created,
+      }));
+  } catch (e) {
+    console.error('[stripe-stats] sessions fail:', e.message);
+  }
+
+  return out;
+}
+
+async function __unused_legacy_buildOrdersStats() {
+  // DB orders aggregate — local source of truth, fast.
+  const r = await supabase.select(
+    'orders',
+    `select=status,package_tier,total_cents,paid_at,created_at,customer_email&order=created_at.desc&limit=500`
+  );
+  const rows = Array.isArray(r.data) ? r.data : [];
+  const byStatus = {};
+  const byTier = {};
+  let paidTotal = 0;
+  let pending = 0;
+  for (const o of rows) {
+    byStatus[o.status] = (byStatus[o.status] || 0) + 1;
+    if (o.status === 'paid') {
+      paidTotal += (o.total_cents || 0);
+      byTier[o.package_tier] = (byTier[o.package_tier] || 0) + 1;
+    }
+    if (o.status === 'pending') pending++;
+  }
+  return {
+    total_orders: rows.length,
+    by_status: byStatus,
+    by_tier: byTier,
+    paid_total_cents: paidTotal,
+    pending_count: pending,
+    recent: rows.slice(0, 10).map(o => ({
+      status: o.status,
+      package_tier: o.package_tier,
+      total_cents: o.total_cents,
+      paid_at: o.paid_at,
+      created_at: o.created_at,
+      customer_email: (o.customer_email || '').replace(/^(.).+(@.+)$/, '$1***$2'),
+    })),
+  };
+}
+/* eslint-enable */
+
+// ────────────────────────────────────────────────────────────
 // GET /api/me/projects/:slug/dashboard
 // aevum slug → AEVUM business ops dashboard (DashboardData type)
 // other slugs → ad-platform KPI dashboard
@@ -294,13 +583,16 @@ meRouter.get('/projects/:slug/dashboard', async (req, res) => {
     const weekStartIso = weekStart.toISOString();
     const prevWeekIso = prevWeekStart.toISOString();
 
-    const [auditsThisW, auditsPrevW, auditsRecent, allAccounts, helpbotW, helpbotRecent] = await Promise.all([
+    const [auditsThisW, auditsPrevW, auditsRecent, allAccounts, helpbotW, helpbotRecent, shopStats, stripeStats, ordersStats] = await Promise.all([
       supabase.select('audits', `select=id&created_at=gte.${weekStartIso}`),
       supabase.select('audits', `select=id&created_at=gte.${prevWeekIso}&created_at=lt.${weekStartIso}`),
       supabase.select('audits', `select=id,created_at,name,email,company,industry,status,plan_pdf_url,analysis_result,meta&order=created_at.desc&limit=20`),
       supabase.select('accounts', `select=id,slug,name,status,client_zero,contact_data,created_at&order=created_at.desc`),
       supabase.select('helpbot_conversations', `select=id&started_at=gte.${weekStartIso}`),
       supabase.select('helpbot_conversations', `select=id,session_id,started_at,last_msg_at,message_count,extracted_data&order=last_msg_at.desc&limit=10`),
+      buildShopStats().catch(e => { console.error('[dashboard] shop stats fail:', e.message); return null; }),
+      buildStripeStats().catch(e => { console.error('[dashboard] stripe stats fail:', e.message); return null; }),
+      buildOrdersStats().catch(e => { console.error('[dashboard] orders stats fail:', e.message); return null; }),
     ]);
 
     const thisW = auditsThisW.data?.length ?? 0;
@@ -394,11 +686,19 @@ meRouter.get('/projects/:slug/dashboard', async (req, res) => {
       },
       marketing: { cold_calls_week: null, linkedin_posts_week: null, lead_magnet_downloads_week: null, note: 'Tracking noch nicht verknüpft' },
       finance: {
-        stripe_mrr_eur: mrrEur, pending_invoices_count: 0, pending_invoices_eur: 0,
-        setup_fees_collected_month_eur: 0,
+        stripe_mrr_eur: stripeStats?.configured ? Math.round((stripeStats.mrr_cents || 0) / 100) : mrrEur,
+        pending_invoices_count: ordersStats?.pending_count ?? 0,
+        pending_invoices_eur: 0,
+        setup_fees_collected_month_eur: stripeStats ? Math.round((stripeStats.revenue_30d_cents || 0) / 100) : 0,
         customer_ltv_estimate_eur: mrrEur > 0 ? mrrEur * 18 : null,
-        has_stripe: false, note: 'Stripe-Anbindung ausstehend — MRR aus account.contact_data berechnet',
+        has_stripe: !!stripeStats?.configured,
+        note: stripeStats?.configured
+          ? 'Live aus Stripe API (Charges/Subscriptions/Refunds)'
+          : 'Stripe-Anbindung ausstehend — MRR aus account.contact_data berechnet',
       },
+      shop: shopStats,
+      stripe: stripeStats,
+      orders: ordersStats,
     });
   }
 
@@ -443,7 +743,13 @@ meRouter.get('/projects/:slug/dashboard', async (req, res) => {
   });
 });
 
+// UUID regex — IN-01 defense-in-depth before id-based queries
+const ME_UUID_RX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 meRouter.delete('/projects/:slug/apis/:id', async (req, res) => {
+  if (!ME_UUID_RX.test(req.params.id || '')) {
+    return res.status(400).json({ ok: false, error: 'invalid_id_format' });
+  }
   const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug);
   if (!project) return res.status(404).json({ ok: false, error: 'project_not_found' });
   const r = await supabase.delete('project_apis', `id=eq.${encodeURIComponent(req.params.id)}&project_id=eq.${project.id}`);

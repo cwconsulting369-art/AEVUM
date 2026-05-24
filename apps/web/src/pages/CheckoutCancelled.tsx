@@ -2,10 +2,12 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { XCircle, ArrowLeft, MessageCircle } from 'lucide-react';
 import CONTACT from '../config/contact';
+import { track } from '../lib/shop-track';
 
 export default function CheckoutCancelled() {
   useEffect(() => {
     window.scrollTo(0, 0);
+    track('checkout_abandon', { meta: { source: 'stripe_cancel_redirect' } });
   }, []);
 
   return (

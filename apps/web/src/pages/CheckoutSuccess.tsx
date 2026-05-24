@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Mail, Calendar } from 'lucide-react';
 import CONTACT from '../config/contact';
+import { track } from '../lib/shop-track';
 
 export default function CheckoutSuccess() {
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -9,7 +10,10 @@ export default function CheckoutSuccess() {
   useEffect(() => {
     window.scrollTo(0, 0);
     const params = new URLSearchParams(window.location.search);
-    setSessionId(params.get('session_id'));
+    const sid = params.get('session_id');
+    setSessionId(sid);
+    // Fire-and-forget — guard against double-fire on hot-reload
+    track('checkout_complete', { meta: { stripe_session: sid?.slice(0, 18) || null } });
   }, []);
 
   return (

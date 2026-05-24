@@ -1,6 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import Layout from './components/Layout';
 import Home from './pages/Home';
+import { installPageViewTracker, track } from './lib/shop-track';
 
 // Helpbot is lazy-loaded on first idle / interaction to keep initial bundle lean
 const Helpbot = lazy(() => import('./components/Helpbot'));
@@ -55,6 +56,16 @@ export default function App() {
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
+
+  // Shop-style analytics: page_view on every route + shop_open when on /shop
+  useEffect(() => {
+    const cleanup = installPageViewTracker();
+    return cleanup;
+  }, []);
+
+  useEffect(() => {
+    if (route === '/shop') track('shop_open');
+  }, [route]);
 
   // Mount Helpbot bundle when browser is idle (or after 2s as fallback) — keeps initial paint lean
   useEffect(() => {
