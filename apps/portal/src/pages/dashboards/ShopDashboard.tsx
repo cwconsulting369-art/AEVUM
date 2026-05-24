@@ -59,22 +59,22 @@ export default function ShopDashboard() {
   const paidOrders = (orders ?? []).filter(o => o.status === 'paid' || o.paid_at);
 
   return (
-    <div className="space-y-12">
-      {/* Hero */}
+    <div className="dashboard-stack @container">
+      {/* Hero — compact */}
       <header>
-        <div className="flex items-center gap-2 text-xs text-gold-300 mb-3 uppercase tracking-wider font-semibold">
+        <div className="flex items-center gap-2 text-xs text-gold-300 mb-2 uppercase tracking-wider font-semibold">
           <Sparkles size={12} /> Dein Shop-Bereich
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
           {me.account.name || 'Willkommen'}
         </h1>
-        <p className="text-ink-400 mt-2 text-sm sm:text-base">
+        <p className="text-ink-400 mt-1 text-sm">
           Deine Käufe, Downloads und Bonuspunkte auf einen Blick.
         </p>
       </header>
 
       {/* KPI Strip */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-[var(--dashboard-gap)]">
         <KpiCard
           i={0}
           icon={ShoppingBag}
@@ -99,11 +99,57 @@ export default function ShopDashboard() {
         />
       </div>
 
+      {/* Credits + Helpbot — side-by-side auf xl fuer Viewport-Fit */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-[var(--dashboard-gap)]">
+        <section className="animate-fade-up xl:col-span-2" style={{ animationDelay: '180ms' }}>
+          <div className="card-premium card-pad h-full">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-4">
+                <div className="w-11 h-11 rounded-2xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center shrink-0">
+                  <Coins size={20} className="text-gold-300" />
+                </div>
+                <div>
+                  <div className="text-[0.6rem] uppercase tracking-[0.3em] text-gold-400/70 mb-1">Dein Bonus-Konto</div>
+                  <div className="text-2xl xl:text-3xl font-bold text-gold-gradient tabular-nums leading-none">
+                    {(credits?.balance ?? 0).toLocaleString('de-DE')} <span className="text-base font-medium text-ink-400">Credits</span>
+                  </div>
+                  <div className="text-xs text-ink-400 mt-1">
+                    Gesamt verdient: {(credits?.lifetime_earned ?? 0).toLocaleString('de-DE')}
+                  </div>
+                </div>
+              </div>
+              <Link to="/credits" className="btn-gold py-2 px-4 text-xs inline-flex items-center gap-2">
+                Credits verwalten <ArrowRight size={12} />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="animate-fade-up" style={{ animationDelay: '220ms' }}>
+          <div className="card-premium card-pad h-full flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center shrink-0">
+              <MessageCircle size={18} className="text-emerald-300" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold text-white mb-0.5">Fragen zum Kauf?</div>
+              <a
+                href="https://t.me/aevumsystem_bot?start=help"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-emerald-300 hover:text-emerald-200 inline-flex items-center gap-1"
+              >
+                Helpbot öffnen <ExternalLink size={12} />
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+
       {/* Orders */}
       <section className="animate-fade-up" style={{ animationDelay: '280ms' }}>
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-lg font-semibold text-white">Deine Käufe</h2>
+            <h2 className="text-base font-semibold text-white">Deine Käufe</h2>
             <p className="text-xs text-ink-400 mt-0.5">Alle abgeschlossenen Bestellungen im Shop.</p>
           </div>
         </div>
@@ -118,18 +164,18 @@ export default function ShopDashboard() {
         )}
       </section>
 
-      {/* Downloads */}
+      {/* Downloads — auto-fit-grid */}
       {paidOrders.length > 0 && (
         <section className="animate-fade-up" style={{ animationDelay: '320ms' }}>
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-3">
             <div>
-              <h2 className="text-lg font-semibold text-white">Downloads</h2>
+              <h2 className="text-base font-semibold text-white">Downloads</h2>
               <p className="text-xs text-ink-400 mt-0.5">Blueprint-JSONs, PDFs und Video-Material zu deinen Käufen.</p>
             </div>
           </div>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="dashboard-grid">
             {paidOrders.map((o, i) => (
-              <div key={o.id} className="card-premium p-5 animate-fade-up" style={stagger(i, 60, 60)}>
+              <div key={o.id} className="card-premium card-compact animate-fade-up" style={stagger(i, 60, 60)}>
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="min-w-0">
                     <div className="font-semibold text-white truncate">{o.package_name || o.package_tier || 'Bestellung'}</div>
@@ -151,66 +197,18 @@ export default function ShopDashboard() {
         </section>
       )}
 
-      {/* Credits Section */}
-      <section className="animate-fade-up" style={{ animationDelay: '380ms' }}>
-        <div className="card-premium p-6 sm:p-7">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center shrink-0">
-                <Coins size={22} className="text-gold-300" />
-              </div>
-              <div>
-                <div className="text-[0.6rem] uppercase tracking-[0.3em] text-gold-400/70 mb-1">Dein Bonus-Konto</div>
-                <div className="text-3xl font-bold text-gold-gradient tabular-nums leading-none">
-                  {(credits?.balance ?? 0).toLocaleString('de-DE')} <span className="text-base font-medium text-ink-400">Credits</span>
-                </div>
-                <div className="text-xs text-ink-400 mt-1">
-                  Gesamt verdient: {(credits?.lifetime_earned ?? 0).toLocaleString('de-DE')}
-                </div>
-              </div>
-            </div>
-            <Link to="/credits" className="btn-gold py-2 px-4 text-xs inline-flex items-center gap-2">
-              Credits verwalten <ArrowRight size={12} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Helpbot */}
-      <section className="animate-fade-up" style={{ animationDelay: '420ms' }}>
-        <div className="card-premium p-5 sm:p-6 flex items-center gap-4">
-          <div className="w-11 h-11 rounded-xl bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center shrink-0">
-            <MessageCircle size={20} className="text-emerald-300" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold text-white mb-0.5">Fragen zu deinem Kauf?</div>
-            <div className="text-xs text-ink-400">
-              Der AEVUM-Helpbot beantwortet Fragen zu Blueprints, Downloads, Setup und Lizenzen.
-            </div>
-          </div>
-          <a
-            href="https://t.me/aevumsystem_bot?start=help"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-emerald-300 hover:text-emerald-200 inline-flex items-center gap-1 shrink-0"
-          >
-            Chat öffnen <ExternalLink size={12} />
-          </a>
-        </div>
-      </section>
-
       {/* Upgrade-CTA */}
       <section className="animate-fade-up" style={{ animationDelay: '460ms' }}>
-        <div className="relative overflow-hidden card-premium p-8 sm:p-10">
+        <div className="relative overflow-hidden card-premium p-6 xl:p-8">
           <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-gold-400/10 blur-3xl pointer-events-none" />
           <div className="relative max-w-2xl">
-            <div className="flex items-center gap-2 text-xs text-gold-300 mb-3 uppercase tracking-wider font-semibold">
+            <div className="flex items-center gap-2 text-xs text-gold-300 mb-2 uppercase tracking-wider font-semibold">
               <Bot size={14} /> Upgrade zur Voll-Partnerschaft
             </div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+            <h3 className="text-xl xl:text-2xl font-bold text-white mb-2">
               Mehr aus AEVUM herausholen?
             </h3>
-            <p className="text-sm text-ink-300 mb-6 leading-relaxed">
+            <p className="text-sm text-ink-300 mb-4 leading-relaxed">
               Buche dein kostenloses Audit. Wir bauen dir dein Operating-System, geben dir einen
               eigenen Personal-Agent, Projekt-Spaces, Dokumentenaustausch und volle Custom-Integration.
             </p>
@@ -222,7 +220,7 @@ export default function ShopDashboard() {
                 Mehr erfahren <ArrowRight size={12} />
               </a>
             </div>
-            <div className="grid sm:grid-cols-3 gap-3 mt-7 pt-7 border-t border-white/5">
+            <div className="grid sm:grid-cols-3 gap-3 mt-5 pt-5 border-t border-white/5">
               <UpgradeBullet text="Personal-Agent mit Memory" />
               <UpgradeBullet text="Custom-Projekt-Spaces" />
               <UpgradeBullet text="Dokumentenaustausch" />
@@ -245,12 +243,12 @@ function KpiCard({
   highlight?: boolean;
 }) {
   return (
-    <div className="card-premium p-5 animate-fade-up" style={stagger(i, 60, 60)}>
-      <div className="flex items-center justify-between mb-3">
+    <div className="card-premium card-compact animate-fade-up" style={stagger(i, 60, 60)}>
+      <div className="flex items-center justify-between mb-2">
         <Icon size={16} className={accent ? 'text-gold-300' : 'text-ink-400'} strokeWidth={1.8} />
         <span className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">{label}</span>
       </div>
-      <div className={`text-2xl sm:text-3xl font-bold tracking-tight ${highlight ? 'text-gold-gradient' : 'text-white'}`}>
+      <div className={`text-xl sm:text-2xl xl:text-2xl font-bold tracking-tight ${highlight ? 'text-gold-gradient' : 'text-white'}`}>
         {value}
       </div>
     </div>

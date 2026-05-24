@@ -239,7 +239,7 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="flex-1 px-4 md:px-8 py-6 md:py-8 w-full pb-24" key={loc.pathname + currentSection}>
+        <main className="flex-1 px-4 md:px-6 xl:px-8 py-5 md:py-6 xl:py-7 w-full pb-24" key={loc.pathname + currentSection}>
           <div className="animate-fade-up">
             <Outlet />
           </div>

@@ -114,16 +114,16 @@ export default function SaaSDashboard() {
   }
 
   return (
-    <div className="space-y-12">
-      {/* Hero */}
+    <div className="dashboard-stack @container">
+      {/* Hero — compact */}
       <header>
-        <div className="flex items-center gap-2 text-xs text-gold-300 mb-3 uppercase tracking-wider font-semibold">
+        <div className="flex items-center gap-2 text-xs text-gold-300 mb-2 uppercase tracking-wider font-semibold">
           <Sparkles size={12} /> AEVUM SaaS-Tools
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
           {me.account.name || 'Operator'}
         </h1>
-        <p className="text-ink-400 mt-2 text-sm sm:text-base">
+        <p className="text-ink-400 mt-1 text-sm">
           Self-Service-Tools, die du auf Credit-Basis nutzen kannst.
         </p>
       </header>
@@ -131,46 +131,47 @@ export default function SaaSDashboard() {
       {/* Credit-Balance — kompakt oben */}
       <CreditsBalanceCard credits={credits} />
 
-      {/* Verfuegbar */}
-      <section className="animate-fade-up" style={{ animationDelay: '180ms' }}>
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 className="text-lg font-semibold text-white">Verfügbar</h2>
-            <p className="text-xs text-ink-400 mt-0.5">Tools, die du jetzt direkt nutzen kannst.</p>
+      {/* Verfuegbar + Coming Soon — auf 2xl in 1 Row fuer Viewport-Fit */}
+      <div className="grid grid-cols-1 2xl:grid-cols-2 gap-[var(--dashboard-section-gap)]">
+        <section className="animate-fade-up" style={{ animationDelay: '180ms' }}>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-base font-semibold text-white">Verfügbar</h2>
+              <p className="text-xs text-ink-400 mt-0.5">Tools, die du jetzt direkt nutzen kannst.</p>
+            </div>
           </div>
-        </div>
-        <div className="grid sm:grid-cols-2 gap-4">
-          {AVAILABLE.map((slot, i) => (
-            <FactoryCard key={slot.key} slot={slot} i={i} />
-          ))}
-        </div>
-      </section>
+          <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)]">
+            {AVAILABLE.map((slot, i) => (
+              <FactoryCard key={slot.key} slot={slot} i={i} />
+            ))}
+          </div>
+        </section>
 
-      {/* Coming Soon */}
-      <section className="animate-fade-up" style={{ animationDelay: '260ms' }}>
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 className="text-lg font-semibold text-white">Coming Soon</h2>
-            <p className="text-xs text-ink-400 mt-0.5">Factory-Slots in Planung & Konzept.</p>
+        <section className="animate-fade-up" style={{ animationDelay: '260ms' }}>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-base font-semibold text-white">Coming Soon</h2>
+              <p className="text-xs text-ink-400 mt-0.5">Factory-Slots in Planung & Konzept.</p>
+            </div>
           </div>
-        </div>
-        <div className="grid sm:grid-cols-2 gap-4">
-          {COMING_SOON.map((slot, i) => (
-            <FactoryCard
-              key={slot.key}
-              slot={slot}
-              i={i}
-              onClick={() => showToast(`${slot.title} — bald verfügbar`)}
-            />
-          ))}
-        </div>
-      </section>
+          <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)]">
+            {COMING_SOON.map((slot, i) => (
+              <FactoryCard
+                key={slot.key}
+                slot={slot}
+                i={i}
+                onClick={() => showToast(`${slot.title} — bald verfügbar`)}
+              />
+            ))}
+          </div>
+        </section>
+      </div>
 
       {/* Recent Runs */}
       <section className="animate-fade-up" style={{ animationDelay: '340ms' }}>
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-lg font-semibold text-white">Recent Runs</h2>
+            <h2 className="text-base font-semibold text-white">Recent Runs</h2>
             <p className="text-xs text-ink-400 mt-0.5">Letzte 20 Factory-Läufe, aggregiert über alle Tools.</p>
           </div>
         </div>
@@ -195,15 +196,15 @@ export default function SaaSDashboard() {
 function CreditsBalanceCard({ credits }: { credits: CreditsSnapshot | null }) {
   return (
     <section className="animate-fade-up" style={{ animationDelay: '100ms' }}>
-      <div className="card-premium p-6 sm:p-7">
+      <div className="card-premium card-pad">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center shrink-0">
-              <Coins size={22} className="text-gold-300" />
+            <div className="w-11 h-11 rounded-2xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center shrink-0">
+              <Coins size={20} className="text-gold-300" />
             </div>
             <div>
               <div className="text-[0.6rem] uppercase tracking-[0.3em] text-gold-400/70 mb-1">Dein Credit-Konto</div>
-              <div className="text-3xl font-bold text-gold-gradient tabular-nums leading-none">
+              <div className="text-2xl xl:text-3xl font-bold text-gold-gradient tabular-nums leading-none">
                 {(credits?.balance ?? 0).toLocaleString('de-DE')} <span className="text-base font-medium text-ink-400">Credits</span>
               </div>
               <div className="text-xs text-ink-400 mt-1">

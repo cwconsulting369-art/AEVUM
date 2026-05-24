@@ -27,22 +27,22 @@ export default function CustomerDashboard() {
   const progress = Math.round((completedSteps.filter(Boolean).length / completedSteps.length) * 100);
 
   return (
-    <div className="space-y-12">
-      {/* Hero header */}
+    <div className="dashboard-stack @container">
+      {/* Hero header — compact on desktop */}
       <header>
-        <div className="flex items-center gap-2 text-xs text-gold-300 mb-3 uppercase tracking-wider font-semibold">
+        <div className="flex items-center gap-2 text-xs text-gold-300 mb-2 uppercase tracking-wider font-semibold">
           <Sparkles size={12} /> Willkommen zurück
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+        <h1 className="text-2xl sm:text-3xl xl:text-3xl font-bold tracking-tight text-white">
           {me.account.name || 'Operator'}
         </h1>
-        <p className="text-ink-400 mt-2 text-sm sm:text-base">
+        <p className="text-ink-400 mt-1 text-sm">
           Dein AEVUM-Operating-System auf einen Blick.
         </p>
       </header>
 
-      {/* KPI Strip */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* KPI Strip — dense grid auf Desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-[var(--dashboard-gap)]">
         <KpiCard
           i={0}
           icon={FolderGit2}
@@ -74,37 +74,40 @@ export default function CustomerDashboard() {
         />
       </div>
 
-      {/* Telegram-Bot Hint */}
-      <TelegramHintCard accountSlug={me.account.slug} botUsername={(me.account.contact_data as any)?.bot_username} />
-
-      {/* Onboarding */}
-      <section className="card-premium p-6 sm:p-7 animate-fade-up" style={{ animationDelay: '280ms' }}>
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 className="text-lg font-semibold text-white">Onboarding-Checkliste</h2>
-            <p className="text-xs text-ink-400 mt-0.5">Erst nach Setup ist dein OS einsatzbereit.</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-32 h-1.5 rounded-full bg-white/5 overflow-hidden">
-              <div
-                className="h-full bg-gold-gradient transition-all duration-700"
-                style={{ width: `${progress}%` }}
-              />
+      {/* Onboarding + Telegram-Hint — auf xl side-by-side fuer Viewport-Fit */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-[var(--dashboard-gap)]">
+        {/* Onboarding nimmt 2/3 */}
+        <section className="card-premium card-pad animate-fade-up xl:col-span-2" style={{ animationDelay: '280ms' }}>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-base font-semibold text-white">Onboarding-Checkliste</h2>
+              <p className="text-xs text-ink-400 mt-0.5">Erst nach Setup ist dein OS einsatzbereit.</p>
             </div>
-            <span className="text-xs text-gold-200 font-semibold tabular-nums w-9 text-right">{progress}%</span>
+            <div className="flex items-center gap-3">
+              <div className="w-24 sm:w-32 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                <div
+                  className="h-full bg-gold-gradient transition-all duration-700"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <span className="text-xs text-gold-200 font-semibold tabular-nums w-9 text-right">{progress}%</span>
+            </div>
           </div>
-        </div>
-        <ul className="space-y-2">
-          <ChecklistItem label="Account-Profil ausfüllen" done={!!me.profile?.industry} to="/profile" />
-          <ChecklistItem label="Permissions konfigurieren" done={!!me.permissions?.consent_date} to="/permissions" />
-          <ChecklistItem label="Erstes Projekt anlegen" done={me.projects.length > 0} to="/projects" />
-        </ul>
-      </section>
+          <ul className="space-y-1.5">
+            <ChecklistItem label="Account-Profil ausfüllen" done={!!me.profile?.industry} to="/profile" />
+            <ChecklistItem label="Permissions konfigurieren" done={!!me.permissions?.consent_date} to="/permissions" />
+            <ChecklistItem label="Erstes Projekt anlegen" done={me.projects.length > 0} to="/projects" />
+          </ul>
+        </section>
 
-      {/* Projects */}
+        {/* Telegram-Bot Hint — 1/3 auf xl */}
+        <TelegramHintCard accountSlug={me.account.slug} botUsername={(me.account.contact_data as any)?.bot_username} />
+      </div>
+
+      {/* Projects — auto-fit-grid: passt sich Viewport an */}
       <section className="animate-fade-up" style={{ animationDelay: '360ms' }}>
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-semibold text-white">Deine Projekte</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-semibold text-white">Deine Projekte</h2>
           <Link
             to="/projects"
             className="text-xs text-ink-300 hover:text-gold-300 transition inline-flex items-center gap-1"
@@ -115,12 +118,12 @@ export default function CustomerDashboard() {
         {me.projects.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="dashboard-grid">
             {me.projects.slice(0, 4).map((p, i) => (
               <Link
                 key={p.id}
                 to={`/projects/${p.slug}`}
-                className="card-premium block p-5 group animate-fade-up"
+                className="card-premium block card-compact group animate-fade-up"
                 style={stagger(i, 50, 80)}
               >
                 <div className="flex items-start justify-between mb-3">
@@ -158,14 +161,14 @@ function KpiCard({
 }) {
   return (
     <div
-      className="card-premium p-5 animate-fade-up"
+      className="card-premium card-compact animate-fade-up"
       style={stagger(i, 60, 60)}
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2">
         <Icon size={16} className={accent ? 'text-gold-300' : 'text-ink-400'} strokeWidth={1.8} />
         <span className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">{label}</span>
       </div>
-      <div className={`text-2xl sm:text-3xl font-bold tracking-tight ${highlight ? 'text-gold-gradient' : 'text-white'}`}>
+      <div className={`text-xl sm:text-2xl xl:text-2xl font-bold tracking-tight ${highlight ? 'text-gold-gradient' : 'text-white'}`}>
         {value}
       </div>
     </div>
@@ -223,11 +226,11 @@ function TelegramHintCard({ accountSlug, botUsername }: { accountSlug: string; b
   const deepLink = `https://t.me/${username}?start=login`;
   return (
     <aside
-      className="card-premium p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 animate-fade-up"
+      className="card-premium card-pad flex flex-col xl:flex-col sm:flex-row xl:items-start sm:items-center gap-4 animate-fade-up"
       style={{ animationDelay: '220ms' }}
     >
-      <div className="shrink-0 size-11 rounded-xl bg-sky-500/10 border border-sky-400/20 grid place-items-center text-sky-300">
-        <Send size={20} strokeWidth={1.7} />
+      <div className="shrink-0 size-10 rounded-xl bg-sky-500/10 border border-sky-400/20 grid place-items-center text-sky-300">
+        <Send size={18} strokeWidth={1.7} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-sm font-semibold text-white">Per Telegram arbeiten</div>
@@ -240,7 +243,7 @@ function TelegramHintCard({ accountSlug, botUsername }: { accountSlug: string; b
         href={deepLink}
         target="_blank"
         rel="noopener noreferrer"
-        className="btn-gold text-xs inline-flex items-center gap-1.5 shrink-0"
+        className="btn-gold text-xs inline-flex items-center gap-1.5 shrink-0 self-start xl:self-stretch sm:self-auto"
       >
         Bot öffnen <ArrowRight size={12} />
       </a>

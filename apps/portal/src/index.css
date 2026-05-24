@@ -8,6 +8,40 @@
     --gold: #e0a458;
     --gold-soft: #f5d68d;
     --gold-deep: #a86d27;
+
+    /* Dashboard density tokens — viewport-fit layout */
+    --dashboard-gap: 16px;
+    --dashboard-section-gap: 20px;
+    --card-padding: 20px;
+    --card-padding-compact: 16px;
+  }
+
+  /* Standard 1440p+ desktops: tighter density so dashboards fit ~100vh */
+  @media (min-width: 1280px) {
+    :root {
+      --dashboard-gap: 16px;
+      --dashboard-section-gap: 18px;
+      --card-padding: 18px;
+      --card-padding-compact: 14px;
+    }
+  }
+
+  /* Tall (>=900px) screens — slightly more breathing room */
+  @media (min-width: 1280px) and (min-height: 900px) {
+    :root {
+      --dashboard-gap: 20px;
+      --dashboard-section-gap: 22px;
+      --card-padding: 20px;
+      --card-padding-compact: 16px;
+    }
+  }
+
+  /* Ultra-wide — extra density on horizontal axis */
+  @media (min-width: 1920px) {
+    :root {
+      --dashboard-gap: 22px;
+      --dashboard-section-gap: 24px;
+    }
   }
 
   html { font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11'; scroll-behavior: smooth; }
@@ -305,6 +339,28 @@
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
   }
+
+  /* === DASHBOARD LAYOUT (viewport-fit) === */
+  /* Vertical rhythm zwischen Sections — density-aware via CSS-Vars */
+  .dashboard-stack > * + * {
+    margin-top: var(--dashboard-section-gap);
+  }
+
+  /* Auto-fit Card-Grid mit min-Width-Schwelle */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--dashboard-gap);
+  }
+  .dashboard-grid-sm {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--dashboard-gap);
+  }
+
+  /* Card density helper — kompaktes Padding via Var */
+  .card-compact { padding: var(--card-padding-compact); }
+  .card-pad     { padding: var(--card-padding); }
 }
 
 /* Respect reduced-motion */
