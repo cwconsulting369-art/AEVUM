@@ -13,8 +13,16 @@ export default function AuthVerify() {
   const nav = useNavigate();
 
   useEffect(() => {
-    const token = params.get('token');
+    // Token kann im Fragment (#token=... oder #t=...) ODER Query (?token=...) sein.
+    // Fragment-First weil sicherer (CDN-Logs sehen Fragment nicht).
+    const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
+    const hashParams = new URLSearchParams(hash);
+    const token = hashParams.get('token') || hashParams.get('t') || params.get('token');
     if (!token) { setState('error'); setErrorMsg('Kein Token in der URL'); return; }
+    // Fragment-Token aus URL strippen so dass kein Refresh-Re-Verify passiert
+    try {
+      if (window.location.hash) window.history.replaceState({}, '', window.location.pathname);
+    } catch { /* noop */ }
     (async () => {
       try {
         const data = await verifyMagicLink(token);
