@@ -20,6 +20,7 @@ import { z } from 'zod';
 import { supabase } from '../lib/supabase.js';
 import { requireCustomerAuth, encryptSecret } from '../lib/crypto.js';
 import { projectAgentRouter } from './project-agent.js';
+import { docsRouter } from './docs.js';
 import { stripe } from '../lib/stripe.js';
 import { buildShopStats, buildStripeStats, buildOrdersStats } from '../lib/dashboard-stats.js';
 
@@ -31,6 +32,9 @@ meRouter.use(requireCustomerAuth);
 // Customer Project-Agent chat + memory (Lennox-style file memory).
 // Mounted as a sub-router so :slug propagates via mergeParams.
 meRouter.use('/projects/:slug/agent', projectAgentRouter);
+
+// Customer Document-Exchange (FS-backed inbox/outbox/shared MD files).
+meRouter.use('/projects/:slug/docs', docsRouter);
 
 // ────────────────────────────────────────────────────────────
 // GET /api/me
@@ -753,6 +757,87 @@ meRouter.delete('/projects/:slug/apis/:id', async (req, res) => {
   const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug);
   if (!project) return res.status(404).json({ ok: false, error: 'project_not_found' });
   const r = await supabase.delete('project_apis', `id=eq.${encodeURIComponent(req.params.id)}&project_id=eq.${project.id}`);
+  if (!r.ok) return res.status(500).json({ ok: false, error: r.error });
+  res.json({ ok: true });
+});
+
+// ────────────────────────────────────────────────────────────
+// PROJECT QUICKLINKS — Wave A2 (Headquarter Vision)
+// ────────────────────────────────────────────────────────────
+const QUICKLINK_CATEGORIES = ['website', 'repo', 'tool', 'service', 'resource', 'other'];
+
+const QuicklinkCreateSchema = z.object({
+  label:      z.string().min(1).max(100),
+  url:        z.string().url().max(2000),
+  category:   z.enum(['website', 'repo', 'tool', 'service', 'resource', 'other']),
+  icon:       z.string().max(50).optional().nullable(),
+  sort_order: z.number().int().min(0).max(100000).optional()
+});
+
+const QuicklinkPatchSchema = z.object({
+  label:      z.string().min(1).max(100).optional(),
+  url:        z.string().url().max(2000).optional(),
+  category:   z.enum(['website', 'repo', 'tool', 'service', 'resource', 'other']).optional(),
+  icon:       z.string().max(50).optional().nullable(),
+  sort_order: z.number().int().min(0).max(100000).optional()
+}).refine(d => Object.keys(d).length > 0, { message: 'empty_patch' });
+
+meRouter.get('/projects/:slug/quicklinks', async (req, res) => {
+  const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug);
+  if (!project) return res.status(404).json({ ok: false, error: 'project_not_found' });
+  const r = await supabase.select(
+    'project_quicklinks',
+    `select=id,label,url,category,icon,sort_order,created_at,updated_at&project_id=eq.${project.id}&order=sort_order.asc,created_at.asc`
+  );
+  if (!r.ok) return res.status(500).json({ ok: false, error: r.error });
+  res.json({ ok: true, quicklinks: r.data ?? [], categories: QUICKLINK_CATEGORIES });
+});
+
+meRouter.post('/projects/:slug/quicklinks', async (req, res) => {
+  const parsed = QuicklinkCreateSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ ok: false, error: 'validation_failed', details: parsed.error.flatten() });
+  const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug);
+  if (!project) return res.status(404).json({ ok: false, error: 'project_not_found' });
+  const r = await supabase.insert('project_quicklinks', {
+    project_id: project.id,
+    label: parsed.data.label,
+    url: parsed.data.url,
+    category: parsed.data.category,
+    icon: parsed.data.icon ?? null,
+    sort_order: parsed.data.sort_order ?? 0
+  });
+  if (!r.ok) return res.status(500).json({ ok: false, error: r.error });
+  res.status(201).json({ ok: true, quicklink: r.data?.[0] });
+});
+
+meRouter.patch('/projects/:slug/quicklinks/:id', async (req, res) => {
+  if (!ME_UUID_RX.test(req.params.id || '')) {
+    return res.status(400).json({ ok: false, error: 'invalid_id_format' });
+  }
+  const parsed = QuicklinkPatchSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ ok: false, error: 'validation_failed', details: parsed.error.flatten() });
+  const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug);
+  if (!project) return res.status(404).json({ ok: false, error: 'project_not_found' });
+  const r = await supabase.update(
+    'project_quicklinks',
+    `id=eq.${encodeURIComponent(req.params.id)}&project_id=eq.${project.id}`,
+    parsed.data
+  );
+  if (!r.ok) return res.status(500).json({ ok: false, error: r.error });
+  if (!r.data?.length) return res.status(404).json({ ok: false, error: 'quicklink_not_found' });
+  res.json({ ok: true, quicklink: r.data[0] });
+});
+
+meRouter.delete('/projects/:slug/quicklinks/:id', async (req, res) => {
+  if (!ME_UUID_RX.test(req.params.id || '')) {
+    return res.status(400).json({ ok: false, error: 'invalid_id_format' });
+  }
+  const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug);
+  if (!project) return res.status(404).json({ ok: false, error: 'project_not_found' });
+  const r = await supabase.delete(
+    'project_quicklinks',
+    `id=eq.${encodeURIComponent(req.params.id)}&project_id=eq.${project.id}`
+  );
   if (!r.ok) return res.status(500).json({ ok: false, error: r.error });
   res.json({ ok: true });
 });

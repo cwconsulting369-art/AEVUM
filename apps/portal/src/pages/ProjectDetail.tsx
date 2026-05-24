@@ -8,6 +8,7 @@ import { stagger } from '@/lib/animations';
 import CollaGlowDashboard from '@/components/dashboard/CollaGlowDashboard';
 import AEVUMDashboard from '@/components/dashboard/AEVUMDashboard';
 import ProjectAgentChat from '@/components/agent/ProjectAgentChat';
+import QuicklinksSection from '@/components/quicklinks/QuicklinksSection';
 
 type ApiRow = { id: string; service: string; key_label: string | null; scope: string; health: string; added_at: string; last_used_at: string | null };
 type MeProject = { id: string; slug: string; name: string };
@@ -58,6 +59,9 @@ export default function ProjectDetail() {
     if (section === 'apis') {
       return <ApisSection apis={apis} slug={slug} onRefresh={loadApis} />;
     }
+    if (section === 'quicklinks') {
+      return <QuicklinksSection projectSlug={slug} />;
+    }
     return <CollaGlowDashboard section={section} />;
   }
 
@@ -69,14 +73,29 @@ export default function ProjectDetail() {
     if (section === 'apis') {
       return <ApisSection apis={apis} slug={slug} onRefresh={loadApis} />;
     }
+    if (section === 'quicklinks') {
+      return <QuicklinksSection projectSlug={slug} />;
+    }
     return <AEVUMDashboard section={section} />;
   }
 
-  // Generic project: agent + api keys
+  // Generic project: overview shows Quicklinks, plus dedicated agent + api keys + quicklinks tabs
   if (section === 'agent') {
     return <ProjectAgentChat projectSlug={slug} projectName={project?.name || slug} />;
   }
-  return <ApisSection apis={apis} slug={slug} onRefresh={loadApis} />;
+  if (section === 'apis') {
+    return <ApisSection apis={apis} slug={slug} onRefresh={loadApis} />;
+  }
+  if (section === 'quicklinks') {
+    return <QuicklinksSection projectSlug={slug} />;
+  }
+  // overview (default) — show quicklinks first, then API keys
+  return (
+    <>
+      <QuicklinksSection projectSlug={slug} />
+      <ApisSection apis={apis} slug={slug} onRefresh={loadApis} />
+    </>
+  );
 }
 
 // ── APIs Section ────────────────────────────────────────────────────────────
