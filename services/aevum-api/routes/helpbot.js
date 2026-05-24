@@ -32,6 +32,8 @@ import {
   safeCompare,
   anonymizeIp as anonymizeIpSec
 } from '../lib/security.js';
+import { agentThrottle } from '../lib/agent-throttle.js';
+import { logUsage } from '../lib/credit-spend.js';
 
 export const helpbotRouter = Router();
 
@@ -277,7 +279,7 @@ async function persistTurn({ session_id, messages, ip_anonymized, user_agent, me
 }
 
 // ─── POST /api/helpbot/chat ─────────────────────────────────
-helpbotRouter.post('/chat', async (req, res) => {
+helpbotRouter.post('/chat', agentThrottle({ allowAnonymous: true }), async (req, res) => {
   const ip = clientIp(req);
   const ua = (req.get('user-agent') || '').slice(0, 500);
   maybeBurstGc();
@@ -439,6 +441,8 @@ helpbotRouter.post('/chat', async (req, res) => {
 
   // ─── Stream tokens ───
   let assistantText = '';
+  let inputTokens = 0;
+  let outputTokens = 0;
   const reader = upstream.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
@@ -467,7 +471,14 @@ helpbotRouter.post('/chat', async (req, res) => {
           let evt;
           try { evt = JSON.parse(payload); } catch { continue; }
 
-          if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
+          if (evt.type === 'message_start' && evt.message?.usage) {
+            inputTokens = evt.message.usage.input_tokens || 0;
+            outputTokens = evt.message.usage.output_tokens || 0;
+          } else if (evt.type === 'message_delta' && evt.usage) {
+            // Anthropic emits cumulative output_tokens here
+            if (typeof evt.usage.output_tokens === 'number') outputTokens = evt.usage.output_tokens;
+            if (typeof evt.usage.input_tokens === 'number' && evt.usage.input_tokens > inputTokens) inputTokens = evt.usage.input_tokens;
+          } else if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
             const chunk = evt.delta.text || '';
             assistantText += chunk;
             send('token', { text: chunk });
@@ -484,6 +495,19 @@ helpbotRouter.post('/chat', async (req, res) => {
     send('error', { message: 'stream_interrupted' });
   } finally {
     req.off('close', onClientClose);
+  }
+
+  // ─── Log usage for credit-spend tracking (anonymous helpbot → no accountId) ───
+  if (inputTokens > 0 || outputTokens > 0) {
+    logUsage({
+      accountId: null,
+      sessionId: null,
+      endpoint: '/api/helpbot/chat',
+      model: MODEL,
+      inputTokens,
+      outputTokens,
+      context: 'helpbot-question'
+    }).catch(err => console.error('[helpbot] usage log failed:', err.message || err));
   }
 
   // ─── Persist conversation (fire-and-forget, do not block response) ───

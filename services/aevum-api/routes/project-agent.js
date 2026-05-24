@@ -31,6 +31,8 @@ import {
   listMemoryFiles,
   eraseProjectMemory
 } from '../lib/agent-memory.js';
+import { agentThrottle } from '../lib/agent-throttle.js';
+import { logUsage } from '../lib/credit-spend.js';
 
 export const projectAgentRouter = Router({ mergeParams: true });
 
@@ -227,7 +229,7 @@ ${memorySection}`;
 }
 
 // ─── POST /chat (SSE stream) ────────────────────────────────
-projectAgentRouter.post('/chat', async (req, res) => {
+projectAgentRouter.post('/chat', agentThrottle(), async (req, res) => {
   maybeBurstGc();
   const ip = clientIp(req);
   const accountId = req.customer.account_id;
@@ -356,6 +358,8 @@ projectAgentRouter.post('/chat', async (req, res) => {
   }
 
   let assistantText = '';
+  let inputTokens = 0;
+  let outputTokens = 0;
   const reader = upstream.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
@@ -377,7 +381,13 @@ projectAgentRouter.post('/chat', async (req, res) => {
           if (!payload) continue;
           let evt;
           try { evt = JSON.parse(payload); } catch { continue; }
-          if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
+          if (evt.type === 'message_start' && evt.message?.usage) {
+            inputTokens = evt.message.usage.input_tokens || 0;
+            outputTokens = evt.message.usage.output_tokens || 0;
+          } else if (evt.type === 'message_delta' && evt.usage) {
+            if (typeof evt.usage.output_tokens === 'number') outputTokens = evt.usage.output_tokens;
+            if (typeof evt.usage.input_tokens === 'number' && evt.usage.input_tokens > inputTokens) inputTokens = evt.usage.input_tokens;
+          } else if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
             const chunk = evt.delta.text || '';
             assistantText += chunk;
             send('token', { text: chunk });
@@ -394,6 +404,19 @@ projectAgentRouter.post('/chat', async (req, res) => {
     send('error', { message: 'stream_interrupted' });
   } finally {
     req.off('close', onClose);
+  }
+
+  // ─── Log usage for credit-spend tracking ───
+  if (inputTokens > 0 || outputTokens > 0) {
+    logUsage({
+      accountId,
+      sessionId: null,
+      endpoint: '/api/me/projects/:slug/agent/chat',
+      model: MODEL,
+      inputTokens,
+      outputTokens,
+      context: `agent-chat:${projectSlug}:${channel}`
+    }).catch(err => console.error('[project-agent] usage log failed:', err.message || err));
   }
 
   // ─── Parse + apply memory updates ───
