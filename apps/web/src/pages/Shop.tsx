@@ -285,6 +285,7 @@ const dfyServices: DFYService[] = [
 ];
 
 const BUNDLE_PRICE = 697;
+const BUNDLE_STRIPE_PRICE_ID = 'price_1TaYNT200IKJdPeh6HiWbWg5';
 const FULL_PRICE = blueprints.reduce((s, b) => s + b.price, 0);
 
 const blueprintCategories: BlueprintCategory[] = ['Alle', 'Content', 'Leads', 'Reporting', 'Automatisierung'];
@@ -771,6 +772,7 @@ function BlueprintsSection() {
                       description: '',
                       includes: [],
                       price: BUNDLE_PRICE,
+                      stripePriceId: BUNDLE_STRIPE_PRICE_ID,
                     },
                     false
                   )
@@ -792,6 +794,7 @@ function BlueprintsSection() {
                       description: '',
                       includes: [],
                       price: BUNDLE_PRICE,
+                      stripePriceId: BUNDLE_STRIPE_PRICE_ID,
                     },
                     true
                   )

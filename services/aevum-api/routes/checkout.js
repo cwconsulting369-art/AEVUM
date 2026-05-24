@@ -1,247 +1,20 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { stripe, PACKAGES, getPriceId, PILOT_COUPON_ID_ENV } from '../lib/stripe.js';
+import { stripe, PILOT_COUPON_ID_ENV } from '../lib/stripe.js';
 import { supabase } from '../lib/supabase.js';
 import { notifyCarlos } from '../lib/tg-notify.js';
-import { clean, scanPayload, anonymizeIp } from '../lib/security.js';
-import { logBlock } from '../lib/monitor.js';
-import { CONSENT_VERSION } from './audit.js';
 import { earnCredits, addStamp, checkStampReward } from '../lib/credits.js';
 
 export const checkoutRouter = Router();
 
-const SITE_BASE = process.env.SITE_BASE_URL || 'https://aevum-system.de';
-
-// § 356 Abs 4 BGB — Sofort-Verzicht-Text-Version (bump on legal-text change)
-const IMMEDIATE_START_VERSION = 'immediate-start-v1-2026-05-20';
-
-// Pakete mit Pflicht-Sofortverzicht (kurze Delivery → echtes Widerrufs-Risiko)
-const IMMEDIATE_START_REQUIRED_TIERS = new Set(['S', 'M']);
-
 // HGB §147 — 10 Jahre Aufbewahrung kaufmännischer Belege
 const ORDER_RETENTION_MS = 10 * 365 * 24 * 60 * 60 * 1000;
+const IMMEDIATE_START_VERSION = 'immediate-start-v1-2026-05-20';
 
-const CheckoutSchema = z.object({
-  tier: z.enum(['S', 'M', 'L']),
-  // optional add-on price IDs (Carlos defines them in Stripe later)
-  addonPriceIds: z.array(z.string().min(1)).max(10).optional().default([]),
-  // optional bundle override — explicit flag if 2+ services bundled
-  bundleSize: z.number().int().min(1).max(10).optional().default(1),
-  customerEmail: z.string().email().max(200).transform((s) => s.toLowerCase()),
-  customerName: z.string().min(1).max(200).optional(),
-  customerCompany: z.string().max(200).optional(),
-  // request pilot discount? (frontend reads pilot_slots first; backend re-verifies)
-  requestPilot: z.boolean().optional().default(false),
-  consent: z.literal(true, {
-    errorMap: () => ({ message: 'Einwilligung zur Datenverarbeitung erforderlich' }),
-  }),
-  // § 356 Abs 4 BGB — Sofort-Verzicht. Pflicht für S+M, optional für L.
-  // Re-check tier-specific Pflicht in handler.
-  consent_immediate_start: z.boolean().optional().default(false),
-  // honeypot — must stay empty; bots fill it
-  website: z.string().max(500).optional().default(''),
-  // time-check — must be > 1500ms between form-open and submit (BuyButton uses 1500)
-  formStartedAt: z.number().optional(),
-});
-
-function clientIp(req) {
-  return (
-    req.headers['cf-connecting-ip'] ||
-    req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
-    req.ip ||
-    'unknown'
-  );
+function maskEmail(e) {
+  if (!e || typeof e !== 'string') return '';
+  return e.replace(/^(.).+(@.+)$/, '$1***$2');
 }
-
-// ─── POST /api/checkout/create-session ──────────────────────────
-// Body: { tier, addonPriceIds, bundleSize, customerEmail, customerName, customerCompany, requestPilot, consent }
-// Returns: { ok, url } — frontend redirects to Stripe Checkout
-checkoutRouter.post('/create-session', async (req, res) => {
-  if (!stripe) {
-    return res.status(503).json({ ok: false, error: 'stripe_not_configured' });
-  }
-
-  const ip = clientIp(req);
-  const ua = req.get('user-agent') || '';
-  const ctx = { ip, user_agent: ua, endpoint: 'POST /api/checkout/create-session' };
-
-  const parsed = CheckoutSchema.safeParse(req.body);
-  if (!parsed.success) {
-    logBlock({ ...ctx, type: 'validation_fail', reason: JSON.stringify(parsed.error.flatten().fieldErrors).slice(0, 200) });
-    return res.status(400).json({
-      ok: false,
-      error: 'validation_failed',
-      details: parsed.error.flatten(),
-    });
-  }
-  const f = parsed.data;
-
-  // ─── Honeypot — silent fail (bot doesn't learn it was detected) ───
-  if (f.website && f.website.length > 0) {
-    logBlock({ ...ctx, type: 'honeypot_triggered', reason: `website-field filled: ${f.website.slice(0, 100)}` });
-    return res.json({ ok: true, url: '/services?checkout=cancelled' });
-  }
-
-  // ─── Time-check ───
-  if (f.formStartedAt) {
-    const elapsed = Date.now() - f.formStartedAt;
-    if (elapsed < 1500) {
-      logBlock({ ...ctx, type: 'too_fast', reason: `submitted in ${elapsed}ms (min 1500)` });
-      return res.json({ ok: true, url: '/services?checkout=cancelled' });
-    }
-  }
-
-  // ─── § 356 Abs 4 BGB — Pflicht-Check Sofort-Verzicht für S+M ───
-  if (IMMEDIATE_START_REQUIRED_TIERS.has(f.tier) && !f.consent_immediate_start) {
-    logBlock({
-      ...ctx,
-      type: 'missing_immediate_start_waiver',
-      reason: `tier=${f.tier} requires § 356 Abs 4 BGB waiver but consent_immediate_start=false`,
-    });
-    return res.status(400).json({
-      ok: false,
-      error: 'immediate_start_required',
-      message: 'Sofort-Verzicht-Zustimmung erforderlich (§ 356 Abs 4 BGB)',
-    });
-  }
-
-  // ─── Pattern-scan ───
-  const attackHits = scanPayload({
-    customerName: f.customerName || '',
-    customerCompany: f.customerCompany || '',
-    customerEmail: f.customerEmail
-  });
-  if (attackHits.length > 0) {
-    logBlock({
-      ...ctx,
-      type: 'attack_pattern',
-      reason: attackHits.map(h => `${h.field}:${h.reason}`).join('; '),
-      payload_summary: `tier=${f.tier} email=${f.customerEmail}`
-    });
-    return res.status(400).json({ ok: false, error: 'invalid_input' });
-  }
-
-  // Build line_items
-  let priceId;
-  try {
-    priceId = getPriceId(f.tier);
-  } catch (e) {
-    console.error('[checkout] price lookup failed:', e.message);
-    return res.status(503).json({ ok: false, error: 'package_not_configured', detail: e.message });
-  }
-
-  const lineItems = [
-    { price: priceId, quantity: 1 },
-    ...f.addonPriceIds.map((id) => ({ price: id, quantity: 1 })),
-  ];
-
-  // Pilot-discount handling — re-verify slot availability before granting
-  let allowPilot = false;
-  let pilotSlotNumber = null;
-  if (f.requestPilot) {
-    const { data: slotRow } = await supabase.select(
-      'pilot_slots',
-      '?id=eq.1&select=total_slots,slots_taken'
-    );
-    const slot = Array.isArray(slotRow) ? slotRow[0] : slotRow;
-    if (slot && slot.slots_taken < slot.total_slots) {
-      allowPilot = true;
-      pilotSlotNumber = slot.slots_taken + 1;
-    }
-  }
-
-  const couponId = allowPilot ? process.env[PILOT_COUPON_ID_ENV] : null;
-
-  // Bundle discount — optional, applied as a percent_off via dynamic coupon
-  // For now we keep it metadata-only and reconcile at fulfilment.
-  // (Stripe dynamic coupons require account permissions; revisit when needed.)
-
-  const pkg = PACKAGES[f.tier];
-
-  let session;
-  try {
-    session = await stripe.checkout.sessions.create({
-      mode: pkg.type === 'recurring' ? 'subscription' : 'payment',
-      // payment_method_types weggelassen → Stripe nutzt automatically alle im Dashboard aktivierten Methoden.
-      // Carlos kann SEPA/Klarna/Sofort später in Stripe-Dashboard → Settings → Payment Methods aktivieren ohne Code-Change.
-      line_items: lineItems,
-      customer_email: f.customerEmail,
-      ...(couponId
-        ? { discounts: [{ coupon: couponId }] }
-        : { allow_promotion_codes: true }
-      ),
-      success_url: `${SITE_BASE}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${SITE_BASE}/services?checkout=cancelled`,
-      metadata: {
-        tier: f.tier,
-        bundleSize: String(f.bundleSize),
-        addonPriceIds: f.addonPriceIds.join(','),
-        pilotApplied: String(allowPilot),
-        pilotSlot: pilotSlotNumber ? String(pilotSlotNumber) : '',
-        customerName: f.customerName || '',
-        customerCompany: f.customerCompany || '',
-        consent_immediate_start: String(f.consent_immediate_start),
-        consent_immediate_start_version: f.consent_immediate_start
-          ? IMMEDIATE_START_VERSION
-          : '',
-      },
-      locale: 'de',
-    });
-  } catch (e) {
-    console.error('[checkout] stripe session create failed:', e.message);
-    return res.status(502).json({ ok: false, error: 'stripe_error', detail: e.message });
-  }
-
-  // Pre-insert pending order row so we can match the webhook
-  const nowIso = new Date().toISOString();
-  const orderInsert = await supabase.insert('orders', {
-    stripe_session_id: session.id,
-    customer_email: clean(f.customerEmail),
-    customer_name: f.customerName ? clean(f.customerName) : null,
-    customer_company: f.customerCompany ? clean(f.customerCompany) : null,
-    package_tier: f.tier,
-    package_name: pkg.name,
-    base_price_cents: 0, // populated by webhook from session amount_total
-    pilot_discount_applied: allowPilot,
-    pilot_discount_percent: allowPilot ? 30 : 0,
-    pilot_slot_number: pilotSlotNumber,
-    addons: f.addonPriceIds,
-    bundle_discount_percent: f.bundleSize > 1 ? Math.min(20, (f.bundleSize - 1) * 10) : 0,
-    subtotal_cents: 0,
-    total_cents: 0,
-    status: 'pending',
-    ip_anonymized: anonymizeIp(ip),
-    user_agent: ua,
-    consent_immediate_start: f.consent_immediate_start,
-    consent_immediate_start_at: f.consent_immediate_start ? nowIso : null,
-    consent_immediate_start_version: f.consent_immediate_start ? IMMEDIATE_START_VERSION : null,
-  });
-  const insertedOrder = Array.isArray(orderInsert.data) ? orderInsert.data[0] : orderInsert.data;
-
-  // Log consent (Art 7 — Nachweis der Einwilligung at checkout time)
-  supabase.insert('consent_log', {
-    order_id: insertedOrder?.id || null,
-    email: clean(f.customerEmail),
-    consent_type: 'checkout_purchase',
-    consent_text_version: CONSENT_VERSION,
-    ip_anonymized: anonymizeIp(ip),
-    user_agent: ua
-  }).catch(err => console.error('consent_log fail (checkout):', err));
-
-  // § 356 Abs 4 BGB — separate consent_log entry for Sofort-Verzicht
-  if (f.consent_immediate_start) {
-    supabase.insert('consent_log', {
-      order_id: insertedOrder?.id || null,
-      email: clean(f.customerEmail),
-      consent_type: 'immediate_start_waiver',
-      consent_text_version: IMMEDIATE_START_VERSION,
-      ip_anonymized: anonymizeIp(ip),
-      user_agent: ua
-    }).catch(err => console.error('consent_log fail (immediate_start):', err));
-  }
-
-  return res.json({ ok: true, url: session.url, sessionId: session.id });
-});
 
 // ─── POST /api/checkout/webhook ─────────────────────────────────
 // Stripe sends events here. Verified with STRIPE_WEBHOOK_SECRET.
@@ -304,8 +77,8 @@ checkoutRouter.post('/webhook', async (req, res) => {
       const fallbackInsert = await supabase.insert('orders', {
         stripe_session_id: sessionId,
         customer_email: session.customer_details?.email || 'unknown@example.com',
-        package_tier: session.metadata?.tier || 'custom',
-        package_name: session.metadata?.tier ? PACKAGES[session.metadata.tier]?.name : 'Unknown',
+        package_tier: session.metadata?.tier || session.metadata?.blueprint_slug || 'shop',
+        package_name: session.metadata?.blueprint_slug || session.metadata?.product_id || 'Shop Purchase',
         base_price_cents: amountTotal,
         subtotal_cents: amountTotal,
         total_cents: amountTotal,
@@ -337,12 +110,51 @@ checkoutRouter.post('/webhook', async (req, res) => {
       }).catch(err => console.error('consent_log fail (webhook waiver):', err));
     }
 
+    // ─── account_type='shop' Logik (2026-05-24) ──────────────────
+    // Per mig019: account_type hat NOT NULL DEFAULT 'customer', Backfill setzt
+    // has_agent_access=true für existierende Vollkunden. Daher:
+    //   - Vollkunde   = account_type='customer' AND has_agent_access=true → NICHT überschreiben
+    //   - Shop-Käufer = account_type='shop'  → bleibt shop
+    //   - SaaS-User   = account_type='saas' → bleibt saas
+    //   - Default-Row (customer + has_agent_access=false) → auf 'shop' downgraden
+    //   - Kein Account → nur loggen (Carlos-Policy: kein auto-create)
+    const buyerEmail = session.customer_details?.email?.toLowerCase();
+    if (buyerEmail) {
+      try {
+        const { data: acctRows } = await supabase.select(
+          'accounts',
+          `?email=eq.${encodeURIComponent(buyerEmail)}&select=id,account_type,has_agent_access&limit=1`
+        );
+        const acct = Array.isArray(acctRows) ? acctRows[0] : acctRows;
+
+        if (!acct) {
+          console.log(`[checkout-webhook] shop-buy ohne Account: ${maskEmail(buyerEmail)} — kein Account erzeugt (Carlos-Policy)`);
+        } else if (acct.account_type === 'customer' && acct.has_agent_access === true) {
+          console.log(`[checkout-webhook] Vollkunde ${acct.id} kauft Blueprint — account_type bleibt 'customer'`);
+        } else if (acct.account_type === 'shop') {
+          console.log(`[checkout-webhook] Account ${acct.id} bereits 'shop' — unverändert`);
+        } else if (acct.account_type === 'saas') {
+          console.log(`[checkout-webhook] Account ${acct.id} ist 'saas' — unverändert`);
+        } else {
+          // Default-Row ohne Upgrade → auf 'shop' setzen
+          await supabase.update(
+            'accounts',
+            `?id=eq.${acct.id}`,
+            { account_type: 'shop', has_agent_access: false, updated_at: paidAtIso }
+          );
+          console.log(`[checkout-webhook] Account ${acct.id} (${acct.account_type}/agent=${acct.has_agent_access}) → account_type='shop' gesetzt`);
+        }
+      } catch (acctErr) {
+        console.error('[checkout-webhook] account_type-Logik error (non-fatal):', acctErr.message);
+      }
+    }
+
     // PII-minimised TG notification
-    const emailMasked = (session.customer_details?.email || '').replace(/^(.).+(@.+)$/, '$1***$2');
+    const emailMasked = maskEmail(session.customer_details?.email || '');
     const totalEur = (amountTotal / 100).toFixed(2);
-    const tier = session.metadata?.tier || '?';
+    const tier = session.metadata?.blueprint_slug || session.metadata?.tier || session.metadata?.product_id || '?';
     notifyCarlos(
-      `💰 *Neuer AEVUM-Sale* — Paket ${tier}\n*Betrag:* ${totalEur} EUR\n*Kunde:* ${emailMasked}\n${session.metadata?.pilotApplied === 'true' ? `*Pilot-Slot:* ${session.metadata.pilotSlot}/10\n` : ''}_Volle Daten in Supabase orders-Tabelle_`
+      `💰 *Neuer AEVUM-Sale* — ${tier}\n*Betrag:* ${totalEur} EUR\n*Kunde:* ${emailMasked}\n${session.metadata?.pilotApplied === 'true' ? `*Pilot-Slot:* ${session.metadata.pilotSlot}/10\n` : ''}_Volle Daten in Supabase orders-Tabelle_`
     );
 
     // Credits + Loyalty: nur wenn account_id in Session-Metadata vorhanden
@@ -421,3 +233,7 @@ checkoutRouter.post('/blueprint', async (req, res) => {
     return res.status(500).json({ ok: false, error: 'stripe_error', detail: err.message });
   }
 });
+
+// NOTE: Legacy `POST /api/checkout/create-session` (S/M/L tier flow) was removed
+// 2026-05-24 — superseded by `/api/checkout/blueprint`. BuyButton.tsx (orphan
+// frontend caller) was also removed in the same commit.
