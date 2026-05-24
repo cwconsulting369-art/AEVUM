@@ -414,7 +414,7 @@ const ACCOUNT_FEATURES = [
   { feature: 'SaaS-Tools nutzen', gast: false, shop: false, saas: true, full: 'inkl. Free-Kontingent' as const },
   { feature: 'Personal AI-Agent', gast: false, shop: false, saas: false, full: true },
   { feature: 'Eigenes Dashboard', gast: false, shop: false, saas: false, full: true },
-  { feature: 'Anteilige Kosten-Abrechnung', gast: false, shop: false, saas: false, full: true },
+  { feature: 'AEVUM Founder-Community', gast: false, shop: false, saas: false, full: true },
 ];
 
 const TIER_HEADERS = [

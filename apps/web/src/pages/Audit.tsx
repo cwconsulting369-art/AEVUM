@@ -327,6 +327,7 @@ function AuditHeroSection() {
     { icon: <Clock className="w-3.5 h-3.5" />, label: '48h Auto-Plan-PDF' },
     { icon: <Phone className="w-3.5 h-3.5" />, label: 'Pflicht-Call zur Klärung' },
     { icon: <Shield className="w-3.5 h-3.5" />, label: 'DSGVO-konform' },
+    { icon: <Users className="w-3.5 h-3.5" />, label: 'Founder-Community Zugang' },
   ];
 
   return (
@@ -849,6 +850,10 @@ const FAQ_ITEMS = [
   {
     q: 'Kann ich später upgraden?',
     a: 'Ja. Shop → SaaS → Full-Partnership geht jederzeit. Credits bleiben erhalten und werden auf das nächste Tier angerechnet. Kein Lock-in.',
+  },
+  {
+    q: 'Was ist die AEVUM Founder-Community?',
+    a: 'Exklusiver Kreis aller Full-Partnership-Kunden. Direkter Austausch zwischen Foundern, Tool-Sharing, Use-Case-Templates, Quarterly-Calls mit Carlos + Lennox. Keine Fremde, keine LinkedIn-Influencer — nur Operators die ihr System ernst nehmen. Inklusive in Full-Partnership.',
   },
   {
     q: 'Was ist mit DSGVO?',

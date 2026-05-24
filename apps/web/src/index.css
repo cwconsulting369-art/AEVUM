@@ -6,18 +6,27 @@
 
 @layer base {
   :root {
+    /* === AEVUM (default) — Dark + Gold + Creme === */
+    --bg-primary: #08080a;
+    --bg-surface: #141414;
+    --bg-elevated: #1a1a1a;
+    --text-primary: #f5e6d3;       /* CREME — statt Weiß */
+    --text-secondary: #bababa;
+    --text-muted: #7a7a85;
+    --accent: #c4a032;
+    --accent-hover: #e0a458;
+    --border: #2a2a2a;
+    --border-strong: #3a3a3a;
+
+    /* Legacy AEVUM-Brand-Vars (gold + glass effects bleiben) */
     --bg-void: #08080a;
-    --bg-surface: #111116;
     --bg-glass: rgba(13, 13, 17, 0.6);
     --accent-amber: #e0a458;
     --accent-gold: #a86d27;
     --gold: #e0a458;
     --gold-soft: #f5d68d;
     --gold-deep: #a86d27;
-    --text-primary: #c9c9d2;
-    --text-strong: #e6e6ea;
-    --text-secondary: #9a9aa3;
-    --text-muted: #7a7a85;
+    --text-strong: #f5e6d3;
     --border-subtle: rgba(255, 255, 255, 0.08);
     --border-accent: rgba(224, 164, 88, 0.3);
     --danger: #EF4444;
