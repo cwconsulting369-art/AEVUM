@@ -1070,8 +1070,8 @@ function FinalCTASection() {
 
 export default function Home() {
   usePageSeo({
-    title: 'AEVUM — KI-Betriebssysteme für den deutschen Mittelstand',
-    description: 'Individuelle KI-Betriebssysteme für Kanzleien, Makler, Hausverwaltungen und KMU. Workflow-Audit, Automation, messbare Pipeline. DSGVO-konform aus Augsburg.',
+    title: 'AEVUM — Operating-System für Unternehmen | DACH',
+    description: 'Individuelle KI-Betriebssysteme für Unternehmen in DACH. Workflow-Audit, Automation, messbare Pipeline. DSGVO-konform.',
     path: '/',
   });
   return (

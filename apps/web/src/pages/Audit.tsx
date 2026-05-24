@@ -275,7 +275,7 @@ const DEFAULT_STATE: FormState = {
 export default function Audit() {
   usePageSeo({
     title: 'Workflow-Audit kostenlos starten — AEVUM',
-    description: 'Kostenfreies Workflow-Audit für KMU, Kanzleien und Hausverwaltungen. In 4 Schritten zu Automation-Potenzialen, Kosten-Ersparnis und Pipeline-Wachstum.',
+    description: 'Kostenfreies Workflow-Audit für Unternehmen in DACH. In 4 Schritten zu Automation-Potenzialen, Kosten-Ersparnis und Pipeline-Wachstum.',
     path: '/audit',
   });
   const [step, setStep] = useState(0);

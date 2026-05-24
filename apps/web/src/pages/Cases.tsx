@@ -294,7 +294,7 @@ function CTASection() {
 export default function Cases() {
   usePageSeo({
     title: 'Case Studies — KI-Implementierungen in der Praxis | AEVUM',
-    description: 'Echte Projekte, transparente Ergebnisse: Hausverwaltungen, Kanzleien, KMU. Workflow-Audits, Automation-Stacks und messbare Resultate.',
+    description: 'Echte Projekte, transparente Ergebnisse: E-Commerce, Real Estate, Trading, B2B. Workflow-Audits, Automation-Stacks und messbare Resultate.',
     path: '/cases',
   });
   return (
