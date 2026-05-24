@@ -29,7 +29,7 @@ export default function Datenschutz() {
               Carlos Wrusch<br />
               Federteilstr. 2e<br />
               86517 Wehringen, Deutschland<br />
-              E-Mail: <a href="mailto:cwconsulting369@gmail.com" className="text-[#e0a458] hover:underline">cwconsulting369@gmail.com</a>
+              E-Mail: <a href="mailto:dsgvo@aevum-system.de" className="text-[#e0a458] hover:underline">dsgvo@aevum-system.de</a>
             </p>
             <p className="text-sm text-[#7a7a85]">
               Ein Datenschutzbeauftragter ist gesetzlich nicht erforderlich (kein
@@ -175,7 +175,7 @@ export default function Datenschutz() {
               ausschließlich auf Grundlage eines separaten Auftragsverarbeitungsvertrags nach
               <strong> Art 28 DSGVO</strong>. Ein Standard-AVV-Template stellen wir auf Anfrage
               kostenfrei zur Verfügung. Anfragen bitte per E-Mail an{' '}
-              <a href="mailto:cwconsulting369@gmail.com" className="text-[#e0a458] hover:underline">cwconsulting369@gmail.com</a>.
+              <a href="mailto:dsgvo@aevum-system.de" className="text-[#e0a458] hover:underline">dsgvo@aevum-system.de</a>.
             </p>
           </section>
 
@@ -256,7 +256,7 @@ export default function Datenschutz() {
             </ul>
             <p className="mt-4">
               Anfragen bitte per E-Mail an{' '}
-              <a href="mailto:cwconsulting369@gmail.com" className="text-[#e0a458] hover:underline">cwconsulting369@gmail.com</a>.
+              <a href="mailto:dsgvo@aevum-system.de" className="text-[#e0a458] hover:underline">dsgvo@aevum-system.de</a>.
               Wir bearbeiten Anfragen innerhalb der gesetzlichen Frist von einem Monat (Art 12 Abs 3 DSGVO).
             </p>
             <p className="mt-4">

@@ -297,6 +297,7 @@ checkoutRouter.post('/webhook', async (req, res) => {
             const link = `${portalBase}/auth/verify?token=${encodeURIComponent(token)}`;
             await mailer.send({
               to: signupAcct.email,
+              from: 'AEVUM SaaS <saas@aevum-system.de>',
               subject: 'Willkommen bei AEVUM — Dein Account ist bereit',
               html: magicLinkHtml({ name: signupAcct.name, link, purpose: 'invite' }),
               text: magicLinkText({ name: signupAcct.name, link, purpose: 'invite' }),

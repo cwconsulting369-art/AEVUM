@@ -468,7 +468,7 @@ auditRouter.post('/export/request', dsgvoLimiter, async (req, res) => {
   const ch = await issueDsgvoChallenge({ email, action: 'export', ip });
   if (!ch) return sameResponse();
   const link = `${API_BASE_FOR_DSGVO}/api/audit/export?token=${encodeURIComponent(ch.token)}`;
-  await mailer.send({ to: email, ...dsgvoChallengeEmail({ action: 'export', link }) });
+  await mailer.send({ to: email, from: 'AEVUM DSGVO <dsgvo@aevum-system.de>', ...dsgvoChallengeEmail({ action: 'export', link }) });
   notifyCarlos(`📨 *DSGVO Art 15 Challenge ausgestellt*\nEmail: \`${maskEmail(email)}\`\nLink-TTL: ${CHALLENGE_TTL_MIN} min`);
   sameResponse();
 });
@@ -524,7 +524,7 @@ auditRouter.post('/erase/request', dsgvoLimiter, async (req, res) => {
   const ch = await issueDsgvoChallenge({ email, action: 'erase', ip });
   if (!ch) return sameResponse();
   const link = `${API_BASE_FOR_DSGVO}/api/audit/erase?token=${encodeURIComponent(ch.token)}`;
-  await mailer.send({ to: email, ...dsgvoChallengeEmail({ action: 'erase', link }) });
+  await mailer.send({ to: email, from: 'AEVUM DSGVO <dsgvo@aevum-system.de>', ...dsgvoChallengeEmail({ action: 'erase', link }) });
   notifyCarlos(`🗑 *DSGVO Art 17 Challenge ausgestellt*\nEmail: \`${maskEmail(email)}\`\nLink-TTL: ${CHALLENGE_TTL_MIN} min`);
   sameResponse();
 });

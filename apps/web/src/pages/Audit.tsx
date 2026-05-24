@@ -422,6 +422,7 @@ const COMPARISON_ROWS: ComparisonRow[] = [
   { feature: 'Quicklinks · Documents · Agent', gast: false, shop: false, saas: false, full: true },
   { feature: 'Per-Project-API-Coverage', gast: false, shop: false, saas: false, full: true },
   { feature: 'Cross-OS Aggregator (LennoxOS)', gast: false, shop: false, saas: false, full: true },
+  { feature: 'AEVUM Founder-Community', gast: false, shop: false, saas: false, full: true },
 ];
 
 const COMPARISON_FOOTER: { pricing: string; entry: string; cta: { label: string; action: () => void }; col: 'gast' | 'shop' | 'saas' | 'full' }[] = [
@@ -1855,7 +1856,7 @@ function StepReview({ formState, consent, onConsentChange, submitError }: {
                 style={{ color: '#e0a458', textDecoration: 'underline' }}>
                 Datenschutzerklarung
               </a>
-              . Widerruf per E-Mail an cwconsulting369@gmail.com.
+              . Widerruf per E-Mail an info@aevum-system.de.
             </p>
           </div>
         </div>

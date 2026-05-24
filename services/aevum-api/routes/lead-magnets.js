@@ -93,6 +93,7 @@ AEVUM`;
   // Don't await mail in critical path — but log result
   mailer.send({
     to: parsed.data.email,
+    from: 'AEVUM <info@aevum-system.de>',
     subject: magnet.subject,
     html,
     text

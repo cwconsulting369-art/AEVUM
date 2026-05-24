@@ -77,6 +77,7 @@ authRouter.post('/magic-link/request', magicLinkLimiter, async (req, res) => {
 
   await mailer.send({
     to: account.email,
+    from: 'AEVUM <noreply@aevum-system.de>',
     subject: purpose === 'invite' ? 'Dein AEVUM-Onboarding' : 'Dein AEVUM-Login-Link',
     html: magicLinkHtml({ name: account.name, link, purpose }),
     text: magicLinkText({ name: account.name, link, purpose })

@@ -222,7 +222,7 @@ export default function AGB() {
               <li>Subscription (Paket L): Mindestlaufzeit 3 Monate, danach monatlich kündbar zum Monatsende mit Frist von 14 Tagen.</li>
               <li>Bei Jahres-Prepay-Variante: Kündigung zum Jahresende.</li>
               <li>Außerordentliche Kündigung aus wichtigem Grund bleibt unberührt.</li>
-              <li>Kündigungen bedürfen der Textform (E-Mail an cwconsulting369@gmail.com genügt).</li>
+              <li>Kündigungen bedürfen der Textform (E-Mail an info@aevum-system.de genügt).</li>
             </ol>
           </section>
 

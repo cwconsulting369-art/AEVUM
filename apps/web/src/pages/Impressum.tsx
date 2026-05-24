@@ -32,7 +32,7 @@ export default function Impressum() {
           <section>
             <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Kontakt</h2>
             <p>
-              E-Mail: <a href="mailto:cwconsulting369@gmail.com" className="text-[#e0a458] hover:underline">cwconsulting369@gmail.com</a><br />
+              E-Mail: <a href="mailto:info@aevum-system.de" className="text-[#e0a458] hover:underline">info@aevum-system.de</a><br />
               Telefon: <a href="tel:+491772288372" className="text-[#e0a458] hover:underline">+49 177 228 83 72</a>
             </p>
           </section>

@@ -42,7 +42,7 @@ export default function Widerrufsbelehrung() {
               Federteilstr. 2e<br />
               86517 Wehringen<br />
               Deutschland<br />
-              E-Mail: cwconsulting369@gmail.com
+              E-Mail: info@aevum-system.de
             </p>
             <p>
               mittels einer eindeutigen Erklärung (z.B. ein mit der Post versandter Brief
@@ -107,7 +107,7 @@ export default function Widerrufsbelehrung() {
                 Carlos Wrusch<br />
                 Federteilstr. 2e<br />
                 86517 Wehringen<br />
-                E-Mail: cwconsulting369@gmail.com
+                E-Mail: info@aevum-system.de
               </p>
               <hr className="border-white/10 my-3" />
               <p className="mb-2">Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über</p>
