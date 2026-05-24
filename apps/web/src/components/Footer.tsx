@@ -2,107 +2,84 @@
 import { MessageCircle, Calendar, Mail, Phone } from 'lucide-react';
 import CONTACT from '../config/contact';
 
-const productLinks = [
-  { label: 'Dashboard', path: '/method' },
-  { label: 'Agent', path: '/method' },
-  { label: 'Workflows', path: '/method' },
+const shopLinks = [
+  { label: 'Blueprints', path: '/shop' },
+  { label: 'Done-For-You', path: '/shop' },
+  { label: 'Bundle', path: '/shop' },
 ];
 
-const navLinks = [
-  { label: 'Home', path: '/' },
+const saasLinks = [
+  { label: 'Alle Tools', path: '/saas' },
+  { label: 'Credit-Pakete', path: '/saas' },
+  { label: 'Self-Service-Signup', path: '/saas' },
+];
+
+const auditLinks = [
+  { label: 'Kostenloses Audit', path: '/audit' },
   { label: 'Cases', path: '/cases' },
   { label: 'Method', path: '/method' },
-  { label: 'Audit', path: '/audit' },
   { label: 'About', path: '/about' },
 ];
+
+const legalLinks = [
+  { label: 'Datenschutz', path: '/datenschutz' },
+  { label: 'Impressum', path: '/impressum' },
+  { label: 'AGB', path: '/agb' },
+  { label: 'Widerruf', path: '/widerrufsbelehrung' },
+];
+
+interface FooterColumnProps {
+  title: string;
+  links: { label: string; path: string }[];
+}
+
+function FooterColumn({ title, links }: FooterColumnProps) {
+  return (
+    <div>
+      <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#e0a458] mb-5">
+        {title}
+      </h4>
+      <ul className="space-y-3">
+        {links.map((link) => (
+          <li key={link.label}>
+            <a
+              href={"#" + link.path}
+              className="text-sm text-[#a4a4ad] hover:text-[#F9FAFB] transition-colors"
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export default function Footer() {
   return (
     <footer className="bg-[#111116] border-t border-white/10">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-16 py-16 lg:py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {/* Brand Column */}
-          <div className="lg:col-span-1">
+        {/* Brand + Contact Strip */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-14 pb-14 border-b border-white/10">
+          <div>
             <a href="#/" className="flex items-center gap-1 mb-4">
               <span className="text-2xl font-bold tracking-tight text-[#F9FAFB] font-[Space_Grotesk]">
                 AEVUM
               </span>
               <span className="w-2 h-2 rounded-full bg-[#e0a458]" />
             </a>
-            <p className="text-sm text-[#a4a4ad] leading-relaxed mb-3">
-              Individuelle KI-Betriebssysteme fuer Unternehmen.
+            <p className="text-sm text-[#a4a4ad] leading-relaxed mb-3 max-w-md">
+              Operating-System für Unternehmen. Drei Wege rein: Shop · SaaS · Full-Partnership.
             </p>
-            <p className="text-xs text-[#9a9aa5] leading-relaxed mb-6">
+            <p className="text-xs text-[#9a9aa5] leading-relaxed max-w-md">
               Solo gefuehrt aus Augsburg. Wenn dir jemand schreibt — ich bin's selbst.
               Keine Account-Manager-Kette, keine Uebergaben.
             </p>
-            <div className="flex gap-3">
-              <a
-                href={CONTACT.whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-full border border-white/10 text-[#a4a4ad] hover:text-[#e0a458] hover:border-[#e0a458]/30 transition-all"
-                aria-label="WhatsApp"
-              >
-                <MessageCircle size={18} />
-              </a>
-              <a
-                href={CONTACT.calendly}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-full border border-white/10 text-[#a4a4ad] hover:text-[#e0a458] hover:border-[#e0a458]/30 transition-all"
-                aria-label="Call buchen"
-              >
-                <Calendar size={18} />
-              </a>
-            </div>
           </div>
 
-          {/* Product Column */}
-          <div>
-            <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#9a9aa5] mb-6">
-              Produkt
-            </h4>
-            <ul className="space-y-3">
-              {productLinks.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={"#" + link.path}
-                    className="text-sm text-[#a4a4ad] hover:text-[#e0a458] transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Navigation Column */}
-          <div>
-            <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#9a9aa5] mb-6">
-              Navigation
-            </h4>
-            <ul className="space-y-3">
-              {navLinks.map((link) => (
-                <li key={link.path}>
-                  <a
-                    href={"#" + link.path}
-                    className="text-sm text-[#a4a4ad] hover:text-[#e0a458] transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact Column */}
-          <div>
-            <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#9a9aa5] mb-6">
-              Kontakt
-            </h4>
-            <div className="space-y-4">
-              <p className="text-sm text-[#F9FAFB] font-medium">{CONTACT.name}</p>
+          <div className="lg:text-right">
+            <p className="text-sm text-[#F9FAFB] font-medium mb-3">{CONTACT.name}</p>
+            <div className="flex flex-col lg:items-end gap-2 mb-5">
               <a
                 href={`mailto:${CONTACT.email}`}
                 className="flex items-center gap-2 text-sm text-[#a4a4ad] hover:text-[#e0a458] transition-colors"
@@ -117,49 +94,46 @@ export default function Footer() {
                 <Phone size={14} />
                 {CONTACT.phone}
               </a>
-              <div className="flex flex-col gap-3 pt-2">
-                <a
-                  href={CONTACT.whatsapp}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-secondary text-sm text-center py-2.5 flex items-center justify-center gap-2"
-                >
-                  <MessageCircle size={16} />
-                  WhatsApp
-                </a>
-                <a
-                  href={CONTACT.calendly}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary text-sm text-center py-2.5 flex items-center justify-center gap-2"
-                >
-                  <Calendar size={16} />
-                  Call buchen
-                </a>
-              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 lg:justify-end">
+              <a
+                href={CONTACT.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary text-sm py-2.5 px-5 inline-flex items-center justify-center gap-2"
+              >
+                <MessageCircle size={16} />
+                WhatsApp
+              </a>
+              <a
+                href={CONTACT.calendly}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary text-sm py-2.5 px-5 inline-flex items-center justify-center gap-2"
+              >
+                <Calendar size={16} />
+                Call buchen
+              </a>
             </div>
           </div>
         </div>
 
-        {/* Legal Links Bar */}
-        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* 4 Spalten: Shop · SaaS · Audit · Rechtliches */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+          <FooterColumn title="Shop" links={shopLinks} />
+          <FooterColumn title="SaaS" links={saasLinks} />
+          <FooterColumn title="Audit" links={auditLinks} />
+          <FooterColumn title="Rechtliches" links={legalLinks} />
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="mt-14 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-[#9a9aa5]">
             &copy; 2026 {CONTACT.company}. Alle Rechte vorbehalten.
           </p>
-          <nav className="flex items-center gap-6 flex-wrap justify-center">
-            <a href="#/datenschutz" className="text-xs text-[#9a9aa5] hover:text-[#e0a458] transition-colors">
-              Datenschutz
-            </a>
-            <a href="#/impressum" className="text-xs text-[#9a9aa5] hover:text-[#e0a458] transition-colors">
-              Impressum
-            </a>
-            <a href="#/agb" className="text-xs text-[#9a9aa5] hover:text-[#e0a458] transition-colors">
-              AGB
-            </a>
-            <a href="#/widerrufsbelehrung" className="text-xs text-[#9a9aa5] hover:text-[#e0a458] transition-colors">
-              Widerruf
-            </a>
-          </nav>
+          <p className="text-xs text-[#9a9aa5] font-mono">
+            Deutsch · DSGVO · Maßgeschneidert
+          </p>
         </div>
       </div>
     </footer>

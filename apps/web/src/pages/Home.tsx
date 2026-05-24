@@ -2,35 +2,24 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   MessageCircle,
-  Calendar,
   ArrowRight,
   TrendingUp,
   LayoutDashboard,
   Settings2,
   Zap,
   FileText,
-  User,
-  Building2,
   Lock,
   Globe,
   ShieldCheck,
-  Bot,
-  GitBranch,
   BarChart3,
   Mail,
-  Phone,
   MousePointerClick,
-  Sparkles,
-  ArrowLeft,
-  CheckCircle,
-  Upload,
-  Clock,
+  Check,
+  X as XIcon,
   Target,
-  Wrench,
-  Wallet,
-  CalendarClock,
   Users,
-  Briefcase,
+  ShoppingBag,
+  Handshake,
 } from 'lucide-react';
 import CONTACT from '../config/contact';
 import { usePageSeo } from '@/hooks/use-page-seo';
@@ -282,26 +271,315 @@ function HeroSection() {
   );
 }
 
-/* ──────────────────────── Section 1b: 3-Pfade-Quick-CTA ──────────────────────── */
+/* ──────────────────────── Section 1b: 3 Wege mit AEVUM (Shop/SaaS/Audit) ──────────────────────── */
 
-function QuickPathsSection() {
+const THREE_PATHS = [
+  {
+    icon: ShoppingBag,
+    title: 'Shop',
+    subtitle: 'Blueprint kaufen & selbst deployen',
+    pricing: 'ab €97 · sofort',
+    description: 'n8n-Workflows + PDF + Prompts. Mit oder ohne Account.',
+    cta: 'Shop ansehen',
+    href: '#/shop',
+    tone: 'primary' as const,
+  },
+  {
+    icon: Zap,
+    title: 'SaaS-Tools',
+    subtitle: 'AI-Tools pro Run nutzen',
+    pricing: 'ab €3 / Run',
+    description: 'Script-Factory, DSGVO-Factory & mehr. Pay-per-Use mit Credits.',
+    cta: 'Tools entdecken',
+    href: '#/saas',
+    tone: 'secondary' as const,
+  },
+  {
+    icon: Handshake,
+    title: 'Full-Partnership',
+    subtitle: 'Audit → maßgeschneidertes System',
+    pricing: 'kostenloses Audit',
+    description: 'Personal-Agent · eigenes Dashboard · SaaS-Free-Kontingent. Langfristige Partnerschaft.',
+    cta: 'Audit starten',
+    href: '#/audit',
+    tone: 'premium' as const,
+  },
+];
+
+const toneStyles: Record<'primary' | 'secondary' | 'premium', {
+  border: string;
+  iconBg: string;
+  iconColor: string;
+  pricingColor: string;
+  badge?: string;
+}> = {
+  primary: {
+    border: 'border-white/12 hover:border-[#e0a458]/50',
+    iconBg: 'bg-[#e0a458]/10',
+    iconColor: 'text-[#e0a458]',
+    pricingColor: 'text-[#e0a458]',
+  },
+  secondary: {
+    border: 'border-white/12 hover:border-[#e0a458]/50',
+    iconBg: 'bg-white/8',
+    iconColor: 'text-[#F9FAFB]',
+    pricingColor: 'text-[#e0a458]',
+  },
+  premium: {
+    border: 'border-[#e0a458]/40 hover:border-[#e0a458]/80 bg-gradient-to-br from-[#e0a458]/[0.06] to-transparent',
+    iconBg: 'bg-gradient-to-br from-[#e0a458] to-[#a86d27]',
+    iconColor: 'text-black',
+    pricingColor: 'text-[#e0a458]',
+    badge: 'Premium',
+  },
+};
+
+function ThreePathsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
   return (
-    <section className="px-6 lg:px-16 py-16 md:py-20 bg-[#0a0a0d]" ref={ref}>
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="max-w-[1200px] mx-auto"
-      >
-        <PathThreeCard
-          eyebrow="Drei Pfade rein"
-          headline="So kommst du in 5 Min weiter"
-          subline="Du musst nicht erst sprechen. Kaufen, Audit oder Helpbot — such dir den passenden Weg."
-        />
-      </motion.div>
+    <section className="px-6 lg:px-16 py-20 md:py-24 bg-[#0a0a0d]" ref={ref}>
+      <div className="max-w-[1280px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="text-center mb-12 md:mb-16"
+        >
+          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-4 block">
+            Drei Wege
+          </span>
+          <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-4">
+            So arbeitest du mit AEVUM
+          </h2>
+          <p className="text-base md:text-lg text-[#a4a4ad] max-w-2xl mx-auto leading-relaxed">
+            Kauf was du brauchst, nutz Tools pro Run, oder lass uns dein komplettes System bauen.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
+          {THREE_PATHS.map((p, i) => {
+            const s = toneStyles[p.tone];
+            const Icon = p.icon;
+            return (
+              <motion.a
+                key={p.title}
+                href={p.href}
+                initial={{ opacity: 0, y: 24 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: i * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className={`group relative bg-[#111116] border ${s.border} p-7 md:p-8 transition-all flex flex-col hover:-translate-y-1`}
+              >
+                {s.badge && (
+                  <span className="absolute top-4 right-4 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-[#e0a458] bg-[#e0a458]/10 border border-[#e0a458]/30 px-2 py-0.5">
+                    {s.badge}
+                  </span>
+                )}
+
+                <div className={`w-12 h-12 rounded-lg ${s.iconBg} flex items-center justify-center mb-5`}>
+                  <Icon size={22} className={s.iconColor} />
+                </div>
+
+                <h3 className="text-2xl font-medium text-[#F9FAFB] mb-1.5">{p.title}</h3>
+                <p className="text-sm text-[#a4a4ad] mb-4 leading-snug">{p.subtitle}</p>
+
+                <p className={`font-mono text-xs uppercase tracking-[0.1em] ${s.pricingColor} mb-4`}>
+                  {p.pricing}
+                </p>
+
+                <p className="text-sm text-[#a4a4ad] leading-relaxed mb-6 flex-1">
+                  {p.description}
+                </p>
+
+                <div className="flex items-center gap-2 text-sm font-medium text-[#e0a458] group-hover:gap-3 transition-all mt-auto">
+                  {p.cta}
+                  <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </motion.a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────── Section 1c: Account-Vorteile-Vergleich ──────────────────────── */
+
+const ACCOUNT_FEATURES = [
+  { feature: 'Blueprint-Kauf', gast: true, shop: true, saas: true, full: true },
+  { feature: 'Credits sammeln (10 ¢ / €)', gast: false, shop: true, saas: true, full: true },
+  { feature: 'Stempelkarte (5 → 1 gratis)', gast: false, shop: true, saas: true, full: true },
+  { feature: 'SaaS-Tools nutzen', gast: false, shop: false, saas: true, full: 'inkl. Free-Kontingent' as const },
+  { feature: 'Personal AI-Agent', gast: false, shop: false, saas: false, full: true },
+  { feature: 'Eigenes Dashboard', gast: false, shop: false, saas: false, full: true },
+  { feature: 'Anteilige Kosten-Abrechnung', gast: false, shop: false, saas: false, full: true },
+];
+
+const TIER_HEADERS = [
+  { key: 'gast', label: 'Gast', sub: 'ohne Account' },
+  { key: 'shop', label: 'Shop-Account', sub: 'kostenlos' },
+  { key: 'saas', label: 'SaaS-Account', sub: 'kostenlos' },
+  { key: 'full', label: 'Full-Partnership', sub: 'nach Audit', highlight: true },
+] as const;
+
+function Cell({ value }: { value: boolean | string }) {
+  if (value === true) {
+    return <Check size={18} className="text-[#e0a458] mx-auto" />;
+  }
+  if (value === false) {
+    return <XIcon size={16} className="text-[#3a3a42] mx-auto" />;
+  }
+  return (
+    <span className="text-[10px] font-mono uppercase tracking-[0.06em] text-[#e0a458] leading-tight">
+      {value}
+    </span>
+  );
+}
+
+function AccountBenefitsSection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
+
+  return (
+    <section className="px-6 lg:px-16 py-20 md:py-24 bg-[#08080a]" ref={ref}>
+      <div className="max-w-[1280px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="text-center mb-12 md:mb-16"
+        >
+          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-4 block">
+            Account-Vorteile
+          </span>
+          <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-4">
+            Mit AEVUM-Account: mehr rausholen
+          </h2>
+          <p className="text-base md:text-lg text-[#a4a4ad] max-w-2xl mx-auto leading-relaxed">
+            Account ist gratis. Jeder Schritt schaltet mehr frei.
+          </p>
+        </motion.div>
+
+        {/* Desktop Table */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.15, duration: 0.6 }}
+          className="hidden md:block bg-[#111116] border border-white/10 overflow-hidden"
+        >
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="text-left p-5 text-xs font-mono uppercase tracking-[0.1em] text-[#9a9aa5] w-[34%]">
+                  Feature
+                </th>
+                {TIER_HEADERS.map((t) => (
+                  <th
+                    key={t.key}
+                    className={`text-center p-5 ${t.highlight ? 'bg-[#e0a458]/[0.05]' : ''}`}
+                  >
+                    <div
+                      className={`text-sm font-medium ${
+                        t.highlight ? 'text-[#e0a458]' : 'text-[#F9FAFB]'
+                      }`}
+                    >
+                      {t.label}
+                    </div>
+                    <div className="text-[0.65rem] font-mono uppercase tracking-[0.08em] text-[#7a7a85] mt-1">
+                      {t.sub}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {ACCOUNT_FEATURES.map((row, i) => (
+                <tr
+                  key={row.feature}
+                  className={`${i % 2 === 1 ? 'bg-white/[0.015]' : ''} border-b border-white/5 last:border-b-0`}
+                >
+                  <td className="p-5 text-sm text-[#F9FAFB]">{row.feature}</td>
+                  <td className="p-5 text-center">
+                    <Cell value={row.gast} />
+                  </td>
+                  <td className="p-5 text-center">
+                    <Cell value={row.shop} />
+                  </td>
+                  <td className="p-5 text-center">
+                    <Cell value={row.saas} />
+                  </td>
+                  <td className="p-5 text-center bg-[#e0a458]/[0.04]">
+                    <Cell value={row.full} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </motion.div>
+
+        {/* Mobile: stacked cards per tier */}
+        <div className="md:hidden space-y-5">
+          {TIER_HEADERS.map((t, i) => (
+            <motion.div
+              key={t.key}
+              initial={{ opacity: 0, y: 16 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: i * 0.08, duration: 0.5 }}
+              className={`bg-[#111116] border ${
+                t.highlight ? 'border-[#e0a458]/40' : 'border-white/10'
+              } p-5`}
+            >
+              <div className="mb-4">
+                <h3 className={`text-base font-medium ${t.highlight ? 'text-[#e0a458]' : 'text-[#F9FAFB]'}`}>
+                  {t.label}
+                </h3>
+                <p className="text-[0.65rem] font-mono uppercase tracking-[0.08em] text-[#7a7a85] mt-0.5">
+                  {t.sub}
+                </p>
+              </div>
+              <ul className="space-y-2.5">
+                {ACCOUNT_FEATURES.map((row) => {
+                  const v = row[t.key as 'gast' | 'shop' | 'saas' | 'full'];
+                  const enabled = v !== false;
+                  return (
+                    <li
+                      key={row.feature}
+                      className={`flex items-start gap-3 text-sm ${
+                        enabled ? 'text-[#F9FAFB]' : 'text-[#5a5a62] line-through'
+                      }`}
+                    >
+                      {enabled ? (
+                        <Check size={16} className="text-[#e0a458] shrink-0 mt-0.5" />
+                      ) : (
+                        <XIcon size={14} className="text-[#3a3a42] shrink-0 mt-1" />
+                      )}
+                      <span className="flex-1">
+                        {row.feature}
+                        {typeof v === 'string' && (
+                          <span className="block text-[10px] font-mono uppercase tracking-[0.06em] text-[#e0a458] mt-0.5">
+                            {v}
+                          </span>
+                        )}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.6, duration: 0.6 }}
+          className="text-center text-xs text-[#7a7a85] font-mono mt-8"
+        >
+          Upgrade jederzeit möglich · Downgrade nicht nötig
+        </motion.p>
+      </div>
     </section>
   );
 }
@@ -1070,14 +1348,15 @@ function FinalCTASection() {
 
 export default function Home() {
   usePageSeo({
-    title: 'AEVUM — Operating-System für Unternehmen | DACH',
-    description: 'Individuelle KI-Betriebssysteme für Unternehmen in DACH. Workflow-Audit, Automation, messbare Pipeline. DSGVO-konform.',
+    title: 'AEVUM — Operating-System für Unternehmen · Shop / SaaS / Full-Partnership | DACH',
+    description: 'Drei Wege mit AEVUM zu arbeiten: Blueprints im Shop kaufen, AI-Tools pro Run nutzen, oder Full-Partnership mit Personal-Agent. DSGVO-konform aus DACH.',
     path: '/',
   });
   return (
     <div className="bg-[#08080a]">
       <HeroSection />
-      <QuickPathsSection />
+      <ThreePathsSection />
+      <AccountBenefitsSection />
       <ThesisSection />
       <PillarsSection />
       <ModulesSection />

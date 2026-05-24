@@ -4,6 +4,9 @@ import {
   Check, ChevronLeft, ChevronRight, Upload, FileText,
   Shield, ArrowLeft, Calendar, X, AlertCircle,
   Building2, Users, Star, Briefcase,
+  Sparkles, Zap, Clock, Phone, FileCheck, Rocket,
+  HeartHandshake, BadgeCheck, MessageSquareWarning,
+  ArrowDown, ChevronDown, HelpCircle, ArrowRight,
 } from 'lucide-react';
 
 import { Progress } from '@/components/ui/progress';

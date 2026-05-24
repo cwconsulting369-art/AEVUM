@@ -1,5 +1,111 @@
 {
-  "lastUpdateId": 97243156,
+  "lastUpdateId": 97243193,
   "activeProject": {},
-  "activeSection": {}
+  "activeSection": {
+    "6436074677": {
+      "aevum": "overview"
+    }
+  },
+  "sectionData": {
+    "6436074677": {
+      "aevum": {
+        "overview": {
+          "accounts": 6,
+          "by_status": {
+            "active": 2,
+            "onboarding": 4
+          },
+          "total_mrr_eur": 5800,
+          "projects": 5
+        },
+        "pipeline": {
+          "active": [
+            "Carlos Wrusch",
+            "Tommy Beretta"
+          ],
+          "pipeline": [
+            {
+              "name": "HV Augsburg Süd GmbH",
+              "status": "onboarding",
+              "mrr": 2500
+            },
+            {
+              "name": "Schäfer & Partner Immobilien",
+              "status": "onboarding",
+              "mrr": 1800
+            },
+            {
+              "name": "Vogt Hausverwaltung e.K.",
+              "status": "onboarding",
+              "mrr": 0
+            }
+          ],
+          "churned": []
+        },
+        "kunden": [
+          {
+            "name": "Carlos Wrusch",
+            "status": "active",
+            "mrr": 0,
+            "tier": null
+          },
+          {
+            "name": "Tommy Beretta",
+            "status": "active",
+            "mrr": 1500,
+            "tier": "retainer-light"
+          },
+          {
+            "name": "HV Augsburg Süd GmbH",
+            "status": "onboarding",
+            "mrr": 2500,
+            "tier": "setup"
+          },
+          {
+            "name": "Schäfer & Partner Immobilien",
+            "status": "onboarding",
+            "mrr": 1800,
+            "tier": "retainer-light"
+          },
+          {
+            "name": "Vogt Hausverwaltung e.K.",
+            "status": "onboarding",
+            "mrr": 0
+          },
+          {
+            "name": "Patrick Roth",
+            "status": "onboarding",
+            "mrr": 0,
+            "tier": "setup"
+          }
+        ],
+        "revenue": {
+          "total_mrr_eur": 5800,
+          "breakdown": [
+            {
+              "name": "HV Augsburg Süd GmbH",
+              "mrr": 2500
+            },
+            {
+              "name": "Schäfer & Partner Immobilien",
+              "mrr": 1800
+            },
+            {
+              "name": "Tommy Beretta",
+              "mrr": 1500
+            },
+            {
+              "name": "Carlos Wrusch",
+              "mrr": 0
+            },
+            {
+              "name": "Vogt Hausverwaltung e.K.",
+              "mrr": 0
+            }
+          ]
+        },
+        "content": null
+      }
+    }
+  }
 }

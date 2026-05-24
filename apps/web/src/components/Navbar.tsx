@@ -3,17 +3,22 @@ import { Menu, X, MessageCircle } from 'lucide-react';
 import CONTACT from '../config/contact';
 
 const navLinks = [
-  { label: 'Home', path: '/' },
-  { label: 'Cases', path: '/cases' },
-  { label: 'Method', path: '/method' },
   { label: 'Shop', path: '/shop' },
+  { label: 'SaaS', path: '/saas' },
   { label: 'Audit', path: '/audit' },
+  { label: 'Cases', path: '/cases' },
+  { label: 'About', path: '/about' },
 ];
 
 function getCurrentPath() {
   const hash = window.location.hash;
   if (!hash || hash === '#/' || hash === '') return '/';
   return hash.replace('#', '').split('?')[0];
+}
+
+function isActive(navPath: string, currentPath: string) {
+  if (navPath === '/') return currentPath === '/';
+  return currentPath === navPath || currentPath.startsWith(navPath + '/');
 }
 
 export default function Navbar() {
@@ -60,7 +65,7 @@ export default function Navbar() {
               key={link.path}
               href={"#" + link.path}
               className={`text-sm font-medium transition-colors ${
-                currentPath === link.path
+                isActive(link.path, currentPath)
                   ? 'text-[#e0a458]'
                   : 'text-[#a4a4ad] hover:text-[#F9FAFB]'
               }`}
@@ -118,7 +123,7 @@ export default function Navbar() {
                 key={link.path}
                 href={"#" + link.path}
                 className={`text-2xl font-medium ${
-                  currentPath === link.path
+                  isActive(link.path, currentPath)
                     ? 'text-[#e0a458]'
                     : 'text-[#a4a4ad]'
                 }`}
