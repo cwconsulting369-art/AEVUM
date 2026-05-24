@@ -1,51 +1,117 @@
 // AEVUM v2 — Mailer
-// Primary: Mailbox.org via SMTP (EU/DSGVO-compliant, Carlos's choice 2026-05-22)
-// Fallback: console.log when no SMTP credentials configured
+// Provider-Priorität:
+//   1. Resend API (primary, Carlos's choice 2026-05-24)
+//   2. Mailbox.org SMTP (fallback, EU/DSGVO-Backup)
+//   3. console.log (no creds — dev/staging fallback)
+//
+// Backward-compat: behält `mailer.send({to,subject,html,text})` Signatur.
 
 import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-let transporter = null;
+// ────────────────────────────────────────────────────────────
+// Provider Init
+// ────────────────────────────────────────────────────────────
+let resendClient = null;
+let smtpTransporter = null;
 
-function getTransporter() {
-  if (transporter) return transporter;
+function getResend() {
+  if (resendClient) return resendClient;
+  const key = process.env.RESEND_API_KEY;
+  if (!key || key.startsWith('TODO') || key === '') return null;
+  resendClient = new Resend(key);
+  return resendClient;
+}
+
+function getSmtp() {
+  if (smtpTransporter) return smtpTransporter;
   const host = process.env.MAILBOX_SMTP_HOST || 'smtp.mailbox.org';
   const port = parseInt(process.env.MAILBOX_SMTP_PORT || '465', 10);
   const user = process.env.MAILBOX_SMTP_USER;
   const pass = process.env.MAILBOX_SMTP_PASS;
   if (!user || !pass) return null;
-  transporter = nodemailer.createTransport({
+  smtpTransporter = nodemailer.createTransport({
     host,
     port,
     secure: port === 465,
     auth: { user, pass }
   });
-  return transporter;
+  return smtpTransporter;
 }
 
+function fromAddress(from) {
+  return (
+    from ||
+    process.env.MAIL_FROM ||
+    process.env.RESEND_FROM_EMAIL ||
+    process.env.AEVUM_FROM_EMAIL ||
+    'AEVUM <hello@aevum-system.de>'
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// Core send
+// ────────────────────────────────────────────────────────────
 async function sendMail({ to, subject, html, text, from }) {
-  const fromAddr = from || process.env.AEVUM_FROM_EMAIL || 'hello@aevum-system.de';
-  const tx = getTransporter();
-  if (!tx) {
-    console.log('[mailer:fallback] No SMTP credentials — logging mail:');
-    console.log(`  TO: ${to}\n  FROM: ${fromAddr}\n  SUBJECT: ${subject}\n  BODY:\n${text || html?.slice(0, 500)}`);
-    return { ok: true, fallback: 'console' };
+  const fromAddr = fromAddress(from);
+
+  // 1. Resend (primary)
+  const resend = getResend();
+  if (resend) {
+    try {
+      const res = await resend.emails.send({
+        from: fromAddr,
+        to,
+        subject,
+        html: html || undefined,
+        text: text || undefined
+      });
+      if (res.error) {
+        console.error(`[mailer:resend] send failed: ${res.error.message || JSON.stringify(res.error)}`);
+        // fall through to SMTP
+      } else {
+        return { ok: true, id: res.data?.id, provider: 'resend' };
+      }
+    } catch (err) {
+      console.error(`[mailer:resend] threw: ${err.message}`);
+      // fall through to SMTP
+    }
   }
-  try {
-    const info = await tx.sendMail({
-      from: fromAddr,
-      to,
-      subject,
-      html: html || undefined,
-      text: text || undefined
-    });
-    return { ok: true, id: info.messageId };
-  } catch (err) {
-    console.error(`[mailer:smtp] sendMail failed: ${err.message}`);
-    return { ok: false, error: err.message };
+
+  // 2. SMTP (fallback)
+  const tx = getSmtp();
+  if (tx) {
+    try {
+      const info = await tx.sendMail({
+        from: fromAddr,
+        to,
+        subject,
+        html: html || undefined,
+        text: text || undefined
+      });
+      return { ok: true, id: info.messageId, provider: 'smtp' };
+    } catch (err) {
+      console.error(`[mailer:smtp] sendMail failed: ${err.message}`);
+      return { ok: false, error: err.message, provider: 'smtp' };
+    }
   }
+
+  // 3. Console fallback (no provider configured)
+  console.log('[mailer:fallback] No mail provider configured — logging mail:');
+  console.log(`  TO: ${to}\n  FROM: ${fromAddr}\n  SUBJECT: ${subject}\n  BODY:\n${text || html?.slice(0, 500)}`);
+  return { ok: true, fallback: 'console', provider: 'console' };
 }
 
 export const mailer = { send: sendMail };
+
+// Status-Helper für Health-Checks
+export function mailerStatus() {
+  return {
+    resend: !!getResend(),
+    smtp: !!getSmtp(),
+    from: fromAddress()
+  };
+}
 
 // ────────────────────────────────────────────────────────────
 // Templates
