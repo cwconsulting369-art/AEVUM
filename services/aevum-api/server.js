@@ -28,6 +28,7 @@ import { waitlistRouter } from './routes/waitlist.js';
 import { leadMagnetsRouter } from './routes/lead-magnets.js';
 import { scriptFactoryRouter } from './routes/factories/script.js';
 import { dsgvoFactoryRouter } from './routes/factories/dsgvo.js';
+import { knowledgeHubsRouter } from './routes/knowledge-hubs.js';
 import { subscriptionsRouter, projectSubscriptionsRouter } from './routes/subscriptions.js';
 import { subOsRouter } from './routes/sub-os.js';
 import { anonymizeIp } from './lib/security.js';
@@ -290,6 +291,9 @@ app.use('/api/dashboard', dashboardStatsRouter);
 // SaaS Factories — Wave C (Pay-per-Run)
 app.use('/api/factories/script', scriptFactoryRouter);
 app.use('/api/factories/dsgvo', dsgvoFactoryRouter);
+
+// Knowledge-Hubs — Wave H1 (SSOT for Bauligs/Salinsky/etc; admin CRUD + public listing)
+app.use('/api/knowledge-hubs', knowledgeHubsRouter);
 
 // Sub-OS aevum-summary endpoints — Wave E3 (admin-token gated)
 //   /api/sub-os                      → list supported systems
