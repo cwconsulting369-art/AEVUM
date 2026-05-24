@@ -11,6 +11,7 @@ import { logBlock } from '../lib/monitor.js';
 export const shopTrackingRouter = Router();
 
 const EVENT_TYPES = [
+  // Shop / Audit (existing)
   'page_view',
   'checkout_start',
   'checkout_complete',
@@ -19,6 +20,19 @@ const EVENT_TYPES = [
   'shop_open',
   'audit_start',
   'audit_submit',
+  // SaaS / Tools (added 2026-05-24 für Script-Factory + SaaS-Hub Tracking)
+  'saas_hub_view',
+  'saas_tool_view',
+  'saas_tool_demo_play',
+  'saas_signup_start',
+  'saas_signup_complete',
+  'saas_run_start',
+  'saas_run_complete',
+  // Lead-Magnet
+  'lead_magnet_view',
+  'lead_magnet_submit',
+  // Shop-Tab-Switching
+  'shop_tab_switch',
 ];
 
 const TrackSchema = z.object({
