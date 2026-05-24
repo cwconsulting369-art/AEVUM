@@ -13,7 +13,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, RotateCcw, Sparkles, Trash2 } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.lennoxos.com';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.aevum-system.de';
 const STORAGE_KEY = 'aevum_helpbot_session';
 const FIRST_VISIT_KEY = 'aevum_helpbot_first_visit';
 const CONSENT_KEY = 'aevum_helpbot_consent';
@@ -282,6 +282,7 @@ export default function Helpbot() {
         body: JSON.stringify({
           messages: apiMessages,
           session_id: session.session_id || undefined,
+          consent_version: CONSENT_VERSION,
           meta: { referrer: document.referrer?.slice(0, 200), lang: navigator.language?.slice(0, 8) },
         }),
         signal: controller.signal,

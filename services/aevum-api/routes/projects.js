@@ -11,6 +11,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { supabase } from '../lib/supabase.js';
 import { runIntelligenceAudit } from '../lib/intelligence.js';
+import { safeCompare } from '../lib/security.js';
 
 export const projectsRouter = Router();
 
@@ -18,7 +19,16 @@ function requireAdmin(req, res, next) {
   const tok = req.get('x-aevum-admin-token');
   const expected = process.env.AEVUM_ADMIN_TOKEN;
   if (!expected) return res.status(500).json({ ok: false, error: 'admin_token_not_configured' });
-  if (!tok || tok !== expected) return res.status(401).json({ ok: false, error: 'unauthorized' });
+  if (!tok || !safeCompare(tok, expected)) return res.status(401).json({ ok: false, error: 'unauthorized' });
+  next();
+}
+
+// UUID regex (RFC 4122 v1-v5) — IN-01 defense-in-depth before .id route handlers
+const UUID_RX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function requireUuid(req, res, next) {
+  if (!UUID_RX.test(req.params.id || '')) {
+    return res.status(400).json({ ok: false, error: 'invalid_id_format' });
+  }
   next();
 }
 
@@ -64,7 +74,7 @@ projectsRouter.get('/', requireAdmin, async (req, res) => {
 // ──────────────────────────────────────────────────────────
 // GET /api/projects/:id
 // ──────────────────────────────────────────────────────────
-projectsRouter.get('/:id', requireAdmin, async (req, res) => {
+projectsRouter.get('/:id', requireAdmin, requireUuid, async (req, res) => {
   const id = req.params.id;
   const p = await supabase.select('projects', `select=*&id=eq.${encodeURIComponent(id)}`);
   if (!p.ok || !p.data?.length) return res.status(404).json({ ok: false, error: 'project_not_found' });
@@ -177,7 +187,7 @@ projectsRouter.post('/', requireAdmin, async (req, res) => {
 // ──────────────────────────────────────────────────────────
 // POST /api/projects/:id/intelligence — manueller Re-Trigger
 // ──────────────────────────────────────────────────────────
-projectsRouter.post('/:id/intelligence', requireAdmin, async (req, res) => {
+projectsRouter.post('/:id/intelligence', requireAdmin, requireUuid, async (req, res) => {
   const id = req.params.id;
   const projRes = await supabase.select('projects', `select=id,name,account_id,industry&id=eq.${encodeURIComponent(id)}`);
   if (!projRes.data?.length) return res.status(404).json({ ok: false, error: 'project_not_found' });
@@ -203,7 +213,7 @@ projectsRouter.post('/:id/intelligence', requireAdmin, async (req, res) => {
 // ──────────────────────────────────────────────────────────
 // PATCH /api/projects/:id
 // ──────────────────────────────────────────────────────────
-projectsRouter.patch('/:id', requireAdmin, async (req, res) => {
+projectsRouter.patch('/:id', requireAdmin, requireUuid, async (req, res) => {
   const parsed = PatchProjectSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ ok: false, error: 'validation_failed', details: parsed.error.flatten() });
   const id = req.params.id;
@@ -217,7 +227,7 @@ projectsRouter.patch('/:id', requireAdmin, async (req, res) => {
 // GET /api/projects/:id/aevum-summary — Master-View (Sub-OS → AEVUM-Master)
 // (Permissions-filtered, Schema v1)
 // ──────────────────────────────────────────────────────────
-projectsRouter.get('/:id/aevum-summary', requireAdmin, async (req, res) => {
+projectsRouter.get('/:id/aevum-summary', requireAdmin, requireUuid, async (req, res) => {
   const id = req.params.id;
   const p = await supabase.select('projects', `select=*&id=eq.${encodeURIComponent(id)}`);
   if (!p.ok || !p.data?.length) return res.status(404).json({ ok: false, error: 'project_not_found' });

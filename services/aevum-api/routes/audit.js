@@ -5,7 +5,7 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 import { supabase } from '../lib/supabase.js';
 import { notifyCarlos } from '../lib/tg-notify.js';
-import { scanPayload, clean } from '../lib/security.js';
+import { scanPayload, clean, anonymizeIp, hashToken, randomToken, maskEmail } from '../lib/security.js';
 import { logBlock } from '../lib/monitor.js';
 import { runAutoPlan } from '../lib/auto-plan.js';
 import { extractFromSession } from './helpbot.js';
@@ -34,7 +34,7 @@ const AuditSchema = z.object({
   tools: z.string().max(2000).optional().default(''),
   budget: z.string().max(100).optional().default(''),
   timeline: z.string().max(100).optional().default(''),
-  email: z.string().email().max(200),
+  email: z.string().email().max(200).transform((s) => s.toLowerCase()),
   phone: z.string().max(50).optional().default(''),
   // DSGVO Art 7 — explicit consent required
   consent: z.literal(true, {
@@ -59,7 +59,7 @@ const AuditV2Schema = z.object({
     errorMap: () => ({ message: 'Einwilligung zur Datenverarbeitung erforderlich' })
   }),
   // Required top-level for indexing + GDPR
-  email: z.string().email().max(200),
+  email: z.string().email().max(200).transform((s) => s.toLowerCase()),
   name: z.string().min(1).max(200),
   company: z.string().min(1).max(200),
   phone: z.string().max(50).optional().default(''),
@@ -147,7 +147,7 @@ auditRouter.post('/submit', async (req, res) => {
     consent_at: consentAt,
     meta: {
       user_agent: ua,
-      ip,
+      ip_anonymized: anonymizeIp(ip),
       form_open_ms: f.formStartedAt ? Date.now() - f.formStartedAt : null
     },
     status: 'new'
@@ -166,7 +166,7 @@ auditRouter.post('/submit', async (req, res) => {
     email: clean(f.email),
     consent_type: 'wgm_submission',
     consent_text_version: CONSENT_VERSION,
-    ip,
+    ip_anonymized: anonymizeIp(ip),
     user_agent: ua
   }).catch(err => console.error('consent_log fail:', err));
 
@@ -272,7 +272,7 @@ async function handleAuditV2(req, res, ctx, ip, ua) {
     consent_at: consentAt,
     meta: {
       user_agent: ua,
-      ip,
+      ip_anonymized: anonymizeIp(ip),
       form_open_ms: f.formStartedAt ? Date.now() - f.formStartedAt : null,
       submission_type: 'v2',
       helpbot_session_id: f.helpbot_session_id || null,
@@ -294,7 +294,7 @@ async function handleAuditV2(req, res, ctx, ip, ua) {
     email: clean(f.email),
     consent_type: 'wgm_v2_submission',
     consent_text_version: CONSENT_VERSION,
-    ip,
+    ip_anonymized: anonymizeIp(ip),
     user_agent: ua
   }).catch(err => console.error('consent_log fail (v2):', err));
 
@@ -322,10 +322,7 @@ async function handleAuditV2(req, res, ctx, ip, ua) {
   return res.json({ ok: true, id: inserted?.id, form_version: 'v2' });
 }
 
-// Helper: maskEmail for TG notifications (PII-min)
-function maskEmail(email) {
-  return (email || '').replace(/^(.).+(@.+)$/, '$1***$2');
-}
+// maskEmail comes from lib/security.js (single source of truth)
 
 // Helper: collect EVERY PII row across all tables for a given email
 // Used by both export (Art 15/20) and erasure (Art 17) endpoints
@@ -352,59 +349,156 @@ async function collectAllPiiByEmail(email) {
   };
 }
 
-// ─── DSGVO Art 15/20 — Recht auf Auskunft + Datenportabilität ───
-// POST /api/audit/export { email }
-// Returns full JSON dump of all PII rows for that email.
-// (For unverified self-service: still log + notify Carlos. Carlos can
-//  verify ownership manually if disputed — webform is rate-limited.)
-auditRouter.post('/export', async (req, res) => {
-  const { email } = req.body || {};
-  if (!email || typeof email !== 'string') {
-    return res.status(400).json({ ok: false, error: 'email_required' });
-  }
+// ─── DSGVO Art 15/17/20 — Challenge-Flow ─────────────────────────
+// Vorher: unauthentifizierter Endpoint → jeder konnte PII abrufen/löschen.
+// Jetzt: 2-Stufen-Verifikation per E-Mail-Challenge.
+//
+//   POST /api/audit/export/request { email }   → "wir haben Link versendet"
+//   GET  /api/audit/export?token=...           → liefert JSON-Dump
+//   POST /api/audit/erase/request  { email }   → "wir haben Link versendet"
+//   GET  /api/audit/erase?token=...            → führt Löschung aus
 
+import { dsgvoLimiter } from '../lib/dsgvo-limiter.js';
+import { mailer } from '../lib/mailer.js';
+
+const CHALLENGE_TTL_MIN = 30;
+const PORTAL_BASE_FOR_DSGVO = process.env.AEVUM_PORTAL_BASE_URL || 'https://app.aevum-system.de';
+const API_BASE_FOR_DSGVO = process.env.AEVUM_API_BASE_URL || 'https://api.aevum-system.de';
+
+async function issueDsgvoChallenge({ email, action, ip }) {
+  const token = randomToken(32);
+  const tokenHash = hashToken(token);
+  const expiresAt = new Date(Date.now() + CHALLENGE_TTL_MIN * 60 * 1000).toISOString();
+  const ins = await supabase.insert('dsgvo_challenge', {
+    token_hash: tokenHash,
+    email: email.toLowerCase(),
+    action,
+    expires_at: expiresAt,
+    ip_anonymized: anonymizeIp(ip)
+  });
+  if (!ins.ok) return null;
+  return { token, expiresAt };
+}
+
+async function consumeDsgvoChallenge(token, action) {
+  if (typeof token !== 'string' || token.length < 20) return null;
+  const tokenHash = hashToken(token);
+  const sel = await supabase.select('dsgvo_challenge',
+    `?token_hash=eq.${tokenHash}&action=eq.${action}&select=token_hash,email,expires_at,used_at`);
+  const row = sel.data?.[0];
+  if (!row) return null;
+  if (row.used_at) return null;
+  if (new Date(row.expires_at).getTime() < Date.now()) return null;
+  // Mark used
+  const upd = await supabase.update('dsgvo_challenge',
+    `?token_hash=eq.${tokenHash}&used_at=is.null`,
+    { used_at: new Date().toISOString() });
+  if (!upd.ok || !Array.isArray(upd.data) || upd.data.length === 0) return null;
+  return { email: row.email };
+}
+
+function dsgvoChallengeEmail({ action, link }) {
+  const subject = action === 'export'
+    ? 'AEVUM — Bestätigung Datenauskunft (DSGVO Art 15)'
+    : 'AEVUM — Bestätigung Datenlöschung (DSGVO Art 17)';
+  const verb = action === 'export' ? 'Datenauskunft' : 'Löschung Ihrer Daten';
+  const text = `Hallo,\n\nSie haben eine ${verb} bei AEVUM angefragt.\n\nBitte bestätigen Sie über folgenden Link (gültig 30 Minuten):\n${link}\n\nWenn Sie diese Anfrage nicht gestellt haben, ignorieren Sie diese E-Mail — Ihre Daten bleiben unverändert.\n\n— AEVUM\nhttps://aevum-system.de`;
+  const html = `<p>Hallo,</p><p>Sie haben eine <b>${verb}</b> bei AEVUM angefragt.</p><p>Bitte bestätigen Sie über folgenden Link (gültig 30 Minuten):</p><p><a href="${link}">${link}</a></p><p>Wenn Sie diese Anfrage nicht gestellt haben, ignorieren Sie diese E-Mail — Ihre Daten bleiben unverändert.</p><p>— AEVUM</p>`;
+  return { subject, text, html };
+}
+
+// ─── DSGVO Art 15/20 — Auskunft / Datenportabilität ─────────────
+// POST /api/audit/export/request  { email }
+auditRouter.post('/export/request', dsgvoLimiter, async (req, res) => {
+  const parsed = z.object({ email: z.string().email().max(200).transform((s) => s.toLowerCase()) }).safeParse(req.body);
+  // Anti-enumeration: ALWAYS respond with the same success message.
+  const sameResponse = res.json.bind(res, {
+    ok: true,
+    message: 'Falls eine E-Mail-Adresse bei uns hinterlegt ist, erhalten Sie in Kürze einen Bestätigungs-Link.'
+  });
+  if (!parsed.success) return sameResponse();
+
+  const email = parsed.data.email.toLowerCase();
   const ip = clientIp(req);
-  const ua = req.get('user-agent') || '';
 
-  const dump = await collectAllPiiByEmail(email);
-  const totalRows =
-    dump.audits.length + dump.orders.length +
-    dump.consent_log.length + dump.erasure_log.length +
-    dump.security_events.length;
+  // Only issue a challenge if we actually have PII on that email
+  const probe = await supabase.select('audits', `?email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
+  const probeOrders = await supabase.select('orders', `?customer_email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
+  const probeConsent = await supabase.select('consent_log', `?email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
+  const hasAnyData = (probe.data?.length || 0) + (probeOrders.data?.length || 0) + (probeConsent.data?.length || 0) > 0;
+  if (!hasAnyData) return sameResponse();
 
-  // Log export request
+  const ch = await issueDsgvoChallenge({ email, action: 'export', ip });
+  if (!ch) return sameResponse();
+  const link = `${API_BASE_FOR_DSGVO}/api/audit/export?token=${encodeURIComponent(ch.token)}`;
+  await mailer.send({ to: email, ...dsgvoChallengeEmail({ action: 'export', link }) });
+  notifyCarlos(`📨 *DSGVO Art 15 Challenge ausgestellt*\nEmail: \`${maskEmail(email)}\`\nLink-TTL: ${CHALLENGE_TTL_MIN} min`);
+  sameResponse();
+});
+
+// GET /api/audit/export?token=...  (verify + return dump)
+auditRouter.get('/export', dsgvoLimiter, async (req, res) => {
+  const token = String(req.query.token || '');
+  const claim = await consumeDsgvoChallenge(token, 'export');
+  if (!claim) return res.status(401).json({ ok: false, error: 'invalid_or_expired_token' });
+
+  const dump = await collectAllPiiByEmail(claim.email);
+  const totalRows = dump.audits.length + dump.orders.length +
+    dump.consent_log.length + dump.erasure_log.length + dump.security_events.length;
+
   supabase.insert('export_requests', {
     email: dump.email,
-    requested_via: 'api',
+    requested_via: 'challenge-verified',
     status: 'completed',
     completed_at: new Date().toISOString(),
-    ip,
-    user_agent: ua,
-    notes: `auto-export: ${totalRows} rows`
+    ip_anonymized: anonymizeIp(clientIp(req)),
+    user_agent: req.get('user-agent') || '',
+    notes: `verified-export: ${totalRows} rows`
   }).catch(() => { /* table may not exist yet — silent */ });
 
-  notifyCarlos(
-    `📨 *DSGVO Art 15 Export ausgeführt*\nEmail: \`${maskEmail(dump.email)}\`\nRows: ${totalRows} (audits=${dump.audits.length}, orders=${dump.orders.length}, consents=${dump.consent_log.length})\n_JSON wurde an Anfrager zurückgegeben._`
-  );
+  notifyCarlos(`📨 *DSGVO Art 15 Export ausgeführt*\nEmail: \`${maskEmail(dump.email)}\`\nRows: ${totalRows}`);
 
   return res.json({
     ok: true,
-    message: 'Auskunft gemäß Art 15/20 DSGVO. Diese Antwort enthält alle bei uns gespeicherten personenbezogenen Daten.',
+    message: 'Auskunft gemäß Art 15/20 DSGVO.',
     generated_at: new Date().toISOString(),
     consent_text_version: CONSENT_VERSION,
     data: dump
   });
 });
 
-// ─── DSGVO Art 17 — Recht auf Löschung ──────────────────────────
-// POST /api/audit/erase { email }
-// Cascades across audits + orders + consent_log + erasure_log marker
-auditRouter.post('/erase', async (req, res) => {
-  const { email } = req.body || {};
-  if (!email || typeof email !== 'string') {
-    return res.status(400).json({ ok: false, error: 'email_required' });
-  }
-  const cleanEmail = clean(email).toLowerCase();
+// ─── DSGVO Art 17 — Löschung ────────────────────────────────────
+// POST /api/audit/erase/request  { email }
+auditRouter.post('/erase/request', dsgvoLimiter, async (req, res) => {
+  const parsed = z.object({ email: z.string().email().max(200).transform((s) => s.toLowerCase()) }).safeParse(req.body);
+  const sameResponse = res.json.bind(res, {
+    ok: true,
+    message: 'Falls eine E-Mail-Adresse bei uns hinterlegt ist, erhalten Sie in Kürze einen Bestätigungs-Link.'
+  });
+  if (!parsed.success) return sameResponse();
+
+  const email = parsed.data.email.toLowerCase();
+  const ip = clientIp(req);
+
+  const probe = await supabase.select('audits', `?email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
+  const probeOrders = await supabase.select('orders', `?customer_email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
+  if ((probe.data?.length || 0) + (probeOrders.data?.length || 0) === 0) return sameResponse();
+
+  const ch = await issueDsgvoChallenge({ email, action: 'erase', ip });
+  if (!ch) return sameResponse();
+  const link = `${API_BASE_FOR_DSGVO}/api/audit/erase?token=${encodeURIComponent(ch.token)}`;
+  await mailer.send({ to: email, ...dsgvoChallengeEmail({ action: 'erase', link }) });
+  notifyCarlos(`🗑 *DSGVO Art 17 Challenge ausgestellt*\nEmail: \`${maskEmail(email)}\`\nLink-TTL: ${CHALLENGE_TTL_MIN} min`);
+  sameResponse();
+});
+
+// GET /api/audit/erase?token=...  (verify + delete)
+auditRouter.get('/erase', dsgvoLimiter, async (req, res) => {
+  const token = String(req.query.token || '');
+  const claim = await consumeDsgvoChallenge(token, 'erase');
+  if (!claim) return res.status(401).json({ ok: false, error: 'invalid_or_expired_token' });
+
+  const cleanEmail = claim.email;
   const enc = encodeURIComponent(cleanEmail);
   const ip = clientIp(req);
   const ua = req.get('user-agent') || '';
@@ -447,7 +541,7 @@ auditRouter.post('/erase', async (req, res) => {
         customer_email: `erased-${Date.now()}@dsgvo.local`,
         customer_name: null,
         customer_company: null,
-        ip: null,
+        ip_anonymized: null,
         user_agent: null,
         metadata: { dsgvo_erased_at: new Date().toISOString() }
       }
@@ -465,9 +559,9 @@ auditRouter.post('/erase', async (req, res) => {
     audits_deleted_count: auditsCount,
     consents_deleted_count: consentsCount,
     orders_deleted_count: ordersDeleted,
-    ip,
+    ip_anonymized: anonymizeIp(ip),
     user_agent: ua,
-    notes: `via POST /api/audit/erase; ${ordersPseudonymized} paid orders pseudonymized (HGB §147)`
+    notes: `via GET /api/audit/erase (challenge-verified); ${ordersPseudonymized} paid orders pseudonymized (HGB §147)`
   });
 
   notifyCarlos(
@@ -569,6 +663,49 @@ function sanitiseFilename(name) {
   return base || 'file';
 }
 
+// IN-06: Magic-byte file-type check. Verifies declared mime/ext matches actual
+// content. Prevents users from renaming executables to .pdf and uploading.
+// Returns null if OK, else error code (caller rejects with 400).
+function checkMagicBytes(buffer, declaredMime, filename) {
+  if (!buffer || buffer.length < 8) return 'file_too_small';
+  const b = buffer;
+  const lower = (filename || '').toLowerCase();
+
+  // Detect actual format from first bytes
+  let actual = null;
+  if (b[0] === 0x25 && b[1] === 0x50 && b[2] === 0x44 && b[3] === 0x46) actual = 'pdf';
+  else if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) actual = 'jpeg';
+  else if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47) actual = 'png';
+  else if (b[0] === 0x50 && b[1] === 0x4B && (b[2] === 0x03 || b[2] === 0x05 || b[2] === 0x07)) actual = 'zip'; // docx/xlsx are zip
+  else if (b[0] === 0xD0 && b[1] === 0xCF && b[2] === 0x11 && b[3] === 0xE0) actual = 'ole'; // old doc/xls
+  // CSV/text-csv has no magic byte signature; allow if extension matches AND content looks text-ish
+  else if (/^[\x09\x0A\x0D\x20-\x7E\xC0-\xFD]+/.test(buffer.slice(0, Math.min(256, buffer.length)).toString('latin1'))) {
+    actual = 'text';
+  }
+
+  if (!actual) return 'unrecognized_format';
+
+  // Match actual against declared mime + ext (loose — only block obvious mismatches)
+  const map = {
+    pdf:  { mimes: ['application/pdf'], exts: ['.pdf'] },
+    jpeg: { mimes: ['image/jpeg', 'image/jpg'], exts: ['.jpg', '.jpeg'] },
+    png:  { mimes: ['image/png'], exts: ['.png'] },
+    zip:  { mimes: [
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/zip'
+    ], exts: ['.docx', '.xlsx', '.zip'] },
+    ole:  { mimes: ['application/msword', 'application/vnd.ms-excel'], exts: ['.doc', '.xls'] },
+    text: { mimes: ['text/csv', 'text/plain'], exts: ['.csv', '.txt'] }
+  };
+
+  const m = map[actual];
+  const mimeOk = !declaredMime || m.mimes.includes(declaredMime);
+  const extOk = m.exts.some(e => lower.endsWith(e));
+  if (!mimeOk && !extOk) return 'declared_type_mismatch';
+  return null;
+}
+
 async function uploadToSupabaseStorage(bucket, objectPath, buffer, contentType) {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -627,6 +764,13 @@ auditRouter.post('/upload-file', (req, res) => {
     }
     if (!req.file) {
       return res.status(400).json({ ok: false, error: 'no_file' });
+    }
+
+    // IN-06: Magic-byte check — content must match declared type
+    const magicErr = checkMagicBytes(req.file.buffer, req.file.mimetype, req.file.originalname);
+    if (magicErr) {
+      logBlock({ ...ctx, type: 'upload_reject_magic', reason: magicErr });
+      return res.status(400).json({ ok: false, error: 'file_content_mismatch', detail: magicErr });
     }
 
     try {

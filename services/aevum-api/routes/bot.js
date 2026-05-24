@@ -9,13 +9,14 @@
 import { Router } from 'express';
 import { supabase } from '../lib/supabase.js';
 import { issueMagicLinkToken } from '../lib/crypto.js';
+import { safeCompare } from '../lib/security.js';
 
 export const botRouter = Router();
 
 function requireBotAuth(req, res, next) {
   const tok = req.get('x-aevum-admin-token');
   const expected = process.env.AEVUM_ADMIN_TOKEN;
-  if (!expected || !tok || tok !== expected) {
+  if (!expected || !tok || !safeCompare(tok, expected)) {
     return res.status(401).json({ ok: false, error: 'unauthorized' });
   }
   next();
@@ -201,10 +202,127 @@ botRouter.post('/magic-link', async (req, res) => {
   });
 
   const PORTAL_BASE = process.env.AEVUM_PORTAL_BASE_URL || 'https://app.aevum-system.de';
-  const url = `${PORTAL_BASE}/auth/verify?token=${encodeURIComponent(token)}`;
+  // WR-03: token in URL fragment (not query)
+  const url = `${PORTAL_BASE}/auth/verify#token=${encodeURIComponent(token)}`;
 
-  console.log(`[bot-magic-link] Generated for ${account.slug} (${account.name})`);
+  console.log(`[bot-magic-link] Generated for slug=${account.slug}`);
   res.json({ ok: true, url, account: { name: account.name, slug: account.slug } });
+});
+
+// ── TG Verification Gate ─────────────────────────────────────────────────────
+
+// GET /bot/tg-access?telegram_id=X
+// Returns { has_access, status, account_slug? }
+botRouter.get('/tg-access', async (req, res) => {
+  const telegramId = parseInt(req.query.telegram_id);
+  if (!telegramId) return res.status(400).json({ ok: false, error: 'missing_telegram_id' });
+
+  const link = await supabase.select('account_telegram_links',
+    `select=account_id,status&telegram_id=eq.${telegramId}`);
+  const row = link.data?.[0];
+
+  if (!row) return res.json({ ok: true, has_access: false, status: 'unknown' });
+  if (row.status !== 'approved') return res.json({ ok: true, has_access: false, status: row.status });
+  if (!row.account_id) return res.json({ ok: true, has_access: false, status: 'approved_no_account' });
+
+  const acc = await supabase.select('accounts', `select=slug,name,status&id=eq.${row.account_id}`);
+  const account = acc.data?.[0];
+  if (!account || account.status === 'churned') return res.json({ ok: true, has_access: false, status: 'inactive' });
+
+  res.json({ ok: true, has_access: true, account_slug: account.slug, account_name: account.name });
+});
+
+// POST /bot/request-access { telegram_id, telegram_username, telegram_name }
+// Creates pending link + notifies Carlos via TG
+botRouter.post('/request-access', async (req, res) => {
+  const { telegram_id, telegram_username, telegram_name } = req.body || {};
+  if (!telegram_id) return res.status(400).json({ ok: false, error: 'missing_telegram_id' });
+
+  const existing = await supabase.select('account_telegram_links',
+    `select=id,status&telegram_id=eq.${telegram_id}`);
+  if (existing.data?.length) {
+    return res.json({ ok: true, status: existing.data[0].status, already_exists: true });
+  }
+
+  const r = await supabase.insert('account_telegram_links', {
+    telegram_id, telegram_username: telegram_username || null, telegram_name: telegram_name || null, status: 'pending'
+  });
+  const requestId = r.data?.[0]?.id;
+
+  // Notify Carlos via his bot
+  const CARLOS_ID = process.env.CARLOS_TG_USER_ID || '6436074677';
+  const BOT_TOKEN = process.env.AEVUM_BOT_TOKEN;
+  if (BOT_TOKEN && requestId) {
+    const msg = `🔔 *Neuer Zugangsantrag*\n\nName: ${telegram_name || '–'}\nUsername: @${telegram_username || '–'}\nTelegram ID: \`${telegram_id}\`\n\nGenehmigen oder ablehnen?`;
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: CARLOS_ID,
+        text: msg,
+        parse_mode: 'Markdown',
+        reply_markup: { inline_keyboard: [[
+          { text: '✅ Freigeben', callback_data: `approve_access:${requestId}` },
+          { text: '❌ Ablehnen', callback_data: `reject_access:${requestId}` }
+        ]]}
+      })
+    }).catch(e => console.error('[request-access] notify failed:', e.message));
+  }
+
+  console.log(`[tg-gate] Access request from telegram_id=${telegram_id} name="${telegram_name}" requestId=${requestId}`);
+  res.json({ ok: true, status: 'pending', id: requestId });
+});
+
+// POST /bot/grant-access { telegram_id, account_slug }
+// Called by admin bot /grant command
+botRouter.post('/grant-access', async (req, res) => {
+  const { telegram_id, account_slug } = req.body || {};
+  if (!telegram_id || !account_slug) return res.status(400).json({ ok: false, error: 'missing_params' });
+
+  const acc = await supabase.select('accounts', `select=id,name,email,status&slug=eq.${account_slug}`);
+  const account = acc.data?.[0];
+  if (!account) return res.status(404).json({ ok: false, error: 'account_not_found' });
+
+  const existing = await supabase.select('account_telegram_links',
+    `select=id,status&telegram_id=eq.${telegram_id}`);
+
+  let r;
+  if (existing.data?.length) {
+    r = await supabase.update('account_telegram_links', `telegram_id=eq.${telegram_id}`, {
+      account_id: account.id, status: 'approved', approved_at: new Date().toISOString()
+    });
+  } else {
+    r = await supabase.insert('account_telegram_links', {
+      telegram_id, account_id: account.id, status: 'approved', approved_at: new Date().toISOString()
+    });
+  }
+  if (!r.ok) return res.status(500).json({ ok: false, error: r.error });
+
+  // Notify the approved user + generate magic-link
+  const BOT_TOKEN = process.env.AEVUM_BOT_TOKEN;
+  if (BOT_TOKEN && account.email) {
+    try {
+      const token = issueMagicLinkToken({ account_id: account.id, email: account.email, purpose: 'login', ttlSeconds: 60 * 30 });
+      const PORTAL_BASE = process.env.AEVUM_PORTAL_BASE_URL || 'https://app.aevum-system.de';
+      // WR-03: token in URL fragment (not query)
+      const url = `${PORTAL_BASE}/auth/verify#token=${encodeURIComponent(token)}`;
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: telegram_id,
+          text: `✅ *Dein Zugang wurde freigeschaltet!*\n\nWillkommen bei AEVUM, ${account.name}.\n\nDein Dashboard-Link (30 Min gültig):`,
+          parse_mode: 'Markdown',
+          reply_markup: { inline_keyboard: [[{ text: '🚀 Dashboard öffnen', url }]] }
+        })
+      });
+    } catch (e) {
+      console.error('[grant-access] notify user failed:', e.message);
+    }
+  }
+
+  console.log(`[tg-gate] Granted access telegram_id=${telegram_id} → account=${account_slug}`);
+  res.json({ ok: true, account: { slug: account.slug, name: account.name } });
 });
 
 // ── Main Route ────────────────────────────────────────────────────────────────

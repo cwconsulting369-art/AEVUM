@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { stripe, PACKAGES, getPriceId, PILOT_COUPON_ID_ENV } from '../lib/stripe.js';
 import { supabase } from '../lib/supabase.js';
 import { notifyCarlos } from '../lib/tg-notify.js';
-import { clean, scanPayload } from '../lib/security.js';
+import { clean, scanPayload, anonymizeIp } from '../lib/security.js';
 import { logBlock } from '../lib/monitor.js';
 import { CONSENT_VERSION } from './audit.js';
 import { earnCredits, addStamp, checkStampReward } from '../lib/credits.js';
@@ -27,7 +27,7 @@ const CheckoutSchema = z.object({
   addonPriceIds: z.array(z.string().min(1)).max(10).optional().default([]),
   // optional bundle override — explicit flag if 2+ services bundled
   bundleSize: z.number().int().min(1).max(10).optional().default(1),
-  customerEmail: z.string().email().max(200),
+  customerEmail: z.string().email().max(200).transform((s) => s.toLowerCase()),
   customerName: z.string().min(1).max(200).optional(),
   customerCompany: z.string().max(200).optional(),
   // request pilot discount? (frontend reads pilot_slots first; backend re-verifies)
@@ -210,7 +210,7 @@ checkoutRouter.post('/create-session', async (req, res) => {
     subtotal_cents: 0,
     total_cents: 0,
     status: 'pending',
-    ip,
+    ip_anonymized: anonymizeIp(ip),
     user_agent: ua,
     consent_immediate_start: f.consent_immediate_start,
     consent_immediate_start_at: f.consent_immediate_start ? nowIso : null,
@@ -224,7 +224,7 @@ checkoutRouter.post('/create-session', async (req, res) => {
     email: clean(f.customerEmail),
     consent_type: 'checkout_purchase',
     consent_text_version: CONSENT_VERSION,
-    ip,
+    ip_anonymized: anonymizeIp(ip),
     user_agent: ua
   }).catch(err => console.error('consent_log fail (checkout):', err));
 
@@ -235,7 +235,7 @@ checkoutRouter.post('/create-session', async (req, res) => {
       email: clean(f.customerEmail),
       consent_type: 'immediate_start_waiver',
       consent_text_version: IMMEDIATE_START_VERSION,
-      ip,
+      ip_anonymized: anonymizeIp(ip),
       user_agent: ua
     }).catch(err => console.error('consent_log fail (immediate_start):', err));
   }
@@ -332,7 +332,7 @@ checkoutRouter.post('/webhook', async (req, res) => {
         email: session.customer_details?.email || null,
         consent_type: 'immediate_start_waiver_confirmed_at_payment',
         consent_text_version: metaImmediateStartVersion || IMMEDIATE_START_VERSION,
-        ip: null,
+        ip_anonymized: null,
         user_agent: 'stripe-webhook'
       }).catch(err => console.error('consent_log fail (webhook waiver):', err));
     }

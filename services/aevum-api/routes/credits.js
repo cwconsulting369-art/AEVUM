@@ -106,7 +106,25 @@ creditsRouter.post('/redeem', requireCustomerAuth, async (req, res) => {
     });
   }
 
-  // Transaktion eintragen (negativ = Einlösung)
+  // Atomic optimistic update: only succeeds if balance still >= amount.
+  // Prevents read-check-write race condition (concurrent /redeem can't double-spend).
+  const newBalance = currentBalance - amount;
+  const nowIso = new Date().toISOString();
+  const upd = await supabase.update(
+    'account_credits',
+    `?account_id=eq.${account_id}&balance=gte.${amount}`,
+    { balance: newBalance, updated_at: nowIso }
+  );
+  if (!upd.ok) return res.status(502).json({ ok: false, error: 'db_error' });
+  if (!Array.isArray(upd.data) || upd.data.length === 0) {
+    return res.status(409).json({
+      ok: false,
+      error: 'insufficient_credits_or_race',
+      hint: 'Balance was modified by a concurrent request — retry with fresh balance',
+    });
+  }
+
+  // Transaktion eintragen (negativ = Einlösung) — nur NACH erfolgreichem Balance-Update
   await supabase.insert('credit_transactions', {
     account_id,
     amount: -amount,
@@ -114,15 +132,6 @@ creditsRouter.post('/redeem', requireCustomerAuth, async (req, res) => {
     reference_id: purpose,
     description: `Einlösung für: ${purpose}`,
   });
-
-  // Balance aktualisieren
-  const newBalance = currentBalance - amount;
-  const nowIso = new Date().toISOString();
-  await supabase.update(
-    'account_credits',
-    `?account_id=eq.${account_id}`,
-    { balance: newBalance, updated_at: nowIso }
-  );
 
   return res.json({
     ok: true,

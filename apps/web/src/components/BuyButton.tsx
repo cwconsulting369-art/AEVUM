@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.lennoxos.com';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.aevum-system.de';
 
 type Tier = 'S' | 'M' | 'L';
 

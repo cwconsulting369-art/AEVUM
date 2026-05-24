@@ -22,14 +22,20 @@ casesRouter.get('/', async (_req, res) => {
 
   if (!permsRes.ok) return res.status(500).json({ ok: false, error: permsRes.error });
 
-  const accountIds = (permsRes.data || []).map(p => p.account_id);
+  // UUID regex (RFC 4122 v1-v5) — defense-in-depth before .join() into IN clause
+  const UUID_RX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const accountIds = (permsRes.data || [])
+    .map(p => p.account_id)
+    .filter(id => typeof id === 'string' && UUID_RX.test(id));
 
   // Always include client_zero (Carlos) — full transparency
   const clientZeroRes = await supabase.select(
     'accounts',
     'select=id&client_zero=eq.true'
   );
-  const clientZeroIds = (clientZeroRes.data || []).map(a => a.id);
+  const clientZeroIds = (clientZeroRes.data || [])
+    .map(a => a.id)
+    .filter(id => typeof id === 'string' && UUID_RX.test(id));
   const allIds = [...new Set([...accountIds, ...clientZeroIds])];
 
   if (allIds.length === 0) {

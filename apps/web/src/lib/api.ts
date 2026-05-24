@@ -1,6 +1,6 @@
 /* ──────────────────────── AEVUM API Client ──────────────────────── */
 
-const API_BASE = import.meta.env.VITE_API_URL ?? 'https://api.lennoxos.com';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'https://api.aevum-system.de';
 
 export async function api<T = unknown>(
   path: string,

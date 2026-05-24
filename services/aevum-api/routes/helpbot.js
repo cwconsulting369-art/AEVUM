@@ -28,7 +28,9 @@ import { supabase } from '../lib/supabase.js';
 import {
   scanPayload,
   detectPromptInjection,
-  isSpecialCharFlood
+  isSpecialCharFlood,
+  safeCompare,
+  anonymizeIp as anonymizeIpSec
 } from '../lib/security.js';
 
 export const helpbotRouter = Router();
@@ -159,6 +161,8 @@ const MessageSchema = z.object({
 const ChatSchema = z.object({
   messages: z.array(MessageSchema).min(1).max(MAX_MESSAGES_PER_SESSION),
   session_id: z.string().min(8).max(64).optional(),
+  // DSGVO Art 7 — explicit consent required, version recorded for evidence
+  consent_version: z.string().min(3).max(64).optional(),
   meta: z.object({
     referrer: z.string().max(500).optional(),
     lang: z.string().max(10).optional()
@@ -177,18 +181,8 @@ function clientIp(req) {
     || 'unknown';
 }
 
-function anonymizeIp(ip) {
-  if (!ip || ip === 'unknown') return null;
-  if (ip.includes(':')) {
-    // IPv6: keep first 4 hextets (/64)
-    const parts = ip.split(':');
-    return parts.slice(0, 4).join(':') + '::';
-  }
-  // IPv4: zero last octet
-  const parts = ip.split('.');
-  if (parts.length === 4) return `${parts[0]}.${parts[1]}.${parts[2]}.0`;
-  return null;
-}
+// anonymizeIp now imported from lib/security.js (SSOT)
+const anonymizeIp = anonymizeIpSec;
 
 // crypto polyfill (node 20+)
 const cryptoG = globalThis.crypto;
@@ -243,7 +237,7 @@ function isSessionExpired(started_at) {
   return (Date.now() - startMs) > (SESSION_TTL_DAYS * 24 * 60 * 60 * 1000);
 }
 
-async function persistTurn({ session_id, messages, ip_anonymized, user_agent, meta }) {
+async function persistTurn({ session_id, messages, ip_anonymized, user_agent, meta, consent_version }) {
   // Upsert by session_id. Easiest: select → insert or update.
   const enc = encodeURIComponent(session_id);
   const existing = await supabase.select('helpbot_conversations', `?session_id=eq.${enc}&select=id`);
@@ -251,11 +245,13 @@ async function persistTurn({ session_id, messages, ip_anonymized, user_agent, me
 
   const now = new Date().toISOString();
   if (exists) {
-    return supabase.update('helpbot_conversations', `?session_id=eq.${enc}`, {
+    const updatePayload = {
       messages,
       message_count: messages.length,
       last_msg_at: now
-    });
+    };
+    if (consent_version) updatePayload.consent_version = consent_version;
+    return supabase.update('helpbot_conversations', `?session_id=eq.${enc}`, updatePayload);
   }
   return supabase.insert('helpbot_conversations', {
     session_id,
@@ -265,7 +261,8 @@ async function persistTurn({ session_id, messages, ip_anonymized, user_agent, me
     last_msg_at: now,
     ip_anonymized,
     user_agent,
-    meta: meta || {}
+    meta: meta || {},
+    consent_version: consent_version || null
   });
 }
 
@@ -285,7 +282,15 @@ helpbotRouter.post('/chat', async (req, res) => {
     });
   }
   const { messages, meta } = parsed.data;
+  const consent_version = parsed.data.consent_version || null;
   let session_id = parsed.data.session_id || genSessionId();
+
+  // DSGVO Art 7 — require explicit, versioned consent for AI chat (Art 6 Abs 1 lit a).
+  // Soft-flag for backward compat: log when missing instead of hard-reject (legacy
+  // clients still in flight). After 2026-06-30 → switch to hard-reject.
+  if (!consent_version) {
+    console.warn(`[helpbot] missing_consent_version sid=${session_id} ip=${anonymizeIpSec(ip) || 'unknown'}`);
+  }
 
   // ─── Total-chars guard ───
   const totalChars = messages.reduce((a, m) => a + (m.content?.length || 0), 0);
@@ -304,18 +309,18 @@ helpbotRouter.post('/chat', async (req, res) => {
     // Hard-block: XSS/SQLi/shell/SSRF/path-traversal
     const hits = scanPayload({ msg: lastUser.content });
     if (hits.length > 0) {
-      console.warn(`[helpbot] attack_pattern from ip=${ip} sid=${session_id}: ${hits.map(h => h.reason).join(',')}`);
+      console.warn(`[helpbot] attack_pattern from ip=${anonymizeIpSec(ip) || 'unknown'} sid=${session_id}: ${hits.map(h => h.reason).join(',')}`);
       return res.status(400).json({ ok: false, error: 'invalid_input' });
     }
     // Hard-block: special-char-flood
     if (isSpecialCharFlood(lastUser.content)) {
-      console.warn(`[helpbot] special_char_flood from ip=${ip} sid=${session_id}`);
+      console.warn(`[helpbot] special_char_flood from ip=${anonymizeIpSec(ip) || 'unknown'} sid=${session_id}`);
       return res.status(400).json({ ok: false, error: 'invalid_input' });
     }
     // Soft-flag: prompt-injection (sandwich the input so the model can resist it)
     promptInjectionFlag = detectPromptInjection(lastUser.content);
     if (promptInjectionFlag) {
-      console.warn(`[helpbot] ${promptInjectionFlag} from ip=${ip} sid=${session_id}`);
+      console.warn(`[helpbot] ${promptInjectionFlag} from ip=${anonymizeIpSec(ip) || 'unknown'} sid=${session_id}`);
     }
   }
 
@@ -481,7 +486,8 @@ helpbotRouter.post('/chat', async (req, res) => {
       messages: fullMessages,
       ip_anonymized: anonymizeIp(ip),
       user_agent: ua,
-      meta
+      meta,
+      consent_version
     }).catch(err => console.error('[helpbot] persist failed:', err.message || err));
   }
 
@@ -644,7 +650,7 @@ helpbotRouter.get('/extract/:session_id', async (req, res) => {
   const tok = req.get('x-aevum-admin-token');
   const expected = process.env.AEVUM_ADMIN_TOKEN;
   if (!expected) return res.status(500).json({ ok: false, error: 'admin_token_not_configured' });
-  if (!tok || tok !== expected) return res.status(401).json({ ok: false, error: 'unauthorized' });
+  if (!tok || !safeCompare(tok, expected)) return res.status(401).json({ ok: false, error: 'unauthorized' });
 
   const session_id = req.params.session_id || '';
   const force = req.query.force === '1' || req.query.force === 'true';

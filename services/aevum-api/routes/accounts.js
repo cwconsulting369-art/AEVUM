@@ -14,6 +14,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { supabase } from '../lib/supabase.js';
 import { runIntelligenceAudit } from '../lib/intelligence.js';
+import { safeCompare } from '../lib/security.js';
 
 export const accountsRouter = Router();
 
@@ -26,7 +27,7 @@ function requireAdmin(req, res, next) {
   if (!expected) {
     return res.status(500).json({ ok: false, error: 'admin_token_not_configured' });
   }
-  if (!tok || tok !== expected) {
+  if (!tok || !safeCompare(tok, expected)) {
     return res.status(401).json({ ok: false, error: 'unauthorized' });
   }
   next();
@@ -39,7 +40,7 @@ const CreateAccountSchema = z.object({
   slug: z.string().regex(/^[a-z0-9-]+$/).min(2).max(64),
   name: z.string().min(1).max(200),
   business_name: z.string().max(200).optional(),
-  email: z.string().email(),
+  email: z.string().email().transform((s) => s.toLowerCase()),
   phone: z.string().max(50).optional(),
   client_zero: z.boolean().optional().default(false),
   contact_data: z.record(z.any()).optional().default({})
@@ -48,7 +49,7 @@ const CreateAccountSchema = z.object({
 const PatchAccountSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   business_name: z.string().max(200).optional().nullable(),
-  email: z.string().email().optional(),
+  email: z.string().email().transform((s) => s.toLowerCase()).optional(),
   phone: z.string().max(50).optional().nullable(),
   status: z.enum(['onboarding', 'active', 'paused', 'churned']).optional(),
   contact_data: z.record(z.any()).optional()

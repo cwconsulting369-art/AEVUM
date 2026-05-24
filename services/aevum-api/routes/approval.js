@@ -14,6 +14,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { supabase } from '../lib/supabase.js';
 import { notifyCarlos } from '../lib/tg-notify.js';
+import { safeCompare } from '../lib/security.js';
 
 export const approvalRouter = Router();
 
@@ -26,7 +27,7 @@ function requireAdmin(req, res, next) {
   if (!expected) {
     return res.status(500).json({ ok: false, error: 'admin_token_not_configured' });
   }
-  if (!tok || tok !== expected) {
+  if (!tok || !safeCompare(tok, expected)) {
     return res.status(401).json({ ok: false, error: 'unauthorized' });
   }
   next();

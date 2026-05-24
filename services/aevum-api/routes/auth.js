@@ -1,16 +1,6 @@
 // /api/auth — Magic-Link request + verify (Customer-Portal login)
-//
-// POST /api/auth/magic-link/request   { email }
-//   - Looks up account by email
-//   - Issues magic-link token + sends via Resend
-//   - Always returns ok:true (no email-enumeration)
-//
-// POST /api/auth/magic-link/verify    { token }
-//   - Verifies magic-link token
-//   - Issues short-lived access JWT + long-lived refresh JWT
-//
-// POST /api/auth/refresh              { refresh_token }
-//   - Issues new access token from refresh
+// SECURITY: single-use enforcement via magic_link_used table.
+// Mail-Versand via Mailbox.org SMTP (lib/mailer.js).
 
 import { Router } from 'express';
 import { z } from 'zod';
@@ -18,6 +8,7 @@ import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { supabase } from '../lib/supabase.js';
 import { issueJwt, issueMagicLinkToken, verifyJwt, verifyMagicLinkToken } from '../lib/crypto.js';
 import { mailer, magicLinkHtml, magicLinkText } from '../lib/mailer.js';
+import { anonymizeIp, hashToken, maskEmail } from '../lib/security.js';
 
 export const authRouter = Router();
 
@@ -37,13 +28,23 @@ const magicLinkLimiter = rateLimit({
   message: { ok: false, error: 'rate_limit_magic_link' }
 });
 
+// Anti-brute-force on verify endpoint
+const verifyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: (req) => ipKeyGenerator(clientIp(req)),
+  message: { ok: false, error: 'rate_limit_verify' }
+});
+
 const PORTAL_BASE = process.env.AEVUM_PORTAL_BASE_URL || 'https://app.aevum-system.de';
 
 // ────────────────────────────────────────────────────────────
 // POST /api/auth/magic-link/request
 // ────────────────────────────────────────────────────────────
 const RequestSchema = z.object({
-  email: z.string().email().max(200),
+  email: z.string().email().max(200).transform((s) => s.toLowerCase()),
   purpose: z.enum(['login', 'invite']).optional().default('login')
 });
 
@@ -57,7 +58,7 @@ authRouter.post('/magic-link/request', magicLinkLimiter, async (req, res) => {
 
   // Anti-enumeration: respond ok:true even if no account
   if (!account) {
-    console.log(`[auth] magic-link requested for unknown email: ${email}`);
+    console.log(`[auth] magic-link requested for unknown: ${maskEmail(email)}`);
     return res.json({ ok: true, sent: true });
   }
   if (account.status === 'churned') {
@@ -70,7 +71,9 @@ authRouter.post('/magic-link/request', magicLinkLimiter, async (req, res) => {
     purpose,
     ttlSeconds: 60 * 30
   });
-  const link = `${PORTAL_BASE}/auth/verify?token=${encodeURIComponent(token)}`;
+  // WR-03: token in URL fragment (not query) — fragments don't reach server logs,
+  // proxies, or Referer headers. Consumer page reads via window.location.hash.slice(1).
+  const link = `${PORTAL_BASE}/auth/verify#token=${encodeURIComponent(token)}`;
 
   await mailer.send({
     to: account.email,
@@ -87,11 +90,18 @@ authRouter.post('/magic-link/request', magicLinkLimiter, async (req, res) => {
 // ────────────────────────────────────────────────────────────
 const VerifySchema = z.object({ token: z.string().min(20).max(2000) });
 
-authRouter.post('/magic-link/verify', async (req, res) => {
+authRouter.post('/magic-link/verify', verifyLimiter, async (req, res) => {
   const parsed = VerifySchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ ok: false, error: 'validation_failed' });
   const claims = verifyMagicLinkToken(parsed.data.token);
   if (!claims) return res.status(401).json({ ok: false, error: 'invalid_or_expired_token' });
+
+  // CR-01: single-use enforcement — reject already-consumed tokens
+  const tokenHash = hashToken(parsed.data.token);
+  const used = await supabase.select('magic_link_used', `select=token_hash&token_hash=eq.${tokenHash}&limit=1`);
+  if (used.data?.length) {
+    return res.status(401).json({ ok: false, error: 'token_already_used' });
+  }
 
   // Re-check account still exists + not churned
   const accRes = await supabase.select('accounts', `select=id,slug,name,email,status&id=eq.${claims.account_id}`);
@@ -101,6 +111,16 @@ authRouter.post('/magic-link/verify', async (req, res) => {
   }
   if (account.email.toLowerCase() !== claims.email.toLowerCase()) {
     return res.status(401).json({ ok: false, error: 'email_mismatch' });
+  }
+
+  // Mark consumed BEFORE issuing JWT (PK collision = parallel race-loser)
+  const consume = await supabase.insert('magic_link_used', {
+    token_hash: tokenHash,
+    email: account.email,
+    ip_anonymized: anonymizeIp(clientIp(req))
+  });
+  if (!consume.ok) {
+    return res.status(401).json({ ok: false, error: 'token_already_used' });
   }
 
   const accessToken = issueJwt({

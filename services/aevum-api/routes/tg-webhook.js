@@ -13,6 +13,7 @@
 // We respond 200 to Telegram regardless to avoid retry-spam.
 
 import { Router } from 'express';
+import { safeCompare } from '../lib/security.js';
 
 export const tgWebhookRouter = Router();
 
@@ -68,7 +69,7 @@ tgWebhookRouter.post('/lennox-bot', async (req, res) => {
     return res.status(401).json({ ok: false });
   }
   const got = req.get('x-telegram-bot-api-secret-token');
-  if (got !== expected) {
+  if (!got || !safeCompare(got, expected)) {
     console.warn('[tg-webhook] secret mismatch (header=', got ? 'present' : 'absent', ')');
     // 200 to avoid retry loop, but log the attempt
     return res.status(200).json({ ok: true, ignored: 'bad_secret' });

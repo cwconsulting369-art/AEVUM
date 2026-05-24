@@ -15,7 +15,7 @@ export default function Datenschutz() {
           Datenschutz<span className="text-[#e0a458]">erklärung</span>
         </h1>
 
-        <p className="text-sm text-[#7a7a85] mb-12">Stand: 22. Mai 2026 · Version: datenschutz-v4-helpbot-2026-05-22</p>
+        <p className="text-sm text-[#7a7a85] mb-12">Stand: 24. Mai 2026 · Version: datenschutz-v5-mailbox-2026-05-24</p>
 
         <article className="prose prose-invert max-w-none space-y-8 text-[#a4a4ad] leading-relaxed">
 
@@ -109,10 +109,16 @@ export default function Datenschutz() {
                     <td className="px-3 py-2 border-b border-white/10">AVV + EU-SCCs, PCI-DSS Level 1</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2">Anthropic PBC</td>
-                    <td className="px-3 py-2">AI-gestützte Audit-Analyse + Helpbot-Chat (Verarbeitung der vom Nutzer eingegebenen Audit-Antworten und Chat-Nachrichten zur Erstellung der Workflow-Empfehlung bzw. Beantwortung der Anfrage; keine Trainings-Nutzung gemäß Anthropic Commercial Terms, Zero-Retention API)</td>
-                    <td className="px-3 py-2">USA</td>
-                    <td className="px-3 py-2">AVV (Anthropic DPA) + EU-SCCs (Modul 2), Zero-Retention API</td>
+                    <td className="px-3 py-2 border-b border-white/10">Anthropic PBC</td>
+                    <td className="px-3 py-2 border-b border-white/10">AI-gestützte Audit-Analyse + Helpbot-Chat (Verarbeitung der vom Nutzer eingegebenen Audit-Antworten und Chat-Nachrichten zur Erstellung der Workflow-Empfehlung bzw. Beantwortung der Anfrage; keine Trainings-Nutzung gemäß Anthropic Commercial Terms, Zero-Retention API)</td>
+                    <td className="px-3 py-2 border-b border-white/10">USA</td>
+                    <td className="px-3 py-2 border-b border-white/10">AVV (Anthropic DPA) + EU-SCCs (Modul 2), Zero-Retention API</td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2">Mailbox.org (Heinlein Support GmbH)</td>
+                    <td className="px-3 py-2">Versand von Transaktions-E-Mails (Magic-Link-Login, DSGVO-Challenge-Bestätigungen für Export/Löschung)</td>
+                    <td className="px-3 py-2">Deutschland (Berlin)</td>
+                    <td className="px-3 py-2">AVV nach Art 28 DSGVO, § 32 BDSG, ISO 27001-zertifiziert</td>
                   </tr>
                 </tbody>
               </table>
@@ -203,7 +209,7 @@ export default function Datenschutz() {
               USA) übermittelt. Anthropic verarbeitet die Daten als unser Auftragsverarbeiter unter
               EU-Standardvertragsklauseln (Modul 2), nutzt sie nicht zum Modell-Training (Anthropic
               Commercial Terms, Zero-Retention API). Übermittlung über die AEVUM-API
-              (api.lennoxos.com) als ergänzender Sub-Prozess.
+              (api.aevum-system.de) als ergänzender Sub-Prozess.
             </p>
             <p>
               <strong>Speicherdauer:</strong> Chat-Verläufe werden maximal <strong>30 Tage</strong>{' '}

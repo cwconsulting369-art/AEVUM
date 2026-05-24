@@ -13,7 +13,9 @@
 //   PATCH  /api/blueprints/:type/:id             — update (admin)
 
 import { Router } from 'express';
+import { z } from 'zod';
 import { supabase } from '../lib/supabase.js';
+import { safeCompare } from '../lib/security.js';
 
 export const blueprintsRouter = Router();
 
@@ -26,11 +28,47 @@ const TYPE_MAP = {
   'marketing-thesis': 'blueprint_marketing_thesis'
 };
 
+// ──────────────────────────────────────────────────────────
+// Validation Schemas (admin POST/PATCH bodies)
+// Pragmatic per-type schemas with required-fields-strict + passthrough for
+// blueprint-specific JSON. Prevents trash being persisted into DB.
+// ──────────────────────────────────────────────────────────
+const baseFields = {
+  id: z.string().regex(/^[a-z0-9_-]+$/i).min(2).max(100),
+  name: z.string().min(1).max(200).optional(),
+  description: z.string().max(2000).optional(),
+  is_active: z.boolean().optional(),
+  version: z.string().max(50).optional(),
+  tags: z.array(z.string().max(60)).max(30).optional()
+};
+
+const CREATE_SCHEMAS = {
+  'dashboards':       z.object({ ...baseFields, sections: z.array(z.any()).optional(), config: z.record(z.any()).optional() }).passthrough(),
+  'agents':           z.object({ ...baseFields, capabilities: z.array(z.any()).optional(), config: z.record(z.any()).optional() }).passthrough(),
+  'workflows':        z.object({ ...baseFields, steps: z.array(z.any()).optional(), trigger: z.record(z.any()).optional() }).passthrough(),
+  'pricing':          z.object({ ...baseFields, tier: z.string().max(60).optional(), setup_eur: z.number().nonnegative().optional(), monthly_eur: z.number().nonnegative().optional() }).passthrough(),
+  'audit-forms':      z.object({ ...baseFields, fields: z.array(z.any()).optional() }).passthrough(),
+  'marketing-thesis': z.object({ ...baseFields, thesis: z.string().max(5000).optional() }).passthrough()
+};
+
+// PATCH schemas: same as create but id is optional + all fields optional
+function patchSchemaFor(type) {
+  const base = {
+    id: z.string().regex(/^[a-z0-9_-]+$/i).min(2).max(100).optional(),
+    name: z.string().min(1).max(200).optional(),
+    description: z.string().max(2000).optional(),
+    is_active: z.boolean().optional(),
+    version: z.string().max(50).optional(),
+    tags: z.array(z.string().max(60)).max(30).optional()
+  };
+  return z.object(base).passthrough();
+}
+
 function requireAdmin(req, res, next) {
   const tok = req.get('x-aevum-admin-token');
   const expected = process.env.AEVUM_ADMIN_TOKEN;
   if (!expected) return res.status(500).json({ ok: false, error: 'admin_token_not_configured' });
-  if (!tok || tok !== expected) return res.status(401).json({ ok: false, error: 'unauthorized' });
+  if (!tok || !safeCompare(tok, expected)) return res.status(401).json({ ok: false, error: 'unauthorized' });
   next();
 }
 
@@ -77,8 +115,12 @@ blueprintsRouter.get('/:type/:id', async (req, res) => {
 blueprintsRouter.post('/:type', requireAdmin, async (req, res) => {
   const table = TYPE_MAP[req.params.type];
   if (!table) return res.status(404).json({ ok: false, error: 'unknown_blueprint_type' });
-  if (!req.body?.id) return res.status(400).json({ ok: false, error: 'id_required' });
-  const r = await supabase.insert(table, req.body);
+  const schema = CREATE_SCHEMAS[req.params.type];
+  const parsed = schema.safeParse(req.body || {});
+  if (!parsed.success) {
+    return res.status(400).json({ ok: false, error: 'validation_failed', details: parsed.error.flatten() });
+  }
+  const r = await supabase.insert(table, parsed.data);
   if (!r.ok) {
     if (r.status === 409) return res.status(409).json({ ok: false, error: 'id_already_exists' });
     return res.status(500).json({ ok: false, error: r.error });
@@ -92,7 +134,12 @@ blueprintsRouter.post('/:type', requireAdmin, async (req, res) => {
 blueprintsRouter.patch('/:type/:id', requireAdmin, async (req, res) => {
   const table = TYPE_MAP[req.params.type];
   if (!table) return res.status(404).json({ ok: false, error: 'unknown_blueprint_type' });
-  const r = await supabase.update(table, `id=eq.${encodeURIComponent(req.params.id)}`, req.body);
+  const schema = patchSchemaFor(req.params.type);
+  const parsed = schema.safeParse(req.body || {});
+  if (!parsed.success) {
+    return res.status(400).json({ ok: false, error: 'validation_failed', details: parsed.error.flatten() });
+  }
+  const r = await supabase.update(table, `id=eq.${encodeURIComponent(req.params.id)}`, parsed.data);
   if (!r.ok) return res.status(500).json({ ok: false, error: r.error });
   if (!r.data?.length) return res.status(404).json({ ok: false, error: 'blueprint_not_found' });
   res.json({ ok: true, blueprint: r.data[0] });

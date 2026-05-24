@@ -19,7 +19,8 @@ import { requireCustomerAuth } from '../lib/crypto.js';
 import {
   scanPayload,
   detectPromptInjection,
-  isSpecialCharFlood
+  isSpecialCharFlood,
+  anonymizeIp
 } from '../lib/security.js';
 import {
   buildMemoryPromptSection,
@@ -276,7 +277,7 @@ projectAgentRouter.post('/chat', async (req, res) => {
   if (lastUser) {
     const hits = scanPayload({ msg: lastUser.content });
     if (hits.length > 0) {
-      console.warn(`[project-agent] attack_pattern ip=${ip} acct=${acctSlug} proj=${projectSlug}: ${hits.map(h => h.reason).join(',')}`);
+      console.warn(`[project-agent] attack_pattern ip=${anonymizeIp(ip) || 'unknown'} acct=${acctSlug} proj=${projectSlug}: ${hits.map(h => h.reason).join(',')}`);
       return res.status(400).json({ ok: false, error: 'invalid_input' });
     }
     if (isSpecialCharFlood(lastUser.content)) {
