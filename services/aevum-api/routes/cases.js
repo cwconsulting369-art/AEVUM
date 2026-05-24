@@ -19,7 +19,8 @@ export const casesRouter = Router();
 casesRouter.get('/', async (_req, res) => {
   const r = await supabase.select(
     'case_pages',
-    'select=slug,hero_title,hero_subtitle,brand_url,activated_services,testimonial_author,sort_order,hero_image_url' +
+    'select=slug,hero_title,hero_subtitle,brand_url,activated_services,testimonial_author,sort_order,hero_image_url,' +
+      'allow_show_brand_name,allow_show_logo,allow_show_testimonial,allow_show_services' +
       '&public=eq.true' +
       '&order=sort_order.asc'
   );
@@ -28,10 +29,22 @@ casesRouter.get('/', async (_req, res) => {
     return res.status(500).json({ ok: false, error: r.error });
   }
 
+  // Wave E4 — Permission-Filter auf List-Output
+  const cases = (r.data || []).map(c => ({
+    slug: c.slug,
+    hero_title: c.hero_title,
+    hero_subtitle: c.hero_subtitle,
+    brand_url: c.allow_show_brand_name === false ? null : c.brand_url,
+    hero_image_url: c.allow_show_logo === true ? c.hero_image_url : null,
+    activated_services: c.allow_show_services !== false && Array.isArray(c.activated_services) ? c.activated_services : [],
+    testimonial_author: c.allow_show_testimonial === true ? c.testimonial_author : null,
+    sort_order: c.sort_order
+  }));
+
   res.json({
     ok: true,
     $schema: 'aevum/cases/v2',
-    cases: r.data || []
+    cases
   });
 });
 
@@ -101,6 +114,24 @@ casesRouter.get('/:slug', async (req, res) => {
     }
   }
 
+  // ──────────────────────────────────────────────────────────
+  // Wave E4: Customer-Permission-Filter (case_pages.allow_show_*)
+  // Hero-Title + hero_subtitle bleiben immer sichtbar (sonst leerer Case).
+  // brand_url + brand_name nur wenn allow_show_brand_name.
+  // logo (hero_image_url) nur wenn allow_show_logo.
+  // testimonial nur wenn allow_show_testimonial.
+  // services nur wenn allow_show_services.
+  // collaboration_story nur wenn allow_show_collaboration_story.
+  // vision nur wenn allow_show_vision.
+  // live_kpis nur subset wenn show_revenue/users/growth (existierende Logik oben).
+  // ──────────────────────────────────────────────────────────
+  const allowBrand    = row.allow_show_brand_name          !== false;
+  const allowLogo     = row.allow_show_logo               === true;
+  const allowQuote    = row.allow_show_testimonial        === true;
+  const allowServices = row.allow_show_services           !== false;
+  const allowStory    = row.allow_show_collaboration_story !== false;
+  const allowVision   = row.allow_show_vision             !== false;
+
   res.json({
     ok: true,
     $schema: 'aevum/case/v2',
@@ -108,15 +139,26 @@ casesRouter.get('/:slug', async (req, res) => {
       slug: row.slug,
       hero_title: row.hero_title,
       hero_subtitle: row.hero_subtitle,
-      brand_url: row.brand_url,
-      hero_image_url: row.hero_image_url,
+      brand_url: allowBrand ? row.brand_url : null,
+      hero_image_url: allowLogo ? row.hero_image_url : null,
       project_description: row.project_description,
-      collaboration_story: row.collaboration_story,
-      vision: row.vision,
-      activated_services: Array.isArray(row.activated_services) ? row.activated_services : [],
+      collaboration_story: allowStory ? row.collaboration_story : null,
+      vision: allowVision ? row.vision : null,
+      activated_services: allowServices && Array.isArray(row.activated_services) ? row.activated_services : [],
       live_kpis: liveKpis,
-      testimonial_quote: row.testimonial_quote,
-      testimonial_author: row.testimonial_author
+      testimonial_quote: allowQuote ? row.testimonial_quote : null,
+      testimonial_author: allowQuote ? row.testimonial_author : null,
+      permissions: {
+        brand_name: allowBrand,
+        logo: allowLogo,
+        testimonial: allowQuote,
+        services: allowServices,
+        collaboration_story: allowStory,
+        vision: allowVision,
+        revenue: row.show_revenue === true,
+        users: row.show_users === true,
+        growth: row.show_growth === true
+      }
     }
   });
 });

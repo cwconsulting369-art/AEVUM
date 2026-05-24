@@ -9,6 +9,7 @@ import AuthToken from './pages/AuthToken';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Permissions from './pages/Permissions';
+import Testimonial from './pages/Testimonial';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import Documents from './pages/Documents';
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/permissions" element={<Permissions />} />
+          <Route path="/testimonial" element={<Testimonial />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:slug" element={<ProjectDetail />} />
           <Route path="/projects/:slug/documents" element={<Documents />} />

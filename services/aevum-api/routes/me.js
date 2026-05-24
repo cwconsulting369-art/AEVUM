@@ -21,6 +21,7 @@ import { supabase } from '../lib/supabase.js';
 import { requireCustomerAuth, encryptSecret } from '../lib/crypto.js';
 import { projectAgentRouter } from './project-agent.js';
 import { docsRouter } from './docs.js';
+import { meTestimonialsRouter } from './me-testimonials.js';
 import { stripe } from '../lib/stripe.js';
 import { buildShopStats, buildStripeStats, buildOrdersStats } from '../lib/dashboard-stats.js';
 
@@ -35,6 +36,9 @@ meRouter.use('/projects/:slug/agent', projectAgentRouter);
 
 // Customer Document-Exchange (FS-backed inbox/outbox/shared MD files).
 meRouter.use('/projects/:slug/docs', docsRouter);
+
+// Wave E4: Customer-controlled Testimonial-Permissions (case_pages).
+meRouter.use('/testimonial', meTestimonialsRouter);
 
 // ────────────────────────────────────────────────────────────
 // GET /api/me/orders — Stripe-Orders fuer eingeloggten Account (Shop-Dashboard).

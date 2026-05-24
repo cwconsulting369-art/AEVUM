@@ -5,7 +5,7 @@ import {
   LogOut, LayoutDashboard, User, ShieldCheck, FolderGit2,
   BarChart2, DollarSign, Mail, ShoppingBag, Globe, Bot,
   KeyRound, TrendingUp, ChevronLeft, Users, Menu, X, Coins,
-  Link as LinkIcon, FolderOpen
+  Link as LinkIcon, FolderOpen, Megaphone
 } from 'lucide-react';
 import { Link } from 'react-router';
 import Footer from './Footer';
@@ -18,6 +18,7 @@ const portalNav = [
   { to: '/credits',     label: 'Credits',      icon: Coins },
   { to: '/profile',     label: 'Profil',       icon: User },
   { to: '/permissions', label: 'Freigaben',    icon: ShieldCheck },
+  { to: '/testimonial', label: 'Testimonial',  icon: Megaphone },
 ];
 
 // ── Per-project sidebar config ───────────────────────────────
