@@ -20,6 +20,8 @@ const CheckoutCancelled = lazy(() => import('./pages/CheckoutCancelled'));
 const Shop = lazy(() => import('./pages/Shop'));
 const ShopItemDetail = lazy(() => import('./components/shop/ShopItemDetail'));
 const LeadMagnetEuAiAct = lazy(() => import('./pages/LeadMagnetEuAiAct'));
+const Saas = lazy(() => import('./pages/Saas'));
+const SaasTool = lazy(() => import('./pages/SaasTool'));
 
 function LoadingFallback() {
   return (
@@ -49,6 +51,7 @@ const routeComponents: Record<string, React.ComponentType> = {
   '/checkout/cancelled': CheckoutCancelled,
   '/shop': Shop,
   '/lead-magnets/eu-ai-act': LeadMagnetEuAiAct,
+  '/saas': Saas,
 };
 
 export default function App() {
@@ -91,11 +94,15 @@ export default function App() {
   const shopDetailMatch = route.match(/^\/shop\/(blueprint|dfy|saas|bundle)\/([a-z0-9-]+)$/);
   // Case-Detail-Routes: /cases/<slug>
   const caseDetailMatch = route.match(/^\/cases\/([a-z0-9-]+)$/);
+  // SaaS-Tool-Detail-Routes: /saas/<slug>
+  const saasToolMatch = route.match(/^\/saas\/([a-z0-9-]+)$/);
   const Page = shopDetailMatch
     ? () => <ShopItemDetail variant={shopDetailMatch[1] as 'blueprint' | 'dfy' | 'saas' | 'bundle'} slug={shopDetailMatch[2]} />
     : caseDetailMatch
       ? () => <CaseDetail slug={caseDetailMatch[1]} />
-      : (routeComponents[route] || Home);
+      : saasToolMatch
+        ? () => <SaasTool slug={saasToolMatch[1]} />
+        : (routeComponents[route] || Home);
   const isHome = route === '/';
 
   return (

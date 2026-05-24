@@ -4,6 +4,8 @@ import { stripe, PILOT_COUPON_ID_ENV } from '../lib/stripe.js';
 import { supabase } from '../lib/supabase.js';
 import { notifyCarlos } from '../lib/tg-notify.js';
 import { earnCredits, addStamp, checkStampReward } from '../lib/credits.js';
+import { issueMagicLinkToken } from '../lib/crypto.js';
+import { mailer, magicLinkHtml, magicLinkText } from '../lib/mailer.js';
 
 export const checkoutRouter = Router();
 
@@ -14,6 +16,23 @@ const IMMEDIATE_START_VERSION = 'immediate-start-v1-2026-05-20';
 function maskEmail(e) {
   if (!e || typeof e !== 'string') return '';
   return e.replace(/^(.).+(@.+)$/, '$1***$2');
+}
+
+// ensure account_credits row exists for given account_id (idempotent insert)
+async function ensureCreditsRowForAccount(account_id) {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return;
+  await fetch(`${url}/rest/v1/account_credits`, {
+    method: 'POST',
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=ignore-duplicates,return=minimal',
+    },
+    body: JSON.stringify({ account_id, balance: 0, lifetime_earned: 0 }),
+  }).catch(() => {});
 }
 
 // ─── POST /api/checkout/webhook ─────────────────────────────────
@@ -211,6 +230,86 @@ checkoutRouter.post('/webhook', async (req, res) => {
         console.error('[webhook] credits/loyalty error (non-fatal):', credErr.message);
       }
     }
+
+    // ─── SaaS-Signup Credit-Grant + Magic-Link (Wave G4) ──────────
+    // Wenn purchase_type='saas-credits' UND wir einen Account haben (gerade auto-created
+    // ODER existing): Initial-Credit-Paket auf account_credits gutschreiben + Magic-Link
+    // per Mail senden.
+    const creditPkgSlug = session.metadata?.credit_package_slug;
+    const creditsToGrant = parseInt(session.metadata?.credits_to_grant || '0', 10);
+    const isSaasSignup = session.metadata?.purchase_type === 'saas-credits';
+
+    if (isSaasSignup && buyerEmail && creditsToGrant > 0) {
+      try {
+        // Account holen (frisch auto-created oder existing)
+        const { data: signupAcctRows } = await supabase.select(
+          'accounts',
+          `?email=eq.${encodeURIComponent(buyerEmail)}&select=id,name,email,aevum_id&limit=1`
+        );
+        const signupAcct = Array.isArray(signupAcctRows) ? signupAcctRows[0] : signupAcctRows;
+
+        if (!signupAcct) {
+          console.error(`[checkout-webhook] saas-signup: no account for ${maskEmail(buyerEmail)} — credit grant skipped`);
+        } else {
+          // 1) Credits aufladen — wir nutzen den earnCredits-Helper NICHT, weil der
+          // Earn-Rate (10/€) anwendet. Hier ist Initial-Package: feste Credit-Menge.
+          // Direkt Insert in credit_transactions + Balance-Update.
+          await ensureCreditsRowForAccount(signupAcct.id);
+
+          // Aktuellen Balance holen
+          const { data: ccRows } = await supabase.select(
+            'account_credits',
+            `?account_id=eq.${signupAcct.id}&select=id,balance,lifetime_earned&limit=1`
+          );
+          const ccRow = Array.isArray(ccRows) ? ccRows[0] : ccRows;
+          const newBalance = (Number(ccRow?.balance) || 0) + creditsToGrant;
+          const newLifetime = (Number(ccRow?.lifetime_earned) || 0) + creditsToGrant;
+
+          await supabase.update(
+            'account_credits',
+            `?account_id=eq.${signupAcct.id}`,
+            {
+              balance: newBalance,
+              lifetime_earned: newLifetime,
+              updated_at: paidAtIso,
+            }
+          );
+
+          await supabase.insert('credit_transactions', {
+            account_id: signupAcct.id,
+            type: 'bonus', // Initial-Package = Bonus (kein purchase_earn weil keine LTV-Kopplung)
+            amount: creditsToGrant,
+            reference_id: session.id,
+            description: `Initial-Credit-Package: ${creditPkgSlug || 'unknown'}`,
+          }).catch(err => console.error('[checkout-webhook] credit_transactions insert non-fatal:', err.message));
+
+          console.log(`[checkout-webhook] SaaS-Signup: ${creditsToGrant} Credits gutschrieben für ${maskEmail(buyerEmail)} (Paket=${creditPkgSlug})`);
+
+          // 2) Magic-Link generieren + Mail senden (purpose=invite)
+          try {
+            const token = issueMagicLinkToken({
+              account_id: signupAcct.id,
+              email: signupAcct.email,
+              purpose: 'invite',
+              ttlSeconds: 60 * 60 * 24 // 24h für Onboarding
+            });
+            const portalBase = process.env.AEVUM_PORTAL_BASE_URL || 'https://app.aevum-system.de';
+            const link = `${portalBase}/auth/verify?token=${encodeURIComponent(token)}`;
+            await mailer.send({
+              to: signupAcct.email,
+              subject: 'Willkommen bei AEVUM — Dein Account ist bereit',
+              html: magicLinkHtml({ name: signupAcct.name, link, purpose: 'invite' }),
+              text: magicLinkText({ name: signupAcct.name, link, purpose: 'invite' }),
+            });
+            console.log(`[checkout-webhook] SaaS-Signup: Magic-Link gesendet an ${maskEmail(buyerEmail)}`);
+          } catch (mailErr) {
+            console.error('[checkout-webhook] saas-signup magic-link mail error (non-fatal):', mailErr.message);
+          }
+        }
+      } catch (saasErr) {
+        console.error('[checkout-webhook] saas-signup credit-grant error (non-fatal):', saasErr.message);
+      }
+    }
   }
 
   // Other event types ignored for now (payment_intent.succeeded etc. — redundant with checkout.session.completed)
@@ -279,3 +378,84 @@ checkoutRouter.post('/blueprint', async (req, res) => {
 // NOTE: Legacy `POST /api/checkout/create-session` (S/M/L tier flow) was removed
 // 2026-05-24 — superseded by `/api/checkout/blueprint`. BuyButton.tsx (orphan
 // frontend caller) was also removed in the same commit.
+
+// ─── POST /api/checkout/credit-purchase ─────────────────────────
+// SaaS-Signup-Flow (Wave G4): anonymer Visitor wählt Credit-Paket auf /saas/<tool>,
+// kriegt Stripe-Checkout-URL zurück. Nach Zahlung erzeugt Webhook automatisch
+// Account + lädt Credits auf + sendet Magic-Link-Mail.
+//
+// Body: { email, name?, package_slug, tool_slug?, source, consent? }
+// Returns: { ok, url }
+const CreditPurchaseSchema = z.object({
+  email: z.string().email().max(200).transform((s) => s.toLowerCase().trim()),
+  name: z.string().max(100).optional(),
+  package_slug: z.enum(['starter', 'growth', 'pro']),
+  tool_slug: z.string().max(60).regex(/^[a-z0-9-]+$/).optional(),
+  source: z.string().max(120),
+  consent: z.boolean().optional(),
+});
+
+checkoutRouter.post('/credit-purchase', async (req, res) => {
+  if (!stripe) return res.status(503).json({ ok: false, error: 'stripe_not_configured' });
+
+  const parsed = CreditPurchaseSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ ok: false, error: 'validation_failed', details: parsed.error.flatten() });
+  }
+  const f = parsed.data;
+
+  // Credit-Paket aus DB holen (Single Source of Truth)
+  const { data: pkgRows } = await supabase.select(
+    'credit_packages',
+    `?slug=eq.${encodeURIComponent(f.package_slug)}&is_active=eq.true&select=slug,name,price_eur,credits,bonus_pct&limit=1`
+  );
+  const pkg = Array.isArray(pkgRows) ? pkgRows[0] : pkgRows;
+  if (!pkg) return res.status(404).json({ ok: false, error: 'package_not_found' });
+
+  const priceEur = Number(pkg.price_eur);
+  if (!Number.isFinite(priceEur) || priceEur <= 0) {
+    return res.status(500).json({ ok: false, error: 'package_price_invalid' });
+  }
+
+  const FRONTEND_BASE = process.env.AEVUM_WEB_BASE_URL || 'https://aevum-system.de';
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      customer_email: f.email,
+      line_items: [
+        {
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: `AEVUM ${pkg.name} · ${pkg.credits} Credits`,
+              description:
+                Number(pkg.bonus_pct) > 0
+                  ? `+${Number(pkg.bonus_pct)}% Bonus · Initial-Credit-Paket für AEVUM SaaS-Tools`
+                  : 'Initial-Credit-Paket für AEVUM SaaS-Tools',
+            },
+            unit_amount: Math.round(priceEur * 100),
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `${FRONTEND_BASE}/#/checkout/success?type=saas-signup&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${FRONTEND_BASE}/#/checkout/cancelled`,
+      metadata: {
+        create_account: 'true',
+        source: f.source,
+        credit_package_slug: pkg.slug,
+        credits_to_grant: String(pkg.credits),
+        purchase_type: 'saas-credits',
+        buyer_name: f.name || '',
+        tool_slug: f.tool_slug || '',
+        consent_at: new Date().toISOString(),
+      },
+    });
+
+    return res.json({ ok: true, url: session.url, session_id: session.id });
+  } catch (err) {
+    console.error('[credit-purchase] stripe error:', err.message);
+    return res.status(500).json({ ok: false, error: 'stripe_error', detail: err.message });
+  }
+});
