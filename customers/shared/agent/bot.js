@@ -129,6 +129,24 @@ function fetchDashboardLinkForSlug(customerSlug) {
   });
 }
 
+// Fetch aggregated snapshot from /bot/snapshot
+function fetchSnapshot(customerSlug, include, projectSlug) {
+  if (!ADMIN_TOKEN) return Promise.resolve(null);
+  const body = JSON.stringify({ customerSlug, projectSlug, include });
+  return new Promise(resolve => {
+    const req = http.request({
+      hostname: 'localhost', port: 3210, path: '/bot/snapshot', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body), 'x-aevum-admin-token': ADMIN_TOKEN }
+    }, res => {
+      let d = '';
+      res.on('data', c => d += c);
+      res.on('end', () => { try { resolve(JSON.parse(d)); } catch { resolve(null); } });
+    });
+    req.on('error', () => resolve(null));
+    req.write(body); req.end();
+  });
+}
+
 // ── Dashboard Magic-Link Fetch ───────────────────────────────────────────────
 
 function fetchDashboardLink() {
@@ -302,15 +320,18 @@ function buildProjectMenu() {
 
 function buildReplyKeyboard(projectSlug) {
   const proj = config.projects?.find(p => p.slug === projectSlug);
-  if (!proj?.sections?.length) return undefined;
   const rows = [];
-  for (let i = 0; i < proj.sections.length; i += 2) {
-    const row = [{ text: proj.sections[i].label }];
-    if (proj.sections[i + 1]) row.push({ text: proj.sections[i + 1].label });
-    rows.push(row);
+  if (proj?.sections?.length) {
+    for (let i = 0; i < proj.sections.length; i += 2) {
+      const row = [{ text: proj.sections[i].label }];
+      if (proj.sections[i + 1]) row.push({ text: proj.sections[i + 1].label });
+      rows.push(row);
+    }
   }
-  if (config.projects?.length > 1) rows.push([{ text: '◀ Projekte' }]);
-  rows.push([{ text: '🖥 Dashboard' }, { text: '🔄 Reset' }, { text: '📊 Status' }]);
+  // Universal Action-Row: Portal / KPIs / Käufe
+  rows.push([{ text: '🚀 Portal' }, { text: '📊 KPIs' }, { text: '🛒 Käufe' }]);
+  if (config.projects?.length > 1) rows.push([{ text: '◀ Projekte' }, { text: '❓ Hilfe' }]);
+  else rows.push([{ text: '❓ Hilfe' }, { text: '🔄 Reset' }, { text: '📊 Status' }]);
   return { keyboard: rows, resize_keyboard: true, is_persistent: true };
 }
 
@@ -473,6 +494,50 @@ async function handleCommand(cmd, chat_id, fullText, msg) {
       `✅ *${BOT_NAME} Agent aktiv*\nModell: ${OR_MODEL}\nProjekte: ${config.projects?.length || 1}\nAktiv: ${activeProj.label}\nKnowledge: ${knowledgeCount} Files`
     );
   }
+  // ── /login (alias for /start login) ────────────────────────
+  if (cmd === '/login') {
+    return handleCommand('/start', chat_id, '/start login', msg);
+  }
+
+  // ── /help ──────────────────────────────────────────────────
+  if (cmd === '/help') {
+    const lines = [
+      `*🤖 ${BOT_NAME} Agent — Hilfe*`,
+      '',
+      '*Befehle:*',
+      '`/login` — Dashboard-Magic-Link holen',
+      '`/kpi` — Live-KPIs (Projekte, MRR)',
+      '`/orders` — letzte Bestellungen',
+      '`/credits` — Credit-Balance + Stempelkarte',
+      '`/docs` — Dokumente im Postfach',
+      '`/runs` — letzte Factory-Runs',
+      '`/menu` — Hauptmenü',
+      '`/status` — Bot-Status',
+      '`/reset` — Chat-Verlauf löschen',
+      '',
+      '*Frei chatten:* einfach Frage tippen — ich antworte mit Account-Context aus der DB.'
+    ];
+    return send(chat_id, lines.join('\n'));
+  }
+
+  // ── /kpi /orders /credits /docs /runs — dispatch über /bot/snapshot
+  const SNAP_MAP = {
+    '/kpi':     { include: ['kpi'],     label: 'KPIs',      key: 'kpi' },
+    '/orders':  { include: ['orders'],  label: 'Käufe',     key: 'orders' },
+    '/credits': { include: ['credits'], label: 'Credits',   key: 'credits' },
+    '/docs':    { include: ['docs'],    label: 'Dokumente', key: 'docs' },
+    '/runs':    { include: ['runs'],    label: 'Runs',      key: 'runs' }
+  };
+  if (SNAP_MAP[cmd]) {
+    const spec = SNAP_MAP[cmd];
+    const editReply = await thinkingPlaceholder(chat_id, spec.label);
+    const result = await fetchSnapshot(config.customerSlug, spec.include, activeProj.slug);
+    if (result?.ok && result.formatted?.[spec.key]) {
+      return editReply(result.formatted[spec.key]);
+    }
+    return editReply(`❌ ${spec.label} konnten nicht geladen werden.${result?.error ? ` (${result.error})` : ''}`);
+  }
+
   if (cmd === '/reset') {
     const file = chatFile(chat_id, activeProj.slug);
     try { fs.writeFileSync(file, JSON.stringify({ messages: [], expiresAt: '' })); } catch {}
@@ -584,19 +649,23 @@ async function poll() {
       continue;
     }
 
-    if (text === '🖥 Dashboard') {
+    // ── Reply-Keyboard Action-Row Intercepts ──────────────────
+    if (text === '🚀 Portal' || text === '🖥 Dashboard') {
       const editReply = await thinkingPlaceholder(chat_id, 'Dashboard');
       const result = await fetchDashboardLink();
       if (result?.ok && result.url) {
         await editReply(
-          `🖥 *Dashboard-Zugang*\n\n_Einmaliger Link — 15 Min gültig._`,
-          { reply_markup: { inline_keyboard: [[{ text: '🚀 Dashboard öffnen', url: result.url }]] } }
+          `🚀 *Portal-Zugang*\n\n_Einmaliger Link — 15 Min gültig._`,
+          { reply_markup: { inline_keyboard: [[{ text: '🚀 Portal öffnen', url: result.url }]] } }
         );
       } else {
-        await editReply('❌ Dashboard-Link konnte nicht generiert werden.');
+        await editReply('❌ Portal-Link konnte nicht generiert werden.');
       }
       continue;
     }
+    if (text === '📊 KPIs') { await handleCommand('/kpi', chat_id, text); continue; }
+    if (text === '🛒 Käufe') { await handleCommand('/orders', chat_id, text); continue; }
+    if (text === '❓ Hilfe') { await handleCommand('/help', chat_id, text); continue; }
 
     const matchedSection = sectionByLabel(activeProj.slug, text);
     if (matchedSection) {

@@ -326,6 +326,130 @@ botRouter.post('/grant-access', async (req, res) => {
   res.json({ ok: true, account: { slug: account.slug, name: account.name } });
 });
 
+// ── Snapshot — aggregated KPIs/Orders/Credits/Docs/Runs for a customer ───────
+// POST /bot/snapshot
+// Body: { customerSlug, projectSlug?, include: ["kpi","orders","credits","docs","runs"] }
+// Returns { ok, snapshot: { kpi?, orders?, credits?, docs?, runs? }, account, formatted }
+
+const SNAPSHOT_PARTS = new Set(['kpi', 'orders', 'credits', 'docs', 'runs']);
+
+async function buildKpi(accountId, projectSlug) {
+  // Audits funnel + accounts mrr for the AEVUM owner; for non-owner customers,
+  // build a generic "your projects" view from accounts table + project_intelligence.
+  const projRes = await supabase.select('projects',
+    `select=id,slug,name,status,tier,pricing&account_id=eq.${accountId}&order=created_at.asc`);
+  const projects = projRes.data ?? [];
+  const totalMrr = projects.reduce((s, p) => s + extractRetainerEur(p.pricing), 0);
+  const active = projects.filter(p => p.status === 'active').length;
+  const formatted = `*📊 KPIs*\n\nProjekte: *${projects.length}* (${active} aktiv)\nMRR: *${fmtEur(totalMrr)}/Mo*\n\n${projects.map(p => `${statusEmoji(p.status)} *${p.name}* — ${p.tier || '—'}${extractRetainerEur(p.pricing) ? ` | ${fmtEur(extractRetainerEur(p.pricing))}/Mo` : ''}`).join('\n') || '—'}`;
+  return { raw: { projects: projects.length, active, total_mrr_eur: totalMrr, items: projects.map(p => ({ slug: p.slug, name: p.name, status: p.status, tier: p.tier, mrr: extractRetainerEur(p.pricing) })) }, formatted };
+}
+
+async function buildOrders(accountEmail) {
+  if (!accountEmail) return { raw: [], formatted: '*🛒 Käufe*\n\nKeine E-Mail am Account hinterlegt.' };
+  const enc = encodeURIComponent(accountEmail);
+  const r = await supabase.select('orders',
+    `select=id,created_at,paid_at,status,package_tier,package_name,total_cents,currency,recurring_interval&customer_email=eq.${enc}&order=created_at.desc&limit=10`);
+  const rows = r.data ?? [];
+  if (!rows.length) return { raw: [], formatted: '*🛒 Käufe*\n\nNoch keine Bestellungen.' };
+  const lines = rows.map(o => {
+    const eur = fmtEur((o.total_cents || 0) / 100);
+    const when = new Date(o.created_at).toLocaleDateString('de-DE');
+    const status = o.status === 'paid' ? '✅' : o.status === 'open' ? '⏳' : '⚠️';
+    const interval = o.recurring_interval ? ` /${o.recurring_interval}` : '';
+    return `${status} *${o.package_name || o.package_tier || 'Order'}* — ${eur}${interval} · ${when}`;
+  });
+  return { raw: rows, formatted: `*🛒 Käufe (${rows.length})*\n\n${lines.join('\n')}` };
+}
+
+async function buildCredits(accountId) {
+  const [creditsRes, stampRes] = await Promise.all([
+    supabase.select('account_credits', `?account_id=eq.${accountId}&select=balance,lifetime_earned`),
+    supabase.select('stamp_cards', `?account_id=eq.${accountId}&select=stamps`)
+  ]);
+  const credits = Array.isArray(creditsRes.data) ? creditsRes.data[0] : creditsRes.data;
+  const stamps  = Array.isArray(stampRes.data)   ? stampRes.data[0]   : stampRes.data;
+  const balance = credits?.balance ?? 0;
+  const lifetime = credits?.lifetime_earned ?? 0;
+  const stampCount = stamps?.stamps ?? 0;
+  const untilReward = 5 - (stampCount % 5);
+  const formatted = `*💎 Credits*\n\nBalance: *${balance}*\nLifetime: ${lifetime}\nStempel: ${stampCount} (${untilReward === 5 ? 0 : untilReward} bis Reward)`;
+  return { raw: { balance, lifetime, stamps: stampCount, stamps_until_reward: untilReward === 5 ? 0 : untilReward }, formatted };
+}
+
+async function buildDocs(customerSlug) {
+  // Mirror docs.js root convention
+  const ROOT = process.env.AEVUM_CUSTOMERS_ROOT
+    || '/home/carlos/restructure-workspace/aevum-phase/AEVUM/customers';
+  const path = await import('path');
+  const fs = await import('fs');
+  const out = [];
+  for (const folder of ['inbox', 'outbox', 'shared']) {
+    const dir = path.join(ROOT, customerSlug, 'docs', folder);
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true })
+        .filter(d => d.isFile())
+        .map(d => ({ folder, filename: d.name }));
+      out.push(...entries);
+    } catch {}
+  }
+  if (!out.length) return { raw: [], formatted: '*📁 Dokumente*\n\nKeine Files im Postfach.' };
+  const lines = out.slice(0, 15).map(d => `📄 \`${d.folder}/${d.filename}\``);
+  return { raw: out, formatted: `*📁 Dokumente (${out.length})*\n\n${lines.join('\n')}${out.length > 15 ? `\n\n_… +${out.length-15} weitere_` : ''}` };
+}
+
+async function buildRuns(accountId) {
+  // Pull from any factory_runs tables we know exist
+  const tables = [
+    { name: 'dsgvo_factory_runs', label: 'DSGVO' },
+    { name: 'script_factory_runs', label: 'Script' }
+  ];
+  const all = [];
+  for (const t of tables) {
+    try {
+      const r = await supabase.select(t.name,
+        `select=id,status,created_at&account_id=eq.${accountId}&order=created_at.desc&limit=5`);
+      for (const row of (r.data || [])) all.push({ factory: t.label, ...row });
+    } catch {}
+  }
+  all.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+  const rows = all.slice(0, 10);
+  if (!rows.length) return { raw: [], formatted: '*⚙️ Factory-Runs*\n\nNoch keine Runs.' };
+  const lines = rows.map(r => {
+    const when = new Date(r.created_at).toLocaleDateString('de-DE');
+    const icon = r.status === 'done' ? '✅' : r.status === 'failed' ? '❌' : r.status === 'running' ? '⏳' : '•';
+    return `${icon} *${r.factory}* — ${r.status} · ${when}`;
+  });
+  return { raw: rows, formatted: `*⚙️ Factory-Runs (${rows.length})*\n\n${lines.join('\n')}` };
+}
+
+botRouter.post('/snapshot', async (req, res) => {
+  try {
+    const { customerSlug, projectSlug, include } = req.body || {};
+    if (!customerSlug) return res.status(400).json({ ok: false, error: 'missing_customerSlug' });
+    const parts = Array.isArray(include) && include.length
+      ? include.filter(p => SNAPSHOT_PARTS.has(p))
+      : ['kpi', 'orders', 'credits'];
+
+    const accRes = await supabase.select('accounts', `select=id,slug,name,email,status&slug=eq.${customerSlug}`);
+    const account = accRes.data?.[0];
+    if (!account) return res.status(404).json({ ok: false, error: 'account_not_found' });
+
+    const snapshot = {};
+    const formatted = {};
+    if (parts.includes('kpi'))     { const r = await buildKpi(account.id, projectSlug);    snapshot.kpi = r.raw;     formatted.kpi = r.formatted; }
+    if (parts.includes('orders'))  { const r = await buildOrders(account.email);            snapshot.orders = r.raw;  formatted.orders = r.formatted; }
+    if (parts.includes('credits')) { const r = await buildCredits(account.id);              snapshot.credits = r.raw; formatted.credits = r.formatted; }
+    if (parts.includes('docs'))    { const r = await buildDocs(customerSlug);               snapshot.docs = r.raw;    formatted.docs = r.formatted; }
+    if (parts.includes('runs'))    { const r = await buildRuns(account.id);                 snapshot.runs = r.raw;    formatted.runs = r.formatted; }
+
+    res.json({ ok: true, account: { slug: account.slug, name: account.name, status: account.status }, snapshot, formatted });
+  } catch (e) {
+    console.error('[bot-snapshot]', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 // ── Main Route ────────────────────────────────────────────────────────────────
 
 botRouter.get('/section-data', async (req, res) => {

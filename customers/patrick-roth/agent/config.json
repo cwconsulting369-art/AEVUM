@@ -1,0 +1,22 @@
+{
+  "customerSlug": "patrick-roth",
+  "customerName": "Thailand RE",
+  "tokenEnv": "THAILANDRE_BOT_TOKEN",
+  "port": 4105,
+  "model": "anthropic/claude-sonnet-4-5",
+  "ownerIds": [],
+  "adminIds": [6436074677],
+  "note": "Bespoke bot in /home/carlos/services/thailandre-bot — this config exists for architectural consistency. Bot is NOT driven by customers/shared/agent/bot.js (it has Patrick-specific persona-framework + lead-funnel logic).",
+  "projects": [
+    {
+      "slug": "thailand-re",
+      "label": "Thailand RE",
+      "description": "Patrick Roth Real Estate Concierge — Pattaya/Rayong",
+      "sections": [
+        { "slug": "overview", "label": "📊 Übersicht" },
+        { "slug": "leads",    "label": "🎯 Leads" },
+        { "slug": "kpi",      "label": "📈 KPIs" }
+      ]
+    }
+  ]
+}

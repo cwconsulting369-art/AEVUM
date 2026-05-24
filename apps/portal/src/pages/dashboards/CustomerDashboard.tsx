@@ -4,8 +4,16 @@
 
 import { useAuth } from '@/lib/auth';
 import { Link } from 'react-router';
-import { FolderGit2, Activity, Bot, CheckCircle2, Circle, ArrowRight, Sparkles, TrendingUp } from 'lucide-react';
+import { FolderGit2, Activity, Bot, CheckCircle2, Circle, ArrowRight, Sparkles, TrendingUp, Send } from 'lucide-react';
 import { stagger } from '@/lib/animations';
+
+// Account-Slug → Telegram-Bot-Username Mapping (Fallback wenn contact_data.bot_username fehlt)
+const BOT_USERNAME_MAP: Record<string, string> = {
+  carlos: 'aevumsystem_bot',
+  ketolabs: 'ketolabsbot',
+  'patrick-roth': 'thailandre_bot',
+  goldtradersociety: 'goldtradersociety_bot'
+};
 
 export default function CustomerDashboard() {
   const { me } = useAuth();
@@ -65,6 +73,9 @@ export default function CustomerDashboard() {
           highlight
         />
       </div>
+
+      {/* Telegram-Bot Hint */}
+      <TelegramHintCard accountSlug={me.account.slug} botUsername={(me.account.contact_data as any)?.bot_username} />
 
       {/* Onboarding */}
       <section className="card-premium p-6 sm:p-7 animate-fade-up" style={{ animationDelay: '280ms' }}>
@@ -203,5 +214,36 @@ function EmptyState() {
         Jetzt starten <ArrowRight size={14} />
       </Link>
     </div>
+  );
+}
+
+function TelegramHintCard({ accountSlug, botUsername }: { accountSlug: string; botUsername?: string }) {
+  const username = botUsername || BOT_USERNAME_MAP[accountSlug];
+  if (!username) return null;
+  const deepLink = `https://t.me/${username}?start=login`;
+  return (
+    <aside
+      className="card-premium p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 animate-fade-up"
+      style={{ animationDelay: '220ms' }}
+    >
+      <div className="shrink-0 size-11 rounded-xl bg-sky-500/10 border border-sky-400/20 grid place-items-center text-sky-300">
+        <Send size={20} strokeWidth={1.7} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-semibold text-white">Per Telegram arbeiten</div>
+        <p className="text-xs text-ink-400 mt-0.5">
+          Live-KPIs, Käufe, Credits, Docs &amp; Factory-Runs direkt im Chat —
+          <span className="text-ink-200"> @{username}</span>
+        </p>
+      </div>
+      <a
+        href={deepLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn-gold text-xs inline-flex items-center gap-1.5 shrink-0"
+      >
+        Bot öffnen <ArrowRight size={12} />
+      </a>
+    </aside>
   );
 }

@@ -1,0 +1,22 @@
+{
+  "customerSlug": "goldtradersociety",
+  "customerName": "GoldTraderSociety",
+  "tokenEnv": "GTS_BOT_TOKEN",
+  "port": 4106,
+  "model": "anthropic/claude-haiku-4-5",
+  "ownerIds": [],
+  "adminIds": [6436074677],
+  "note": "Bespoke bot in /home/carlos/services/gts-aurus-bot — Kevin GTS member-linking + signal aggregation. This config exists for architectural consistency only.",
+  "projects": [
+    {
+      "slug": "gts",
+      "label": "GTS",
+      "description": "Closed Trading Community — Signal aggregation, member dashboard",
+      "sections": [
+        { "slug": "overview", "label": "📊 Übersicht" },
+        { "slug": "signals",  "label": "📈 Signals" },
+        { "slug": "members",  "label": "👥 Members" }
+      ]
+    }
+  ]
+}

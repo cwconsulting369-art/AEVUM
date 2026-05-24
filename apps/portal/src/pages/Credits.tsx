@@ -32,7 +32,7 @@ export default function Credits() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api<{ ok: boolean; credits: CreditsData }>('/api/me/credits')
+    api<{ ok: boolean; credits: CreditsData }>('/api/credits')
       .then(r => setData(r.credits))
       .catch(() => setData({
         balance: 0, lifetime_earned: 0,
