@@ -39,7 +39,7 @@
 
 ## 3. Positionierung – Marketing Thesis (nach Miguel)
 
-### Struktur (analog Hausverwaltungs-Beispiel)
+### Struktur (branchenneutral, anwendbar auf jede Zielgruppe)
 
 **PROBLEM**
 > Unternehmen verlieren täglich Zeit und Geld durch manuelle Prozesse, ineffiziente Workflows und fehlende KI-Automatisierung. Aufgaben, die Stunden dauern, könnten in Minuten erledigt sein – doch niemand baut die Systeme dafür.

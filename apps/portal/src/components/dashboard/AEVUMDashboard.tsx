@@ -339,7 +339,7 @@ function SectionContent({ data }: { data: DashboardData }) {
         <div className="grid sm:grid-cols-3 gap-4 text-xs">
           {[
             { title: 'LinkedIn', desc: '3-5 Posts/Woche. Transparenz + Cases + AI-Insights. Organic-first.', color: 'text-blue-300' },
-            { title: 'Netzwerk', desc: 'Referrals aus Augsburg + Digital. Warm Intros über bestehende Partner.', color: 'text-emerald-300' },
+            { title: 'Netzwerk', desc: 'Referrals aus dem bestehenden DACH-Netzwerk. Warm Intros über Partner und Bestandskunden.', color: 'text-emerald-300' },
             { title: 'Ads als Booster', desc: 'Posts die organisch performen → €50-200 Boost. Kein Cold-Ad-Traffic.', color: 'text-gold-300' },
           ].map(({ title, desc, color }) => (
             <div key={title} className="bg-white/[0.02] rounded-lg p-4 border border-white/5">

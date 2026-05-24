@@ -123,9 +123,12 @@ const thresholds = {
 **Branche anpassen:** Im Code Node das `targetIndustries`-Array mit deinen Ziel-Branchen befüllen:
 
 ```javascript
+// Beispiel: branchenneutral, gerne nach Bedarf erweitern oder leer lassen,
+// damit Industry-Match die Score nicht künstlich nach oben/unten zieht.
 const targetIndustries = [
-  'immobilien', 'hausverwaltung', 'makler',
-  'agentur', 'beratung', 'dienstleistung'
+  'agentur', 'marketing', 'beratung', 'consulting',
+  'dienstleistung', 'ecommerce', 'e-commerce',
+  'saas', 'b2b', 'tech', 'startup'
 ];
 ```
 

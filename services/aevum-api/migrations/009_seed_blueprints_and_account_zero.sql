@@ -75,10 +75,10 @@ VALUES
      ]
    }'::jsonb,
    '{
-     "industry_example": "Hausverwaltungen / Energieverwaltung",
-     "problem": "Liebe Hausverwaltungen, kennt ihr das Gefühl der Unsicherheit bei der Energieverwaltung? Rechnungen stapeln sich, aber niemand weiß, welche Lieferstelle betroffen ist...",
-     "hypothese": "Ihr glaubt, das Thema Energie im Griff zu haben, durch interne Zuständigkeit oder einen Makler...",
-     "cta": "Bucht jetzt ein kostenloses Analysegespräch. In nur 30 Minuten finden wir gemeinsam heraus, wie eure Hausverwaltung Zeit, Geld und Ressourcen einspart."
+     "industry_example": "Generic — branchenneutral. Wird je Customer-Audit dynamisch befüllt.",
+     "problem": "Kennt ihr das Gefühl, dass operative Prozesse zu viel Zeit fressen? Aufgaben stapeln sich, niemand hat den Überblick, Tools sprechen nicht miteinander...",
+     "hypothese": "Ihr glaubt, das Thema im Griff zu haben — durch interne Zuständigkeit, ein bestehendes Tool, einen Freelancer...",
+     "cta": "Buche jetzt ein kostenloses Analysegespräch. In 30 Minuten finden wir gemeinsam heraus, wo dein Unternehmen Zeit, Geld und Ressourcen einsparen kann."
    }'::jsonb,
    true),
 

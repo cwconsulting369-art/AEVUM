@@ -69,7 +69,7 @@ Phase 6 ⏳  Backend-Skeleton in services/aevum-api/ deployen (pm2 port 3200)
 - **AEVUM** = customer-facing Master-Brand. Verkauft Pakete S/M/L + Add-ons. Workflow Generation Machine als Sales-Engine.
 - **lennoxOS** = interne Infrastruktur (nicht für Kunden sichtbar).
 - **aevum-system.de** = Brand-Hub + Sales + Conversion.
-- Aktuelle Productized-Agency (Hausverwaltungen) wird **EIN** Sub-Produkt von vielen.
+- Productized-Agency-Angebote (Pakete S/M/L + Add-ons) sind branchenneutral und richten sich an Unternehmen 1–50 MA im DACH-Raum, unabhängig von Branche oder Region.
 
 Siehe `docs/strategy/01-aevum-umsetzungsplan.md` für volle Brand-Roadmap.
 

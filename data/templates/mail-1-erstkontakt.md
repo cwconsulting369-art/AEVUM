@@ -24,7 +24,7 @@ https://calendly.com/cwconsulting369/aevum-erstcheck-10-min
 
 Mit freundlichen Grüßen,
 Carlos Wrusch
-AEVUM | KI-Infrastruktur für professionelle Dienstleister
+AEVUM | KI-Infrastruktur für Unternehmen im DACH-Raum
 ```
 
 ---
@@ -38,7 +38,7 @@ Guten Tag [Anrede Name],
 
 kurzes Nachfassen — haben Sie meine letzte E-Mail gesehen?
 
-Ich frage, weil ich gerade für 3 weitere Hausverwaltungen in der Region
+Ich frage, weil ich aktuell für mehrere Unternehmen im DACH-Raum
 die gleiche Infrastruktur aufbaue und einen freien Platz habe.
 
 Der Audit ist kostenlos und dauert buchstäblich 90 Sekunden.
@@ -48,5 +48,5 @@ Hier direkt buchen (10 Min):
 https://calendly.com/cwconsulting369/aevum-erstcheck-10-min
 
 Carlos Wrusch
-AEVUM | KI-Infrastruktur für professionelle Dienstleister
+AEVUM | KI-Infrastruktur für Unternehmen im DACH-Raum
 ```
