@@ -217,16 +217,9 @@ const dfyServices: DFYService[] = [
     priceLabel: 'ab €2.800 Setup + €459/Mo',
     tierHint: 'Growth ab €2.800',
   },
-  {
-    id: 6,
-    name: 'AI Personal Agent',
-    category: 'Produktivität',
-    icp: ['PB', 'AG'],
-    description:
-      'Dein dedizierter KI-Agent. Research, Content, Code, Design — autonom und auf dich trainiert.',
-    priceLabel: '€99/Std oder €1.800/Mo',
-    tierHint: 'Scale ab €1.800/Mo',
-  },
+  // Personal Agent ist NICHT shop-bar — exklusiv für Variante B (Full-Audit-Partnerschaft).
+  // Memory: project_aevum_user_classes_separation.md (Carlos 2026-05-24)
+  // Wer als Vollkunde rein will → /audit (Audit-Flow) statt Shop-Kauf.
   {
     id: 7,
     name: 'Automation Audit',

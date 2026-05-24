@@ -82,7 +82,8 @@ Drei Säulen:
 ## Personal Brands / Creator / Coach (PB)
 - Profil: Solopreneur bis 5 MA, Umsatz €5k-50k/Mo, hauptsächlich Instagram/LinkedIn/YouTube/Newsletter
 - Pain: Content-Produktion nicht skalierbar, Monetarisierung hängt an manueller Arbeit, kein System
-- AEVUM-Fit: Content-Factory Blueprint / Newsletter Machine / AI Personal Agent / HUD Command Center
+- AEVUM-Fit: Content-Factory Blueprint / Newsletter Machine / HUD Command Center
+  (Hinweis: Personal-Agent gibt es nur in der Full-Partnerschaft via Audit, nicht als Shop-Item)
 
 ## Mittelstand / Firmen (FI)
 - Profil: 10-200 MA, €1M-50M Umsatz, etablierte Prozesse aber keine KI-Infrastruktur
@@ -106,11 +107,20 @@ Credits-System: 10 Credits pro €1 — einlösbar gegen Demos, Tool-Zugang, Rab
 ## Done-For-You Services (€900-4.500 Setup + monatliche Begleitung)
 Für wer nicht selbst deployen will. Audit → Angebot → Build → Run.
 
-Business OS / Command Center / Lead Engine / Sales OS / E-Commerce OS / Personal Agent /
+Business OS / Command Center / Lead Engine / Sales OS / E-Commerce OS /
 Automation Audit (€1.199, einmalig) / Website+CRM / Database System / Content Engine /
 HUD Command Center (TG-Bot + Dashboard) / Script Factory
 
 Preisrahmen DFY: Setup €2.500-8.000 einmalig, Begleitung €700-2.500/Mo.
+
+## Full-Partnerschaft (Audit-getrieben, NICHT im Shop kaufbar)
+Wer ein eigenes Personal-Dashboard + Personal-AI-Agent will und langfristig wachsen
+will → muss das AEVUM-Audit machen (/audit). Dort wird geprüft ob Match passt,
+dann gibt's Auto-Plan + Pflicht-Call. Personal-Agent ist exklusiv für diese Klasse.
+
+## SaaS gegen Credits (Self-Service, in Aufbau)
+Tools die ohne Kauf nutzbar sind, abgerechnet pro Use via Credit-System.
+Start: Script-Factory (E-Commerce Ad-Scripts). Geplant: DSGVO-Factory.
 
 # VORQUALIFIZIERUNG-FLOW
 

@@ -22,6 +22,7 @@ import { botRouter } from './routes/bot.js';
 import { creditsRouter } from './routes/credits.js';
 import { shopTrackingRouter } from './routes/shop-tracking.js';
 import { dashboardStatsRouter } from './routes/dashboard-stats.js';
+import { customerLeadsRouter } from './routes/customer-leads.js';
 import { anonymizeIp } from './lib/security.js';
 
 const app = express();
@@ -156,24 +157,15 @@ const auditUploadLimiter = rateLimit({
   skip: (req) => req.method !== 'POST' || req.path !== '/upload-file'
 });
 
-// DSGVO self-service limiter — 5 requests / 10 min / IP for export/erase/withdraw
-const dsgvoLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000,
-  max: 5,
-  standardHeaders: 'draft-7',
-  legacyHeaders: false,
-  keyGenerator: clientIpKey,
-  message: {
-    ok: false,
-    error: 'rate_limit_dsgvo',
-    hint: 'Maximal 5 DSGVO-Anfragen pro 10 Minuten. Bei dringendem Anliegen: dsgvo@aevum-system.de'
-  },
-  skip: (req) => {
-    if (req.method !== 'POST') return true;
-    const p = req.path;
-    return !(p === '/export' || p === '/erase' || p === '/withdraw-consent');
-  }
-});
+// DSGVO self-service limiter — central definition in lib/dsgvo-limiter.js (CR-02 SSOT).
+// Wrapped here mit path-skip damit nur POST /export, /erase, /withdraw-consent gelimitet werden.
+import { dsgvoLimiter as baseDsgvoLimiter } from './lib/dsgvo-limiter.js';
+const dsgvoLimiter = (req, res, next) => {
+  if (req.method !== 'POST') return next();
+  const p = req.path;
+  if (!(p === '/export' || p === '/erase' || p === '/withdraw-consent')) return next();
+  return baseDsgvoLimiter(req, res, next);
+};
 
 // Routes
 app.get('/api/health', (_req, res) => {
@@ -189,6 +181,9 @@ app.use('/api/checkout', checkoutRouter);
 app.use('/api/accounts', accountsRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/blueprints', blueprintsRouter);
+
+// AEVUM v2 — Customer-Lead-Storage (Public Intake + Admin Read)
+app.use('/api/leads', customerLeadsRouter);
 
 // AEVUM v2 — Customer-Portal auth + self-service (Block D)
 app.use('/api/auth', authRouter);
