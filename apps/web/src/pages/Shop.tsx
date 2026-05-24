@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   FileJson,
@@ -21,12 +21,19 @@ import {
   Star,
   Lock,
   X,
+  Sparkles,
+  Wrench,
+  Bot,
+  Database,
+  TrendingUp,
 } from 'lucide-react';
 import { createCheckoutSession } from '@/lib/api';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import { track } from '@/lib/shop-track';
 
 /* ──────────────────────── Types ──────────────────────── */
+
+type ShopTab = 'blueprints' | 'dfy' | 'audit';
 
 type BlueprintCategory = 'Alle' | 'Content' | 'Leads' | 'Reporting' | 'Automatisierung';
 type ServiceCategory =
@@ -55,6 +62,7 @@ interface Blueprint {
 
 interface DFYService {
   id: number;
+  slug: string;
   name: string;
   category: Exclude<ServiceCategory, 'Alle'>;
   icp: ICP[];
@@ -170,6 +178,7 @@ const dfyServices: DFYService[] = [
   // Konsolidierte 5 Kern-Services
   {
     id: 1,
+    slug: 'aevum-business-os',
     name: 'AEVUM Business OS',
     category: 'Infrastruktur',
     icp: ['FI', 'AG', 'PB'],
@@ -181,6 +190,7 @@ const dfyServices: DFYService[] = [
   },
   {
     id: 2,
+    slug: 'aevum-command-center',
     name: 'AEVUM Command Center',
     category: 'Reporting',
     icp: ['FI', 'AG', 'PB'],
@@ -191,6 +201,7 @@ const dfyServices: DFYService[] = [
   },
   {
     id: 3,
+    slug: 'aevum-lead-engine',
     name: 'AEVUM Lead-Engine',
     category: 'Leads',
     icp: ['AG', 'FI'],
@@ -201,6 +212,7 @@ const dfyServices: DFYService[] = [
   },
   {
     id: 4,
+    slug: 'aevum-content-engine',
     name: 'AEVUM Content-Engine',
     category: 'Content',
     icp: ['PB', 'AG'],
@@ -211,6 +223,7 @@ const dfyServices: DFYService[] = [
   },
   {
     id: 5,
+    slug: 'aevum-audit',
     name: 'AEVUM Audit',
     category: 'Analyse',
     icp: ['AG', 'PB', 'FI'],
@@ -223,6 +236,7 @@ const dfyServices: DFYService[] = [
   // Industry-Specific (bleiben separat)
   {
     id: 6,
+    slug: 'ecommerce-os',
     name: 'E-Commerce OS',
     category: 'E-Commerce',
     icp: ['FI', 'PB'],
@@ -233,6 +247,7 @@ const dfyServices: DFYService[] = [
   },
   {
     id: 7,
+    slug: 'script-factory-dfy',
     name: 'Script Factory',
     category: 'Content',
     icp: ['AG', 'PB'],
@@ -352,6 +367,25 @@ function IncludesIcon({ text }: { text: string }) {
   return <FileText size={13} className="text-[#e0a458] flex-shrink-0 mt-0.5" />;
 }
 
+/* ──────────────────────── Tab-Routing (URL ?tab=X) ──────────────────────── */
+
+function parseTabFromHash(): ShopTab {
+  const hash = window.location.hash || '';
+  const m = hash.match(/[?&]tab=([a-z]+)/i);
+  const v = m?.[1]?.toLowerCase();
+  if (v === 'dfy' || v === 'audit' || v === 'blueprints') return v;
+  return 'blueprints';
+}
+
+function setTabInHash(tab: ShopTab) {
+  const baseHash = '#/shop';
+  if (tab === 'blueprints') {
+    window.history.replaceState(null, '', baseHash);
+  } else {
+    window.history.replaceState(null, '', `${baseHash}?tab=${tab}`);
+  }
+}
+
 /* ──────────────────────── Hero ──────────────────────── */
 
 function HeroStrip() {
@@ -380,9 +414,66 @@ function HeroStrip() {
         transition={{ duration: 0.65, delay: 0.18 }}
         className="text-base text-[#a4a4ad] max-w-2xl mx-auto"
       >
-        Blueprints zum Selbst-Implementieren oder Done-For-You Services — wir bauen es komplett für dich.
+        Blueprints zum Selbst-Implementieren · Done-For-You Services · Full-Audit-Partnerschaft.
       </motion.p>
     </section>
+  );
+}
+
+/* ──────────────────────── Tab Bar ──────────────────────── */
+
+function TabBar({ active, onChange }: { active: ShopTab; onChange: (t: ShopTab) => void }) {
+  const tabs: { id: ShopTab; label: string; sub: string; icon: typeof Package }[] = [
+    { id: 'blueprints', label: 'Blueprints', sub: 'Direkt kaufen', icon: Download },
+    { id: 'dfy', label: 'Done-For-You', sub: 'Wir bauen für dich', icon: Wrench },
+    { id: 'audit', label: 'Full-Audit', sub: 'Premium-Partnerschaft', icon: Star },
+  ];
+
+  return (
+    <div className="px-6 lg:px-16 sticky top-[68px] z-30 bg-[#08080a]/85 backdrop-blur-md border-b border-white/5">
+      <div className="max-w-[1440px] mx-auto">
+        <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 py-3 overflow-x-auto">
+          {tabs.map((t) => {
+            const isActive = active === t.id;
+            const Icon = t.icon;
+            return (
+              <button
+                key={t.id}
+                onClick={() => onChange(t.id)}
+                className={`flex-1 sm:flex-none min-w-[180px] text-left px-5 py-3 rounded-lg border transition-all group ${
+                  isActive
+                    ? 'bg-[#e0a458]/10 border-[#e0a458]/40 text-[#F9FAFB]'
+                    : 'bg-transparent border-white/8 text-[#a4a4ad] hover:border-[#e0a458]/25 hover:text-[#F9FAFB]'
+                }`}
+                aria-pressed={isActive}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-9 h-9 rounded-md flex items-center justify-center flex-shrink-0 transition-colors ${
+                      isActive
+                        ? 'bg-[#e0a458] text-[#08080a]'
+                        : 'bg-white/5 text-[#7a7a85] group-hover:text-[#e0a458]'
+                    }`}
+                  >
+                    <Icon size={16} />
+                  </div>
+                  <div>
+                    <span className="block text-sm font-medium leading-tight">{t.label}</span>
+                    <span
+                      className={`block text-[11px] font-mono uppercase tracking-wider mt-0.5 ${
+                        isActive ? 'text-[#e0a458]' : 'text-[#7a7a85]'
+                      }`}
+                    >
+                      {t.sub}
+                    </span>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -402,7 +493,6 @@ function CreditIncentiveBanner() {
       className="mx-6 lg:mx-16 mb-10 max-w-[1440px] xl:mx-auto relative"
     >
       <div className="border border-[#e0a458]/40 bg-[#e0a458]/5 px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
-        {/* dismiss */}
         <button
           onClick={() => setDismissed(true)}
           className="absolute top-3 right-3 text-[#7a7a85] hover:text-[#F9FAFB] transition-colors"
@@ -431,12 +521,6 @@ function CreditIncentiveBanner() {
             <UserPlus size={13} />
             Account erstellen — kostenlos
           </a>
-          <a
-            href="#ecosystem"
-            className="text-xs text-[#a4a4ad] hover:text-[#e0a458] transition-colors whitespace-nowrap"
-          >
-            Mehr erfahren
-          </a>
         </div>
       </div>
     </motion.div>
@@ -452,7 +536,6 @@ function useBuyBlueprint() {
   const buy = async (blueprint: Blueprint, withAccount = false) => {
     setError(null);
     setLoading(blueprint.id);
-    // Fire BEFORE redirecting — keepalive ensures it survives unload
     track('checkout_start', {
       package_tier: blueprint.slug,
       value_cents: Math.round(blueprint.price * 100),
@@ -460,7 +543,6 @@ function useBuyBlueprint() {
     });
     try {
       if (withAccount) {
-        // Redirect to register with intent param, come back to checkout after login
         window.location.href = `/#/register?intent=checkout&blueprint=${blueprint.slug}`;
         return;
       }
@@ -542,9 +624,13 @@ function BlueprintCard({
         </span>
       )}
 
-      <div className="mb-5">
+      <a
+        href={`/#/shop/blueprint/${blueprint.slug}`}
+        className="block mb-5 group/title"
+        aria-label={`${blueprint.name} — Details`}
+      >
         <div className="flex items-start justify-between gap-3 mb-3">
-          <h3 className="text-lg font-medium tracking-tight text-[#F9FAFB] leading-tight pr-12">
+          <h3 className="text-lg font-medium tracking-tight text-[#F9FAFB] leading-tight pr-12 group-hover/title:text-[#e0a458] transition-colors">
             {blueprint.name}
           </h3>
         </div>
@@ -554,7 +640,7 @@ function BlueprintCard({
             {blueprint.category}
           </span>
         </div>
-      </div>
+      </a>
 
       <p
         className="text-sm text-[#a4a4ad] leading-relaxed mb-5 flex-1"
@@ -570,20 +656,17 @@ function BlueprintCard({
         ))}
       </ul>
 
-      {/* Price row */}
       <div className="mb-5">
         <div className="flex items-baseline gap-2">
           <span className="text-2xl font-light text-[#F9FAFB]">
             &euro;{blueprint.price}
           </span>
         </div>
-        {/* Credit hint */}
         <span className="text-xs text-[#e0a458]/70 font-mono mt-0.5 block">
           +{credits.toLocaleString('de-DE')} Credits mit Account
         </span>
       </div>
 
-      {/* Dual CTA */}
       <div className="flex flex-col gap-2 mt-auto">
         <button
           onClick={() => onBuy(blueprint, false)}
@@ -602,15 +685,13 @@ function BlueprintCard({
             </>
           )}
         </button>
-        <button
-          onClick={() => onBuy(blueprint, true)}
-          disabled={isLoading}
-          className="inline-flex items-center justify-center gap-2 text-xs font-medium text-[#a4a4ad] border border-white/10 px-5 py-2 hover:border-[#e0a458]/40 hover:text-[#e0a458] transition-all disabled:opacity-50"
+        <a
+          href={`/#/shop/blueprint/${blueprint.slug}`}
+          className="inline-flex items-center justify-center gap-2 text-xs font-medium text-[#a4a4ad] border border-white/10 px-5 py-2 hover:border-[#e0a458]/40 hover:text-[#e0a458] transition-all"
         >
-          <UserPlus size={12} />
-          Mit Account kaufen
-          <span className="ml-auto text-[#e0a458]/60 font-mono">+{credits.toLocaleString('de-DE')} Credits</span>
-        </button>
+          Details ansehen
+          <ArrowRight size={11} />
+        </a>
       </div>
     </motion.div>
   );
@@ -628,12 +709,10 @@ function BlueprintsSection() {
       : blueprints.filter((b) => b.category === activeCategory);
 
   return (
-    <section className="px-6 lg:px-16 pb-24" ref={ref}>
+    <section className="px-6 lg:px-16 pb-24 pt-10" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
-        {/* Credit Banner */}
         <CreditIncentiveBanner />
 
-        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -642,13 +721,13 @@ function BlueprintsSection() {
         >
           <div className="flex items-center gap-4 mb-3">
             <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458]">
-              01 — Blueprints
+              Blueprints · Direkt-Kauf
             </span>
             <div className="h-px flex-1 bg-white/8 max-w-xs" />
           </div>
           <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-2">
-            Digitale Produkte.{' '}
-            <span className="text-gradient font-medium">Sofort downloadbar.</span>
+            Sofort downloadbar.{' '}
+            <span className="text-gradient font-medium">Mit oder ohne Account.</span>
           </h2>
           <p className="text-sm text-[#7a7a85] max-w-lg">
             Fertige n8n-Workflows mit Setup-Guide. Kaufen, herunterladen, in 30 Minuten live. Kein Retainer, kein Abo.
@@ -657,7 +736,6 @@ function BlueprintsSection() {
 
         <BlueprintFilterBar active={activeCategory} onChange={setActiveCategory} />
 
-        {/* Checkout error */}
         {buyError && (
           <div className="mb-6 border border-rose-400/30 bg-rose-400/5 px-5 py-3 text-sm text-rose-400 font-mono">
             {buyError}
@@ -740,118 +818,92 @@ function BlueprintsSection() {
                 <ShoppingCart size={14} />
                 Bundle kaufen
               </button>
-              <button
-                onClick={() =>
-                  buy(
-                    {
-                      id: 99,
-                      slug: 'bundle-all',
-                      name: 'Blueprint Bundle',
-                      category: 'Content',
-                      security: 'business',
-                      description: '',
-                      includes: [],
-                      price: BUNDLE_PRICE,
-                      stripePriceId: BUNDLE_STRIPE_PRICE_ID,
-                    },
-                    true
-                  )
-                }
+              <a
+                href="/#/shop/bundle/bundle-all"
                 className="inline-flex items-center justify-center gap-2 text-xs text-[#a4a4ad] border border-white/10 px-5 py-2 hover:border-[#e0a458]/40 hover:text-[#e0a458] transition-all"
               >
-                <UserPlus size={12} />
-                Mit Account — +{(BUNDLE_PRICE * 10).toLocaleString('de-DE')} Credits
-              </button>
+                Details ansehen
+                <ArrowRight size={11} />
+              </a>
             </div>
           </div>
         </motion.div>
+
+        {/* How-It-Works Mini-Strip */}
+        <HowItWorksStrip />
       </div>
     </section>
   );
 }
 
-/* ──────────────────────── Ecosystem Section ──────────────────────── */
+/* ──────────────────────── How It Works (Blueprints) ──────────────────────── */
 
-function EcosystemSection() {
+function HowItWorksStrip() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
-  const pillars = [
+  const steps = [
     {
-      icon: CreditCard,
-      title: 'Stempelkarte',
-      desc: '5 Blueprints kaufen, 1 gratis kriegen. Wird automatisch gezählt — kein Coupon nötig.',
+      icon: Package,
+      label: '01',
+      title: 'Kaufen',
+      desc: 'Zahle einmalig. Direkt-Download, kein Abo, kein Lock-in.',
+    },
+    {
+      icon: Download,
+      label: '02',
+      title: 'Herunterladen',
+      desc: 'ZIP mit n8n-JSON, PDF-Guide und allen Assets — sofort nutzbar.',
     },
     {
       icon: Zap,
-      title: 'Credits',
-      desc: '10 Credits pro €1. Einlösbar gegen Workflow-Demos, Tool-Zugang und exklusive Templates.',
-    },
-    {
-      icon: Lock,
-      title: 'Frühbucher',
-      desc: 'Neue Blueprints 20% günstiger für bestehende Kunden mit Account. Automatisch, dauerhaft.',
+      label: '03',
+      title: 'In 30 Min live',
+      desc: 'Importiere den Workflow, folge dem Setup-Guide, fertig.',
     },
   ];
 
   return (
-    <section id="ecosystem" className="px-6 lg:px-16 py-20 bg-[#0c0c10]" ref={ref}>
-      <div className="max-w-[1440px] mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-12"
-        >
-          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-3 block">
-            Das AEVUM Ecosystem
-          </span>
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3">
-            Mehr Wert bei jedem{' '}
-            <span className="text-gradient font-medium">Kauf</span>
-          </h2>
-          <p className="text-sm text-[#7a7a85] max-w-xl mx-auto">
-            Ohne Account: kaufen &amp; herunterladen funktioniert. Credits und Stempelkarte gibt es nur für registrierte Kunden.
-          </p>
-        </motion.div>
+    <div className="mt-20" ref={ref}>
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+        className="text-center mb-10"
+      >
+        <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-3 block">
+          So funktioniert's
+        </span>
+        <h3 className="text-xl md:text-2xl font-light tracking-tight">
+          Kauf → Download →{' '}
+          <span className="text-gradient font-medium">Live</span>
+        </h3>
+      </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          {pillars.map((p, i) => (
-            <motion.div
-              key={p.title}
-              custom={i}
-              variants={fadeUp}
-              initial="hidden"
-              animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#111116] border border-white/10 p-8 flex flex-col gap-4 hover:border-[#e0a458]/30 transition-all"
-            >
-              <div className="w-11 h-11 rounded-lg bg-[#e0a458]/10 flex items-center justify-center flex-shrink-0">
-                <p.icon size={20} className="text-[#e0a458]" />
-              </div>
-              <div>
-                <h3 className="text-base font-medium text-[#F9FAFB] mb-1.5">{p.title}</h3>
-                <p className="text-sm text-[#a4a4ad] leading-relaxed">{p.desc}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-center"
-        >
-          <a
-            href="/#/register"
-            className="inline-flex items-center gap-2 text-sm font-medium bg-[#e0a458] text-[#08080a] px-7 py-3 hover:bg-[#f0b468] transition-colors"
+      <div className="flex flex-col md:flex-row gap-6">
+        {steps.map((step, i) => (
+          <motion.div
+            key={step.title}
+            custom={i}
+            variants={fadeUp}
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
+            className="flex-1 bg-[#0c0c10] border border-white/8 p-7 flex flex-col"
           >
-            <UserPlus size={15} />
-            Kostenlosen Account erstellen
-          </a>
-        </motion.div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-[#e0a458]/10 flex items-center justify-center">
+                <step.icon size={18} className="text-[#e0a458]" />
+              </div>
+              <span className="font-mono text-xs text-[#7a7a85] uppercase tracking-wider">
+                {step.label}
+              </span>
+            </div>
+            <h4 className="text-base font-medium text-[#F9FAFB] mb-2">{step.title}</h4>
+            <p className="text-sm text-[#a4a4ad] leading-relaxed">{step.desc}</p>
+          </motion.div>
+        ))}
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -897,16 +949,17 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
       animate={isInView ? 'visible' : 'hidden'}
       className="relative bg-[#111116] border border-white/10 p-7 flex flex-col hover:border-[#e0a458]/35 transition-all group"
     >
-      {/* Tag */}
       {service.tag && (
         <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-[#e0a458] bg-[#e0a458]/10 border border-[#e0a458]/20 px-2 py-0.5">
           {service.tag}
         </span>
       )}
 
-      {/* Header */}
-      <div className="mb-4">
-        <h3 className="text-lg font-medium tracking-tight text-[#F9FAFB] leading-tight mb-3 pr-16">
+      <a
+        href={`/#/shop/dfy/${service.slug}`}
+        className="block mb-4 group/title"
+      >
+        <h3 className="text-lg font-medium tracking-tight text-[#F9FAFB] leading-tight mb-3 pr-16 group-hover/title:text-[#e0a458] transition-colors">
           {service.name}
         </h3>
         <div className="flex items-center gap-2 flex-wrap">
@@ -915,14 +968,12 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
             <ICPBadge key={i} icp={i} />
           ))}
         </div>
-      </div>
+      </a>
 
-      {/* Description */}
       <p className="text-sm text-[#a4a4ad] leading-relaxed mb-5 flex-1">
         {service.description}
       </p>
 
-      {/* Price */}
       <div className="mb-5">
         <span className="block text-base font-medium text-[#F9FAFB]">
           {service.priceLabel}
@@ -932,14 +983,22 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
         </span>
       </div>
 
-      {/* CTA — audit only, no direct Stripe */}
-      <a
-        href="/#/audit"
-        className="mt-auto inline-flex items-center justify-center gap-2 text-sm font-medium text-[#e0a458] border border-[#e0a458]/30 px-5 py-2.5 hover:bg-[#e0a458]/8 transition-all"
-      >
-        Kostenlosen Audit buchen
-        <ArrowRight size={13} />
-      </a>
+      <div className="flex flex-col gap-2 mt-auto">
+        <a
+          href={`/#/audit?service=${service.slug}`}
+          className="inline-flex items-center justify-center gap-2 text-sm font-medium text-[#08080a] bg-[#e0a458] hover:bg-[#f0b468] px-5 py-2.5 transition-all"
+        >
+          Anfrage via Audit
+          <ArrowRight size={13} />
+        </a>
+        <a
+          href={`/#/shop/dfy/${service.slug}`}
+          className="inline-flex items-center justify-center gap-2 text-xs font-medium text-[#a4a4ad] border border-white/10 px-5 py-2 hover:border-[#e0a458]/40 hover:text-[#e0a458] transition-all"
+        >
+          Details ansehen
+          <ArrowRight size={11} />
+        </a>
+      </div>
     </motion.div>
   );
 }
@@ -1001,9 +1060,8 @@ function DFYSection() {
       : dfyServices.filter((s) => s.category === activeCategory);
 
   return (
-    <section className="px-6 lg:px-16 pb-24 bg-[#0a0a0e]" ref={ref}>
-      <div className="max-w-[1440px] mx-auto pt-20">
-        {/* Section Header */}
+    <section className="px-6 lg:px-16 pb-24 pt-10" ref={ref}>
+      <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -1012,7 +1070,7 @@ function DFYSection() {
         >
           <div className="flex items-center gap-4 mb-3">
             <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458]">
-              02 — Done-For-You Services
+              Done-For-You · Custom-Builds
             </span>
             <div className="h-px flex-1 bg-white/8 max-w-xs" />
           </div>
@@ -1021,7 +1079,7 @@ function DFYSection() {
             <span className="text-gradient font-medium">Du fokussierst dich aufs Business.</span>
           </h2>
           <p className="text-sm text-[#7a7a85] max-w-lg">
-            Custom entwickelt, vollständig integriert, übergabebereit. Kein Template — dein System.
+            Custom entwickelt, vollständig integriert, übergabebereit. Kein Template — dein System. Anfrage läuft über das kostenlose Audit-Gespräch.
           </p>
         </motion.div>
 
@@ -1039,7 +1097,6 @@ function DFYSection() {
           </p>
         )}
 
-        {/* Bottom CTA */}
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -1052,14 +1109,14 @@ function DFYSection() {
               Nicht sicher welcher Service passt?
             </h3>
             <p className="text-sm text-[#7a7a85] max-w-md">
-              Im Automation Audit analysieren wir dein Business in 48h und zeigen dir die Top-3 Quick-Wins — konkret, priorisiert, umsetzbar.
+              Im kostenlosen Audit analysieren wir dein Business in 48h und zeigen dir die Top-3 Quick-Wins — konkret, priorisiert, umsetzbar.
             </p>
           </div>
           <a
             href="/#/audit"
             className="btn-primary px-8 py-3 text-base inline-flex items-center whitespace-nowrap flex-shrink-0"
           >
-            Automation Audit buchen
+            Kostenloses Audit buchen
             <ArrowRight size={16} className="ml-2" />
           </a>
         </motion.div>
@@ -1068,151 +1125,214 @@ function DFYSection() {
   );
 }
 
-/* ──────────────────────── How It Works (Blueprints) ──────────────────────── */
+/* ──────────────────────── Audit Featured Section ──────────────────────── */
 
-function HowItWorksStrip() {
+function AuditFeaturedSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
-  const steps = [
+  const benefits = [
     {
-      icon: Package,
-      label: '01',
-      title: 'Kaufen',
-      desc: 'Zahle einmalig. Direkt-Download, kein Abo, kein Lock-in.',
+      icon: Bot,
+      title: 'Personal AI-Agent',
+      desc: 'Eigener Lennox-Agent, auf dein Business trainiert. 24/7 erreichbar via Web + Telegram.',
     },
     {
-      icon: Download,
-      label: '02',
-      title: 'Herunterladen',
-      desc: 'ZIP mit n8n-JSON, PDF-Guide und allen Assets &mdash; sofort nutzbar.',
+      icon: Database,
+      title: 'Eigenes Customer-Dashboard',
+      desc: 'Live-KPIs, Reports, Workflows. Single-Source-of-Truth statt Tool-Wildwuchs.',
     },
     {
-      icon: Zap,
-      label: '03',
-      title: 'In 30 Min live',
-      desc: 'Importiere den Workflow, folge dem Setup-Guide, fertig.',
+      icon: Sparkles,
+      title: 'SaaS-Free-Kontingent',
+      desc: '500 Credits/Monat für alle AEVUM-Tools inklusive. Script-Factory, DSGVO-Factory, mehr.',
+    },
+    {
+      icon: TrendingUp,
+      title: 'Longterm-Partnership mit ROI',
+      desc: 'Monatliche Optimierung, messbare KPI-Impacts, transparente Reports. Du wächst, wir mit.',
+    },
+    {
+      icon: Star,
+      title: 'Audit + Auto-Plan in 48h',
+      desc: 'Kostenloses Erstaudit: Top-3 Quick-Wins + Long-Term-Roadmap. PDF zum Mitnehmen, kein Push.',
     },
   ];
 
   return (
-    <section className="px-6 lg:px-16 py-20 bg-[#0c0c10]" ref={ref}>
-      <div className="max-w-[1440px] mx-auto">
+    <section className="px-6 lg:px-16 pb-24 pt-10" ref={ref}>
+      <div className="max-w-[1100px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-12"
+          className="mb-10"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-3 block">
-            So funktioniert's — Blueprints
-          </span>
-          <h2 className="text-2xl md:text-4xl font-light tracking-tight">
-            Kauf &rarr; Download &rarr;{' '}
-            <span className="text-gradient font-medium">Live</span>
-          </h2>
+          <div className="flex items-center gap-4 mb-3">
+            <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458]">
+              Full-Audit · Premium-Partnerschaft
+            </span>
+            <div className="h-px flex-1 bg-white/8 max-w-xs" />
+          </div>
         </motion.div>
 
-        <div className="flex flex-col md:flex-row gap-6">
-          {steps.map((step, i) => (
-            <motion.div
-              key={step.title}
-              custom={i}
-              variants={fadeUp}
-              initial="hidden"
-              animate={isInView ? 'visible' : 'hidden'}
-              className="flex-1 bg-[#111116] border border-white/10 p-8 flex flex-col"
-            >
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-lg bg-[#e0a458]/10 flex items-center justify-center">
-                  <step.icon size={20} className="text-[#e0a458]" />
-                </div>
-                <span className="font-mono text-xs text-[#7a7a85] uppercase tracking-wider">
-                  {step.label}
-                </span>
-              </div>
-              <h3 className="text-lg font-medium text-[#F9FAFB] mb-2">{step.title}</h3>
-              <p
-                className="text-sm text-[#a4a4ad] leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: step.desc }}
-              />
-            </motion.div>
+        {/* Featured Hero Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+          className="relative bg-gradient-to-br from-[#111116] via-[#0e0e13] to-[#0a0a0e] border border-[#e0a458]/30 p-8 md:p-14 overflow-hidden"
+        >
+          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#e0a458]/8 blur-[120px] pointer-events-none" />
+          <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-[#e0a458]/5 blur-[140px] pointer-events-none" />
+
+          <div className="relative">
+            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-[#e0a458] bg-[#e0a458]/10 border border-[#e0a458]/25 px-3 py-1 rounded-full mb-6">
+              <Star size={11} />
+              Featured · Maximale Wirkung
+            </span>
+
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight leading-[1.1] mb-4 max-w-3xl">
+              AEVUM{' '}
+              <span className="text-gradient font-medium">Full-Partnership</span>
+            </h2>
+            <p className="text-base md:text-lg text-[#a4a4ad] max-w-2xl leading-relaxed mb-10">
+              Maßgeschneidertes System mit Personal-Agent. Für Founder die Tool-Wildwuchs hinter sich
+              lassen und ein verbundenes Operating-System wollen — gebaut, betrieben, monatlich
+              optimiert.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
+              {benefits.map((b, i) => (
+                <motion.div
+                  key={b.title}
+                  custom={i}
+                  variants={fadeUp}
+                  initial="hidden"
+                  animate={isInView ? 'visible' : 'hidden'}
+                  className="flex items-start gap-4"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-[#e0a458]/10 border border-[#e0a458]/20 flex items-center justify-center flex-shrink-0">
+                    <b.icon size={18} className="text-[#e0a458]" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-medium text-[#F9FAFB] mb-1">{b.title}</h3>
+                    <p className="text-sm text-[#a4a4ad] leading-relaxed">{b.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+              <a
+                href="/#/audit"
+                className="btn-primary px-8 py-3.5 text-base inline-flex items-center justify-center gap-2 whitespace-nowrap"
+              >
+                <Star size={15} />
+                Kostenloses Audit starten
+                <ArrowRight size={15} />
+              </a>
+              <a
+                href="/#/audit#vergleich"
+                className="inline-flex items-center justify-center gap-2 text-sm font-medium text-[#e0a458] border border-[#e0a458]/30 px-7 py-3.5 hover:bg-[#e0a458]/8 transition-all"
+              >
+                Erst Vergleich anschauen
+              </a>
+            </div>
+
+            <p className="text-xs text-[#7a7a85] font-mono mt-6">
+              Keine Kreditkarte · Kein Verkaufsdruck · Audit + Auto-Plan-PDF in 48h
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Vertrauens-Strip */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4"
+        >
+          {[
+            { label: 'Setup-Phase', value: '4-8 Wochen' },
+            { label: 'Mindestlaufzeit', value: '3 Monate' },
+            { label: 'Daten-Hoheit', value: 'Bleibt bei dir' },
+          ].map((t) => (
+            <div key={t.label} className="bg-[#0c0c10] border border-white/8 px-5 py-4">
+              <span className="block font-mono text-[10px] uppercase tracking-widest text-[#7a7a85] mb-1">
+                {t.label}
+              </span>
+              <span className="block text-base font-medium text-[#F9FAFB]">{t.value}</span>
+            </div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
 }
 
-/* ──────────────────────── Security Legend ──────────────────────── */
+/* ──────────────────────── Ecosystem Section ──────────────────────── */
 
-function SecurityLegend() {
+function EcosystemSection() {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-60px' });
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
 
-  const levels = [
+  const pillars = [
     {
-      level: 'basic' as SecurityLevel,
-      title: 'Basic',
-      target: 'Solo / Hobby',
-      features: ['HTTPS', 'Passwort-Schutz', 'Basis-Setup'],
+      icon: CreditCard,
+      title: 'Stempelkarte',
+      desc: '5 Blueprints kaufen, 1 gratis kriegen. Wird automatisch gezählt — kein Coupon nötig.',
     },
     {
-      level: 'business' as SecurityLevel,
-      title: 'Business',
-      target: 'KMU',
-      features: ['Verschl&uuml;sselung', 'Access Control', 'Backup-Logik'],
+      icon: Zap,
+      title: 'Credits',
+      desc: '10 Credits pro €1. Einlösbar gegen Workflow-Demos, Tool-Zugang und exklusive Templates.',
     },
     {
-      level: 'dsgvo' as SecurityLevel,
-      title: 'DSGVO',
-      target: 'Unternehmen',
-      features: ['EU-Hosting', 'DPA-ready', 'Audit-Log + Erasure-API'],
+      icon: Lock,
+      title: 'Frühbucher',
+      desc: 'Neue Blueprints 20% günstiger für bestehende Kunden mit Account. Automatisch, dauerhaft.',
     },
   ];
 
   return (
-    <section className="px-6 lg:px-16 py-16" ref={ref}>
+    <section id="ecosystem" className="px-6 lg:px-16 py-16 bg-[#0c0c10]" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
           className="text-center mb-10"
         >
           <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-3 block">
-            Security-Stufen
+            Das AEVUM Ecosystem
           </span>
-          <h2 className="text-xl md:text-2xl font-light tracking-tight text-[#F9FAFB]">
-            Qualit&auml;t nach Anforderung
+          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3">
+            Mehr Wert bei jedem{' '}
+            <span className="text-gradient font-medium">Kauf</span>
           </h2>
+          <p className="text-sm text-[#7a7a85] max-w-xl mx-auto">
+            Ohne Account: kaufen &amp; herunterladen funktioniert. Credits und Stempelkarte gibt es nur für registrierte Kunden.
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {levels.map((l, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {pillars.map((p, i) => (
             <motion.div
-              key={l.level}
+              key={p.title}
               custom={i}
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#111116] border border-white/8 p-6 flex flex-col gap-3"
+              className="bg-[#111116] border border-white/10 p-7 flex flex-col gap-4 hover:border-[#e0a458]/30 transition-all"
             >
-              <div className="flex items-center justify-between">
-                <SecurityBadge level={l.level} />
-                <span className="text-xs text-[#7a7a85]">{l.target}</span>
+              <div className="w-11 h-11 rounded-lg bg-[#e0a458]/10 flex items-center justify-center flex-shrink-0">
+                <p.icon size={20} className="text-[#e0a458]" />
               </div>
-              <ul className="space-y-1.5 mt-1">
-                {l.features.map((f) => (
-                  <li
-                    key={f}
-                    className="flex items-center gap-2 text-xs text-[#a4a4ad]"
-                  >
-                    <span className="w-1 h-1 rounded-full bg-[#e0a458] flex-shrink-0" />
-                    <span dangerouslySetInnerHTML={{ __html: f }} />
-                  </li>
-                ))}
-              </ul>
+              <div>
+                <h3 className="text-base font-medium text-[#F9FAFB] mb-1.5">{p.title}</h3>
+                <p className="text-sm text-[#a4a4ad] leading-relaxed">{p.desc}</p>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -1225,18 +1345,42 @@ function SecurityLegend() {
 
 export default function Shop() {
   usePageSeo({
-    title: 'Shop — Blueprints, DFY-Pakete und SaaS-Lösungen | AEVUM',
-    description: 'Sofort einsetzbare KI-Workflows als Blueprint, fertige Done-for-You-Pakete und SaaS-Lösungen. Transparente Preise, sichere Stripe-Bezahlung.',
+    title: 'Shop — Blueprints, Done-For-You, Full-Audit | AEVUM',
+    description:
+      'AEVUM Shop in drei Bereichen: Blueprints zum Direkt-Kauf, Done-For-You Custom-Builds, Full-Audit-Partnerschaft. Transparent, modular, sofort.',
     path: '/shop',
   });
+
+  const [tab, setTab] = useState<ShopTab>(() => parseTabFromHash());
+
+  // React to URL-changes (deep-links, browser-nav)
+  useEffect(() => {
+    const handler = () => setTab(parseTabFromHash());
+    window.addEventListener('hashchange', handler);
+    return () => window.removeEventListener('hashchange', handler);
+  }, []);
+
+  const changeTab = (t: ShopTab) => {
+    setTab(t);
+    setTabInHash(t);
+    track('shop_tab_switch', { meta: { tab: t } });
+    // Smooth-scroll to content (below sticky tab-bar)
+    window.scrollTo({ top: 220, behavior: 'smooth' });
+  };
+
   return (
     <div className="bg-[#08080a] min-h-screen">
       <HeroStrip />
-      <BlueprintsSection />
-      <EcosystemSection />
-      <HowItWorksStrip />
-      <SecurityLegend />
-      <DFYSection />
+      <TabBar active={tab} onChange={changeTab} />
+
+      {tab === 'blueprints' && (
+        <>
+          <BlueprintsSection />
+          <EcosystemSection />
+        </>
+      )}
+      {tab === 'dfy' && <DFYSection />}
+      {tab === 'audit' && <AuditFeaturedSection />}
     </div>
   );
 }

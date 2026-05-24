@@ -47,3 +47,29 @@ export async function createCheckoutSession(
     body: JSON.stringify(params),
   });
 }
+
+/* ──────────────────────── SaaS Credit-Purchase (Self-Service Signup) ──────────────────────── */
+
+export interface CreditPurchaseParams {
+  email: string;
+  name?: string;
+  package_slug: 'starter' | 'growth' | 'pro';
+  tool_slug?: string;
+  source: string;
+  consent?: boolean;
+}
+
+export interface CreditPurchaseResponse {
+  ok: boolean;
+  url: string;
+  error?: string;
+}
+
+export async function createCreditPurchaseSession(
+  params: CreditPurchaseParams
+): Promise<CreditPurchaseResponse> {
+  return api<CreditPurchaseResponse>('/api/checkout/credit-purchase', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+}
