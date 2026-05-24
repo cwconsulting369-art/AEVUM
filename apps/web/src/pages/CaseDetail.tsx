@@ -450,7 +450,7 @@ function StackModal({ cardKey, onClose }: { cardKey: string | null; onClose: () 
           </p>
           <div className="flex flex-col sm:flex-row gap-2">
             <a
-              href="https://wa.me/4915123456789"
+              href="https://wa.me/491772288372?text=Hi%20Carlos%2C%20Frage%20zu%20diesem%20AEVUM-Case."
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 text-xs font-mono text-[#e0a458] hover:text-[#f5c481] border border-[#e0a458]/30 hover:border-[#e0a458]/60 px-4 py-2.5 rounded transition-colors flex-1"
@@ -459,11 +459,11 @@ function StackModal({ cardKey, onClose }: { cardKey: string | null; onClose: () 
               WhatsApp Carlos
             </a>
             <a
-              href="mailto:hi@aevum-system.de?subject=Stack-Details%20auf%20Anfrage"
+              href="mailto:info@aevum-system.de?subject=Stack-Details%20auf%20Anfrage"
               className="inline-flex items-center justify-center gap-2 text-xs font-mono text-[#F9FAFB] hover:text-[#e0a458] border border-white/10 hover:border-[#e0a458]/40 px-4 py-2.5 rounded transition-colors flex-1"
             >
               <Mail size={12} />
-              hi@aevum-system.de
+              info@aevum-system.de
             </a>
           </div>
         </div>
