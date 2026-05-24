@@ -16,6 +16,8 @@ import Datenschutz from './pages/Datenschutz';
 import Impressum from './pages/Impressum';
 import AGB from './pages/AGB';
 import Credits from './pages/Credits';
+import ScriptFactoryTool from './pages/tools/ScriptFactoryTool';
+import DsgvoFactoryTool from './pages/tools/DsgvoFactoryTool';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { me, loading } = useAuth();
@@ -30,6 +32,16 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
     );
   }
   if (!me) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
+// Tools sind fuer customer + saas, NICHT fuer shop-User.
+function RequireToolsAccess({ children }: { children: React.ReactNode }) {
+  const { me } = useAuth();
+  if (!me) return null;
+  if (me.account.account_type === 'shop') {
+    return <Navigate to="/dashboard" replace />;
+  }
   return <>{children}</>;
 }
 
@@ -51,6 +63,8 @@ export default function App() {
           <Route path="/projects/:slug" element={<ProjectDetail />} />
           <Route path="/projects/:slug/documents" element={<Documents />} />
           <Route path="/credits" element={<Credits />} />
+          <Route path="/tools/script-factory" element={<RequireToolsAccess><ScriptFactoryTool /></RequireToolsAccess>} />
+          <Route path="/tools/dsgvo-factory" element={<RequireToolsAccess><DsgvoFactoryTool /></RequireToolsAccess>} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
