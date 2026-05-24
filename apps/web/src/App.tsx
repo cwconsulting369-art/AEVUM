@@ -17,6 +17,7 @@ const Widerrufsbelehrung = lazy(() => import('./pages/Widerrufsbelehrung'));
 const CheckoutSuccess = lazy(() => import('./pages/CheckoutSuccess'));
 const CheckoutCancelled = lazy(() => import('./pages/CheckoutCancelled'));
 const Shop = lazy(() => import('./pages/Shop'));
+const ShopItemDetail = lazy(() => import('./components/shop/ShopItemDetail'));
 
 function LoadingFallback() {
   return (
@@ -83,7 +84,11 @@ export default function App() {
     return () => clearTimeout(t);
   }, [mountHelpbot]);
 
-  const Page = routeComponents[route] || Home;
+  // Dynamic Shop-Item-Detail-Routes: /shop/{blueprint|dfy|saas|bundle}/<slug>
+  const shopDetailMatch = route.match(/^\/shop\/(blueprint|dfy|saas|bundle)\/([a-z0-9-]+)$/);
+  const Page = shopDetailMatch
+    ? () => <ShopItemDetail variant={shopDetailMatch[1] as 'blueprint' | 'dfy' | 'saas' | 'bundle'} slug={shopDetailMatch[2]} />
+    : (routeComponents[route] || Home);
   const isHome = route === '/';
 
   return (

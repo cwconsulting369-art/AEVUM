@@ -93,30 +93,68 @@ function detectCtas(text: string): { audit: boolean; call: boolean } {
   };
 }
 
-// ─── Hand-off marker (set by the bot when it recommends the Audit) ──────
-// Format:  <aevum-handoff>{"to":"audit"}</aevum-handoff>
-// We strip the marker from displayed text, surface a prominent CTA, and
-// persist the helpbot_session_id to localStorage so /audit can submit it.
+// ─── Hand-off marker — Wave B4 (3-Varianten Routing) ────────────────────
+// Format:  <aevum-handoff>{"to":"audit|shop|blueprint|saas-waitlist", ...}</aevum-handoff>
+// Marker is ALWAYS stripped from visible bubble. If JSON validates we surface
+// a prominent CTA-Card matching the route.
 const HANDOFF_MARKER_RE = /<aevum-handoff>([\s\S]*?)<\/aevum-handoff>/i;
 const AUDIT_PREFILL_KEY = 'aevum_audit_prefill';
+const API_BASE_URL = API_BASE; // alias for nested components
+
+const VALID_BLUEPRINT_SLUGS = new Set([
+  'content-factory',
+  'lead-qualifier-pro',
+  'reporting-dashboard-setup',
+  'onboarding-autopilot',
+  'newsletter-growth-machine',
+  'cold-outreach-system',
+]);
+const VALID_SAAS_TOOLS = new Set(['script-factory', 'dsgvo-factory', 'lead-factory']);
+const SAAS_TOOL_LABELS: Record<string, string> = {
+  'script-factory': 'Script-Factory',
+  'dsgvo-factory': 'DSGVO-Factory',
+  'lead-factory': 'Lead-Factory',
+};
+const BLUEPRINT_LABELS: Record<string, string> = {
+  'content-factory': 'Content-Factory',
+  'lead-qualifier-pro': 'Lead-Qualifier Pro',
+  'reporting-dashboard-setup': 'Reporting Dashboard',
+  'onboarding-autopilot': 'Onboarding Autopilot',
+  'newsletter-growth-machine': 'Newsletter Growth Machine',
+  'cold-outreach-system': 'Cold Outreach System',
+};
+
+type HandoffAction =
+  | { to: 'audit' }
+  | { to: 'shop' }
+  | { to: 'blueprint'; slug: string }
+  | { to: 'saas-waitlist'; tool: string };
 
 interface HandoffPrefill {
   helpbot_session_id?: string | null;
   saved_at?: string;
 }
 
-function parseHandoff(text: string): { stripped: string; hasHandoff: boolean } {
-  if (typeof text !== 'string' || !text) return { stripped: text || '', hasHandoff: false };
+function parseHandoff(text: string): { stripped: string; action: HandoffAction | null } {
+  if (typeof text !== 'string' || !text) return { stripped: text || '', action: null };
   const match = text.match(HANDOFF_MARKER_RE);
-  if (!match) return { stripped: text, hasHandoff: false };
-  // Validate the JSON-payload roughly. If invalid, still strip the marker but no handoff.
-  let valid = false;
+  if (!match) return { stripped: text, action: null };
+
+  let action: HandoffAction | null = null;
   try {
     const parsed = JSON.parse(match[1].trim() || '{}');
-    valid = parsed && parsed.to === 'audit';
+    if (parsed && typeof parsed === 'object') {
+      if (parsed.to === 'audit') action = { to: 'audit' };
+      else if (parsed.to === 'shop') action = { to: 'shop' };
+      else if (parsed.to === 'blueprint' && typeof parsed.slug === 'string' && VALID_BLUEPRINT_SLUGS.has(parsed.slug)) {
+        action = { to: 'blueprint', slug: parsed.slug };
+      } else if (parsed.to === 'saas-waitlist' && typeof parsed.tool === 'string' && VALID_SAAS_TOOLS.has(parsed.tool)) {
+        action = { to: 'saas-waitlist', tool: parsed.tool };
+      }
+    }
   } catch { /* tolerate */ }
   const stripped = text.replace(HANDOFF_MARKER_RE, '').trim();
-  return { stripped, hasHandoff: valid };
+  return { stripped, action };
 }
 
 function persistAuditPrefill(session_id: string | null): void {
@@ -403,11 +441,24 @@ export default function Helpbot() {
     setOpen(false);
   };
 
-  // Triggered by the prominent handoff CTA — persists the helpbot_session_id
-  // so /audit can include it in its submit payload.
-  const handoffToAudit = useCallback(() => {
-    persistAuditPrefill(session.session_id);
-    goToHash('/audit');
+  // Triggered by the prominent handoff CTA — dispatches by action type.
+  // For 'audit' we additionally persist helpbot_session_id so /audit can submit it.
+  const handoffDispatch = useCallback((action: HandoffAction) => {
+    switch (action.to) {
+      case 'audit':
+        persistAuditPrefill(session.session_id);
+        goToHash('/audit');
+        break;
+      case 'shop':
+        goToHash('/shop');
+        break;
+      case 'blueprint':
+        goToHash(`/shop/blueprint/${action.slug}`);
+        break;
+      case 'saas-waitlist':
+        // Handled inline (modal). No nav.
+        break;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.session_id]);
 
