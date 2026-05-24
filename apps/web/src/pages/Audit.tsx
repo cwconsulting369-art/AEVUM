@@ -272,15 +272,664 @@ const DEFAULT_STATE: FormState = {
 };
 
 /* ================================================================== */
-/*  MAIN                                                              */
+/*  TOP-LEVEL PAGE (Marketing + Form)                                 */
 /* ================================================================== */
 
 export default function Audit() {
   usePageSeo({
-    title: 'Workflow-Audit kostenlos starten — AEVUM',
-    description: 'Kostenfreies Workflow-Audit für Unternehmen in DACH. In 4 Schritten zu Automation-Potenzialen, Kosten-Ersparnis und Pipeline-Wachstum.',
+    title: 'AEVUM Full-Partnership · Audit kostenlos in 48h',
+    description: 'Audit → Auto-Plan-PDF → Pflicht-Call → maßgeschneidertes KI-System. Personal-Agent + Dashboard + SaaS-Free-Kontingent inklusive.',
     path: '/audit',
   });
+
+  // Hash-scroll handling (#form, #vergleich, #timeline, #faq)
+  useEffect(() => {
+    const scrollToHash = () => {
+      const h = window.location.hash;
+      const m = h.match(/#\/audit(?:#|%23)(.+)$/) || h.match(/^#(.+)$/);
+      const id = m ? m[1] : null;
+      if (!id) return;
+      requestAnimationFrame(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    };
+    scrollToHash();
+    window.addEventListener('hashchange', scrollToHash);
+    return () => window.removeEventListener('hashchange', scrollToHash);
+  }, []);
+
+  return (
+    <div style={{ background: '#0B0C10' }}>
+      <AuditHeroSection />
+      <ValueComparisonSection />
+      <WhyAuditSection />
+      <AuditTimelineSection />
+      <div id="form" />
+      <AuditForm />
+      <FaqSection />
+    </div>
+  );
+}
+
+/* ================================================================== */
+/*  MARKETING — HERO                                                  */
+/* ================================================================== */
+
+function scrollToId(id: string) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function AuditHeroSection() {
+  const TRUST_BADGES = [
+    { icon: <BadgeCheck className="w-3.5 h-3.5" />, label: 'Audit kostenlos' },
+    { icon: <Clock className="w-3.5 h-3.5" />, label: '48h Auto-Plan-PDF' },
+    { icon: <Phone className="w-3.5 h-3.5" />, label: 'Pflicht-Call zur Klärung' },
+    { icon: <Shield className="w-3.5 h-3.5" />, label: 'DSGVO-konform' },
+  ];
+
+  return (
+    <section className="relative overflow-hidden pt-24 pb-20 sm:pt-32 sm:pb-28">
+      {/* Background glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full opacity-[0.12] blur-[120px]"
+          style={{ background: 'radial-gradient(circle, #e0a458 0%, transparent 70%)' }} />
+      </div>
+
+      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
+          <Badge variant="outline" className="mb-6 text-xs px-3 py-1"
+            style={{ borderColor: 'rgba(224,164,88,0.35)', color: '#e0a458', background: 'rgba(224,164,88,0.08)' }}>
+            <Sparkles className="w-3 h-3 inline mr-1.5" />Full-Partnership · Premium-Tier
+          </Badge>
+
+          <h1 className="text-4xl sm:text-6xl font-bold mb-6 leading-[1.1]"
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
+            AEVUM <span style={{ color: '#e0a458' }}>Full-Partnership</span>
+          </h1>
+
+          <p className="text-lg sm:text-xl max-w-2xl mx-auto mb-8"
+            style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
+            Wir bauen dein maßgeschneidertes KI-System. Mit Personal-Agent. Mit Dashboard. Langfristig.
+          </p>
+
+          {/* Trust badges */}
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10">
+            {TRUST_BADGES.map(b => (
+              <div key={b.label}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#E4E4E7',
+                }}>
+                <span style={{ color: '#10B981' }}>{b.icon}</span>
+                {b.label}
+              </div>
+            ))}
+          </div>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <Button
+              onClick={() => scrollToId('form')}
+              className="h-13 px-8 text-base font-semibold rounded-lg"
+              style={{ background: '#e0a458', color: '#0B0C10', height: '52px' }}>
+              <Sparkles className="w-4 h-4 mr-2" />Kostenloses Audit starten
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => scrollToId('vergleich')}
+              className="px-8 text-base font-semibold rounded-lg"
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(224,164,88,0.4)',
+                color: '#e0a458',
+                height: '52px',
+              }}>
+              Vergleich sehen<ArrowDown className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* ================================================================== */
+/*  MARKETING — VALUE COMPARISON                                      */
+/* ================================================================== */
+
+interface ComparisonRow {
+  feature: string;
+  gast: string | boolean;
+  shop: string | boolean;
+  saas: string | boolean;
+  full: string | boolean;
+}
+
+const COMPARISON_ROWS: ComparisonRow[] = [
+  { feature: 'Blueprint-Kauf (Shop)', gast: true, shop: true, saas: true, full: true },
+  { feature: 'Credits sammeln (10c/€)', gast: false, shop: true, saas: true, full: true },
+  { feature: 'Stempelkarte 5→1 gratis', gast: false, shop: true, saas: true, full: true },
+  { feature: 'SaaS-Tools nutzen', gast: false, shop: false, saas: 'Credits', full: 'inkl. 500/Mo' },
+  { feature: 'Personal AI-Agent', gast: false, shop: false, saas: false, full: true },
+  { feature: 'Eigenes Customer-Dashboard', gast: false, shop: false, saas: false, full: true },
+  { feature: 'Quicklinks · Documents · Agent', gast: false, shop: false, saas: false, full: true },
+  { feature: 'Per-Project-API-Coverage', gast: false, shop: false, saas: false, full: true },
+  { feature: 'Cross-OS Aggregator (LennoxOS)', gast: false, shop: false, saas: false, full: true },
+];
+
+const COMPARISON_FOOTER: { pricing: string; entry: string; cta: { label: string; action: () => void }; col: 'gast' | 'shop' | 'saas' | 'full' }[] = [
+  { col: 'gast', pricing: 'pro Kauf', entry: 'Direkt', cta: { label: 'Shop ansehen', action: () => { window.location.hash = '/shop'; } } },
+  { col: 'shop', pricing: 'pro Kauf + Credits', entry: 'Account anlegen', cta: { label: 'Account anlegen', action: () => { window.location.hash = '/shop?signup=1'; } } },
+  { col: 'saas', pricing: 'Pay-per-Use', entry: 'Account + Credit-Paket', cta: { label: 'SaaS-Hub', action: () => { window.location.hash = '/saas'; } } },
+  { col: 'full', pricing: 'Setup + Retainer', entry: 'Audit + Call', cta: { label: 'Audit starten', action: () => scrollToId('form') } },
+];
+
+function CellIcon({ value, highlight }: { value: string | boolean; highlight?: boolean }) {
+  if (value === true) {
+    return <Check className="w-5 h-5 mx-auto" style={{ color: highlight ? '#e0a458' : '#10B981' }} />;
+  }
+  if (value === false) {
+    return <X className="w-5 h-5 mx-auto" style={{ color: '#3F3F46' }} />;
+  }
+  return (
+    <span className="text-xs font-medium"
+      style={{ color: highlight ? '#e0a458' : '#A1A1AA' }}>
+      {value}
+    </span>
+  );
+}
+
+function ValueComparisonSection() {
+  return (
+    <section id="vergleich" className="relative py-20 sm:py-28"
+      style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-12 max-w-2xl mx-auto">
+          <Badge variant="outline" className="mb-4 text-xs"
+            style={{ borderColor: 'rgba(224,164,88,0.3)', color: '#e0a458', background: 'rgba(224,164,88,0.08)' }}>
+            Vergleich
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4"
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
+            Welche Stufe passt zu dir?
+          </h2>
+          <p className="text-base" style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
+            Vier Investment-Stufen. Du kannst jederzeit nach oben wechseln — Credits bleiben erhalten.
+          </p>
+        </div>
+
+        {/* Desktop Table */}
+        <div className="hidden lg:block">
+          <div className="rounded-2xl overflow-hidden"
+            style={{ background: '#15161A', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <table className="w-full">
+              <thead>
+                <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <th className="text-left px-6 py-5 text-xs uppercase tracking-[0.12em] font-semibold"
+                    style={{ color: '#71717A', width: '34%' }}>
+                    Feature
+                  </th>
+                  <th className="px-4 py-5 text-center text-xs uppercase tracking-[0.12em] font-semibold"
+                    style={{ color: '#71717A' }}>
+                    Gast
+                  </th>
+                  <th className="px-4 py-5 text-center text-xs uppercase tracking-[0.12em] font-semibold"
+                    style={{ color: '#71717A' }}>
+                    Shop-Account
+                  </th>
+                  <th className="px-4 py-5 text-center text-xs uppercase tracking-[0.12em] font-semibold"
+                    style={{ color: '#71717A' }}>
+                    SaaS-Account
+                  </th>
+                  <th className="px-4 py-5 text-center text-xs uppercase tracking-[0.12em] font-semibold"
+                    style={{ background: 'rgba(224,164,88,0.08)', color: '#e0a458', borderLeft: '1px solid rgba(224,164,88,0.2)', borderRight: '1px solid rgba(224,164,88,0.2)' }}>
+                    Full-Partnership <Star className="w-3 h-3 inline ml-1" style={{ fill: '#e0a458' }} />
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARISON_ROWS.map((row, i) => (
+                  <tr key={row.feature}
+                    style={{ borderBottom: i < COMPARISON_ROWS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                    <td className="px-6 py-4 text-sm font-medium" style={{ color: '#E4E4E7' }}>
+                      {row.feature}
+                    </td>
+                    <td className="px-4 py-4 text-center"><CellIcon value={row.gast} /></td>
+                    <td className="px-4 py-4 text-center"><CellIcon value={row.shop} /></td>
+                    <td className="px-4 py-4 text-center"><CellIcon value={row.saas} /></td>
+                    <td className="px-4 py-4 text-center"
+                      style={{ background: 'rgba(224,164,88,0.04)', borderLeft: '1px solid rgba(224,164,88,0.2)', borderRight: '1px solid rgba(224,164,88,0.2)' }}>
+                      <CellIcon value={row.full} highlight />
+                    </td>
+                  </tr>
+                ))}
+                {/* Pricing row */}
+                <tr style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)' }}>
+                  <td className="px-6 py-4 text-xs uppercase tracking-[0.12em] font-semibold" style={{ color: '#71717A' }}>
+                    Pricing
+                  </td>
+                  {COMPARISON_FOOTER.map(f => (
+                    <td key={f.col} className="px-4 py-4 text-center text-xs"
+                      style={f.col === 'full' ? {
+                        background: 'rgba(224,164,88,0.06)', color: '#e0a458',
+                        borderLeft: '1px solid rgba(224,164,88,0.2)', borderRight: '1px solid rgba(224,164,88,0.2)', fontWeight: 600,
+                      } : { color: '#A1A1AA' }}>
+                      {f.pricing}
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 text-xs uppercase tracking-[0.12em] font-semibold" style={{ color: '#71717A' }}>
+                    Einstieg
+                  </td>
+                  {COMPARISON_FOOTER.map(f => (
+                    <td key={f.col} className="px-4 py-4 text-center text-xs"
+                      style={f.col === 'full' ? {
+                        background: 'rgba(224,164,88,0.06)', color: '#e0a458',
+                        borderLeft: '1px solid rgba(224,164,88,0.2)', borderRight: '1px solid rgba(224,164,88,0.2)', fontWeight: 600,
+                      } : { color: '#A1A1AA' }}>
+                      {f.entry}
+                    </td>
+                  ))}
+                </tr>
+                {/* CTAs */}
+                <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
+                  <td className="px-6 py-5"></td>
+                  {COMPARISON_FOOTER.map(f => (
+                    <td key={f.col} className="px-3 py-5 text-center"
+                      style={f.col === 'full' ? {
+                        background: 'rgba(224,164,88,0.06)',
+                        borderLeft: '1px solid rgba(224,164,88,0.2)', borderRight: '1px solid rgba(224,164,88,0.2)',
+                      } : undefined}>
+                      <button
+                        onClick={f.cta.action}
+                        className="text-xs font-semibold rounded-lg px-3 py-2 transition-all"
+                        style={f.col === 'full' ? {
+                          background: '#e0a458', color: '#0B0C10',
+                        } : {
+                          background: 'rgba(255,255,255,0.04)', color: '#F9FAFB', border: '1px solid rgba(255,255,255,0.1)',
+                        }}>
+                        {f.cta.label}
+                        <ArrowRight className="w-3 h-3 inline ml-1" />
+                      </button>
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Mobile Cards */}
+        <div className="lg:hidden space-y-4">
+          {(['gast', 'shop', 'saas', 'full'] as const).map(col => {
+            const footer = COMPARISON_FOOTER.find(f => f.col === col)!;
+            const titles = { gast: 'Gast', shop: 'Shop-Account', saas: 'SaaS-Account', full: 'Full-Partnership' };
+            return <MobileComparisonCard key={col} col={col} title={titles[col]} footer={footer} />;
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MobileComparisonCard({ col, title, footer }: {
+  col: 'gast' | 'shop' | 'saas' | 'full';
+  title: string;
+  footer: typeof COMPARISON_FOOTER[number];
+}) {
+  const [open, setOpen] = useState(col === 'full');
+  const isFull = col === 'full';
+  return (
+    <div className="rounded-xl overflow-hidden"
+      style={{
+        background: isFull ? 'rgba(224,164,88,0.04)' : '#15161A',
+        border: isFull ? '1.5px solid rgba(224,164,88,0.35)' : '1px solid rgba(255,255,255,0.06)',
+      }}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full px-5 py-4 flex items-center justify-between text-left">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-semibold"
+              style={{ color: isFull ? '#e0a458' : '#F9FAFB', fontFamily: "'Space Grotesk', sans-serif" }}>
+              {title}
+            </span>
+            {isFull && <Star className="w-3.5 h-3.5" style={{ fill: '#e0a458', color: '#e0a458' }} />}
+          </div>
+          <div className="text-xs" style={{ color: '#71717A' }}>
+            {footer.pricing} · {footer.entry}
+          </div>
+        </div>
+        <ChevronDown className="w-4 h-4 transition-transform"
+          style={{ color: '#A1A1AA', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+      </button>
+      {open && (
+        <div className="px-5 pb-5 pt-1 space-y-2"
+          style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+          {COMPARISON_ROWS.map(row => (
+            <div key={row.feature} className="flex items-center justify-between gap-3 py-1.5">
+              <span className="text-sm" style={{ color: '#A1A1AA' }}>{row.feature}</span>
+              <span className="flex-shrink-0"><CellIcon value={row[col]} highlight={isFull} /></span>
+            </div>
+          ))}
+          <button
+            onClick={footer.cta.action}
+            className="mt-4 w-full rounded-lg py-3 text-sm font-semibold transition-all"
+            style={isFull ? {
+              background: '#e0a458', color: '#0B0C10',
+            } : {
+              background: 'rgba(255,255,255,0.04)', color: '#F9FAFB', border: '1px solid rgba(255,255,255,0.1)',
+            }}>
+            {footer.cta.label}
+            <ArrowRight className="w-3.5 h-3.5 inline ml-1.5" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ================================================================== */
+/*  MARKETING — WHY AUDIT                                             */
+/* ================================================================== */
+
+function WhyAuditSection() {
+  const cards = [
+    {
+      icon: <MessageSquareWarning className="w-6 h-6" />,
+      title: 'Wir verkaufen nicht — wir prüfen erst',
+      desc: 'Anti-Fake-it-till-you-make-it. Bevor wir dir was empfehlen, schauen wir uns deinen Business-Stand wirklich an. Kein Standard-Pitch.',
+    },
+    {
+      icon: <FileCheck className="w-6 h-6" />,
+      title: 'Du bekommst Auto-Plan in 48h',
+      desc: 'Selbst wenn wir am Ende nicht zusammenarbeiten — du hast einen konkreten Plan in der Hand. PDF mit Tier-Empfehlung, Tool-Stack und Roadmap.',
+    },
+    {
+      icon: <HeartHandshake className="w-6 h-6" />,
+      title: 'Mismatch = ehrliches Nein',
+      desc: 'Wenn dein Case nicht passt, sagen wir das im Call direkt. Brand-Werte über Cash. Wir wollen Partnerschaften die langfristig funktionieren.',
+    },
+  ];
+
+  return (
+    <section className="relative py-20 sm:py-28"
+      style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-12 max-w-2xl mx-auto">
+          <Badge variant="outline" className="mb-4 text-xs"
+            style={{ borderColor: 'rgba(224,164,88,0.3)', color: '#e0a458', background: 'rgba(224,164,88,0.08)' }}>
+            Warum kostenloses Audit?
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4"
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
+            Erst prüfen. Dann bauen.
+          </h2>
+          <p className="text-base" style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
+            Drei Gründe warum wir mit einem Audit starten — nicht mit einem Pitch.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {cards.map((c, i) => (
+            <motion.div
+              key={c.title}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              className="rounded-xl p-6"
+              style={{
+                background: '#15161A',
+                border: '1px solid rgba(255,255,255,0.06)',
+              }}>
+              <div className="inline-flex items-center justify-center w-11 h-11 rounded-lg mb-4"
+                style={{ background: 'rgba(224,164,88,0.1)', color: '#e0a458' }}>
+                {c.icon}
+              </div>
+              <h3 className="text-base font-semibold mb-2"
+                style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB', lineHeight: 1.3 }}>
+                {c.title}
+              </h3>
+              <p className="text-sm" style={{ color: '#A1A1AA', lineHeight: 1.6 }}>
+                {c.desc}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================================================================== */
+/*  MARKETING — TIMELINE FUNNEL                                       */
+/* ================================================================== */
+
+function AuditTimelineSection() {
+  const steps = [
+    {
+      icon: <FileText className="w-5 h-5" />,
+      title: 'Audit-Form',
+      desc: '5 Steps · 7 Minuten',
+      detail: 'Segment, Situation, Budget, Kontakt',
+    },
+    {
+      icon: <Zap className="w-5 h-5" />,
+      title: 'Auto-Plan-Engine',
+      desc: 'LLM-Analyse + Tier-Mapping',
+      detail: 'Automatisch innerhalb von Minuten',
+    },
+    {
+      icon: <FileCheck className="w-5 h-5" />,
+      title: 'PDF per Mail',
+      desc: 'innerhalb 48h',
+      detail: 'Roadmap · Stack · Quote',
+    },
+    {
+      icon: <Phone className="w-5 h-5" />,
+      title: 'Pflicht-Call',
+      desc: '45 Minuten mit Carlos',
+      detail: 'Klärung · Fragen · Match-Check',
+    },
+    {
+      icon: <Rocket className="w-5 h-5" />,
+      title: 'Onboarding',
+      desc: 'innerhalb 14 Tage',
+      detail: 'Setup-Quote · Kickoff · Build',
+    },
+  ];
+
+  return (
+    <section id="timeline" className="relative py-20 sm:py-28"
+      style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-14 max-w-2xl mx-auto">
+          <Badge variant="outline" className="mb-4 text-xs"
+            style={{ borderColor: 'rgba(224,164,88,0.3)', color: '#e0a458', background: 'rgba(224,164,88,0.08)' }}>
+            So läuft's
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4"
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
+            Von Audit zum Build — in 5 Schritten
+          </h2>
+          <p className="text-base" style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
+            Klarer Funnel, keine Surprise-Gebühren. Vom ersten Klick bis zum Onboarding.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 relative">
+          {steps.map((s, i) => (
+            <motion.div
+              key={s.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              className="relative rounded-xl p-5"
+              style={{
+                background: '#15161A',
+                border: '1px solid rgba(255,255,255,0.06)',
+              }}>
+              {/* Step number */}
+              <div className="absolute -top-3 left-5 px-2 py-0.5 rounded text-[10px] uppercase tracking-[0.12em] font-bold"
+                style={{ background: '#e0a458', color: '#0B0C10' }}>
+                Step {i + 1}
+              </div>
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg mt-2 mb-3"
+                style={{ background: 'rgba(224,164,88,0.1)', color: '#e0a458' }}>
+                {s.icon}
+              </div>
+              <h3 className="text-sm font-semibold mb-1"
+                style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
+                {s.title}
+              </h3>
+              <p className="text-xs font-medium mb-1" style={{ color: '#e0a458' }}>
+                {s.desc}
+              </p>
+              <p className="text-xs" style={{ color: '#71717A', lineHeight: 1.5 }}>
+                {s.detail}
+              </p>
+
+              {/* Arrow connector (desktop only) */}
+              {i < steps.length - 1 && (
+                <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 items-center justify-center w-6 h-6 rounded-full"
+                  style={{ background: '#0B0C10', border: '1px solid rgba(224,164,88,0.3)' }}>
+                  <ChevronRight className="w-3.5 h-3.5" style={{ color: '#e0a458' }} />
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <Button
+            onClick={() => scrollToId('form')}
+            className="h-13 px-8 text-base font-semibold rounded-lg"
+            style={{ background: '#e0a458', color: '#0B0C10', height: '52px' }}>
+            Jetzt Audit starten<ArrowDown className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================================================================== */
+/*  MARKETING — FAQ                                                   */
+/* ================================================================== */
+
+const FAQ_ITEMS = [
+  {
+    q: 'Was kostet das Audit?',
+    a: 'Komplett kostenlos. Inklusive Auto-Plan-PDF mit Tier-Empfehlung, Tool-Stack-Vorschlag und Roadmap. Selbst wenn wir nicht zusammenarbeiten — du behältst den Plan.',
+  },
+  {
+    q: 'Was wenn wir nicht passen?',
+    a: 'Wir sagen das im Call ehrlich — und du verlierst nichts. Du behältst das PDF, kannst es selbst umsetzen oder einem anderen Anbieter geben. Brand-Werte über Cash.',
+  },
+  {
+    q: 'Wie lange dauert der Setup?',
+    a: 'Abhängig vom Tier: S = ~30h (1 Use Case), M = ~80h (2-3 Use Cases + Custom), L = ~200h+ (Multi-Project / Enterprise). Konkrete Timeline kommt im PDF + Call.',
+  },
+  {
+    q: 'Was ist der Personal-Agent?',
+    a: 'Dein eigener KI-Assistent. Kontextualisiert auf dein Business + deine Projekte. Erreichbar via Telegram + Web-Portal. Mit Memory, Tool-Access und projektspezifischen API-Coverage.',
+  },
+  {
+    q: 'Kann ich später upgraden?',
+    a: 'Ja. Shop → SaaS → Full-Partnership geht jederzeit. Credits bleiben erhalten und werden auf das nächste Tier angerechnet. Kein Lock-in.',
+  },
+  {
+    q: 'Was ist mit DSGVO?',
+    a: 'Full-Compliance. Eigene Sub-Processor-Liste, DSGVO-Challenge-Flow, Auftragsverarbeitungsverträge, granulare Consent-Verwaltung. Customer-Daten werden separat verschlüsselt gespeichert.',
+  },
+  {
+    q: 'Kann ich kündigen?',
+    a: 'Ja, monatlich. Ab Tier B kann eine Mindest-Vertragslaufzeit für den Setup-Amortisation greifen — das besprechen wir transparent im Call.',
+  },
+];
+
+function FaqSection() {
+  return (
+    <section id="faq" className="relative py-20 sm:py-28"
+      style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-12">
+          <Badge variant="outline" className="mb-4 text-xs"
+            style={{ borderColor: 'rgba(224,164,88,0.3)', color: '#e0a458', background: 'rgba(224,164,88,0.08)' }}>
+            <HelpCircle className="w-3 h-3 inline mr-1" />FAQ
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4"
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
+            Häufige Fragen
+          </h2>
+          <p className="text-base" style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
+            Noch was offen? Schreib uns direkt im Helpbot rechts unten.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {FAQ_ITEMS.map((item, i) => (
+            <FaqItem key={item.q} q={item.q} a={item.a} defaultOpen={i === 0} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FaqItem({ q, a, defaultOpen }: { q: string; a: string; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(!!defaultOpen);
+  return (
+    <div className="rounded-xl overflow-hidden transition-colors"
+      style={{
+        background: '#15161A',
+        border: `1px solid ${open ? 'rgba(224,164,88,0.25)' : 'rgba(255,255,255,0.06)'}`,
+      }}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full px-5 py-4 text-left flex items-center justify-between gap-4">
+        <span className="text-sm sm:text-base font-semibold"
+          style={{ color: '#F9FAFB', fontFamily: "'Space Grotesk', sans-serif" }}>
+          {q}
+        </span>
+        <ChevronDown className="w-4 h-4 flex-shrink-0 transition-transform"
+          style={{ color: open ? '#e0a458' : '#A1A1AA', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            style={{ overflow: 'hidden' }}>
+            <div className="px-5 pb-5 text-sm" style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
+              {a}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* ================================================================== */
+/*  AUDIT FORM (existing 5-step wizard)                               */
+/* ================================================================== */
+
+function AuditForm() {
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [submitted, setSubmitted] = useState(false);
