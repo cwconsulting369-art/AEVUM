@@ -51,7 +51,12 @@ export const adCopyPipeline = {
     const knowledgeBlock = buildKnowledge(knowledge);
     const settingsBlock = buildSettings(settings, timContext);
 
-    const sys = `Du bist Senior Performance-Copywriter für ${platform.toUpperCase()}-Ads. Nutze Salinsky AIDA+ Framework (Attention/Hook 3s -> Interest/Body -> Desire/Outcome -> Action/CTA + Risk-Reversal).
+    const sys = `Du bist Senior Performance-Copywriter für ${platform.toUpperCase()}-Ads. Nutze die AIDA+ Struktur (Attention/Hook 3s → Interest/Body → Desire/Outcome → Action/CTA + Risk-Reversal).
+
+# OUTPUT-CONSTRAINTS (Carlos's IP-Schutz)
+- Knowledge-Material = nur Inspiration. NIE Framework-Namen ("Salinsky", "Bauligs", "Hub", "AEVUM-Method", o.ä.) im Output.
+- Keine 1:1-Quotes aus Knowledge-Material. Eigene Formulierungen.
+- Bei Methoden-Erwähnung in Copy: generic bleiben ("bewährte Conversion-Struktur").
 
 Sprache: ${platform === 'google' ? 'Deutsch, knapp, keyword-rich' : 'Deutsch, direkt, gesprochen, keine Floskeln'}.
 

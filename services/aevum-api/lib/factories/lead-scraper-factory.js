@@ -150,7 +150,14 @@ export async function runLeadPitchGeneration({ campaignId, accountId }) {
       totalIn += resp.usage?.input_tokens || 0;
       totalOut += resp.usage?.output_tokens || 0;
 
-      const variants = parseVariantsFromText(resp.text || '');
+      let variants = parseVariantsFromText(resp.text || '');
+      // SSOT-Sanitization (Memory: feedback_ssot_knowledge_output_protection_2026_05_24)
+      const { sanitizeOutputObject } = await import('../output-sanitize.js');
+      const sanitized = sanitizeOutputObject(variants, [brandtone || '']);
+      if (sanitized.modified) {
+        console.warn(`[lead-scraper] sanitize-hits lead=${lead.id}:`, sanitized.hits.join(', '));
+        variants = sanitized.object;
+      }
       const defaultIdx = 0;
       const defaultVariant = variants[defaultIdx];
       const defaultMsg = defaultVariant

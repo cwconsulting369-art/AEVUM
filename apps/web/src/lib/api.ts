@@ -57,8 +57,21 @@ export async function api<T = unknown>(
   });
 
   if (!res.ok) {
+    // Carlos-Direktive 2026-05-24: API-Errors NIE roh an User. Generisch + professionell.
+    // Backend-Details (rate_limit, validation, internal-error, etc.) bleiben für Devs in console.
     const text = await res.text().catch(() => '');
-    throw new Error(`API error ${res.status}: ${text}`);
+    let userMsg = 'Etwas ist schiefgelaufen. Bitte versuche es erneut.';
+    if (res.status === 401 || res.status === 403) userMsg = 'Du bist nicht angemeldet. Bitte logge dich ein.';
+    else if (res.status === 402) userMsg = 'Nicht genug Credits. Bitte lade dein Guthaben auf.';
+    else if (res.status === 404) userMsg = 'Inhalt nicht gefunden.';
+    else if (res.status === 429) userMsg = 'Zu viele Anfragen. Bitte warte einen Moment.';
+    else if (res.status === 503) userMsg = 'Service gerade in Vorbereitung. Bitte später erneut versuchen.';
+    else if (res.status >= 500) userMsg = 'Server-Problem. Wir wissen Bescheid und arbeiten daran.';
+    console.warn(`[api] ${res.status} ${path}:`, text.slice(0, 300));
+    const err = new Error(userMsg) as Error & { status?: number; raw?: string };
+    err.status = res.status;
+    err.raw = text;
+    throw err;
   }
 
   return res.json() as Promise<T>;

@@ -33,12 +33,19 @@ export const phoneScriptPipeline = {
     const knowledgeBlock = buildKnowledge(knowledge);
     const settingsBlock = buildSettings(settings, timContext);
 
-    const sys = `Du bist Senior Sales-Trainer. Generiere optimierte TELEFON-SKRIPTE basierend auf Bauligs-5-Step-Framework (Pattern-Interrupt -> Pain-Validation -> Mechanism-Anchor -> Risk-Reversal -> Soft-Close).
+    const sys = `Du bist Senior Sales-Trainer. Generiere optimierte TELEFON-SKRIPTE mit 5-Step-Struktur (Pattern-Interrupt → Pain-Validation → Mechanism-Anchor → Risk-Reversal → Soft-Close).
 
 Sprache: Deutsch, direkt, gesprochen (nicht geschrieben), keine Floskeln, keine KI-Phrasen.
 
 Use-Case: ${useCase.name}
 ${settingsBlock}${knowledgeBlock}
+
+# OUTPUT-CONSTRAINTS (kritisch — Carlos's IP-Schutz)
+- Knowledge-Material ist nur INSPIRATION für dich. NIEMALS Frameworks/Methoden by-name zitieren.
+- NIE Begriffe wie "Bauligs", "Salinsky", "Knowledge-Hub", "AEVUM-Framework", "Hub-Doc" o.ä. im Output verwenden.
+- NIE direkte 1:1-Quotes oder Step-Listen aus dem Knowledge-Block ausspucken.
+- Bei Frage nach Methode in Skript: generic formulieren ("bewährtes Sales-Framework"), nie Namen nennen.
+- Generiere immer NEUE Formulierungen die nur die Prinzipien des Materials nutzen.
 
 WICHTIG: Jede Variant MUSS einen anderen Angle haben (z.B. Pain-First / Curiosity / Stat-First / Story-Open / Reframe).`;
 

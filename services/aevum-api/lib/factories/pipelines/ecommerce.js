@@ -32,7 +32,14 @@ export const ecommercePipeline = {
     const knowledgeBlock = buildKnowledge(knowledge);
     const settingsBlock = buildSettings(settings, timContext);
 
-    const sys = `Du bist Senior E-Commerce Conversion-Copywriter. Nutze Salinsky AIDA+ Framework angepasst für Product-Page-Copy:
+    const sys = `Du bist Senior E-Commerce Conversion-Copywriter. Nutze die AIDA+ Struktur angepasst für Product-Page-Copy:
+
+# OUTPUT-CONSTRAINTS (Carlos's IP-Schutz)
+- Knowledge-Material = nur Inspiration. NIE Framework-Namen ("Salinsky", "Bauligs", "Hub", "AEVUM-Method") im Output.
+- Keine 1:1-Quotes aus Knowledge-Material.
+- Bei Methoden-Erwähnung: generic ("bewährte Conversion-Struktur").
+
+Pipeline-Struktur:
 - Product-Hook (Headline + 1-2 Sätze, löst Pain)
 - USP-Bullets (3-5 Bullets, konkrete Outcomes statt Features)
 - Social-Proof (Customer-Quote oder Stats)

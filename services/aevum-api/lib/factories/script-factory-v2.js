@@ -124,20 +124,35 @@ export async function runScriptFactoryV2({ runId, accountId }) {
     trackUsage
   });
 
-  // 11. Persist outputs
+  // 11. Persist outputs — mit SSOT-Knowledge-Output-Sanitization (Memory: feedback_ssot_knowledge_output_protection_2026_05_24)
+  const { sanitizeOutputText, sanitizeOutputObject } = await import('../output-sanitize.js');
+  const knowledgeChunks = (knowledge || []).map(k => k.content_md || '');
+  let sanitizeHitsTotal = 0;
   for (const v of analyzedVariants) {
+    const h = sanitizeOutputText(v.hook || '', knowledgeChunks);
+    const b = sanitizeOutputText(v.body || '', knowledgeChunks);
+    const c = sanitizeOutputText(v.cta || '', knowledgeChunks);
+    const fs = sanitizeOutputText(v.full_script || '', knowledgeChunks);
+    const a = sanitizeOutputObject(v.analysis || null, knowledgeChunks);
+    if (h.modified || b.modified || c.modified || fs.modified || a.modified) {
+      sanitizeHitsTotal += h.hits.length + b.hits.length + c.hits.length + fs.hits.length + a.hits.length;
+      console.warn(`[script-factory-v2] sanitize-hits variant=${v.variant_index}:`, [...h.hits, ...b.hits, ...c.hits, ...fs.hits, ...a.hits].join(', '));
+    }
     await supabase.insert('script_factory_outputs', {
       run_id: runId,
       variant_index: v.variant_index,
-      hook: v.hook || null,
-      body: v.body || null,
-      cta: v.cta || null,
-      full_script: v.full_script,
+      hook: h.text || null,
+      body: b.text || null,
+      cta: c.text || null,
+      full_script: fs.text,
       platform_format: v.platform_format || null,
       grade: v.grade || null,
       hook_score: v.hook_score ?? null,
-      analysis: v.analysis ? { ...v.analysis, _meta: v.meta || null } : null
+      analysis: a.object ? { ...a.object, _meta: v.meta || null } : null
     });
+  }
+  if (sanitizeHitsTotal > 0) {
+    console.warn(`[script-factory-v2] TOTAL sanitize-hits for run=${runId}: ${sanitizeHitsTotal}`);
   }
 
   // 12. logUsage + finalize
