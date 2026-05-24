@@ -11,7 +11,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowRight, Check, Sparkles, Loader2, AlertCircle, Mail, Package as PackageIcon, Repeat } from 'lucide-react';
-import { createCreditPurchaseSession, createSubscriptionSession, fetchSubscriptionPlans, googleOAuthUrl, type SubscriptionPlan } from '@/lib/api';
+import { createCreditPurchaseSession, createSubscriptionSession, fetchSubscriptionPlans, googleOAuthUrl, PaymentsPausedError, type SubscriptionPlan } from '@/lib/api';
 import { track } from '@/lib/shop-track';
 import { CREDIT_PACKAGES, type CreditPackage } from '@/data/saas-tools';
 
@@ -127,6 +127,12 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
       });
       window.location.href = res.url;
     } catch (e) {
+      if (e instanceof PaymentsPausedError) {
+        // Maintenance-Modal opened by gate — close signup-flow + stop spinner
+        setLoading(false);
+        onClose();
+        return;
+      }
       const msg = e instanceof Error ? e.message : 'unknown_error';
       setError(msg);
       setLoading(false);

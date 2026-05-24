@@ -277,8 +277,8 @@ const DEFAULT_STATE: FormState = {
 
 export default function Audit() {
   usePageSeo({
-    title: 'AEVUM Full-Partnership · Audit kostenlos in 48h',
-    description: 'Audit → Auto-Plan-PDF → Pflicht-Call → maßgeschneidertes KI-System. Personal-Agent + Dashboard + SaaS-Free-Kontingent inklusive.',
+    title: 'Kostenloses Workflow-Audit — Auto-Plan in 48h | AEVUM Full-Partnership',
+    description: 'Audit → Auto-Plan-PDF in 48h → Pflicht-Call → maßgeschneidertes KI-System mit Personal-Agent. Anti-Verkaufsdruck. Anti-Buzzword. Messbar oder Geld zurück.',
     path: '/audit',
   });
 

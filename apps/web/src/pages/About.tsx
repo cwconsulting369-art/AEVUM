@@ -785,8 +785,8 @@ void Sliders; void InfinityIcon; void Layers; void Shield;
 
 export default function About() {
   usePageSeo({
-    title: 'Über AEVUM · Carlos Wrusch + Lennox KI-Co-Founder · Augsburg',
-    description: 'AEVUM aus Augsburg: Operating-Systeme für DACH-Unternehmen. Solo + KI-Partner. Ehrlich, daten-getrieben, langfristig. Vorstellung + Methode + Team.',
+    title: 'Carlos Wrusch + Lennox KI-Co-Founder | AEVUM aus DACH',
+    description: 'Solo-Operator + KI-Partner aus Augsburg. Wir bauen Operating-Systeme für Unternehmen die ehrlich, daten-getrieben und langfristig wachsen wollen — nicht skalieren.',
     path: '/about',
   });
   return (

@@ -293,8 +293,8 @@ function CTASection() {
 
 export default function Cases() {
   usePageSeo({
-    title: 'Case Studies — KI-Implementierungen in der Praxis | AEVUM',
-    description: 'Echte Projekte, transparente Ergebnisse: E-Commerce, Real Estate, Trading, B2B. Workflow-Audits, Automation-Stacks und messbare Resultate.',
+    title: 'Live-Cases — Ketolabs · UtilityHub · Thailand-RE · GoldTraderSociety | AEVUM',
+    description: 'Echte Projekte mit echten Zahlen. E-Commerce, Real Estate, Trading, B2B-Energy. Workflow-Audits, Automation-Stacks, messbare ROI. Keine Schmuck-Cases.',
     path: '/cases',
   });
   return (

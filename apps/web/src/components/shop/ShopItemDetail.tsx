@@ -27,7 +27,7 @@ import {
   Sparkles,
   AlertCircle,
 } from 'lucide-react';
-import { api, createCheckoutSession } from '@/lib/api';
+import { api, createCheckoutSession, PaymentsPausedError } from '@/lib/api';
 import { track } from '@/lib/shop-track';
 import { getShopItem } from '@/data/shop-items';
 import type { ShopItemContent, ShopItemType, SecurityLevel } from '@/data/shop-items/types';
@@ -622,6 +622,10 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
       });
       window.location.href = url;
     } catch (err) {
+      if (err instanceof PaymentsPausedError) {
+        setBuying(false);
+        return;
+      }
       setBuyError(err instanceof Error ? err.message : 'Checkout fehlgeschlagen.');
       setBuying(false);
     }

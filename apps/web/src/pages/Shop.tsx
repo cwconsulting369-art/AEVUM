@@ -27,9 +27,11 @@ import {
   Database,
   TrendingUp,
 } from 'lucide-react';
-import { createCheckoutSession } from '@/lib/api';
+import { createCheckoutSession, PaymentsPausedError } from '@/lib/api';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import { track } from '@/lib/shop-track';
+import { useAevumConfig } from '@/hooks/use-config';
+import MaintenancePill from '@/components/MaintenancePill';
 
 /* ──────────────────────── Types ──────────────────────── */
 
@@ -578,6 +580,11 @@ function useBuyBlueprint() {
       });
       window.location.href = url;
     } catch (err) {
+      if (err instanceof PaymentsPausedError) {
+        // Modal opened — silent no-op, just stop spinner
+        setLoading(null);
+        return;
+      }
       setError(err instanceof Error ? err.message : 'Checkout fehlgeschlagen. Bitte erneut versuchen.');
       setLoading(null);
     }
@@ -630,6 +637,8 @@ function BlueprintCard({
   const isInView = useInView(ref, { once: true, margin: '-60px' });
   const isLoading = buyLoading === blueprint.id;
   const credits = blueprint.price * 10;
+  const config = useAevumConfig();
+  const paused = config?.payments_paused === true;
 
   return (
     <motion.div
@@ -638,13 +647,14 @@ function BlueprintCard({
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className="relative bg-bg-surface border border-white/10 p-7 flex flex-col hover:border-[#e0a458]/35 transition-all group"
+      className={`relative bg-bg-surface border border-white/10 p-7 flex flex-col hover:border-[#e0a458]/35 transition-all group ${paused ? 'opacity-90' : ''}`}
     >
       {blueprint.tag && (
         <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-[#e0a458] bg-[#e0a458]/10 border border-[#e0a458]/20 px-2 py-0.5">
           {blueprint.tag}
         </span>
       )}
+      <MaintenancePill variant="absolute" />
 
       <a
         href={`/#/shop/blueprint/${blueprint.slug}`}
@@ -698,7 +708,12 @@ function BlueprintCard({
           {isLoading ? (
             <>
               <span className="w-3.5 h-3.5 rounded-full border-2 border-[#08080a]/40 border-t-[#08080a] animate-spin" />
-              Wird gestartet...
+              {paused ? 'Wartung…' : 'Wird gestartet...'}
+            </>
+          ) : paused ? (
+            <>
+              <Sparkles size={14} />
+              Bald verfügbar — benachrichtige mich
             </>
           ) : (
             <>
@@ -724,6 +739,8 @@ function BlueprintsSection() {
   const { buy, loading: buyLoading, error: buyError } = useBuyBlueprint();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
+  const config = useAevumConfig();
+  const paused = config?.payments_paused === true;
 
   const filtered =
     activeCategory === 'Alle'
@@ -837,8 +854,17 @@ function BlueprintsSection() {
                 }
                 className="btn-primary px-7 py-2.5 text-sm inline-flex items-center gap-2 whitespace-nowrap"
               >
-                <ShoppingCart size={14} />
-                Bundle kaufen
+                {paused ? (
+                  <>
+                    <Sparkles size={14} />
+                    Bald verfügbar — benachrichtige mich
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart size={14} />
+                    Bundle kaufen
+                  </>
+                )}
               </button>
               <a
                 href="/#/shop/bundle/bundle-all"
@@ -1367,9 +1393,9 @@ function EcosystemSection() {
 
 export default function Shop() {
   usePageSeo({
-    title: 'Shop — Blueprints, Done-For-You, Full-Audit | AEVUM',
+    title: 'AEVUM Shop — Blueprints + Done-For-You + Audit-Paket | Sofort kaufbar',
     description:
-      'AEVUM Shop in drei Bereichen: Blueprints zum Direkt-Kauf, Done-For-You Custom-Builds, Full-Audit-Partnerschaft. Transparent, modular, sofort.',
+      'Fertige n8n-Blueprints, Done-For-You Custom-Builds und Full-Audit-Partnerschaft. Transparent, modular, sofort. Vom 197€-Workflow bis zur 90-Tage-System-Beziehung.',
     path: '/shop',
   });
 

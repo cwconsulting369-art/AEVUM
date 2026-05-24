@@ -1348,8 +1348,8 @@ function FinalCTASection() {
 
 export default function Home() {
   usePageSeo({
-    title: 'AEVUM — Operating-System für Unternehmen · Shop / SaaS / Full-Partnership | DACH',
-    description: 'Drei Wege mit AEVUM zu arbeiten: Blueprints im Shop kaufen, AI-Tools pro Run nutzen, oder Full-Partnership mit Personal-Agent. DSGVO-konform aus DACH.',
+    title: 'AEVUM — Wir bauen das KI-System für DACH-Unternehmen | Operating-System',
+    description: 'Custom-KI für Unternehmen die Daten ernst nehmen. Audit kostenlos in 48h → Auto-Plan → maßgeschneidertes System mit Personal-Agent. Anti-Buzzword. Messbar.',
     path: '/',
   });
   return (

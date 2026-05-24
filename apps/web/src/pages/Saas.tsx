@@ -211,9 +211,9 @@ function HowItWorks() {
 
 export default function Saas() {
   usePageSeo({
-    title: 'AEVUM SaaS-Tools — Pay-per-Use AI-Pipelines',
+    title: 'AEVUM SaaS-Tools — Pay-per-Use AI-Pipelines | Script-Factory, DSGVO-Factory',
     description:
-      'Self-Service SaaS-Pipelines für Ad-Scripts, DSGVO-Compliance und mehr. Kein Abo. Du zahlst pro Run via AEVUM Credits.',
+      'Self-Service AI-Pipelines für Ad-Scripts, DSGVO-Checks, Lead-Qualifying. Kein Abo, du zahlst pro Run via Credits. Output in Minuten, professionell verwertbar.',
     path: '/saas',
     keywords: 'AEVUM SaaS, AI-Pipelines, Ad-Scripts, DSGVO, Pay-per-Use, Credits',
   });

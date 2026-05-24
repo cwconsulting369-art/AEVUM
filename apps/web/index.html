@@ -6,9 +6,9 @@
     <meta name="theme-color" content="#08080a" />
 
     <!-- Primary SEO -->
-    <title>AEVUM — Operating-System für Unternehmen · Shop / SaaS / Full-Partnership · DACH</title>
-    <meta name="description" content="AEVUM baut individuelle KI-Betriebssysteme für Unternehmen in DACH. Shop (Blueprints sofort kaufbar) · SaaS (Pay-per-Use Tools) · Full-Partnership (Audit + Personal-Agent). DSGVO-konform." />
-    <meta name="keywords" content="KI-Betriebssystem, KI-Agentur DACH, n8n Workflows, Workflow-Audit, AI Blueprints, Pay-per-Use AI, KI für KMU, DSGVO Automation, Script-Factory, DSGVO-Factory" />
+    <title>AEVUM — Custom KI-Systeme für Unternehmen die Daten ernst nehmen | DACH</title>
+    <meta name="description" content="Wir bauen das Operating-System, das dein Unternehmen in 90 Tagen daten-unabhängig macht. Nicht Beratung. Nicht Tools. Komplette KI-Systeme mit messbarem ROI. Audit kostenlos in 48h." />
+    <meta name="keywords" content="Custom KI für Unternehmen, KI-Operating-System, KI-Agentur DACH, Workflow-Audit, Personal AI-Agent, DSGVO-konforme KI, AI für Mittelstand, n8n Custom Builds, Pay-per-Use AI, Script-Factory" />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="author" content="Carlos Wrusch — AEVUM" />
     <meta name="geo.region" content="DE-BY" />
@@ -26,8 +26,8 @@
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="de_DE" />
     <meta property="og:site_name" content="AEVUM" />
-    <meta property="og:title" content="AEVUM — Operating-System für Unternehmen · DACH" />
-    <meta property="og:description" content="Shop · SaaS · Full-Partnership. Individuelle KI-Betriebssysteme. Workflow-Audit, Automation, messbare Pipeline. DSGVO-konform." />
+    <meta property="og:title" content="AEVUM — Wir bauen das KI-System, das dein Unternehmen unabhängig macht" />
+    <meta property="og:description" content="Custom-KI für DACH-Mittelstand. Workflow-Audit kostenlos in 48h → Auto-Plan → maßgeschneidertes System mit Personal-Agent. Anti-Floskel. Anti-Buzzword. Messbar." />
     <meta property="og:url" content="https://aevum-system.de/" />
     <meta property="og:image" content="https://aevum-system.de/og.png" />
     <meta property="og:image:type" content="image/png" />
@@ -38,10 +38,10 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="AEVUM — Operating-System für Unternehmen" />
-    <meta name="twitter:description" content="Shop · SaaS · Full-Partnership. Workflow-Audit, AI-Tools, messbare Pipeline. DSGVO-konform." />
+    <meta name="twitter:title" content="AEVUM — Custom-KI für Unternehmen" />
+    <meta name="twitter:description" content="Kein Buzzword-Setup. Audit → Plan → System. Personal-Agent + Dashboard inklusive. DSGVO-konform. Aus DACH." />
     <meta name="twitter:image" content="https://aevum-system.de/og.png" />
-    <meta name="twitter:image:alt" content="AEVUM — Operating-System für Unternehmen DACH" />
+    <meta name="twitter:image:alt" content="AEVUM — Custom KI-Systeme für Unternehmen die Daten ernst nehmen" />
 
     <!-- Icons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
@@ -53,13 +53,35 @@
     <meta name="msapplication-TileColor" content="#0B0C10" />
     <link rel="manifest" href="/manifest.webmanifest" />
 
-    <!-- Performance hints -->
+    <!-- Performance hints — preconnect + non-blocking font load (Wave I7) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Trim font palette to actually-used weights to reduce CSS-payload + reflow -->
     <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      />
+    </noscript>
+
+    <!-- Critical-CSS inline — sub-1s LCP, no FOUC before bundle parses -->
+    <style>
+      html,body{margin:0;padding:0;background:#08080a;color:#F9FAFB;font-family:Manrope,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-display:swap;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+      *,*::before,*::after{box-sizing:border-box}
+      #root{min-height:100vh;background:#08080a}
+      .crit-hero{padding:7rem 1.5rem 2.5rem;text-align:center;max-width:1440px;margin:0 auto}
+      .crit-hero h1{font-size:clamp(1.875rem,4vw,3rem);font-weight:300;letter-spacing:-0.02em;line-height:1.1;margin:0 0 1rem;color:#F9FAFB}
+      .crit-hero .grad{background:linear-gradient(135deg,#e0a458,#f0b468);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:500}
+      .crit-hero p{font-size:1rem;color:#a4a4ad;max-width:42rem;margin:0 auto;line-height:1.6}
+      .crit-hero .eyebrow{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.75rem;color:#e0a458;text-transform:uppercase;letter-spacing:0.12em;display:block;margin-bottom:.75rem}
+      @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+    </style>
 
     <!-- Schema.org: Organization + LocalBusiness + Service + WebSite + FAQPage -->
     <script type="application/ld+json">
@@ -74,7 +96,7 @@
           "url": "https://aevum-system.de/",
           "logo": "https://aevum-system.de/favicon.svg",
           "image": "https://aevum-system.de/og-image.svg",
-          "description": "AEVUM baut individuelle KI-Betriebssysteme für Unternehmen in DACH. Shop (Blueprints) · SaaS (Pay-per-Use Tools) · Full-Partnership (Audit + Personal-Agent). DSGVO-konform.",
+          "description": "AEVUM baut Custom-KI-Systeme für Unternehmen in DACH die Daten ernst nehmen. Operating-System mit Personal-Agent, Workflow-Audit in 48h, messbarer ROI in 90 Tagen. Anti-Buzzword, DSGVO-konform.",
           "founder": {
             "@type": "Person",
             "name": "Carlos Wrusch",

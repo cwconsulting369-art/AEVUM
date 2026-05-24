@@ -54,6 +54,57 @@ waitlistRouter.post('/saas', async (req, res) => {
   return res.json({ ok: true, message: 'Eingetragen. Du bekommst Bescheid sobald verfügbar.' });
 });
 
+// ──────────────────────────────────────────────────────────────────
+// POST /api/waitlist/launch — Wave I7 (Maintenance-Mode / Launch-Waitlist)
+//
+// Captures emails of users hitting a disabled Buy-Button while
+// payments_paused=true. Source = banner | maintenance-modal | etc.
+// Interest = optional free-form (e.g. 'shop','saas','script-factory').
+// ──────────────────────────────────────────────────────────────────
+const LaunchWaitlistSchema = z.object({
+  email: z.string().email().max(254).transform(s => s.toLowerCase()),
+  source: z.string().max(120).optional(),
+  interest: z.string().max(120).optional().nullable()
+});
+
+waitlistRouter.post('/launch', async (req, res) => {
+  const parsed = LaunchWaitlistSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ ok: false, error: 'invalid_input', details: parsed.error.flatten() });
+  }
+
+  // Defensive scan on optional free-text fields
+  const scanFields = {};
+  if (parsed.data.source) scanFields.src = parsed.data.source;
+  if (parsed.data.interest) scanFields.intr = parsed.data.interest;
+  if (Object.keys(scanFields).length > 0) {
+    const hits = scanPayload(scanFields);
+    if (hits.length > 0) {
+      return res.status(400).json({ ok: false, error: 'invalid_input' });
+    }
+  }
+
+  const row = {
+    email: parsed.data.email,
+    source: parsed.data.source || 'unknown',
+    interest: parsed.data.interest || null,
+    ts: new Date().toISOString()
+  };
+
+  const result = await supabase.insert('launch_waitlist', row);
+
+  if (!result.ok) {
+    const errMsg = JSON.stringify(result.error || {}).toLowerCase();
+    if (errMsg.includes('duplicate') || errMsg.includes('unique') || result.status === 409) {
+      return res.json({ ok: true, message: 'Bereits eingetragen. Du bekommst Bescheid sobald wir öffnen.', duplicate: true });
+    }
+    console.error('[waitlist/launch] insert failed:', result.error);
+    return res.status(500).json({ ok: false, error: 'persist_failed' });
+  }
+
+  return res.json({ ok: true, message: 'Eingetragen. Du bekommst Bescheid sobald wir live gehen.' });
+});
+
 waitlistRouter.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'waitlist' });
 });
