@@ -28,6 +28,7 @@ import { waitlistRouter } from './routes/waitlist.js';
 import { leadMagnetsRouter } from './routes/lead-magnets.js';
 import { scriptFactoryRouter } from './routes/factories/script.js';
 import { dsgvoFactoryRouter } from './routes/factories/dsgvo.js';
+import { subscriptionsRouter, projectSubscriptionsRouter } from './routes/subscriptions.js';
 import { anonymizeIp } from './lib/security.js';
 
 const app = express();
@@ -186,6 +187,11 @@ app.use('/api/checkout', checkoutRouter);
 app.use('/api/accounts', accountsRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/blueprints', blueprintsRouter);
+
+// AEVUM Wave F2 — Subscription-Tracking (admin-token gated)
+// Pool CRUD on /api/subscriptions, per-project links + cost-summary on /api/projects/:id/*
+app.use('/api/subscriptions', subscriptionsRouter);
+app.use('/api/projects/:id', projectSubscriptionsRouter);
 
 // AEVUM v2 — Customer-Lead-Storage (Public Intake + Admin Read)
 app.use('/api/leads', customerLeadsRouter);
