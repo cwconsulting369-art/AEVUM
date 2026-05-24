@@ -52,14 +52,24 @@ const AVAILABLE: FactorySlot[] = [
     badge: 'Live · AVV',
     credits: 25,
     href: '/tools/dsgvo-factory'
+  },
+  {
+    key: 'lead-scraper',
+    title: 'Lead-Scraper-Factory',
+    desc: 'CSV-Upload → AEVUM-Brandtone-Pitches → Versand via audit@aevum-system.de. 3 Varianten pro Lead.',
+    icon: Users,
+    status: 'live',
+    badge: 'MVP · Phase 1',
+    credits: 12,
+    href: '/tools/lead-scraper'
   }
 ];
 
 const COMING_SOON: FactorySlot[] = [
   {
     key: 'lead',
-    title: 'Lead-Factory',
-    desc: 'Qualifizierte Leads aus deiner Zielgruppe. Outbound-Sequencing, Reply-Handling, Routing.',
+    title: 'Lead-Factory (Phase 2)',
+    desc: 'Auto-Scraping + Enrichment + Trigger-Detection. Ergaenzt Lead-Scraper Phase 1.',
     icon: Users,
     status: 'konzept',
     badge: 'Konzept',

@@ -311,11 +311,77 @@ const contentFactorySaas: SaasTool = {
   ],
 };
 
+/* ──────────────────── Lead-Scraper-Factory (coming-soon — MVP intern aktiv) ──────────────────── */
+
+const leadScraperFactory: SaasTool = {
+  slug: 'lead-scraper-factory',
+  name: 'Lead-Scraper-Factory',
+  status: 'coming-soon',
+  statusLabel: 'In Build — MVP intern aktiv',
+  category: 'Leads',
+  securityLevel: 'dsgvo',
+  tagline: 'CSV rein, AEVUM-Brandtone-Pitches raus — direkt versendbar.',
+  shortDescription:
+    'CSV-Upload mit Leads (Name, Email, Company, LinkedIn) → 3 Pitch-Varianten pro Lead im AEVUM-Brandtone via Claude Sonnet 4.5 → Approval-Flow → Versand via audit@aevum-system.de. Phase 1 (MVP) intern aktiv, Public-Launch nach Mario + Brandedecom-Validierung.',
+  pricePerRunLabel: '12 Credits / Lead (~€1.10)',
+  creditsPerRun: 12,
+  whatIsIt:
+    'Outreach mit AI-Brandtone, ohne Apollo/Lemlist. Du laedst eine CSV mit Leads hoch, das System generiert 3 unterschiedliche Pitch-Varianten pro Lead (direct, curious, reference), du approved/editierst pro Lead, dann werden alle approved-Pitches via Resend-Transactional-Mail versendet. AEVUM-Brand-Voice als SSOT-Knowledge-Hub haengt im Backend — direkt, ehrlich, keine Floskeln. Phase 2 ergaenzt automatisches Scraping + Trigger-Detection.',
+  whatItDoes: [
+    {
+      step: 1,
+      title: 'CSV-Upload',
+      detail: 'Leads via CSV: company_name, company_domain, owner_name, owner_email, owner_linkedin_url. Max 500 Leads/Campaign.',
+    },
+    {
+      step: 2,
+      title: 'Brandtone-Pick',
+      detail: 'Default AEVUM-Brandtone (Carlos\'s Outreach-Voice) oder eigene Knowledge-Hub.',
+    },
+    {
+      step: 3,
+      title: 'Pitch-Generation',
+      detail: '3 Varianten pro Lead via Claude Sonnet 4.5. Pattern-Interrupt-Hook, 4-Satz-Body, 1 spezifische Frage. Keine Marketing-Floskeln.',
+    },
+    {
+      step: 4,
+      title: 'Review-Flow',
+      detail: 'Pro Lead approven/editieren/skippen. Variant-Picker (direct/curious/reference). Live-Preview.',
+    },
+    {
+      step: 5,
+      title: 'Versand',
+      detail: 'Bulk-Send via Resend (audit@aevum-system.de). Status-Tracking sent/opened/replied per Lead.',
+    },
+  ],
+  useCases: [
+    'Founders die ihren ICP schon haben aber 50-500 personalisierte Outreaches schreiben muessen',
+    'Solo-Sales ohne Apollo-Budget',
+    'Vertriebs-Teams die nicht auf Lemlist-Templates zurueckfallen wollen',
+  ],
+  faq: [
+    {
+      q: 'Wann verfuegbar?',
+      a: 'Phase 1 MVP intern aktiv (Carlos nutzt es fuer Mario + Brandedecom). Public-Launch nach Validierung. Audit-Call → Wait-List.',
+    },
+    {
+      q: 'Was unterscheidet das von Lemlist/Mailshake?',
+      a: 'AEVUM-Brandtone als SSOT statt Template-Hoelle. 3 Varianten pro Lead automatisch. Pay-per-Use (kein Monats-Abo).',
+    },
+    {
+      q: 'Scraping inklusive?',
+      a: 'Phase 1: nein. Du bringst Leads als CSV. Phase 2 (geplant) macht Scraping + Enrichment + Trigger-Detection automatisch.',
+    },
+  ],
+  portalToolSlug: 'lead-scraper',
+};
+
 /* ──────────────────── REGISTRY ──────────────────── */
 
 export const SAAS_TOOLS: Record<string, SaasTool> = {
   'script-factory': scriptFactory,
   'dsgvo-factory': dsgvoFactory,
+  'lead-scraper-factory': leadScraperFactory,
   'lead-factory': leadFactory,
   'content-factory-saas': contentFactorySaas,
 };
@@ -324,6 +390,7 @@ export const SAAS_TOOLS: Record<string, SaasTool> = {
 export const SAAS_TOOL_ORDER: string[] = [
   'script-factory',
   'dsgvo-factory',
+  'lead-scraper-factory',
   'lead-factory',
   'content-factory-saas',
 ];

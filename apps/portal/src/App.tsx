@@ -20,6 +20,7 @@ import Credits from './pages/Credits';
 import ScriptFactoryTool from './pages/tools/ScriptFactoryTool';
 import DsgvoFactoryTool from './pages/tools/DsgvoFactoryTool';
 import TimCustomers from './pages/tools/TimCustomers';
+import LeadScraperTool from './pages/tools/LeadScraperTool';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { me, loading } = useAuth();
@@ -69,6 +70,7 @@ export default function App() {
           <Route path="/tools/script-factory" element={<RequireToolsAccess><ScriptFactoryTool /></RequireToolsAccess>} />
           <Route path="/tools/script-factory/customers" element={<RequireToolsAccess><TimCustomers /></RequireToolsAccess>} />
           <Route path="/tools/dsgvo-factory" element={<RequireToolsAccess><DsgvoFactoryTool /></RequireToolsAccess>} />
+          <Route path="/tools/lead-scraper" element={<RequireToolsAccess><LeadScraperTool /></RequireToolsAccess>} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
