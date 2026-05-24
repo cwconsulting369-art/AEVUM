@@ -37,6 +37,25 @@ meRouter.use('/projects/:slug/agent', projectAgentRouter);
 meRouter.use('/projects/:slug/docs', docsRouter);
 
 // ────────────────────────────────────────────────────────────
+// GET /api/me/orders — Stripe-Orders fuer eingeloggten Account (Shop-Dashboard).
+// Match per customer_email (orders table has no account_id FK yet).
+// KEIN gating — alle Account-Typen koennen Orders haben (auch Vollkunden).
+// ────────────────────────────────────────────────────────────
+meRouter.get('/orders', async (req, res) => {
+  const id = req.customer.account_id;
+  const accRes = await supabase.select('accounts', `select=email&id=eq.${id}&limit=1`);
+  const acc = accRes.data?.[0];
+  if (!acc?.email) return res.status(404).json({ ok: false, error: 'account_email_missing' });
+  const enc = encodeURIComponent(acc.email);
+  const r = await supabase.select(
+    'orders',
+    `select=id,created_at,paid_at,status,package_tier,package_name,total_cents,currency,addons,recurring_interval,stripe_session_id&customer_email=eq.${enc}&order=created_at.desc&limit=100`
+  );
+  if (!r.ok) return res.status(500).json({ ok: false, error: r.error });
+  res.json({ ok: true, orders: r.data ?? [] });
+});
+
+// ────────────────────────────────────────────────────────────
 // GET /api/me
 // ────────────────────────────────────────────────────────────
 meRouter.get('/', async (req, res) => {

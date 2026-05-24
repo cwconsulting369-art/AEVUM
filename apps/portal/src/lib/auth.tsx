@@ -1,8 +1,19 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { api, clearTokens, getAccessToken } from './api';
 
-type Me = {
-  account: { id: string; slug: string; name: string; email: string; status: string; client_zero: boolean };
+export type AccountType = 'customer' | 'shop' | 'saas';
+
+export type Me = {
+  account: {
+    id: string;
+    slug: string;
+    name: string;
+    email: string;
+    status: string;
+    client_zero: boolean;
+    account_type?: AccountType;
+    has_agent_access?: boolean;
+  };
   profile: any;
   permissions: any;
   agent: any;
