@@ -7,6 +7,8 @@ import {
   Building2,
 } from 'lucide-react';
 import CONTACT from '../config/contact';
+import { usePageSeo } from '@/hooks/use-page-seo';
+import PathThreeCard from '@/components/ctas/PathThreeCard';
 
 /* ──────────────────────── Types ──────────────────────── */
 
@@ -260,28 +262,26 @@ function CTASection() {
         initial={{ opacity: 0, y: 40 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="max-w-3xl mx-auto text-center bg-[#111116] border border-white/10 p-10 md:p-16"
+        className="max-w-5xl mx-auto"
       >
-        <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-4">
-          Willst du auch ein <span className="text-gradient font-medium">Live-Case</span> werden?
-        </h2>
-        <p className="text-[#a4a4ad] mb-10 max-w-lg mx-auto">
-          Starte mit einem Audit. Wir schauen uns dein Setup an und zeigen dir, wo Automatisierung
-          den groessten Hebel hat.
-        </p>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
-          <a href="/#/audit" className="btn-primary">
-            Audit starten
-            <ArrowRight size={16} className="ml-2" />
-          </a>
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-4xl font-light tracking-tight mb-3">
+            Eigenen Case bauen?
+          </h2>
+          <p className="text-sm text-[#a4a4ad] max-w-xl mx-auto">
+            Drei Wege loszulegen — keiner verlangt erst ein Sales-Gespräch.
+          </p>
+        </div>
+        <PathThreeCard compact />
+        <div className="mt-8 text-center">
           <a
             href={CONTACT.whatsapp}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-secondary"
+            className="inline-flex items-center gap-2 text-xs text-[#7a7a85] hover:text-[#e0a458] transition-colors"
           >
-            <MessageCircle size={16} className="mr-2" />
-            Direkt schreiben
+            <MessageCircle size={12} />
+            Oder direkt schreiben
           </a>
         </div>
       </motion.div>
@@ -292,6 +292,11 @@ function CTASection() {
 /* ──────────────────────── Page ──────────────────────── */
 
 export default function Cases() {
+  usePageSeo({
+    title: 'Case Studies — KI-Implementierungen in der Praxis | AEVUM',
+    description: 'Echte Projekte, transparente Ergebnisse: Hausverwaltungen, Kanzleien, KMU. Workflow-Audits, Automation-Stacks und messbare Resultate.',
+    path: '/cases',
+  });
   return (
     <div className="bg-[#08080a] min-h-screen">
       <HeroSection />

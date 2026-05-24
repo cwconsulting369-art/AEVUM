@@ -33,6 +33,8 @@ import {
   Briefcase,
 } from 'lucide-react';
 import CONTACT from '../config/contact';
+import { usePageSeo } from '@/hooks/use-page-seo';
+import PathThreeCard from '@/components/ctas/PathThreeCard';
 import {
   Accordion,
   AccordionItem,
@@ -275,6 +277,30 @@ function HeroSection() {
             className="w-1 h-2 rounded-full bg-[#e0a458]"
           />
         </div>
+      </motion.div>
+    </section>
+  );
+}
+
+/* ──────────────────────── Section 1b: 3-Pfade-Quick-CTA ──────────────────────── */
+
+function QuickPathsSection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
+
+  return (
+    <section className="px-6 lg:px-16 py-16 md:py-20 bg-[#0a0a0d]" ref={ref}>
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-[1200px] mx-auto"
+      >
+        <PathThreeCard
+          eyebrow="Drei Pfade rein"
+          headline="So kommst du in 5 Min weiter"
+          subline="Du musst nicht erst sprechen. Kaufen, Audit oder Helpbot — such dir den passenden Weg."
+        />
       </motion.div>
     </section>
   );
@@ -1023,33 +1049,17 @@ function FinalCTASection() {
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 text-center max-w-3xl mx-auto"
+        className="relative z-10 text-center max-w-4xl mx-auto"
       >
-        <h2 className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight mb-6">
+        <h2 className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight mb-10">
           Bereit, dein
           <span className="block text-gradient mt-2">Operating-System aufzubauen?</span>
         </h2>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 mt-10">
-          <a
-            href="#/audit"
-            className="btn-primary flex items-center gap-2"
-          >
-            Kostenlosen Audit buchen <ArrowRight size={18} />
-          </a>
-          <a
-            href={CONTACT.calendly}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary flex items-center gap-2"
-          >
-            <Calendar size={18} />
-            Call buchen
-          </a>
-        </div>
+        <PathThreeCard compact />
 
-        <p className="font-mono text-xs text-[#7a7a85]">
-          Deutsch · DSGVO · Massgeschneidert
+        <p className="font-mono text-xs text-[#7a7a85] mt-10">
+          Deutsch · DSGVO · Maßgeschneidert
         </p>
       </motion.div>
     </section>
@@ -1059,9 +1069,15 @@ function FinalCTASection() {
 /* ──────────────────────── Home Page ──────────────────────── */
 
 export default function Home() {
+  usePageSeo({
+    title: 'AEVUM — KI-Betriebssysteme für den deutschen Mittelstand',
+    description: 'Individuelle KI-Betriebssysteme für Kanzleien, Makler, Hausverwaltungen und KMU. Workflow-Audit, Automation, messbare Pipeline. DSGVO-konform aus Augsburg.',
+    path: '/',
+  });
   return (
     <div className="bg-[#08080a]">
       <HeroSection />
+      <QuickPathsSection />
       <ThesisSection />
       <PillarsSection />
       <ModulesSection />

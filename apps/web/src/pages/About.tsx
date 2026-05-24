@@ -11,6 +11,8 @@ import {
   User,
 } from 'lucide-react';
 import CONTACT from '../config/contact';
+import PathThreeCard from '@/components/ctas/PathThreeCard';
+import { usePageSeo } from '@/hooks/use-page-seo';
 
 /* ──────────────────────── Animation helpers ──────────────────────── */
 
@@ -297,34 +299,37 @@ function CTASection() {
         initial={{ opacity: 0, y: 40 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="max-w-3xl mx-auto text-center bg-[#111116] border border-white/10 p-10 md:p-16"
+        className="max-w-5xl mx-auto"
       >
-        <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-4">
-          Lass uns <span className="text-gradient font-medium">sprechen</span>.
-        </h2>
-        <p className="text-[#a4a4ad] mb-10 max-w-lg mx-auto">
-          Ob per WhatsApp oder im Video-Call &mdash; ich freue mich darauf, mehr &uuml;ber dein
-          Business zu erfahren.
-        </p>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
-          <a
-            href={CONTACT.whatsapp}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary"
-          >
-            <MessageCircle size={16} className="mr-2" />
-            WhatsApp
-          </a>
-          <a
-            href={CONTACT.calendly}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary"
-          >
-            <Calendar size={16} className="mr-2" />
-            Call buchen
-          </a>
+        <PathThreeCard
+          eyebrow="Drei Wege rein"
+          headline="Was passt zu dir?"
+          subline="Blueprint kaufen, kostenloses Audit buchen, oder erstmal Helpbot fragen."
+        />
+        <div className="mt-10 text-center">
+          <p className="text-sm text-[#7a7a85] mb-4">
+            Lieber direkt schreiben oder Call?
+          </p>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
+            <a
+              href={CONTACT.whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 text-sm text-[#a4a4ad] hover:text-[#e0a458] border border-white/10 hover:border-[#e0a458]/40 px-5 py-2.5 transition-all"
+            >
+              <MessageCircle size={14} />
+              WhatsApp
+            </a>
+            <a
+              href={CONTACT.calendly}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 text-sm text-[#a4a4ad] hover:text-[#e0a458] border border-white/10 hover:border-[#e0a458]/40 px-5 py-2.5 transition-all"
+            >
+              <Calendar size={14} />
+              Call buchen
+            </a>
+          </div>
         </div>
       </motion.div>
     </section>
@@ -334,6 +339,11 @@ function CTASection() {
 /* ──────────────────────── Page ──────────────────────── */
 
 export default function About() {
+  usePageSeo({
+    title: 'Über AEVUM — Carlos Wrusch | KI-Engineer aus Augsburg',
+    description: 'AEVUM wurde gegründet, um Mittelstand mit KI handlungsfähig zu machen. Werte, Tech-Stack und Founder-Geschichte hinter dem Operating-System.',
+    path: '/about',
+  });
   return (
     <div className="bg-[#08080a] min-h-screen">
       <HeroSection />

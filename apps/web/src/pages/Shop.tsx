@@ -23,6 +23,7 @@ import {
   X,
 } from 'lucide-react';
 import { createCheckoutSession } from '@/lib/api';
+import { usePageSeo } from '@/hooks/use-page-seo';
 import { track } from '@/lib/shop-track';
 
 /* ──────────────────────── Types ──────────────────────── */
@@ -34,10 +35,7 @@ type ServiceCategory =
   | 'Leads'
   | 'Content'
   | 'Reporting'
-  | 'Sales'
   | 'Analyse'
-  | 'Premium'
-  | 'Produktivität'
   | 'E-Commerce';
 type SecurityLevel = 'basic' | 'business' | 'dsgvo';
 type ICP = 'AG' | 'PB' | 'FI';
@@ -166,121 +164,82 @@ const blueprints: Blueprint[] = [
   },
 ];
 
+// 12 → 5 konsolidiert + 2 Industry-Specifics (E-Commerce OS, Script Factory).
+// Memory: feedback_aevum_5_service_consolidation_2026_05_24 (alt→neu Mapping).
 const dfyServices: DFYService[] = [
+  // Konsolidierte 5 Kern-Services
   {
     id: 1,
-    name: 'Business OS',
+    name: 'AEVUM Business OS',
     category: 'Infrastruktur',
-    icp: ['FI', 'AG'],
+    icp: ['FI', 'AG', 'PB'],
     description:
-      'Dein gesamtes Unternehmen in einem KI-System — Automatisierung, Reporting, Kommunikation, alles verbunden.',
+      'Komplette Unternehmens-Infrastruktur: Datenbank-Backend + Website/CRM + Automation. Tool-Wildwuchs raus, ein verbundenes System rein.',
     priceLabel: 'ab €4.500 Setup + €899/Mo',
     tierHint: 'Growth ab €4.500',
+    tag: 'Komplett',
   },
   {
     id: 2,
-    name: 'Command Center Dashboard',
+    name: 'AEVUM Command Center',
     category: 'Reporting',
     icp: ['FI', 'AG', 'PB'],
     description:
-      'Echtzeit-CEO-Dashboard mit KI-Insights. Alle KPIs auf einen Blick, automatische Reports.',
+      'Live-KPI-Dashboard im Web + Mobile-HUD via Telegram. KI-Insights, Anomalie-Alerts, Section-Drill-Down. Business-Status in 5 Sek.',
     priceLabel: 'ab €1.800 Setup + €279/Mo',
     tierHint: 'Starter ab €1.800',
   },
   {
     id: 3,
-    name: 'AI Lead Engine',
+    name: 'AEVUM Lead-Engine',
     category: 'Leads',
     icp: ['AG', 'FI'],
     description:
-      'Autonome 24/7 Lead-Generierung und -Qualifizierung. Mehr Leads, weniger manuelle Arbeit.',
-    priceLabel: 'ab €1.400 Setup + €459/Mo',
-    tierHint: 'Growth ab €1.400',
-  },
-  {
-    id: 4,
-    name: 'Sales OS',
-    category: 'Sales',
-    icp: ['AG', 'FI'],
-    description:
-      'Vollständiges Sales-System — Pipeline, Follow-ups, Angebote, Reporting. Dein Vertrieb auf Autopilot.',
-    priceLabel: 'ab €2.200 Setup + €359/Mo',
+      'End-to-end Lead-System: Lead-Gen + 7-Kriterien-Qualifier + CRM-Sync + Follow-up-Automation + Sales-Pipeline. DSGVO-konform.',
+    priceLabel: 'ab €2.200 Setup + €459/Mo',
     tierHint: 'Growth ab €2.200',
   },
   {
-    id: 5,
-    name: 'E-Commerce OS',
-    category: 'E-Commerce',
-    icp: ['FI', 'PB'],
+    id: 4,
+    name: 'AEVUM Content-Engine',
+    category: 'Content',
+    icp: ['PB', 'AG'],
     description:
-      'Komplettes E-Commerce-System — Shop, Inventory, Payments, Automation. Alles integriert.',
-    priceLabel: 'ab €2.800 Setup + €459/Mo',
-    tierHint: 'Growth ab €2.800',
+      'Content-Produktion full-stack: Blog + Social + Newsletter + Cold-Outreach. KI-Content-Fabrik mit Brand-Voice-Tuning, du gibst frei.',
+    priceLabel: 'ab €900 Setup + €459/Mo',
+    tierHint: 'Starter ab €900',
   },
-  // Personal Agent ist NICHT shop-bar — exklusiv für Variante B (Full-Audit-Partnerschaft).
-  // Memory: project_aevum_user_classes_separation.md (Carlos 2026-05-24)
-  // Wer als Vollkunde rein will → /audit (Audit-Flow) statt Shop-Kauf.
   {
-    id: 7,
-    name: 'Automation Audit',
+    id: 5,
+    name: 'AEVUM Audit',
     category: 'Analyse',
     icp: ['AG', 'PB', 'FI'],
     description:
-      'Prozessanalyse in 48h. Top-3 Quick-Wins für sofortige Effizienzgewinne — mit Umsetzungsplan.',
+      'Strategie-Audit in 48h: Tool-Stack-Analyse + Top-3 Quick-Wins + Pitch-Report + Long-Term-Roadmap. Einmalig, Festpreis.',
     priceLabel: '€1.199 einmalig',
     tierHint: 'Einmaliges Festpreis-Paket',
     tag: 'Einstieg',
   },
+  // Industry-Specific (bleiben separat)
   {
-    id: 8,
-    name: 'Website + CRM',
-    category: 'Infrastruktur',
-    icp: ['AG', 'PB', 'FI'],
+    id: 6,
+    name: 'E-Commerce OS',
+    category: 'E-Commerce',
+    icp: ['FI', 'PB'],
     description:
-      'Landing Page + Datenbank + n8n-Automation. Alles verbunden, alles automatisiert.',
-    priceLabel: 'ab €1.400 Setup + €179/Mo',
-    tierHint: 'Starter ab €1.400',
+      'Industry-Specific: Shop + Inventory + Payments + Email-Automation. Für DTC-Brands und Shopify-Operations.',
+    priceLabel: 'ab €2.800 Setup + €459/Mo',
+    tierHint: 'Industry-Specific',
   },
   {
-    id: 9,
-    name: 'Database System',
-    category: 'Infrastruktur',
-    icp: ['FI', 'AG'],
-    description:
-      'Professionelles Datenbank-Backend mit Workflows. Excel war gestern.',
-    priceLabel: 'ab €900 Setup + €129/Mo',
-    tierHint: 'Starter ab €900',
-  },
-  {
-    id: 10,
-    name: 'Content Engine',
-    category: 'Content',
-    icp: ['PB', 'AG'],
-    description:
-      'Autonome KI-Content-Fabrik für Blog, Social, SEO — rund um die Uhr, konsistent, skalierbar.',
-    priceLabel: 'ab €450 Setup + €459/Mo',
-    tierHint: 'Starter ab €450',
-  },
-  {
-    id: 11,
-    name: 'HUD Command Center',
-    category: 'Premium',
-    icp: ['AG', 'PB', 'FI'],
-    description:
-      'Dein Business als Live-Dashboard im Telegram. Echtzeit-KPIs, Section-Drill-Down, KI-Agent direkt im Chat.',
-    priceLabel: 'ab €1.200 Setup + €199/Mo',
-    tierHint: 'Growth ab €1.200',
-    tag: '🔥 Neu',
-  },
-  {
-    id: 12,
+    id: 7,
     name: 'Script Factory',
     category: 'Content',
     icp: ['AG', 'PB'],
     description:
-      'Automatisierte Ad-Script-Produktion für Meta, TikTok, YouTube — basierend auf bewiesenen Frameworks.',
+      'Industry-Specific: Ad-Script-Produktion für Meta/TikTok/YouTube nach bewiesenen Frameworks. Für DTC + Performance-Agenturen.',
     priceLabel: 'ab €800 Setup + €349/Mo',
-    tierHint: 'Starter ab €800',
+    tierHint: 'Industry-Specific',
   },
 ];
 
@@ -292,12 +251,11 @@ const blueprintCategories: BlueprintCategory[] = ['Alle', 'Content', 'Leads', 'R
 const serviceCategories: ServiceCategory[] = [
   'Alle',
   'Infrastruktur',
+  'Reporting',
   'Leads',
   'Content',
-  'Reporting',
-  'Sales',
   'Analyse',
-  'Premium',
+  'E-Commerce',
 ];
 
 /* ──────────────────────── Helpers ──────────────────────── */
@@ -1266,6 +1224,11 @@ function SecurityLegend() {
 /* ──────────────────────── Page ──────────────────────── */
 
 export default function Shop() {
+  usePageSeo({
+    title: 'Shop — Blueprints, DFY-Pakete und SaaS-Lösungen | AEVUM',
+    description: 'Sofort einsetzbare KI-Workflows als Blueprint, fertige Done-for-You-Pakete und SaaS-Lösungen. Transparente Preise, sichere Stripe-Bezahlung.',
+    path: '/shop',
+  });
   return (
     <div className="bg-[#08080a] min-h-screen">
       <HeroStrip />

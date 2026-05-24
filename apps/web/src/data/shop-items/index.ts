@@ -349,7 +349,249 @@ const bundleAll: ShopItemContent = {
   ],
 };
 
-/* ──────────────────── DFY SERVICES (11) ──────────────────── */
+/* ──────────────────── CONSOLIDATED DFY (5 + 2 specials, 2026-05-24) ─────
+ * 12 DFY-Services konsolidiert auf 5 Kern + 2 Industry-Specifics.
+ * Alte Slugs (business-os, command-center-dashboard, ...) bleiben als
+ * Legacy-Detail-Pages erhalten — neue Shop-Hauptliste verwendet die
+ * `aevum-*`-Slugs.
+ * Memory: feedback_aevum_5_service_consolidation_2026_05_24
+ *
+ * Mapping alt → neu:
+ *   business-os + database-system + website-crm  →  aevum-business-os
+ *   command-center-dashboard + hud-command-center →  aevum-command-center
+ *   ai-lead-engine + sales-os                     →  aevum-lead-engine
+ *   content-engine + newsletter-growth-machine +
+ *     cold-outreach-system (DFY-Aspekte)           →  aevum-content-engine
+ *   automation-audit                              →  aevum-audit
+ *   ecommerce-os + script-factory-dfy             →  bleiben separat (Industry)
+ */
+
+const aevumBusinessOS: ShopItemContent = {
+  slug: 'aevum-business-os',
+  name: 'AEVUM Business OS',
+  type: 'dfy',
+  tag: 'Komplett',
+  priceLabel: 'ab €4.500 Setup + €899/Mo',
+  securityLevel: 'business',
+  icp: ['FI', 'AG', 'PB'],
+  category: 'Infrastruktur',
+  tagline: 'Komplette Unternehmens-Infrastruktur — alles verbunden in einem System.',
+  whatIsIt:
+    'Wir bauen dir die Unternehmens-Infrastruktur als Einheit: Datenbank-Backend (statt Excel-Wildwuchs), Website + CRM (statt isolierter Tools), Automation-Layer (n8n + Custom-Code). Alles spricht miteinander. Custom konzipiert für deine Prozesse — kein Template.',
+  outcomes: [
+    'Tool-Wildwuchs raus: ein verbundenes System statt 5 SaaS-Inseln',
+    'Operations-Stunden oft 30-50% reduzierbar',
+    'KPI-Single-Source-of-Truth statt Reporting-Patchwork',
+    'Skaliert von 1k auf 1M Datensätze ohne Schmerz',
+  ],
+  whenItFits: {
+    fits: [
+      'Firmen €500k-€5M Umsatz mit Skalierungs-Druck',
+      'Agenturen ab 5-15 Mitarbeitern mit Tool-Chaos',
+      'Founder die "alles in einem System" wollen statt Tool-Stack',
+    ],
+    requires: [
+      'Audit-Call (kostenlos) für Scope-Klärung',
+      'Bereitschaft 4-8 Wochen Setup-Phase',
+      'Min. 1 interner Sparrings-Kontakt für Daten + Prozesse',
+    ],
+  },
+  includes: [
+    'Vollständiges Audit (Ist-Analyse)',
+    'Custom-Architektur-Plan',
+    'Datenbank-Backend (Postgres) + Admin-UI',
+    'Website (Next.js/Astro) + CRM-Layer',
+    'n8n-Automation-Workflows',
+    'Onboarding deines Teams',
+    'Monatliche Optimierung im Retainer',
+  ],
+  pricingNote: 'Setup einmalig, Retainer für Hosting + Maintenance + Optimierung.',
+  faq: [
+    { q: 'Was unterscheidet euch von Make/Zapier-Consultants?', a: 'Wir bauen produktive Systeme mit Code-Backbone wenn nötig. Nicht 50 Zaps die monatlich brechen.' },
+    { q: 'Kann ich später wechseln?', a: 'Ja — alle Workflows + Data-Models gehören dir, wir verwalten nur Hosting.' },
+    { q: 'Daten-Hoheit?', a: 'Volle Hoheit — Dump jederzeit möglich, du besitzt die DB.' },
+    { q: 'Wie geht der Audit?', a: '60min Call → schriftliches Angebot in 3-5 Tagen.' },
+  ],
+};
+
+const aevumCommandCenter: ShopItemContent = {
+  slug: 'aevum-command-center',
+  name: 'AEVUM Command Center',
+  type: 'dfy',
+  priceLabel: 'ab €1.800 Setup + €279/Mo',
+  securityLevel: 'business',
+  icp: ['FI', 'AG', 'PB'],
+  category: 'Reporting',
+  tagline: 'Live-KPI-Dashboard + Mobile-HUD via Telegram + KI-Insights.',
+  whatIsIt:
+    'Custom Dashboard das deine wichtigsten KPIs aus allen Quellen aggregiert: Revenue, Pipeline, Operations, Marketing. Web + Mobile (Telegram-Mini-App im HUD-Format). Live-Daten, KI-Insights (Anomalien, Trends, To-dos), Push-Alerts. Business-Status in 5 Sek vom Handy.',
+  outcomes: [
+    'CEO-Sicht in 30 Sek statt 30 Min',
+    'KI flaggt Anomalien bevor sie groß werden',
+    'Push-Notifications bei Big-Sale / Anomalie / neuer Lead',
+    'Investor-Updates in 5 Min exportierbar',
+  ],
+  whenItFits: {
+    fits: [
+      'Firmen mit 3+ Tools die Daten halten',
+      'Founder die mobile-first arbeiten',
+      'Teams die "wo sind wir?"-Meetings reduzieren wollen',
+    ],
+    requires: [
+      'API-Zugriff zu deinen Daten-Quellen',
+      'Audit-Call für KPI-Definition',
+      'Telegram-Account für Mobile-HUD (optional)',
+    ],
+  },
+  includes: [
+    'KPI-Definition-Workshop',
+    'Custom-Dashboard-Build (Web + Telegram-HUD)',
+    'KI-Insight-Layer (Anomaly-Detection, Trend-Analyse)',
+    'Push-Notification-Logic',
+    'Setup von Data-Connections',
+    'Monatliche KPI-Reviews im Retainer',
+  ],
+  faq: [
+    { q: 'Welche Tools im Stack?', a: 'Postgres + Next.js + Recharts + Telegram-Mini-App. Daten-Quellen via n8n.' },
+    { q: 'Kann ich Daten exportieren?', a: 'Ja — Postgres ist deine, jederzeit Dump möglich.' },
+    { q: 'Sicherheit Mobile-HUD?', a: 'TG-initData-Auth + Whitelist-User-IDs. Kein Public-Access.' },
+  ],
+};
+
+const aevumLeadEngine: ShopItemContent = {
+  slug: 'aevum-lead-engine',
+  name: 'AEVUM Lead-Engine',
+  type: 'dfy',
+  priceLabel: 'ab €2.200 Setup + €459/Mo',
+  securityLevel: 'dsgvo',
+  icp: ['AG', 'FI'],
+  category: 'Leads',
+  tagline: 'End-to-end Lead-System: Gen + Qualify + CRM + Sales-Pipeline.',
+  whatIsIt:
+    'Kompletter Funnel: Inbound-Forms + Outbound-Outreach + 7-Kriterien-Qualifier + CRM-Sync + Follow-up-Automation + Angebot-Generator. Sales-Cycle endet nicht im Form-Tool-Limbo, sondern in geschlossenem Deal.',
+  outcomes: [
+    '2-5x mehr qualifizierte Calls pro Monat',
+    'Vertriebszeit für Pre-Qualification: -70%',
+    'Sales-Cycle 20-40% verkürzt durch automatisierte Follow-ups',
+    'DSGVO-konformer Funnel mit Audit-Log',
+  ],
+  whenItFits: {
+    fits: [
+      'B2B-Agentur / SaaS mit Cold-Outreach-Bedarf',
+      'Sales-Teams 2-10 Personen',
+      'Firmen mit chaotischem CRM und Sales-Bottleneck',
+    ],
+    requires: [
+      'CRM (HubSpot, Pipedrive, Salesforce, Notion-CRM) ODER Bereitschaft zu Setup',
+      'Audit-Call',
+    ],
+  },
+  includes: [
+    'Lead-Capture-Forms (Custom-Brand)',
+    'Cold-Outreach-System (DSGVO-konform)',
+    'Lead-Qualifier (LLM-basiert, 7-Kriterien)',
+    'CRM-Setup oder Migration',
+    'Pipeline-Definition + Stages',
+    'Follow-up-Automation (n8n)',
+    'Angebot-Generator (PDF + Stripe-Link)',
+    'Reporting-Dashboard für Lead-Flow',
+  ],
+  faq: [
+    { q: 'Wie viele Leads pro Monat?', a: 'System skaliert bis 5k-10k Leads/Monat. Setup-Phase definiert Ziel-Volume.' },
+    { q: 'DSGVO sicher?', a: 'Ja — EU-Hosting, Audit-Log, DPA-Vorlage, Erasure-API.' },
+    { q: 'Retainer-Kündigung?', a: '3 Monate Mindestlaufzeit, dann monatlich.' },
+  ],
+};
+
+const aevumContentEngine: ShopItemContent = {
+  slug: 'aevum-content-engine',
+  name: 'AEVUM Content-Engine',
+  type: 'dfy',
+  priceLabel: 'ab €900 Setup + €459/Mo',
+  securityLevel: 'business',
+  icp: ['PB', 'AG'],
+  category: 'Content',
+  tagline: 'Content-Produktion full-stack: Blog + Social + Newsletter + Outreach.',
+  whatIsIt:
+    'Multi-Channel Content-Maschine: Themen-Research → Outline → Draft → Visual → Publish. Blog + Social + Newsletter + Cold-Outreach in einem System. Voice-Training auf deine Marke, Review-Queue (du gibst frei), monatliche Strategie-Reviews.',
+  outcomes: [
+    '5-15 Stücke Content pro Woche statt 1-2',
+    'Newsletter-Produktion von 4-6h auf 60-90 Min',
+    'SEO-Traffic-Wachstum durch konsistente Frequenz',
+    'Brand-Voice konsistent durch Voice-Library',
+  ],
+  whenItFits: {
+    fits: [
+      'Personal Brands die wachsen wollen aber keine Zeit haben',
+      'Agenturen mit Content-Bottleneck',
+      'B2B-Founder die Thought-Leadership skalieren',
+    ],
+    requires: [
+      'Voice-Sample (10-20 deiner Posts/Blogs)',
+      'API-Zugang zu deinen Channels',
+      'Newsletter-Tool mit API (Beehiiv/ConvertKit/Substack/Brevo) wenn Newsletter Teil ist',
+    ],
+  },
+  includes: [
+    'Voice-Library-Training auf deine Posts',
+    'Multi-Channel-Workflows (Blog + Social + Newsletter)',
+    'Cold-Outreach-Komponente (DSGVO-konform, optional)',
+    'Review-Queue (du gibst frei)',
+    'Monatliche Content-Strategie-Reviews',
+  ],
+  faq: [
+    { q: 'AI-Schrott-Output?', a: 'Nicht wenn Voice-Training und Review-Queue genutzt werden. Niemand pushed Raw-AI — du checkst final.' },
+    { q: 'Wieviel Output pro Monat?', a: 'Setup-Phase definiert Volume. Typisch: 15-40 Stücke/Monat.' },
+    { q: 'Welche Newsletter-Tools?', a: 'Beehiiv, ConvertKit, Substack, Brevo nativ. Custom via Webhook.' },
+    { q: 'Kündigung?', a: '3 Monate, dann monatlich.' },
+  ],
+};
+
+const aevumAudit: ShopItemContent = {
+  slug: 'aevum-audit',
+  name: 'AEVUM Audit',
+  type: 'dfy',
+  tag: 'Einstieg',
+  priceLabel: '€1.199 einmalig',
+  securityLevel: 'business',
+  icp: ['AG', 'PB', 'FI'],
+  category: 'Analyse',
+  tagline: 'Strategie-Audit in 48h. Top-3 Quick-Wins + Pitch-Report + Roadmap.',
+  whatIsIt:
+    'Wir analysieren deine Prozesse, Tools und Daten-Flows. Output: Top-3 Quick-Wins mit konkretem Umsetzungsplan (Aufwand, Kosten, Outcome) + Long-Term-Roadmap. Festpreis, kein Retainer. Bei Folge-Auftrag werden 50% angerechnet.',
+  outcomes: [
+    'Klare Priorisierung statt "wir sollten mal automatisieren"',
+    'Top-3 Quick-Wins mit ROI-Schätzung',
+    'Long-Term-Roadmap für 6-12 Monate',
+    'Pitch-Report PDF zum Mitnehmen',
+  ],
+  whenItFits: {
+    fits: [
+      'Firmen die wissen "irgendwo gehts schief" aber nicht wo',
+      'Founder die externe Sicht wollen bevor sie investieren',
+      'Teams mit anstehender Tooling-Entscheidung',
+    ],
+    requires: [
+      'Bereitschaft zu 2-3 Calls (60-90 Min)',
+      'Read-Access zu deinen wichtigsten Tools',
+    ],
+  },
+  includes: [
+    'Kickoff-Call (60 Min)',
+    'Tool-Stack-Analyse + Prozess-Mapping',
+    'PDF-Report (15-25 Seiten) mit Top-3 Quick-Wins + Roadmap',
+    'Closing-Call zur Diskussion',
+    'Bei Umsetzungsauftrag: 50% Audit-Kosten werden gutgeschrieben',
+  ],
+  pricingNote: 'Einmalig €1.199, kein Retainer. Audit kann angerechnet werden auf späteren Build.',
+  faq: [
+    { q: 'Wie kurz ist 48h wirklich?', a: 'Kickoff → 48h später PDF + Closing-Call. Realistisch für mittlere Komplexität.' },
+    { q: 'Was wenn ich nichts umsetzen will?', a: 'Du behältst Report + Roadmap. Kein Push-Sales.' },
+    { q: 'Gutschrift bei Folge-Auftrag?', a: 'Ja, 50% der Audit-Kosten werden auf Setup angerechnet.' },
+  ],
+};
+
+/* ──────────────────── DFY SERVICES (Legacy + Industry-Specific) ──────────────────── */
 
 const businessOS: ShopItemContent = {
   slug: 'business-os',
@@ -914,18 +1156,25 @@ export const SHOP_ITEMS: Record<string, ShopItemContent> = {
   'cold-outreach-system': coldOutreachSystem,
   // Bundle
   'bundle-all': bundleAll,
-  // DFY
+  // DFY — Consolidated 5 (2026-05-24) — primary slugs
+  'aevum-business-os': aevumBusinessOS,
+  'aevum-command-center': aevumCommandCenter,
+  'aevum-lead-engine': aevumLeadEngine,
+  'aevum-content-engine': aevumContentEngine,
+  'aevum-audit': aevumAudit,
+  // DFY — Industry-Specific (separate)
+  'ecommerce-os': ecommerceOS,
+  'script-factory-dfy': scriptFactoryDfy,
+  // DFY — Legacy slugs (kept for backwards-compat with existing detail-page links)
   'business-os': businessOS,
   'command-center-dashboard': commandCenterDashboard,
   'ai-lead-engine': aiLeadEngine,
   'sales-os': salesOS,
-  'ecommerce-os': ecommerceOS,
   'automation-audit': automationAudit,
   'website-crm': websiteCrm,
   'database-system': databaseSystem,
   'content-engine': contentEngine,
   'hud-command-center': hudCommandCenter,
-  'script-factory-dfy': scriptFactoryDfy,
   // SaaS Coming-Soon
   'script-factory': scriptFactorySaas,
   'dsgvo-factory': dsgvoFactory,

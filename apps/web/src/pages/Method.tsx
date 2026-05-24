@@ -8,10 +8,11 @@ import {
   Settings2,
   TrendingUp,
   ArrowRight,
-  Calendar,
   ChevronDown,
 } from 'lucide-react';
 import CONTACT from '../config/contact';
+import PathThreeCard from '@/components/ctas/PathThreeCard';
+import { usePageSeo } from '@/hooks/use-page-seo';
 
 /* ──────────────────────── Animation helpers ──────────────────────── */
 
@@ -372,30 +373,13 @@ function CTASection() {
         initial={{ opacity: 0, y: 40 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="max-w-3xl mx-auto text-center bg-[#111116] border border-white/10 p-10 md:p-16"
+        className="max-w-5xl mx-auto"
       >
-        <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-4">
-          Bereit f&uuml;r dein <span className="text-gradient font-medium">Operating-System</span>?
-        </h2>
-        <p className="text-[#a4a4ad] mb-10 max-w-lg mx-auto">
-          Starte mit einem kostenlosen Audit. Wir analysieren dein Setup und zeigen dir, wo
-          Automatisierung den gr&ouml;&szlig;ten Impact hat.
-        </p>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
-          <a href="/#/audit" className="btn-primary">
-            Audit starten
-            <ArrowRight size={16} className="ml-2" />
-          </a>
-          <a
-            href={CONTACT.calendly}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary"
-          >
-            <Calendar size={16} className="mr-2" />
-            Call buchen
-          </a>
-        </div>
+        <PathThreeCard
+          eyebrow="Nächster Schritt"
+          headline="Drei Wege rein. Du wählst."
+          subline="Blueprint kaufen für Sofort-Start, Audit für Custom-Setup, oder Helpbot für Fragen."
+        />
       </motion.div>
     </section>
   );
@@ -404,6 +388,11 @@ function CTASection() {
 /* ──────────────────────── Page ──────────────────────── */
 
 export default function Method() {
+  usePageSeo({
+    title: 'Unsere Methode — Audit, Blueprint, SaaS | AEVUM',
+    description: 'So bauen wir KI-Betriebssysteme: Discovery, Blueprint, Build, Deploy. Drei Säulen — Monitoring, Anpassung, Wachstum. Transparent, messbar, DSGVO-konform.',
+    path: '/method',
+  });
   return (
     <div className="bg-[#08080a] min-h-screen">
       <HeroSection />

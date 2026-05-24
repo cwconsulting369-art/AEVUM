@@ -292,6 +292,14 @@ export default function Helpbot() {
     return () => { document.body.style.overflow = prev; };
   }, [open]);
 
+  // Global API: window.dispatchEvent(new CustomEvent('aevum:open-helpbot'))
+  // Used by PathThreeCard ("Helpbot fragen") to programmatically open chat.
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener('aevum:open-helpbot', handler);
+    return () => window.removeEventListener('aevum:open-helpbot', handler);
+  }, []);
+
   const sendMessage = useCallback(async () => {
     const text = input.trim();
     if (!text || sending) return;
