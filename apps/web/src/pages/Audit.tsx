@@ -1002,17 +1002,28 @@ function AuditForm() {
     return true;
   }, [step, formState]);
 
+  // CRITICAL: nach setStep zu Form-Anker scrollen, NICHT zur Seiten-Spitze.
+  // Sonst sieht User die Hero-Section + denkt die Form ist weg.
+  const scrollToForm = () => {
+    requestAnimationFrame(() => {
+      const el = document.getElementById('form');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  };
+
   const goNext = useCallback(() => {
     if (!canAdvance()) return;
     setDirection(1);
     setStep(s => Math.min(s + 1, TOTAL_STEPS - 1));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToForm();
   }, [canAdvance]);
 
   const goBack = useCallback(() => {
     setDirection(-1);
     setStep(s => Math.max(s - 1, 0));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToForm();
   }, []);
 
   /* -- File helpers -- */
