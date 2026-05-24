@@ -3,111 +3,31 @@ import { motion, useInView } from 'framer-motion';
 import {
   ArrowRight,
   MessageCircle,
-  User,
+  ExternalLink,
   Building2,
-  TrendingUp,
-  CheckCircle2,
 } from 'lucide-react';
 import CONTACT from '../config/contact';
 
-/* ──────────────────────── Animation helpers ──────────────────────── */
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] },
-  }),
-};
-
 /* ──────────────────────── Types ──────────────────────── */
 
-interface ApiCase {
-  slug: string;
-  client_zero?: boolean;
-  member_since?: string;
-  company?: string | null;
-  industry?: string | null;
-  revenue_band?: string | null;
-  team_size?: string | null;
-  vision?: string | null;
-  bio?: string | null;
-  kpis?: { label?: string; value?: string; delta?: string }[];
-  case_study?: string | null;
-  testimonial_quote?: string | null;
-  projects?: { slug?: string; name?: string; description?: string; status?: string; industry?: string }[];
-  permissions?: {
-    share_company_name?: boolean;
-    share_industry?: boolean;
-    share_kpis?: boolean;
-    share_kpi_deltas?: boolean;
-    share_case_study?: boolean;
-    anonymize_industry_detail?: boolean;
-  };
+interface ActivatedService {
+  slug?: string;
+  name?: string;
+  started_at?: string;
+  impact?: string;
 }
 
-interface DisplayCase {
-  key: string;
-  displayName: string;
-  displayIndustry: string;
-  story: string;
-  kpiDelta: string | null;
-  showKpiDelta: boolean;
-  shareIndustry: boolean;
-  shareKpis: boolean;
+interface CaseSummary {
+  slug: string;
+  hero_title: string;
+  hero_subtitle?: string | null;
+  brand_url?: string | null;
+  hero_image_url?: string | null;
+  testimonial_author?: string | null;
+  activated_services?: ActivatedService[];
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.aevum-system.de';
-
-/* ──────────────────────── Mapping helpers ──────────────────────── */
-
-function mapApiCase(raw: ApiCase, index: number): DisplayCase | null {
-  // Skip Client Zero (Carlos) — handled in its own hero section.
-  if (raw.client_zero) return null;
-
-  const perms = raw.permissions || {};
-  const shareCompany = perms.share_company_name !== false && Boolean(raw.company);
-  const shareIndustry = perms.share_industry !== false && Boolean(raw.industry);
-  const shareKpis = perms.share_kpis === true;
-  const shareKpiDeltas = perms.share_kpi_deltas === true;
-
-  const displayName = shareCompany && raw.company
-    ? raw.company
-    : `Kunde ${index + 1}`;
-
-  const displayIndustry = shareIndustry && raw.industry
-    ? raw.industry
-    : 'Branche vertraulich';
-
-  // Choose the strongest available story snippet
-  const projectDesc = raw.projects?.find(p => p.description)?.description || '';
-  const storyRaw = (perms.share_case_study && raw.case_study)
-    || raw.testimonial_quote
-    || raw.bio
-    || projectDesc
-    || 'Projekt läuft — Details unter NDA.';
-
-  const story = String(storyRaw)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-
-  // First KPI delta (if any) as headline metric
-  const firstDelta = raw.kpis?.find(k => k.delta)?.delta || null;
-  const kpiDelta = shareKpiDeltas ? firstDelta : null;
-
-  return {
-    key: raw.slug || `case-${index}`,
-    displayName,
-    displayIndustry,
-    story,
-    kpiDelta,
-    showKpiDelta: Boolean(shareKpiDeltas && firstDelta),
-    shareIndustry,
-    shareKpis: shareKpis || shareKpiDeltas,
-  };
-}
 
 /* ──────────────────────── Section 1: Hero ──────────────────────── */
 
@@ -144,159 +64,84 @@ function HeroSection() {
   );
 }
 
-/* ──────────────────────── Section 2: Client Zero — Carlos ──────────────────────── */
+/* ──────────────────────── Case-Card ──────────────────────── */
 
-function ClientZeroSection() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-
-  return (
-    <section className="px-6 lg:px-16 py-16" ref={ref}>
-      <div className="max-w-[1440px] mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-10"
-        >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
-            Client Zero
-          </span>
-          <h2 className="text-2xl md:text-4xl font-light tracking-tight">
-            Das System, das sich selbst <span className="text-gradient font-medium">baut</span>
-          </h2>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-          className="bg-[#111116] border border-[#e0a458]/30 p-8 md:p-12 relative overflow-hidden"
-        >
-          <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-[#e0a458]/5 blur-3xl" />
-
-          <div className="relative z-10 flex flex-col md:flex-row gap-8 md:gap-12">
-            <div className="flex flex-col items-center md:items-start flex-shrink-0">
-              <div className="w-20 h-20 rounded-full bg-[#e0a458]/10 border border-[#e0a458]/30 flex items-center justify-center mb-4">
-                <User size={32} className="text-[#e0a458]" />
-              </div>
-              <h3 className="text-xl font-medium text-[#F9FAFB]">Carlos Wrusch</h3>
-              <p className="text-sm text-[#a4a4ad]">Founder, AEVUM</p>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 mt-3 rounded-full bg-[#e0a458]/10 text-[#e0a458] text-xs font-mono uppercase tracking-wider">
-                <CheckCircle2 size={12} />
-                AEVUM &mdash; Client Zero
-              </span>
-            </div>
-
-            <div className="flex-1">
-              <p className="text-[#a4a4ad] leading-relaxed mb-8 text-base">
-                Ich baue AEVUM auf mir selbst auf, bevor es zu Kunden kommt. Das ist Client Zero:
-                eat your own dog food. Jeder Workflow, jeder Agent, jedes Dashboard l&auml;uft erst bei
-                mir, bevor es externalisiert wird.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 p-4 bg-[#08080a] border border-white/10">
-                  <TrendingUp size={20} className="text-[#e0a458]" />
-                  <div>
-                    <p className="text-sm font-medium text-[#F9FAFB]">System live seit 2024</p>
-                    <p className="text-xs text-[#7a7a85]">Kontinuierliche Entwicklung</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-4 bg-[#08080a] border border-white/10">
-                  <CheckCircle2 size={20} className="text-[#e0a458]" />
-                  <div>
-                    <p className="text-sm font-medium text-[#F9FAFB]">
-                      Alle Workflows selbst getestet
-                    </p>
-                    <p className="text-xs text-[#7a7a85]">Dogfooding vor Delivery</p>
-                  </div>
-                </div>
-              </div>
-              <p className="text-xs text-[#7a7a85] mt-6 font-mono">
-                Live-Tracking unter <a href="/#/about" className="text-[#e0a458] hover:underline">/about</a>.
-              </p>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-/* ──────────────────────── Section 3: Weitere Cases ──────────────────────── */
-
-function CaseCard({ caseData, index }: { caseData: DisplayCase; index: number }) {
+function CaseCard({ caseData, index }: { caseData: CaseSummary; index: number }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
 
+  const services = caseData.activated_services || [];
+  const serviceCount = services.length;
+
   return (
-    <motion.div
+    <motion.a
       ref={ref}
-      custom={index}
-      variants={fadeUp}
-      initial="hidden"
-      animate={isInView ? 'visible' : 'hidden'}
-      className="bg-[#111116] border border-white/10 p-6 md:p-8 hover:border-[#e0a458]/20 transition-all"
+      href={`/#/cases/${caseData.slug}`}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ delay: index * 0.08, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      className="block bg-[#111116] border border-white/10 p-6 md:p-8 hover:border-[#e0a458]/40 hover:bg-[#13131a] transition-all group"
     >
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-[#e0a458]/10 flex items-center justify-center flex-shrink-0">
-            <Building2 size={18} className="text-[#e0a458]" />
+          <div className="w-11 h-11 rounded-lg bg-[#e0a458]/10 border border-[#e0a458]/20 flex items-center justify-center flex-shrink-0">
+            <Building2 size={20} className="text-[#e0a458]" />
           </div>
           <div>
-            <h3 className="text-base font-medium text-[#F9FAFB]">{caseData.displayName}</h3>
-            <span className="text-xs text-[#a4a4ad]">{caseData.displayIndustry}</span>
+            <h3 className="text-base md:text-lg font-medium text-[#F9FAFB] leading-tight">
+              {caseData.hero_title}
+            </h3>
+            {caseData.hero_subtitle && (
+              <p className="text-xs text-[#a4a4ad] mt-1">{caseData.hero_subtitle}</p>
+            )}
           </div>
         </div>
-        {caseData.showKpiDelta && caseData.kpiDelta && (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#e0a458]/10 text-[#e0a458] text-xs font-mono whitespace-nowrap">
-            <TrendingUp size={12} />
-            {caseData.kpiDelta}
+        <ArrowRight
+          size={18}
+          className="text-[#7a7a85] group-hover:text-[#e0a458] group-hover:translate-x-1 transition-all flex-shrink-0 mt-1"
+        />
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-1.5">
+          {services.slice(0, 3).map((s, i) => (
+            <span
+              key={i}
+              className="text-[10px] font-mono uppercase tracking-wider text-[#e0a458]/80 bg-[#e0a458]/5 border border-[#e0a458]/15 px-2 py-1 rounded"
+            >
+              {s.name || s.slug}
+            </span>
+          ))}
+          {serviceCount > 3 && (
+            <span className="text-[10px] font-mono text-[#7a7a85] uppercase px-2 py-1">
+              +{serviceCount - 3}
+            </span>
+          )}
+        </div>
+        {caseData.brand_url && (
+          <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider text-[#7a7a85]">
+            <ExternalLink size={10} />
+            Live
           </span>
         )}
       </div>
-
-      <p
-        className="text-sm text-[#a4a4ad] leading-relaxed"
-        dangerouslySetInnerHTML={{ __html: caseData.story }}
-      />
-
-      <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap gap-2">
-        {caseData.shareIndustry && (
-          <span className="text-[10px] font-mono text-[#7a7a85] uppercase tracking-wider">
-            Branche freigegeben
-          </span>
-        )}
-        {caseData.shareKpis && (
-          <span className="text-[10px] font-mono text-[#7a7a85] uppercase tracking-wider">
-            KPI freigegeben
-          </span>
-        )}
-      </div>
-    </motion.div>
+    </motion.a>
   );
 }
 
 function FallbackNotice({ message }: { message: string }) {
   return (
     <div className="bg-[#111116] border border-white/10 p-8 md:p-10 text-center">
-      <p className="text-sm text-[#a4a4ad] leading-relaxed">
-        {message}
-      </p>
-      <p className="text-xs text-[#7a7a85] font-mono mt-3">
-        Client Zero: Wir selbst. Live-Tracking unter{' '}
-        <a href="/#/about" className="text-[#e0a458] hover:underline">/about</a>.
-      </p>
+      <p className="text-sm text-[#a4a4ad] leading-relaxed">{message}</p>
     </div>
   );
 }
 
-function MoreCasesSection() {
+function CasesGridSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const [cases, setCases] = useState<DisplayCase[]>([]);
+  const [cases, setCases] = useState<CaseSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -317,10 +162,7 @@ function MoreCasesSection() {
         if (!json?.ok || !Array.isArray(json.cases)) {
           throw new Error('Invalid response shape');
         }
-        const mapped = json.cases
-          .map((c: ApiCase, i: number) => mapApiCase(c, i))
-          .filter((c: DisplayCase | null): c is DisplayCase => c !== null);
-        setCases(mapped);
+        setCases(json.cases as CaseSummary[]);
       } catch (e) {
         if (cancelled) return;
         const msg = e instanceof Error ? e.message : 'unknown';
@@ -352,14 +194,13 @@ function MoreCasesSection() {
           className="mb-10"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
-            Weitere Projekte
+            Kunden-Cases
           </span>
           <h2 className="text-2xl md:text-4xl font-light tracking-tight mb-4">
-            Vertraulich. Aber <span className="text-gradient font-medium">echt</span>.
+            Vier Projekte. Vier <span className="text-gradient font-medium">Branchen</span>.
           </h2>
           <p className="text-[#a4a4ad] max-w-2xl">
-            Nicht alle Kunden k&ouml;nnen Details &ouml;ffentlich teilen. Was du hier siehst, ist exakt das,
-            wof&uuml;r wir jeweils die Freigabe haben. Keine erfundenen KPIs &mdash; nur ehrliche Updates.
+            Klick auf einen Case fuer Vision, aktivierte AEVUM-Services und Live-KPIs.
           </p>
         </motion.div>
 
@@ -371,19 +212,16 @@ function MoreCasesSection() {
                 className="bg-[#111116] border border-white/10 p-6 md:p-8 animate-pulse"
                 aria-hidden="true"
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-white/5" />
-                    <div className="space-y-2">
-                      <div className="h-3.5 w-32 bg-white/5 rounded" />
-                      <div className="h-2.5 w-20 bg-white/5 rounded" />
-                    </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-11 h-11 rounded-lg bg-white/5" />
+                  <div className="space-y-2 flex-1">
+                    <div className="h-4 w-3/4 bg-white/5 rounded" />
+                    <div className="h-2.5 w-1/2 bg-white/5 rounded" />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="h-3 w-full bg-white/5 rounded" />
-                  <div className="h-3 w-5/6 bg-white/5 rounded" />
-                  <div className="h-3 w-2/3 bg-white/5 rounded" />
+                <div className="mt-6 flex gap-2">
+                  <div className="h-5 w-20 bg-white/5 rounded" />
+                  <div className="h-5 w-24 bg-white/5 rounded" />
                 </div>
               </div>
             ))}
@@ -391,7 +229,7 @@ function MoreCasesSection() {
         )}
 
         {!loading && !error && cases.length === 0 && (
-          <FallbackNotice message="Aktuell keine ver&ouml;ffentlichten Kunden-Cases — alles &uuml;ber NDA geschützt." />
+          <FallbackNotice message="Aktuell keine veroeffentlichten Cases." />
         )}
 
         {!loading && error && (
@@ -401,7 +239,7 @@ function MoreCasesSection() {
         {!loading && !error && cases.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {cases.map((c, i) => (
-              <CaseCard key={c.key} caseData={c} index={i} />
+              <CaseCard key={c.slug} caseData={c} index={i} />
             ))}
           </div>
         )}
@@ -410,7 +248,7 @@ function MoreCasesSection() {
   );
 }
 
-/* ──────────────────────── Section 4: CTA ──────────────────────── */
+/* ──────────────────────── Section: CTA ──────────────────────── */
 
 function CTASection() {
   const ref = useRef(null);
@@ -429,7 +267,7 @@ function CTASection() {
         </h2>
         <p className="text-[#a4a4ad] mb-10 max-w-lg mx-auto">
           Starte mit einem Audit. Wir schauen uns dein Setup an und zeigen dir, wo Automatisierung
-          den gr&ouml;&szlig;ten Hebel hat.
+          den groessten Hebel hat.
         </p>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
           <a href="/#/audit" className="btn-primary">
@@ -457,10 +295,8 @@ export default function Cases() {
   return (
     <div className="bg-[#08080a] min-h-screen">
       <HeroSection />
-      <ClientZeroSection />
-      <MoreCasesSection />
+      <CasesGridSection />
       <CTASection />
     </div>
   );
 }
-

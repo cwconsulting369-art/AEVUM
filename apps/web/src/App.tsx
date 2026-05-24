@@ -9,6 +9,7 @@ const Helpbot = lazy(() => import('./components/Helpbot'));
 const Audit = lazy(() => import('./pages/Audit'));
 const Method = lazy(() => import('./pages/Method'));
 const Cases = lazy(() => import('./pages/Cases'));
+const CaseDetail = lazy(() => import('./pages/CaseDetail'));
 const About = lazy(() => import('./pages/About'));
 const Datenschutz = lazy(() => import('./pages/Datenschutz'));
 const Impressum = lazy(() => import('./pages/Impressum'));
@@ -86,9 +87,13 @@ export default function App() {
 
   // Dynamic Shop-Item-Detail-Routes: /shop/{blueprint|dfy|saas|bundle}/<slug>
   const shopDetailMatch = route.match(/^\/shop\/(blueprint|dfy|saas|bundle)\/([a-z0-9-]+)$/);
+  // Case-Detail-Routes: /cases/<slug>
+  const caseDetailMatch = route.match(/^\/cases\/([a-z0-9-]+)$/);
   const Page = shopDetailMatch
     ? () => <ShopItemDetail variant={shopDetailMatch[1] as 'blueprint' | 'dfy' | 'saas' | 'bundle'} slug={shopDetailMatch[2]} />
-    : (routeComponents[route] || Home);
+    : caseDetailMatch
+      ? () => <CaseDetail slug={caseDetailMatch[1]} />
+      : (routeComponents[route] || Home);
   const isHome = route === '/';
 
   return (

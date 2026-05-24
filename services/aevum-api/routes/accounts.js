@@ -58,8 +58,11 @@ const PatchAccountSchema = z.object({
 // ──────────────────────────────────────────────────────────
 // GET /api/accounts — list
 // ──────────────────────────────────────────────────────────
-accountsRouter.get('/', requireAdmin, async (_req, res) => {
-  const r = await supabase.select('accounts', 'select=id,slug,name,business_name,email,status,client_zero,created_at&order=created_at.desc');
+accountsRouter.get('/', requireAdmin, async (req, res) => {
+  // Default: hide archived. Set ?include_archived=1 to include them.
+  const includeArchived = req.query.include_archived === '1' || req.query.include_archived === 'true';
+  const filter = includeArchived ? '' : '&status=neq.archived';
+  const r = await supabase.select('accounts', `select=id,slug,name,business_name,email,status,client_zero,created_at${filter}&order=created_at.desc`);
   if (!r.ok) return res.status(500).json({ ok: false, error: r.error });
   res.json({ ok: true, accounts: r.data });
 });
@@ -109,11 +112,13 @@ function deriveHealth(account, projects) {
   return 'gray';
 }
 
-accountsRouter.get('/aggregate', requireAdmin, async (_req, res) => {
-  // 1. Pull all accounts
+accountsRouter.get('/aggregate', requireAdmin, async (req, res) => {
+  // 1. Pull all accounts (exclude archived from MRR roll-up unless explicitly requested)
+  const includeArchived = req.query.include_archived === '1' || req.query.include_archived === 'true';
+  const archFilter = includeArchived ? '' : '&status=neq.archived';
   const accRes = await supabase.select(
     'accounts',
-    'select=id,slug,name,status,client_zero,created_at&order=created_at.asc'
+    `select=id,slug,name,status,client_zero,created_at${archFilter}&order=created_at.asc`
   );
   if (!accRes.ok) return res.status(500).json({ ok: false, error: accRes.error });
   const accounts = accRes.data || [];

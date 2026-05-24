@@ -41,7 +41,8 @@ function fmtEur(n) { return `€${Number(n).toLocaleString('de-DE')}`; }
 
 async function aevumSection(sectionSlug) {
   const [accRes, projRes] = await Promise.all([
-    supabase.select('accounts', 'select=id,slug,name,status,client_zero,created_at&order=created_at.asc'),
+    // Archive-Mocks rausfiltern (status=archived) — Wave B5
+    supabase.select('accounts', 'select=id,slug,name,status,client_zero,created_at&status=neq.archived&order=created_at.asc'),
     supabase.select('projects', 'select=id,account_id,slug,name,status,tier,industry,pricing&order=created_at.asc')
   ]);
   const accounts = accRes.data ?? [];

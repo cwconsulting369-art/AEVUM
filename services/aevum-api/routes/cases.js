@@ -1,8 +1,12 @@
-// /api/cases — Public, permissions-filtered Live-Cases for AEVUM website
-// Used by Kimi's Cases.tsx page on aevum-system.de
+// /api/cases — Public, permissions-gated case pages for AEVUM website
 //
-// Returns only accounts/projects where channel_website=true.
-// All fields masked according to account_permissions toggles.
+// Schema lives in migrations/026_case_pages.sql (table: public.case_pages).
+// Carlos pflegt Inhalte ueber die Tabelle (Admin-UI folgt) — diese Route
+// liefert nur public=true Eintraege und merged optional Live-KPIs aus
+// project_intelligence wenn show_revenue / show_users / show_growth.
+//
+// Brand-Memory: Anti-Fake-it. Keine erfundenen KPIs. Wenn ein Wert nicht
+// aus DB kommt, ist source='manual' (Carlos hat ihn von Hand gesetzt).
 
 import { Router } from 'express';
 import { supabase } from '../lib/supabase.js';
@@ -10,141 +14,109 @@ import { supabase } from '../lib/supabase.js';
 export const casesRouter = Router();
 
 // ──────────────────────────────────────────────────────────
-// GET /api/cases — public, no auth
+// GET /api/cases — list public cases, sorted
 // ──────────────────────────────────────────────────────────
 casesRouter.get('/', async (_req, res) => {
-  // Fetch accounts that have ANY of: channel_website permission OR client_zero
-  // Permissions joined via account_permissions
-  const permsRes = await supabase.select(
-    'account_permissions',
-    'select=account_id,share_logo,share_company_name,share_industry,share_revenue_band,share_team_size,share_kpis,share_kpi_deltas,share_case_study,share_testimonial_quote,channel_website,anonymize_revenue,anonymize_industry_detail&channel_website=eq.true'
+  const r = await supabase.select(
+    'case_pages',
+    'select=slug,hero_title,hero_subtitle,brand_url,activated_services,testimonial_author,sort_order,hero_image_url' +
+      '&public=eq.true' +
+      '&order=sort_order.asc'
   );
 
-  if (!permsRes.ok) return res.status(500).json({ ok: false, error: permsRes.error });
-
-  // UUID regex (RFC 4122 v1-v5) — defense-in-depth before .join() into IN clause
-  const UUID_RX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  const accountIds = (permsRes.data || [])
-    .map(p => p.account_id)
-    .filter(id => typeof id === 'string' && UUID_RX.test(id));
-
-  // Always include client_zero (Carlos) — full transparency
-  const clientZeroRes = await supabase.select(
-    'accounts',
-    'select=id&client_zero=eq.true'
-  );
-  const clientZeroIds = (clientZeroRes.data || [])
-    .map(a => a.id)
-    .filter(id => typeof id === 'string' && UUID_RX.test(id));
-  const allIds = [...new Set([...accountIds, ...clientZeroIds])];
-
-  if (allIds.length === 0) {
-    return res.json({ ok: true, cases: [] });
+  if (!r.ok) {
+    return res.status(500).json({ ok: false, error: r.error });
   }
 
-  // Fetch accounts + profiles + projects in parallel
-  const idsFilter = `account_id=in.(${allIds.join(',')})`;
-  const idsFilterAcc = `id=in.(${allIds.join(',')})`;
-
-  const [accounts, profiles, projects] = await Promise.all([
-    supabase.select('accounts', `select=id,slug,name,business_name,status,client_zero,created_at&${idsFilterAcc}&order=created_at.asc`),
-    supabase.select('account_profiles', `select=account_id,display_name,industry,team_size,revenue_band,vision,bio,visibility,member_since&${idsFilter}`),
-    supabase.select('projects', `select=id,account_id,slug,name,description,status,industry,created_at&${idsFilter}&order=created_at.asc`)
-  ]);
-
-  // Build permissions lookup
-  const permsByAccount = {};
-  for (const p of permsRes.data || []) permsByAccount[p.account_id] = p;
-
-  // Client Zero gets default-open permissions if no explicit ones
-  const clientZeroDefault = {
-    share_logo: true, share_company_name: true, share_industry: true,
-    share_revenue_band: true, share_team_size: true, share_kpis: true,
-    share_kpi_deltas: true, share_case_study: true, share_testimonial_quote: true,
-    channel_website: true, anonymize_revenue: false, anonymize_industry_detail: false
-  };
-
-  const profilesByAccount = {};
-  for (const p of profiles.data || []) profilesByAccount[p.account_id] = p;
-
-  const projectsByAccount = {};
-  for (const proj of projects.data || []) {
-    if (!projectsByAccount[proj.account_id]) projectsByAccount[proj.account_id] = [];
-    projectsByAccount[proj.account_id].push(proj);
-  }
-
-  // Compose case objects with permissions-masking
-  const cases = (accounts.data || []).map(acc => {
-    const perms = permsByAccount[acc.id] || (acc.client_zero ? clientZeroDefault : null);
-    if (!perms) return null;
-    const profile = profilesByAccount[acc.id];
-    const accProjects = projectsByAccount[acc.id] || [];
-
-    const caseObj = {
-      slug: acc.slug,
-      client_zero: acc.client_zero,
-      member_since: profile?.member_since || acc.created_at?.slice(0, 10),
-      status: acc.status
-    };
-
-    if (perms.share_logo) caseObj.logo_present = true;
-    if (perms.share_company_name) caseObj.company = acc.business_name || acc.name;
-    if (perms.share_industry) {
-      caseObj.industry = perms.anonymize_industry_detail
-        ? generalizeIndustry(profile?.industry)
-        : profile?.industry;
-    }
-    if (perms.share_revenue_band) {
-      caseObj.revenue_band = perms.anonymize_revenue
-        ? anonymizeRevenue(profile?.revenue_band)
-        : profile?.revenue_band;
-    }
-    if (perms.share_team_size) caseObj.team_size = profile?.team_size;
-
-    if (perms.share_case_study && profile?.vision) {
-      caseObj.story_excerpt = profile.bio || profile.vision;
-    }
-
-    if (perms.share_kpi_deltas) {
-      // TODO: pull from project_workflows.metrics — for now stub
-      caseObj.kpi_deltas = [];
-    }
-
-    caseObj.projects_count = accProjects.length;
-
-    return caseObj;
-  }).filter(Boolean);
-
-  res.json({ ok: true, $schema: 'aevum/cases/v1', cases });
+  res.json({
+    ok: true,
+    $schema: 'aevum/cases/v2',
+    cases: r.data || []
+  });
 });
 
-function anonymizeRevenue(band) {
-  if (!band) return null;
-  const mapping = {
-    '<100k': 'unter sechsstellig',
-    '100k-500k': 'sechsstellig',
-    '500k-1m': 'mittlere sechsstellige',
-    '1m-5m': 'siebenstellig',
-    '5m+': 'mehrere Millionen'
-  };
-  return mapping[band] || band;
-}
+// ──────────────────────────────────────────────────────────
+// GET /api/cases/:slug — single case detail (public)
+// ──────────────────────────────────────────────────────────
+casesRouter.get('/:slug', async (req, res) => {
+  const slug = String(req.params.slug || '').trim().toLowerCase();
+  if (!slug || !/^[a-z0-9-]{1,80}$/.test(slug)) {
+    return res.status(400).json({ ok: false, error: 'invalid_slug' });
+  }
 
-function generalizeIndustry(industry) {
-  if (!industry) return null;
-  const mapping = {
-    'real-estate': 'Immobilien-Sektor',
-    'e-commerce': 'Online-Handel',
-    'b2b-saas': 'B2B-Software',
-    'consulting': 'Beratung',
-    'agency': 'Dienstleister',
-    'finance': 'Finanzdienstleistung',
-    'healthcare': 'Gesundheitsbranche',
-    'manufacturing': 'Produktion',
-    'education': 'Bildung',
-    'hospitality': 'Gastronomie',
-    'energy-consulting': 'Energieberatung',
-    'ai-systems': 'AI-Technologie'
-  };
-  return mapping[industry] || industry;
-}
+  const r = await supabase.select(
+    'case_pages',
+    `select=*&slug=eq.${encodeURIComponent(slug)}&public=eq.true&limit=1`
+  );
+
+  if (!r.ok) {
+    return res.status(500).json({ ok: false, error: r.error });
+  }
+
+  const row = (r.data || [])[0];
+  if (!row) {
+    return res.status(404).json({ ok: false, error: 'not_found' });
+  }
+
+  // Live-KPI-Merge: ziehe optional Daten aus project_intelligence wenn
+  // show_revenue / show_users / show_growth aktiv. Nur additiv — manuelle
+  // Eintraege in row.live_kpis bleiben erhalten.
+  const liveKpis = Array.isArray(row.live_kpis) ? [...row.live_kpis] : [];
+
+  const wantsLive = row.show_revenue || row.show_users || row.show_growth;
+  if (wantsLive && row.account_id) {
+    try {
+      const pi = await supabase.select(
+        'project_intelligence',
+        `select=metric_key,metric_value,metric_unit,updated_at&account_id=eq.${row.account_id}&order=updated_at.desc&limit=20`
+      );
+      if (pi.ok && Array.isArray(pi.data)) {
+        const wantedKeys = new Set();
+        if (row.show_revenue) {
+          wantedKeys.add('mrr');
+          wantedKeys.add('revenue_month');
+        }
+        if (row.show_users) {
+          wantedKeys.add('active_users');
+          wantedKeys.add('total_users');
+        }
+        if (row.show_growth) {
+          wantedKeys.add('growth_pct');
+          wantedKeys.add('mom_growth');
+        }
+        for (const m of pi.data) {
+          if (!wantedKeys.has(m.metric_key)) continue;
+          liveKpis.push({
+            label: m.metric_key,
+            value: m.metric_value,
+            unit: m.metric_unit || '',
+            source: 'db',
+            updated_at: m.updated_at
+          });
+        }
+      }
+    } catch (e) {
+      // Soft-fail: Live-KPI-Merge darf den Case nicht brechen
+      console.warn('[cases] live-kpi merge fail:', e?.message);
+    }
+  }
+
+  res.json({
+    ok: true,
+    $schema: 'aevum/case/v2',
+    case: {
+      slug: row.slug,
+      hero_title: row.hero_title,
+      hero_subtitle: row.hero_subtitle,
+      brand_url: row.brand_url,
+      hero_image_url: row.hero_image_url,
+      project_description: row.project_description,
+      collaboration_story: row.collaboration_story,
+      vision: row.vision,
+      activated_services: Array.isArray(row.activated_services) ? row.activated_services : [],
+      live_kpis: liveKpis,
+      testimonial_quote: row.testimonial_quote,
+      testimonial_author: row.testimonial_author
+    }
+  });
+});

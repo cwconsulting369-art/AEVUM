@@ -19,6 +19,8 @@ Run new files **in numeric order**. All migrations are idempotent (`IF NOT EXIST
 | 009 | `009_seed_blueprints_and_account_zero.sql` | **yes (2026-05-22)** | Seeds: 6 pricing tiers (Baulig-based) + Marketing-Thesis + Dashboards/Agents/Workflows/Audit-Form + Account #0 Carlos + Projects (AEVUM, LennoxOS) |
 | 010 | `010_pending_approvals.sql` | **yes (2026-05-22)** | Lennox↔Carlos async approval channel via Telegram. `pending_approvals` table + RLS service-role-only + indexes (status/expires). Drives `/api/approval/*` + `/api/tg-webhook/lennox-bot`. |
 | 011 | `011_helpbot_conversations.sql` | **yes (2026-05-22)** | Helpbot chat sessions (anonymous, IP-anonymized /24, 90-day retention) + RLS service-role-only + indexes. Drives `/api/helpbot/chat`. |
+| 026 | `026_case_pages.sql` | **yes (2026-05-24)** | Wave B5: `case_pages` table + 'archived' status added to accounts CHECK + 3 HV-Mock accounts archived. Drives `/api/cases` v2. |
+| 027 | `027_seed_case_pages.sql` | **yes (2026-05-24)** | Wave B5: Seeds 4 live cases (ketolabs, utilityhub, thailand-re, goldtradersociety). |
 
 ## Pending (paste in Supabase SQL Editor)
 
