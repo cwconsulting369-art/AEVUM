@@ -16,8 +16,12 @@ module.exports = {
         'text-muted': 'var(--text-muted)',
         'theme-accent': 'var(--theme-accent)',
         'theme-accent-hover': 'var(--theme-accent-hover)',
+        'theme-accent-soft': 'var(--theme-accent-soft)',
+        'theme-accent-glow': 'var(--theme-accent-glow)',
         'theme-border': 'var(--theme-border)',
         'theme-border-strong': 'var(--theme-border-strong)',
+        'theme-border-accent': 'var(--theme-border-accent)',
+        'text-on-accent': 'var(--text-on-accent)',
         gold: {
           50:  '#fdf6e7',
           100: '#fbecc8',
@@ -97,8 +101,18 @@ module.exports = {
       },
       boxShadow: {
         xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-        'glow-gold': '0 0 0 1px rgba(224,164,88,0.4), 0 0 24px -4px rgba(224,164,88,0.35)',
+        'glow-gold': '0 0 0 1px rgba(212,176,72,0.4), 0 0 24px -4px rgba(212,176,72,0.35)',
         'glass': '0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 32px -8px rgba(0,0,0,0.6)',
+        'theme-sm': 'var(--shadow-sm)',
+        'theme-md': 'var(--shadow-md)',
+        'theme-lg': 'var(--shadow-lg)',
+        'theme-glow': 'var(--shadow-glow)',
+      },
+      spacing: {
+        '4.5': '1.125rem',
+        '18': '4.5rem',
+        '22': '5.5rem',
+        '30': '7.5rem',
       },
       backgroundImage: {
         'gold-gradient': 'linear-gradient(135deg, #f5d68d 0%, #e0a458 45%, #a86d27 100%)',
