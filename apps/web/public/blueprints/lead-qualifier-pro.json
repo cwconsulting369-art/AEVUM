@@ -1,0 +1,318 @@
+{
+  "name": "AEVUM Blueprint: Lead-Qualifier Pro",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aevum-lead-qualifier",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook — Lead Submission",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "aevum-lead-qualifier"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "lead-email",
+              "name": "email",
+              "value": "={{ $json.body.email || $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "lead-name",
+              "name": "name",
+              "value": "={{ $json.body.name || $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "lead-company",
+              "name": "company",
+              "value": "={{ $json.body.company || $json.company }}",
+              "type": "string"
+            },
+            {
+              "id": "lead-message",
+              "name": "message",
+              "value": "={{ $json.body.message || $json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "lead-budget",
+              "name": "budget",
+              "value": "={{ $json.body.budget || $json.budget || 'unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "lead-timeline",
+              "name": "timeline",
+              "value": "={{ $json.body.timeline || $json.timeline || 'unknown' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "normalize-input",
+      "name": "Normalize Lead Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "messages": {
+          "messageValues": [
+            {
+              "role": "user",
+              "content": "=Du bist ein erfahrener B2B-Sales-Qualifier. Bewerte diesen Lead nach dem BANT-Framework (Budget, Authority, Need, Timing) auf einer Skala von 0-100.\n\nLead-Daten:\n- Name: {{ $json.name }}\n- Company: {{ $json.company }}\n- Email: {{ $json.email }}\n- Budget-Indikator: {{ $json.budget }}\n- Timeline: {{ $json.timeline }}\n- Nachricht: {{ $json.message }}\n\nGib STRENG dieses JSON-Format zurück (nichts anderes):\n{\n  \"bant_score\": <0-100>,\n  \"budget_score\": <0-25>,\n  \"authority_score\": <0-25>,\n  \"need_score\": <0-25>,\n  \"timing_score\": <0-25>,\n  \"priority\": \"hot\" | \"warm\" | \"cold\",\n  \"reasoning\": \"<2-3 Sätze warum dieser Score>\",\n  \"next_action\": \"<empfohlene nächste Aktion>\"\n}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.2,
+          "maxTokens": 600
+        }
+      },
+      "id": "llm-bant-scoring",
+      "name": "BANT-Scoring (Claude Sonnet)",
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "credentials": {
+        "anthropicApi": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse LLM-output (JSON string) into structured fields\nconst raw = $input.first().json.content || $input.first().json.text || $input.first().json.response || '';\nlet parsed;\ntry {\n  const match = raw.match(/\\{[\\s\\S]*\\}/);\n  parsed = match ? JSON.parse(match[0]) : { bant_score: 0, priority: 'cold' };\n} catch (e) {\n  parsed = { bant_score: 0, priority: 'cold', reasoning: 'parse-error: ' + e.message };\n}\n\nconst lead = $('Normalize Lead Data').first().json;\n\nreturn [{\n  json: {\n    ...lead,\n    ...parsed,\n    qualified_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "parse-llm",
+      "name": "Parse Scoring Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "is-hot",
+              "leftValue": "={{ $json.priority }}",
+              "rightValue": "hot",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-hot-lead",
+      "name": "IF Hot Lead?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.airtable.com/v0/PLACEHOLDER_BASE/Leads",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "={ \"Name\": $json.name, \"Email\": $json.email, \"Company\": $json.company, \"BANT Score\": $json.bant_score, \"Priority\": $json.priority, \"Reasoning\": $json.reasoning, \"Next Action\": $json.next_action, \"Qualified At\": $json.qualified_at }"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "crm-push-hot",
+      "name": "Push to CRM (Airtable) — Hot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 200],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "Airtable API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.airtable.com/v0/PLACEHOLDER_BASE/Leads",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "={ \"Name\": $json.name, \"Email\": $json.email, \"Company\": $json.company, \"BANT Score\": $json.bant_score, \"Priority\": $json.priority, \"Reasoning\": $json.reasoning, \"Next Action\": $json.next_action, \"Qualified At\": $json.qualified_at }"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "crm-push-cold",
+      "name": "Push to CRM (Airtable) — Warm/Cold",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 400],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "Airtable API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "sales@your-domain.tld",
+        "toEmail": "sales-team@your-domain.tld",
+        "subject": "=HOT LEAD: {{ $json.name }} ({{ $json.company }}) — Score {{ $json.bant_score }}/100",
+        "text": "=Hot-Lead reingekommen:\n\nName: {{ $json.name }}\nCompany: {{ $json.company }}\nEmail: {{ $json.email }}\n\nBANT-Score: {{ $json.bant_score }}/100\nPriorität: {{ $json.priority }}\n\nReasoning:\n{{ $json.reasoning }}\n\nNext Action:\n{{ $json.next_action }}\n\nOriginal Message:\n{{ $json.message }}",
+        "options": {}
+      },
+      "id": "email-sales-team",
+      "name": "Notify Sales Team",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1560, 200],
+      "credentials": {
+        "smtp": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "resp-status",
+              "name": "status",
+              "value": "ok",
+              "type": "string"
+            },
+            {
+              "id": "resp-priority",
+              "name": "priority",
+              "value": "={{ $json.priority }}",
+              "type": "string"
+            },
+            {
+              "id": "resp-score",
+              "name": "bant_score",
+              "value": "={{ $json.bant_score }}",
+              "type": "number"
+            },
+            {
+              "id": "resp-message",
+              "name": "message",
+              "value": "Lead empfangen und qualifiziert. Du hörst innerhalb 24h von uns.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-response",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "respond-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2000, 300]
+    }
+  ],
+  "connections": {
+    "Webhook — Lead Submission": {
+      "main": [[{ "node": "Normalize Lead Data", "type": "main", "index": 0 }]]
+    },
+    "Normalize Lead Data": {
+      "main": [[{ "node": "BANT-Scoring (Claude Sonnet)", "type": "main", "index": 0 }]]
+    },
+    "BANT-Scoring (Claude Sonnet)": {
+      "main": [[{ "node": "Parse Scoring Result", "type": "main", "index": 0 }]]
+    },
+    "Parse Scoring Result": {
+      "main": [[{ "node": "IF Hot Lead?", "type": "main", "index": 0 }]]
+    },
+    "IF Hot Lead?": {
+      "main": [
+        [{ "node": "Push to CRM (Airtable) — Hot", "type": "main", "index": 0 }],
+        [{ "node": "Push to CRM (Airtable) — Warm/Cold", "type": "main", "index": 0 }]
+      ]
+    },
+    "Push to CRM (Airtable) — Hot": {
+      "main": [[{ "node": "Notify Sales Team", "type": "main", "index": 0 }]]
+    },
+    "Notify Sales Team": {
+      "main": [[{ "node": "Format Response", "type": "main", "index": 0 }]]
+    },
+    "Push to CRM (Airtable) — Warm/Cold": {
+      "main": [[{ "node": "Format Response", "type": "main", "index": 0 }]]
+    },
+    "Format Response": {
+      "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "v1.0.0",
+  "id": "aevum-lead-qualifier-pro",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "aevum_version": "1.0.0",
+    "aevum_description": "BANT-Scoring + CRM-Push + Sales-Notification. DSGVO-konform bei EU-Hosting des n8n + EU-Airtable-Workspace.",
+    "aevum_required_credentials": ["Anthropic API", "Airtable Personal Access Token", "SMTP / Email-Send"],
+    "aevum_setup_steps": [
+      "1. Anthropic-API-Key in n8n Credentials anlegen",
+      "2. Airtable-PAT mit Schema-Write-Access erstellen",
+      "3. Airtable-Base anlegen mit Tabelle 'Leads' + Felder: Name, Email, Company, BANT Score, Priority, Reasoning, Next Action, Qualified At",
+      "4. PLACEHOLDER_BASE in beiden CRM-Push-Nodes durch deine Airtable-Base-ID ersetzen",
+      "5. SMTP-Credentials für Sales-Team-Email konfigurieren",
+      "6. Webhook URL aus dem Trigger-Node in dein Lead-Form einbauen",
+      "7. Test-Submit auf den Webhook → prüfe Airtable + Sales-Email"
+    ]
+  },
+  "tags": ["aevum", "blueprint", "leads", "qualifier", "dsgvo"]
+}

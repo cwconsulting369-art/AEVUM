@@ -1,0 +1,243 @@
+{
+  "name": "AEVUM Blueprint: Reporting Dashboard Setup",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule — Monday 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 400]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.stripe.com/v1/balance_transactions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "created[gte]",
+              "value": "={{ Math.floor((Date.now() - 7*24*60*60*1000) / 1000) }}"
+            },
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-stripe",
+      "name": "Fetch Stripe Revenue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 240],
+      "credentials": {
+        "stripeApi": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "Stripe API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://analyticsdata.googleapis.com/v1beta/properties/PLACEHOLDER_GA4_PROPERTY:runReport",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"dateRanges\": [{ \"startDate\": \"7daysAgo\", \"endDate\": \"yesterday\" }],\n  \"metrics\": [\n    { \"name\": \"sessions\" },\n    { \"name\": \"activeUsers\" },\n    { \"name\": \"conversions\" }\n  ],\n  \"dimensions\": [{ \"name\": \"date\" }]\n}",
+        "options": {}
+      },
+      "id": "fetch-ga4",
+      "name": "Fetch Google Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 400],
+      "credentials": {
+        "googleApi": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "Google API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  COUNT(*) AS new_signups,\n  COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days') AS signups_last_week\nFROM customers\nWHERE created_at >= NOW() - INTERVAL '14 days';",
+        "options": {}
+      },
+      "id": "fetch-postgres",
+      "name": "Fetch Postgres KPIs",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [460, 560],
+      "credentials": {
+        "postgres": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-kpis",
+      "name": "Merge All KPIs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [780, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate all fetched data into single report-object\nconst all = $input.all();\nconst stripeItems = $('Fetch Stripe Revenue').all();\nconst ga4Items = $('Fetch Google Analytics').all();\nconst pgItems = $('Fetch Postgres KPIs').all();\n\nlet stripeRevenue = 0;\ntry {\n  const stripeData = stripeItems[0]?.json?.data || [];\n  stripeRevenue = stripeData.reduce((acc, t) => acc + (t.amount || 0), 0) / 100;\n} catch (e) {}\n\nlet sessions = 0, users = 0, conversions = 0;\ntry {\n  const rows = ga4Items[0]?.json?.rows || [];\n  for (const r of rows) {\n    sessions += parseInt(r.metricValues?.[0]?.value || 0);\n    users += parseInt(r.metricValues?.[1]?.value || 0);\n    conversions += parseInt(r.metricValues?.[2]?.value || 0);\n  }\n} catch (e) {}\n\nconst pgData = pgItems[0]?.json || {};\nconst newSignups = pgData.signups_last_week || 0;\n\nconst weekStart = new Date(Date.now() - 7*24*60*60*1000).toISOString().split('T')[0];\nconst weekEnd = new Date().toISOString().split('T')[0];\n\nreturn [{\n  json: {\n    week: `${weekStart} → ${weekEnd}`,\n    stripe_revenue_eur: stripeRevenue.toFixed(2),\n    ga4_sessions: sessions,\n    ga4_users: users,\n    ga4_conversions: conversions,\n    new_signups: newSignups,\n    generated_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "aggregate",
+      "name": "Aggregate Report Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 400]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "report-md",
+              "name": "report_markdown",
+              "value": "=# Wöchentlicher KPI-Report\n\n**Woche:** {{ $json.week }}\n**Generiert:** {{ $json.generated_at }}\n\n## Revenue\n- Stripe Brutto: **€{{ $json.stripe_revenue_eur }}**\n- Neue Signups: **{{ $json.new_signups }}**\n\n## Traffic (GA4)\n- Sessions: **{{ $json.ga4_sessions }}**\n- Active Users: **{{ $json.ga4_users }}**\n- Conversions: **{{ $json.ga4_conversions }}**\n\n## Conversion Rate\n- {{ $json.ga4_conversions }} / {{ $json.ga4_sessions }} = {{ ($json.ga4_conversions / Math.max($json.ga4_sessions, 1) * 100).toFixed(2) }}%\n\n---\n_Generiert via AEVUM Reporting-Blueprint_",
+              "type": "string"
+            },
+            {
+              "id": "report-subject",
+              "name": "subject",
+              "value": "=Wöchentlicher KPI-Report — {{ $json.week }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "build-markdown",
+      "name": "Build Markdown Report",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1220, 400]
+    },
+    {
+      "parameters": {
+        "fromEmail": "reports@your-domain.tld",
+        "toEmail": "team@your-domain.tld",
+        "subject": "={{ $json.subject }}",
+        "html": "={{ $json.report_markdown }}",
+        "options": {}
+      },
+      "id": "email-report",
+      "name": "Send Email Report",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1440, 300],
+      "credentials": {
+        "smtp": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://slack.com/api/chat.postMessage",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"channel\": \"#reports\",\n  \"text\": {{ JSON.stringify($json.report_markdown) }},\n  \"mrkdwn\": true\n}",
+        "options": {}
+      },
+      "id": "slack-post",
+      "name": "Post to Slack (Optional)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1440, 500],
+      "credentials": {
+        "slackApi": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "Slack API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule — Monday 09:00": {
+      "main": [
+        [
+          { "node": "Fetch Stripe Revenue", "type": "main", "index": 0 },
+          { "node": "Fetch Google Analytics", "type": "main", "index": 0 },
+          { "node": "Fetch Postgres KPIs", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Stripe Revenue": {
+      "main": [[{ "node": "Merge All KPIs", "type": "main", "index": 0 }]]
+    },
+    "Fetch Google Analytics": {
+      "main": [[{ "node": "Merge All KPIs", "type": "main", "index": 1 }]]
+    },
+    "Fetch Postgres KPIs": {
+      "main": [[{ "node": "Merge All KPIs", "type": "main", "index": 2 }]]
+    },
+    "Merge All KPIs": {
+      "main": [[{ "node": "Aggregate Report Data", "type": "main", "index": 0 }]]
+    },
+    "Aggregate Report Data": {
+      "main": [[{ "node": "Build Markdown Report", "type": "main", "index": 0 }]]
+    },
+    "Build Markdown Report": {
+      "main": [
+        [
+          { "node": "Send Email Report", "type": "main", "index": 0 },
+          { "node": "Post to Slack (Optional)", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "v1.0.0",
+  "id": "aevum-reporting-dashboard-setup",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "aevum_version": "1.0.0",
+    "aevum_description": "Wöchentlicher KPI-Report aus Stripe + GA4 + Postgres. Verschickt jeden Montag 09:00 per Mail + Slack.",
+    "aevum_required_credentials": ["Stripe API", "Google Analytics 4 (Service Account)", "Postgres DB", "SMTP / Email-Send", "Slack API (optional)"],
+    "aevum_setup_steps": [
+      "1. Stripe-API-Key in n8n Credentials (restricted Read-only ist genug)",
+      "2. GA4 Service-Account + Property-ID besorgen → in 'Fetch Google Analytics' PLACEHOLDER_GA4_PROPERTY ersetzen",
+      "3. Postgres-DB-Credentials anlegen — SQL in 'Fetch Postgres KPIs' an dein Schema anpassen",
+      "4. SMTP-Credentials für Versand konfigurieren — From/To Adressen ersetzen",
+      "5. Slack-Token + Channel optional, ansonsten Node deaktivieren",
+      "6. Schedule auf gewünschte Cron-Expression anpassen (Default: Mo 09:00)",
+      "7. Manuell triggern → prüfe Mail-Inhalt + Slack-Post"
+    ]
+  },
+  "tags": ["aevum", "blueprint", "reporting", "kpi", "schedule"]
+}

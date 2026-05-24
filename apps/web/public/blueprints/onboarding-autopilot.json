@@ -1,0 +1,326 @@
+{
+  "name": "AEVUM Blueprint: Onboarding Autopilot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aevum-onboarding",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-customer-signed",
+      "name": "Webhook — Customer Signed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [200, 400],
+      "webhookId": "aevum-onboarding"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cust-email",
+              "name": "email",
+              "value": "={{ $json.body.email || $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "cust-name",
+              "name": "name",
+              "value": "={{ $json.body.name || $json.name || 'Neuer Kunde' }}",
+              "type": "string"
+            },
+            {
+              "id": "cust-plan",
+              "name": "plan",
+              "value": "={{ $json.body.plan || $json.plan || 'standard' }}",
+              "type": "string"
+            },
+            {
+              "id": "cust-id",
+              "name": "customer_id",
+              "value": "={{ $json.body.customer_id || $json.customer_id || $json.body.id }}",
+              "type": "string"
+            },
+            {
+              "id": "cust-signed-at",
+              "name": "signed_at",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "normalize-customer",
+      "name": "Normalize Customer Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [400, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"status\": \"ok\", \"customer\": $json.email, \"onboarding\": \"started\" }",
+        "options": {}
+      },
+      "id": "respond-immediate",
+      "name": "Respond OK to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [600, 200]
+    },
+    {
+      "parameters": {
+        "amount": 5,
+        "unit": "minutes"
+      },
+      "id": "wait-5min",
+      "name": "Wait 5 Minutes",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [600, 500],
+      "webhookId": "wait-onboarding-1"
+    },
+    {
+      "parameters": {
+        "fromEmail": "hello@your-domain.tld",
+        "toEmail": "={{ $json.email }}",
+        "subject": "=Willkommen bei AEVUM, {{ $json.name }} — Setup-Guide drin",
+        "html": "=<h2>Willkommen, {{ $json.name }}!</h2>\n<p>Schön dass du dabei bist. Hier dein Setup-Guide damit du schnell startest:</p>\n<ol>\n  <li><strong>Schritt 1:</strong> Login in dein Dashboard → <a href=\"https://your-domain.tld/login\">your-domain.tld/login</a></li>\n  <li><strong>Schritt 2:</strong> Profil + Brand-Settings ausfüllen (~5 Min)</li>\n  <li><strong>Schritt 3:</strong> Ersten Workflow importieren (Anleitung im Dashboard)</li>\n  <li><strong>Schritt 4:</strong> Test-Run starten und Output prüfen</li>\n</ol>\n<p>Bei Fragen einfach auf diese Mail antworten — wir antworten in 24h.</p>\n<p>— Team AEVUM</p>",
+        "options": {}
+      },
+      "id": "email-welcome",
+      "name": "Email 1 — Welcome + Setup",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [800, 500],
+      "credentials": {
+        "smtp": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "wait-1day",
+      "name": "Wait 1 Day",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1000, 500],
+      "webhookId": "wait-onboarding-2"
+    },
+    {
+      "parameters": {
+        "fromEmail": "hello@your-domain.tld",
+        "toEmail": "={{ $json.email }}",
+        "subject": "=Schnellfrage: läufts, {{ $json.name }}?",
+        "html": "=<h2>Hey {{ $json.name }},</h2>\n<p>kurze Frage nach Tag 1: bist du schon zum Setup gekommen? Häufige Stolpersteine in den ersten 24h:</p>\n<ul>\n  <li>API-Keys nicht gefunden? <a href=\"https://your-domain.tld/docs/keys\">Guide hier</a></li>\n  <li>Workflow-Import bricht ab? Anhang in dieser Mail hilft</li>\n  <li>Brauchst du Setup-Support? Antworte einfach — wir sind dran</li>\n</ul>\n<p>Falls schon alles läuft: super, ignoriere diese Mail.</p>\n<p>— Team AEVUM</p>",
+        "options": {}
+      },
+      "id": "email-check-in",
+      "name": "Email 2 — Check-In",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1200, 500],
+      "credentials": {
+        "smtp": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "days"
+      },
+      "id": "wait-3day",
+      "name": "Wait 3 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1400, 500],
+      "webhookId": "wait-onboarding-3"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://your-domain.tld/api/customers/{{ $json.customer_id }}/activity",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "check-activity",
+      "name": "Check Customer Activity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1600, 500],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "API Auth Header"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "has-activity",
+              "leftValue": "={{ $json.has_logged_in || $json.workflow_count || 0 }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-active",
+      "name": "IF Customer Active?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1800, 500]
+    },
+    {
+      "parameters": {
+        "fromEmail": "hello@your-domain.tld",
+        "toEmail": "={{ $('Normalize Customer Data').first().json.email }}",
+        "subject": "=Dein Customer-Success-Manager stellt sich vor",
+        "html": "=<h2>Hi {{ $('Normalize Customer Data').first().json.name }},</h2>\n<p>Du hast aktuell noch nicht viel im Dashboard gemacht — kein Problem, das schaffen wir gemeinsam.</p>\n<p>Ich bin dein Customer-Success-Manager und kümmere mich darum dass dein Setup läuft. Buch dir hier einen 20-Min-Setup-Call:</p>\n<p><a href=\"https://your-domain.tld/book-setup\">→ Setup-Call buchen</a></p>\n<p>Kostet dich nichts und wir kriegen dich live.</p>\n<p>— Team AEVUM</p>",
+        "options": {}
+      },
+      "id": "email-reminder",
+      "name": "Email 3 — Reminder + Manager",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2000, 600],
+      "credentials": {
+        "smtp": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://slack.com/api/chat.postMessage",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"channel\": \"#customer-success\",\n  \"text\": \"⚠️ Inactive customer flagged — needs manual reach-out: \" + {{ JSON.stringify($('Normalize Customer Data').first().json.email) }} + \" (Plan: \" + {{ JSON.stringify($('Normalize Customer Data').first().json.plan) }} + \")\"\n}",
+        "options": {}
+      },
+      "id": "slack-notify-inactive",
+      "name": "Slack — Notify Customer Success",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 750],
+      "credentials": {
+        "slackApi": {
+          "id": "PLACEHOLDER_REPLACE",
+          "name": "Slack API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "skip-result",
+              "name": "result",
+              "value": "active — onboarding sequence skipped reminder",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "active-skip",
+      "name": "Active — Skip Reminder",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2000, 400]
+    }
+  ],
+  "connections": {
+    "Webhook — Customer Signed": {
+      "main": [[{ "node": "Normalize Customer Data", "type": "main", "index": 0 }]]
+    },
+    "Normalize Customer Data": {
+      "main": [
+        [
+          { "node": "Respond OK to Webhook", "type": "main", "index": 0 },
+          { "node": "Wait 5 Minutes", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Wait 5 Minutes": {
+      "main": [[{ "node": "Email 1 — Welcome + Setup", "type": "main", "index": 0 }]]
+    },
+    "Email 1 — Welcome + Setup": {
+      "main": [[{ "node": "Wait 1 Day", "type": "main", "index": 0 }]]
+    },
+    "Wait 1 Day": {
+      "main": [[{ "node": "Email 2 — Check-In", "type": "main", "index": 0 }]]
+    },
+    "Email 2 — Check-In": {
+      "main": [[{ "node": "Wait 3 Days", "type": "main", "index": 0 }]]
+    },
+    "Wait 3 Days": {
+      "main": [[{ "node": "Check Customer Activity", "type": "main", "index": 0 }]]
+    },
+    "Check Customer Activity": {
+      "main": [[{ "node": "IF Customer Active?", "type": "main", "index": 0 }]]
+    },
+    "IF Customer Active?": {
+      "main": [
+        [{ "node": "Active — Skip Reminder", "type": "main", "index": 0 }],
+        [
+          { "node": "Email 3 — Reminder + Manager", "type": "main", "index": 0 },
+          { "node": "Slack — Notify Customer Success", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "v1.0.0",
+  "id": "aevum-onboarding-autopilot",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "aevum_version": "1.0.0",
+    "aevum_description": "5-stufige Onboarding-Sequenz: Welcome → Check-In → Activity-Check → Reminder-or-Skip. Inaktive Kunden gehen ans Customer-Success-Team via Slack.",
+    "aevum_required_credentials": ["SMTP / Email-Send", "Slack API (optional)", "HTTP-Header-Auth für eigene Activity-API"],
+    "aevum_setup_steps": [
+      "1. SMTP-Credentials für Welcome / Check-In / Reminder-Emails konfigurieren",
+      "2. From/To-Adressen und Brand-Links in allen 3 Email-Nodes anpassen",
+      "3. Eigene Activity-API-URL in 'Check Customer Activity' einsetzen (Response: { has_logged_in, workflow_count })",
+      "4. Slack-Token + #customer-success Channel optional, sonst Node deaktivieren",
+      "5. Webhook-URL aus dem Trigger-Node in dein Stripe-Webhook / CRM-Trigger einbauen",
+      "6. Test-Submit → Email 1 nach 5 Min, Email 2 nach 1 Tag, IF-Branch nach 3 Tagen",
+      "7. Für schnelleren Test: Wait-Zeiten temporär auf 'seconds' setzen"
+    ]
+  },
+  "tags": ["aevum", "blueprint", "onboarding", "automation", "customer-success"]
+}
