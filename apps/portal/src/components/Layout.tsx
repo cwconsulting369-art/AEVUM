@@ -5,13 +5,15 @@ import {
   LogOut, LayoutDashboard, User, ShieldCheck, FolderGit2,
   BarChart2, DollarSign, Mail, ShoppingBag, Globe, Bot,
   KeyRound, TrendingUp, ChevronLeft, Users, Menu, X, Coins,
-  Link as LinkIcon, FolderOpen, Megaphone
+  Link as LinkIcon, FolderOpen, Megaphone, Film, ShieldAlert, Wrench
 } from 'lucide-react';
 import { Link } from 'react-router';
 import Footer from './Footer';
 import Brand from './Brand';
 
 // ── Generic portal nav ────────────────────────────────────────
+const TIM_WHITELIST = new Set(['carlos@aevum-system.de', 'cwconsulting369@gmail.com', 'tim@knightvision.tech']);
+
 const portalNav = [
   { to: '/dashboard',   label: 'Dashboard',   icon: LayoutDashboard },
   { to: '/projects',    label: 'Projekte',     icon: FolderGit2 },
@@ -19,6 +21,14 @@ const portalNav = [
   { to: '/profile',     label: 'Profil',       icon: User },
   { to: '/permissions', label: 'Freigaben',    icon: ShieldCheck },
   { to: '/testimonial', label: 'Testimonial',  icon: Megaphone },
+];
+
+const toolsNav = [
+  { to: '/tools/script-factory', label: 'Script-Factory', icon: Film },
+  { to: '/tools/dsgvo-factory',  label: 'DSGVO-Factory',  icon: ShieldAlert },
+];
+const toolsNavTimOnly = [
+  { to: '/tools/script-factory/customers', label: "Tim's Customers", icon: Users },
 ];
 
 // ── Per-project sidebar config ───────────────────────────────
@@ -151,7 +161,7 @@ export default function Layout() {
           </div>
         ) : (
           /* Generic portal nav */
-          <nav className="flex-1 px-3 space-y-0.5 pb-4">
+          <nav className="flex-1 px-3 space-y-0.5 pb-4 overflow-y-auto">
             {portalNav.map(({ to, label, icon: Icon }, i) => (
               <NavLink
                 key={to}
@@ -163,6 +173,37 @@ export default function Layout() {
                 <span>{label}</span>
               </NavLink>
             ))}
+
+            {me?.account.account_type !== 'shop' && (
+              <>
+                <div className="mt-4 mb-1.5 px-3 flex items-center gap-1.5 text-[0.55rem] uppercase tracking-widest text-ink-500 font-semibold">
+                  <Wrench size={10} /> Tools
+                </div>
+                {toolsNav.map(({ to, label, icon: Icon }, i) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''} animate-fade-up`}
+                    style={{ animationDelay: `${60 + (portalNav.length + i) * 50}ms` }}
+                  >
+                    <Icon size={15} strokeWidth={1.8} />
+                    <span>{label}</span>
+                  </NavLink>
+                ))}
+                {!!(me?.account.email && TIM_WHITELIST.has(me.account.email.toLowerCase())) &&
+                  toolsNavTimOnly.map(({ to, label, icon: Icon }) => (
+                    <NavLink
+                      key={to}
+                      to={to}
+                      className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
+                    >
+                      <Icon size={15} strokeWidth={1.8} />
+                      <span>{label}</span>
+                    </NavLink>
+                  ))
+                }
+              </>
+            )}
           </nav>
         )}
       </aside>

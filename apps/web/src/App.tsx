@@ -22,6 +22,7 @@ const ShopItemDetail = lazy(() => import('./components/shop/ShopItemDetail'));
 const LeadMagnetEuAiAct = lazy(() => import('./pages/LeadMagnetEuAiAct'));
 const Saas = lazy(() => import('./pages/Saas'));
 const SaasTool = lazy(() => import('./pages/SaasTool'));
+const SaasScriptFactory = lazy(() => import('./pages/SaasScriptFactory'));
 
 function LoadingFallback() {
   return (
@@ -101,7 +102,9 @@ export default function App() {
     : caseDetailMatch
       ? () => <CaseDetail slug={caseDetailMatch[1]} />
       : saasToolMatch
-        ? () => <SaasTool slug={saasToolMatch[1]} />
+        ? saasToolMatch[1] === 'script-factory'
+          ? () => <SaasScriptFactory />
+          : () => <SaasTool slug={saasToolMatch[1]} />
         : (routeComponents[route] || Home);
   const isHome = route === '/';
 
