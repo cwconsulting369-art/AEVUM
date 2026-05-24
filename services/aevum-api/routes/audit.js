@@ -367,14 +367,41 @@ async function collectAllPiiByEmail(email) {
   const cleanEmail = clean(email).toLowerCase();
   const enc = encodeURIComponent(cleanEmail);
 
-  const [audits, orders, consents, erasures, secEvents] = await Promise.all([
+  const [audits, orders, consents, erasures, secEvents,
+         waitlist, leadMagnetSignups, accounts] = await Promise.all([
     supabase.select('audits', `?email=eq.${enc}&select=*`),
     supabase.select('orders', `?customer_email=eq.${enc}&select=*`),
     supabase.select('consent_log', `?email=eq.${enc}&select=*`),
     supabase.select('erasure_log', `?email=eq.${enc}&select=*`),
     // security_events stored payload_summary may contain email — best effort
-    supabase.select('security_events', `?payload_summary=ilike.*${enc}*&select=id,event_type,created_at,reason,ip_anonymized`)
+    supabase.select('security_events', `?payload_summary=ilike.*${enc}*&select=id,event_type,created_at,reason,ip_anonymized`),
+    supabase.select('saas_waitlist', `?email=eq.${enc}&select=*`).catch(() => ({ data: [] })),
+    supabase.select('lead_magnet_signups', `?email=eq.${enc}&select=*`).catch(() => ({ data: [] })),
+    supabase.select('accounts', `?email=eq.${enc}&select=id,slug,name,business_name,phone,status,created_at`).catch(() => ({ data: [] }))
   ]);
+
+  // Wave H4: deep-collect per-account artefacts (factory-runs + usage-logs + projects + docs)
+  let factoryScriptRuns = [];
+  let factoryDsgvoRuns = [];
+  let usageLogs = [];
+  let projects = [];
+  let documents = [];
+  const accountList = Array.isArray(accounts.data) ? accounts.data : [];
+  for (const acc of accountList) {
+    const accId = acc.id;
+    const [s, d, u, p, doc] = await Promise.all([
+      supabase.select('script_factory_runs', `?account_id=eq.${accId}&select=id,created_at,product_name,platform,status,credits_spent`).catch(() => ({ data: [] })),
+      supabase.select('dsgvo_factory_runs',  `?account_id=eq.${accId}&select=id,created_at,industry,status,credits_spent`).catch(() => ({ data: [] })),
+      supabase.select('agent_usage_log',     `?account_id=eq.${accId}&select=id,created_at,tool,tokens_in,tokens_out,cost_cents`).catch(() => ({ data: [] })),
+      supabase.select('projects',            `?account_id=eq.${accId}&select=id,slug,name,status,tier,industry,created_at`).catch(() => ({ data: [] })),
+      supabase.select('customer_documents',  `?account_id=eq.${accId}&select=id,filename,folder,size_bytes,created_at`).catch(() => ({ data: [] }))
+    ]);
+    factoryScriptRuns = factoryScriptRuns.concat(s.data || []);
+    factoryDsgvoRuns  = factoryDsgvoRuns.concat(d.data || []);
+    usageLogs         = usageLogs.concat(u.data || []);
+    projects          = projects.concat(p.data || []);
+    documents         = documents.concat(doc.data || []);
+  }
 
   return {
     email: cleanEmail,
@@ -382,7 +409,15 @@ async function collectAllPiiByEmail(email) {
     orders: Array.isArray(orders.data) ? orders.data : [],
     consent_log: Array.isArray(consents.data) ? consents.data : [],
     erasure_log: Array.isArray(erasures.data) ? erasures.data : [],
-    security_events: Array.isArray(secEvents.data) ? secEvents.data : []
+    security_events: Array.isArray(secEvents.data) ? secEvents.data : [],
+    saas_waitlist: Array.isArray(waitlist.data) ? waitlist.data : [],
+    lead_magnet_signups: Array.isArray(leadMagnetSignups.data) ? leadMagnetSignups.data : [],
+    accounts: accountList,
+    projects,
+    customer_documents: documents,
+    script_factory_runs: factoryScriptRuns,
+    dsgvo_factory_runs: factoryDsgvoRuns,
+    agent_usage_log: usageLogs
   };
 }
 
@@ -459,10 +494,19 @@ auditRouter.post('/export/request', dsgvoLimiter, async (req, res) => {
   const ip = clientIp(req);
 
   // Only issue a challenge if we actually have PII on that email
-  const probe = await supabase.select('audits', `?email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
-  const probeOrders = await supabase.select('orders', `?customer_email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
-  const probeConsent = await supabase.select('consent_log', `?email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
-  const hasAnyData = (probe.data?.length || 0) + (probeOrders.data?.length || 0) + (probeConsent.data?.length || 0) > 0;
+  const encEmail = encodeURIComponent(email);
+  const [probe, probeOrders, probeConsent, probeAccount, probeWaitlist, probeLeadMagnet] = await Promise.all([
+    supabase.select('audits', `?email=eq.${encEmail}&select=id&limit=1`),
+    supabase.select('orders', `?customer_email=eq.${encEmail}&select=id&limit=1`),
+    supabase.select('consent_log', `?email=eq.${encEmail}&select=id&limit=1`),
+    supabase.select('accounts', `?email=eq.${encEmail}&select=id&limit=1`).catch(() => ({ data: [] })),
+    supabase.select('saas_waitlist', `?email=eq.${encEmail}&select=id&limit=1`).catch(() => ({ data: [] })),
+    supabase.select('lead_magnet_signups', `?email=eq.${encEmail}&select=id&limit=1`).catch(() => ({ data: [] }))
+  ]);
+  const hasAnyData =
+    (probe.data?.length || 0) + (probeOrders.data?.length || 0) +
+    (probeConsent.data?.length || 0) + (probeAccount.data?.length || 0) +
+    (probeWaitlist.data?.length || 0) + (probeLeadMagnet.data?.length || 0) > 0;
   if (!hasAnyData) return sameResponse();
 
   const ch = await issueDsgvoChallenge({ email, action: 'export', ip });
@@ -517,9 +561,17 @@ auditRouter.post('/erase/request', dsgvoLimiter, async (req, res) => {
   const email = parsed.data.email.toLowerCase();
   const ip = clientIp(req);
 
-  const probe = await supabase.select('audits', `?email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
-  const probeOrders = await supabase.select('orders', `?customer_email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
-  if ((probe.data?.length || 0) + (probeOrders.data?.length || 0) === 0) return sameResponse();
+  const encEmailE = encodeURIComponent(email);
+  const [probeE, probeOrdersE, probeAccountE, probeWaitlistE, probeLeadE] = await Promise.all([
+    supabase.select('audits', `?email=eq.${encEmailE}&select=id&limit=1`),
+    supabase.select('orders', `?customer_email=eq.${encEmailE}&select=id&limit=1`),
+    supabase.select('accounts', `?email=eq.${encEmailE}&select=id&limit=1`).catch(() => ({ data: [] })),
+    supabase.select('saas_waitlist', `?email=eq.${encEmailE}&select=id&limit=1`).catch(() => ({ data: [] })),
+    supabase.select('lead_magnet_signups', `?email=eq.${encEmailE}&select=id&limit=1`).catch(() => ({ data: [] }))
+  ]);
+  if ((probeE.data?.length || 0) + (probeOrdersE.data?.length || 0) +
+      (probeAccountE.data?.length || 0) + (probeWaitlistE.data?.length || 0) +
+      (probeLeadE.data?.length || 0) === 0) return sameResponse();
 
   const ch = await issueDsgvoChallenge({ email, action: 'erase', ip });
   if (!ch) return sameResponse();
@@ -589,6 +641,59 @@ auditRouter.get('/erase', dsgvoLimiter, async (req, res) => {
   // ── consent_log: hard delete remnants (some may already cascade from audits) ──
   await supabase.delete('consent_log', `?email=eq.${enc}`);
 
+  // ── Wave H4: erweitere DSGVO-Löschung um alle neuen Tables ───
+  // saas_waitlist (email-keyed)
+  const waitlistResult = await supabase.select('saas_waitlist', `?email=eq.${enc}&select=id`);
+  const waitlistCount = Array.isArray(waitlistResult.data) ? waitlistResult.data.length : 0;
+  if (waitlistCount > 0) await supabase.delete('saas_waitlist', `?email=eq.${enc}`);
+
+  // lead_magnets (email-keyed signups)
+  const leadMagnetResult = await supabase.select('lead_magnet_signups', `?email=eq.${enc}&select=id`);
+  const leadMagnetCount = Array.isArray(leadMagnetResult.data) ? leadMagnetResult.data.length : 0;
+  if (leadMagnetCount > 0) await supabase.delete('lead_magnet_signups', `?email=eq.${enc}`);
+
+  // accounts (email-keyed) — kaskadiert account_profiles, account_permissions,
+  // projects, script_factory_runs, dsgvo_factory_runs, agent_usage_log,
+  // account_agents, customer_documents-Metadaten (FS-Files separat zu löschen falls vorhanden)
+  const accountResult = await supabase.select('accounts', `?email=eq.${enc}&select=id,slug`);
+  const accountsToDelete = Array.isArray(accountResult.data) ? accountResult.data : [];
+  let accountsDeleted = 0;
+  let factoryRunsDeleted = 0;
+  let usageLogsDeleted = 0;
+  let docsDeleted = 0;
+  for (const acc of accountsToDelete) {
+    const accId = acc.id;
+    // Pre-count for reporting (best-effort)
+    const [scriptRuns, dsgvoRuns, usage, docs] = await Promise.all([
+      supabase.select('script_factory_runs', `?account_id=eq.${accId}&select=id`),
+      supabase.select('dsgvo_factory_runs', `?account_id=eq.${accId}&select=id`),
+      supabase.select('agent_usage_log', `?account_id=eq.${accId}&select=id`),
+      supabase.select('customer_documents', `?account_id=eq.${accId}&select=id`)
+    ]);
+    factoryRunsDeleted += (scriptRuns.data?.length || 0) + (dsgvoRuns.data?.length || 0);
+    usageLogsDeleted   += usage.data?.length || 0;
+    docsDeleted        += docs.data?.length || 0;
+
+    // Best-effort delete (tables may not exist on all envs; supabase wrapper returns ok:false silently)
+    await supabase.delete('script_factory_runs', `?account_id=eq.${accId}`).catch(() => {});
+    await supabase.delete('dsgvo_factory_runs',  `?account_id=eq.${accId}`).catch(() => {});
+    await supabase.delete('agent_usage_log',     `?account_id=eq.${accId}`).catch(() => {});
+    await supabase.delete('customer_documents',  `?account_id=eq.${accId}`).catch(() => {});
+    await supabase.delete('project_quicklinks',  `?account_id=eq.${accId}`).catch(() => {});
+    await supabase.delete('account_profiles',    `?account_id=eq.${accId}`).catch(() => {});
+    await supabase.delete('account_permissions', `?account_id=eq.${accId}`).catch(() => {});
+    await supabase.delete('account_agents',      `?account_id=eq.${accId}`).catch(() => {});
+    await supabase.delete('projects',            `?account_id=eq.${accId}`).catch(() => {});
+    await supabase.delete('accounts',            `?id=eq.${accId}`).catch(() => {});
+    accountsDeleted++;
+  }
+
+  // case_pages: pseudonymize testimonial-permissions if email-bound (preserve structure for analytics)
+  await supabase.update('case_pages', `?contact_email=eq.${enc}`, { contact_email: null, display_name: null }).catch(() => {});
+
+  // helpbot_conversations: anonymous, but if email leaked via user-supplied payload — best effort
+  await supabase.delete('helpbot_conversations', `?payload_summary=ilike.*${enc}*`).catch(() => {});
+
   // ── Log the erasure for audit trail ──
   await supabase.insert('erasure_log', {
     email: cleanEmail,
@@ -598,7 +703,7 @@ auditRouter.get('/erase', dsgvoLimiter, async (req, res) => {
     orders_deleted_count: ordersDeleted,
     ip_anonymized: anonymizeIp(ip),
     user_agent: ua,
-    notes: `via GET /api/audit/erase (challenge-verified); ${ordersPseudonymized} paid orders pseudonymized (HGB §147)`
+    notes: `via GET /api/audit/erase (challenge-verified); ${ordersPseudonymized} paid orders pseudonymized (HGB §147); accounts:${accountsDeleted} factory-runs:${factoryRunsDeleted} usage-logs:${usageLogsDeleted} docs:${docsDeleted} waitlist:${waitlistCount} lead-magnets:${leadMagnetCount}`
   });
 
   notifyCarlos(

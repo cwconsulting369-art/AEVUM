@@ -95,6 +95,27 @@ export default function SaasTool({ slug }: Props) {
     title: tool ? `${tool.name} — AEVUM SaaS` : 'SaaS-Tool — AEVUM',
     description: tool ? tool.tagline : 'AEVUM SaaS-Tools — Pay-per-Use AI-Pipelines.',
     path: `/saas/${slug}`,
+    jsonLd: tool ? {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: tool.name,
+      url: `https://aevum-system.de/saas/${tool.slug}`,
+      description: tool.shortDescription,
+      provider: { '@type': 'Organization', name: 'AEVUM', url: 'https://aevum-system.de' },
+      areaServed: ['DE', 'AT', 'CH'],
+      category: tool.category,
+      serviceType: 'SaaS / Pay-per-Run AI-Pipeline',
+      offers: tool.status !== 'coming-soon' ? {
+        '@type': 'Offer',
+        availability: 'https://schema.org/InStock',
+        priceCurrency: 'EUR',
+        description: tool.pricePerRunLabel,
+      } : {
+        '@type': 'Offer',
+        availability: 'https://schema.org/PreOrder',
+        priceCurrency: 'EUR',
+      },
+    } : undefined,
   });
 
   useEffect(() => {

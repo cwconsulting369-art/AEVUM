@@ -31,6 +31,7 @@ import { api, createCheckoutSession } from '@/lib/api';
 import { track } from '@/lib/shop-track';
 import { getShopItem } from '@/data/shop-items';
 import type { ShopItemContent, ShopItemType, SecurityLevel } from '@/data/shop-items/types';
+import { usePageSeo } from '@/hooks/use-page-seo';
 
 /* ──────────────────── Backend-Status-Shape ──────────────────── */
 
@@ -528,6 +529,39 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
       track('shop_open', { meta: { shop_item: item.slug, view: 'detail' } });
     }
   }, [item]);
+
+  // Wave H4 — per-item SEO + Schema.org Product/Service JSON-LD
+  usePageSeo({
+    title: item ? `${item.name} — AEVUM Shop` : 'Shop — AEVUM',
+    description: item ? item.tagline : 'AEVUM Shop — Blueprints, DFY-Services, SaaS-Tools, Bundles.',
+    path: item ? `/shop/${item.type}/${item.slug}` : '/shop',
+    jsonLd: item ? {
+      '@context': 'https://schema.org',
+      '@type': item.type === 'dfy' || item.type === 'saas' ? 'Service' : 'Product',
+      name: item.name,
+      url: `https://aevum-system.de/shop/${item.type}/${item.slug}`,
+      description: item.tagline || item.whatIsIt,
+      category: item.category,
+      brand: { '@type': 'Brand', name: 'AEVUM' },
+      provider: { '@type': 'Organization', name: 'AEVUM', url: 'https://aevum-system.de' },
+      ...(item.price ? {
+        offers: {
+          '@type': 'Offer',
+          price: item.price,
+          priceCurrency: 'EUR',
+          availability: item.comingSoon ? 'https://schema.org/PreOrder' : 'https://schema.org/InStock',
+          url: `https://aevum-system.de/shop/${item.type}/${item.slug}`,
+          seller: { '@type': 'Organization', name: 'AEVUM' },
+        },
+      } : {
+        offers: {
+          '@type': 'Offer',
+          priceCurrency: 'EUR',
+          availability: item.comingSoon ? 'https://schema.org/PreOrder' : 'https://schema.org/InStock',
+        },
+      }),
+    } : undefined,
+  });
 
   if (!item) {
     return (

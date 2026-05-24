@@ -8,6 +8,8 @@ interface SeoOpts {
   /** Path relative to root, e.g. '/audit' — used for canonical. Defaults to current hash route. */
   path?: string;
   keywords?: string;
+  /** Optional Schema.org JSON-LD object — injected as <script type="application/ld+json"> with id="page-jsonld" */
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
 }
 
 function setMeta(name: string, content: string, attr: 'name' | 'property' = 'name') {
@@ -34,8 +36,20 @@ function setCanonical(url: string) {
  * Sets per-page <title>, meta description, OG/Twitter title+description, and canonical URL.
  * Hash-router compatible — derives canonical from window.location.hash if path not given.
  */
+function setJsonLd(payload: SeoOpts['jsonLd']) {
+  // Remove old per-page JSON-LD, leave global Organization-Schema in index.html untouched
+  const old = document.head.querySelector('script[data-page-jsonld="1"]');
+  if (old) old.remove();
+  if (!payload) return;
+  const s = document.createElement('script');
+  s.type = 'application/ld+json';
+  s.setAttribute('data-page-jsonld', '1');
+  s.textContent = JSON.stringify(payload);
+  document.head.appendChild(s);
+}
+
 export function usePageSeo(opts: SeoOpts) {
-  const { title, description, path, keywords } = opts;
+  const { title, description, path, keywords, jsonLd } = opts;
   useEffect(() => {
     document.title = title;
     setMeta('description', description);
@@ -50,5 +64,12 @@ export function usePageSeo(opts: SeoOpts) {
     const canonical = `${BASE_URL}${finalPath === '/' ? '/' : finalPath}`;
     setCanonical(canonical);
     setMeta('og:url', canonical, 'property');
-  }, [title, description, path, keywords]);
+
+    setJsonLd(jsonLd);
+    return () => {
+      // Cleanup on unmount — prevent stale JSON-LD bleeding into next page
+      const stale = document.head.querySelector('script[data-page-jsonld="1"]');
+      if (stale) stale.remove();
+    };
+  }, [title, description, path, keywords, jsonLd]);
 }

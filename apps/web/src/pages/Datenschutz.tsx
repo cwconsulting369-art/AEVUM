@@ -1,8 +1,24 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { usePageSeo } from '@/hooks/use-page-seo';
 
 export default function Datenschutz() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
+  usePageSeo({
+    title: 'Datenschutzerklärung — AEVUM',
+    description: 'DSGVO-konforme Datenschutzerklärung von AEVUM: Verantwortlicher, Sub-Processors, Retention-Policies, Nutzerrechte (Art 15/17/20). Stand 24.05.2026.',
+    path: '/datenschutz',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: 'Datenschutzerklärung',
+      url: 'https://aevum-system.de/datenschutz',
+      inLanguage: 'de-DE',
+      isPartOf: { '@type': 'WebSite', name: 'AEVUM', url: 'https://aevum-system.de' },
+      datePublished: '2026-05-19',
+      dateModified: '2026-05-24',
+    },
+  });
 
   return (
     <section className="px-6 lg:px-16 py-24 max-w-3xl mx-auto">
@@ -15,7 +31,7 @@ export default function Datenschutz() {
           Datenschutz<span className="text-[#e0a458]">erklärung</span>
         </h1>
 
-        <p className="text-sm text-[#7a7a85] mb-12">Stand: 24. Mai 2026 · Version: datenschutz-v5-mailbox-2026-05-24</p>
+        <p className="text-sm text-[#7a7a85] mb-12">Stand: 24. Mai 2026 · Version: datenschutz-v6-waveH-2026-05-24</p>
 
         <article className="prose prose-invert max-w-none space-y-8 text-[#a4a4ad] leading-relaxed">
 
@@ -47,6 +63,17 @@ export default function Datenschutz() {
               <li><strong>Einwilligungs-Metadaten:</strong> Zeitpunkt, Version und Inhalt der erteilten Einwilligung (Art 7 DSGVO Nachweispflicht)</li>
               <li><strong>Bestell- und Rechnungs-Daten:</strong> Vertragsdaten, Buchungs-Metadaten</li>
               <li><strong>Helpbot / AI-Chat:</strong> Anonyme Session-ID (zufällig vergeben, kein Personenbezug), Inhalt der Nachrichten an den AEVUM-Assistant, anonymisierte IP (letztes Oktett genullt /24), User-Agent, Referrer, Sprache. <em>Keine</em> Erfassung von Name, E-Mail oder Telefon im Helpbot.</li>
+              <li><strong>Customer-Portal (app.aevum-system.de):</strong> Account-Stammdaten (Name, Firma, Telefon optional), Profil-Daten (Branche, Team-Größe, Vision), API-Keys (AES-256-GCM verschlüsselt in Supabase, nie im Frontend lesbar), Magic-Link-Tokens (single-use, 30 Min Lebensdauer)</li>
+              <li><strong>Customer-Documents (Inbox/Outbox/Shared):</strong> Vom Kunden bzw. AEVUM hochgeladene Dateien (PDF, DOCX, XLSX, CSV, PNG/JPG) im Rahmen aktiver Projekte, max. 5 MB pro Datei, Magic-Byte-Validation gegen Datei-Spoofing</li>
+              <li><strong>Customer-Project-Agent (LLM-Chat im Portal):</strong> Chat-Inhalt + Memory-Files (.md) zur Wissens-Speicherung pro Projekt, übermittelt an Anthropic (Claude Sonnet 4.5) zur Antwort-Generierung</li>
+              <li><strong>Script-Factory-Runs (SaaS):</strong> Brand-Profile, Produkt-Beschreibung, Hook-Goal, Platform, generierte Skript-Variationen — übermittelt an Anthropic zur Generierung, Resultat im Customer-Account gespeichert</li>
+              <li><strong>DSGVO-Factory-Runs (SaaS):</strong> Audit-Input-Daten (Branche, verarbeitete Daten-Kategorien, Tools), generiertes PDF-Audit, übermittelt an Anthropic zur Empfehlungs-Generierung</li>
+              <li><strong>Lead-Magnet-Anmeldungen:</strong> E-Mail + Name + gewählter Lead-Magnet-Slug zur PDF-Versendung (z.B. EU-AI-Act-Compliance-Guide)</li>
+              <li><strong>SaaS-Waitlist:</strong> E-Mail + gewähltes Tool-Slug zur Benachrichtigung bei Tool-Verfügbarkeit</li>
+              <li><strong>Testimonials (Cases):</strong> Vom Kunden freigegebene Texte, Video-URL, Brand-Name, Logo, Kennzahlen — Display nur nach explizit gewährter Permission (case_pages Flag)</li>
+              <li><strong>Subscription-/Cost-Tracking (intern):</strong> AEVUM-eigene Software-Abos und deren Zuordnung zu Customer-Projekten — interne Buchhaltung, kein Customer-PII enthalten</li>
+              <li><strong>LLM-Usage-Logs:</strong> agent_usage_log mit anonymisierter IP, Account-Referenz, Tokens-In/Out, Kosten (Cent) — zur Abrechnung der Pay-per-Run SaaS-Tools, IP-Anonymisierung sofort beim Schreiben (write-time)</li>
+              <li><strong>Telegram-Bot Magic-Links:</strong> Wenn Customer mit dem AEVUM-Telegram-Bot interagiert (optional, opt-in über Portal): Telegram-User-ID, Chat-ID, zuletzt empfangene Magic-Links</li>
             </ul>
             <p>
               Es findet <strong>kein automatisiertes Profiling</strong> und keine automatisierte
@@ -115,10 +142,22 @@ export default function Datenschutz() {
                     <td className="px-3 py-2 border-b border-white/10">AVV (Anthropic DPA) + EU-SCCs (Modul 2), Zero-Retention API</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2">Mailbox.org (Heinlein Support GmbH)</td>
-                    <td className="px-3 py-2">Versand von Transaktions-E-Mails (Magic-Link-Login, DSGVO-Challenge-Bestätigungen für Export/Löschung)</td>
-                    <td className="px-3 py-2">Deutschland (Berlin)</td>
-                    <td className="px-3 py-2">AVV nach Art 28 DSGVO, § 32 BDSG, ISO 27001-zertifiziert</td>
+                    <td className="px-3 py-2 border-b border-white/10">Mailbox.org (Heinlein Support GmbH)</td>
+                    <td className="px-3 py-2 border-b border-white/10">SMTP-Fallback für Transaktions-E-Mails (Magic-Link-Login, DSGVO-Challenge-Bestätigungen für Export/Löschung); nur als Fallback aktiv wenn Resend nicht verfügbar</td>
+                    <td className="px-3 py-2 border-b border-white/10">Deutschland (Berlin)</td>
+                    <td className="px-3 py-2 border-b border-white/10">AVV nach Art 28 DSGVO, § 32 BDSG, ISO 27001-zertifiziert</td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 border-b border-white/10">Resend (Resend, Inc.)</td>
+                    <td className="px-3 py-2 border-b border-white/10">Primärer Versand von Transaktions-E-Mails (Magic-Link-Login, Lead-Magnet-PDFs, Bestell-Bestätigungen, DSGVO-Challenge-Bestätigungen, Waitlist-Notifications)</td>
+                    <td className="px-3 py-2 border-b border-white/10">USA, EU-Region verfügbar</td>
+                    <td className="px-3 py-2 border-b border-white/10">AVV + EU-SCCs (Modul 2), SOC 2 Type II, EU-Sub-Processor</td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 border-b border-white/10">Telegram FZ-LLC</td>
+                    <td className="px-3 py-2 border-b border-white/10">Versand von Bot-Notifications, Customer-Magic-Links und Helpbot-Benachrichtigungen an opt-in Telegram-Accounts (nur wenn vom Kunden explizit aktiviert)</td>
+                    <td className="px-3 py-2 border-b border-white/10">Vereinigte Arabische Emirate / Schweiz</td>
+                    <td className="px-3 py-2 border-b border-white/10">Standard-Drittland-Übertragung; nur ID-Felder + Magic-Link-URL übermittelt, keine PII-Inhalte; opt-in Basis Art 6 Abs 1 lit a</td>
                   </tr>
                 </tbody>
               </table>
@@ -238,6 +277,14 @@ export default function Datenschutz() {
               <li>Stripe-Zahlungsdaten: gemäß Stripe-Datenschutzerklärung, in der Regel ebenfalls 10 Jahre wegen handels- und steuerrechtlicher Aufbewahrungspflichten</li>
               <li>Server-Logs: 30 Tage (danach IP-Anonymisierung), aggregierte Security-Statistiken bis zu 90 Tage</li>
               <li>Helpbot / AI-Chat Verläufe: 30 Tage ab letzter Nachricht, danach automatische Löschung; jederzeit vom Nutzer selbst löschbar</li>
+              <li>Customer-Project-Agent-Memory: bis Kunde löscht oder Account beendet wird</li>
+              <li>Customer-Documents (Inbox/Outbox/Shared): keine automatische Löschung — Customer-Owned, manuell vom Kunden löschbar; bei Account-Schließung Löschung innerhalb 30 Tagen</li>
+              <li>Script-Factory- und DSGVO-Factory-Run-Daten: 30 Tage nach Run-Abschluss (Customer kann auf Anfrage verlängern), danach automatische Löschung</li>
+              <li>Lead-Magnet-Anmeldungen: 6 Monate nach Anmeldung, danach automatische Löschung</li>
+              <li>SaaS-Waitlist-Einträge: bis Tool live + 30 Tage nach Notification, danach automatische Löschung</li>
+              <li>LLM-Usage-Logs (agent_usage_log): 90 Tage detailliert, danach aggregierte Statistik bis zu 12 Monaten (anonymisiert, ohne IP)</li>
+              <li>Magic-Link-Tokens (Login + DSGVO-Challenges): 30 Min Lebensdauer, dann ungültig; verbrauchte Tokens werden nach 24 h gelöscht (single-use Schutz)</li>
+              <li>Bestell- und Rechnungs-Daten: 10 Jahre (§ 257 HGB, § 147 AO) — bei DSGVO-Löschung erfolgt Pseudonymisierung statt vollständiger Löschung</li>
               <li>Einwilligungs-Nachweise (Art 7 Abs 1 DSGVO): bis Widerruf zzgl. 3 Jahre Regelverjährung (§ 195 BGB)</li>
             </ul>
           </section>

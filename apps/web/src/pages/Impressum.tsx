@@ -1,8 +1,21 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { usePageSeo } from '@/hooks/use-page-seo';
 
 export default function Impressum() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
+  usePageSeo({
+    title: 'Impressum — AEVUM',
+    description: 'Impressum nach § 5 TMG für AEVUM (Carlos Wrusch, Federteilstr. 2e, 86517 Wehringen).',
+    path: '/impressum',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: 'Impressum',
+      url: 'https://aevum-system.de/impressum',
+      inLanguage: 'de-DE',
+    },
+  });
 
   return (
     <section className="px-6 lg:px-16 py-24 max-w-3xl mx-auto">

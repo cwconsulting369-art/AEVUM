@@ -1,8 +1,23 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { usePageSeo } from '@/hooks/use-page-seo';
 
 export default function AGB() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
+  usePageSeo({
+    title: 'AGB — AEVUM Allgemeine Geschäftsbedingungen',
+    description: 'Allgemeine Geschäftsbedingungen von AEVUM für Workflow-Audits, AI-Systeme, SaaS-Tools und Add-on-Services. Stand 24.05.2026.',
+    path: '/agb',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: 'Allgemeine Geschäftsbedingungen (AGB)',
+      url: 'https://aevum-system.de/agb',
+      inLanguage: 'de-DE',
+      isPartOf: { '@type': 'WebSite', name: 'AEVUM', url: 'https://aevum-system.de' },
+      dateModified: '2026-05-24',
+    },
+  });
 
   return (
     <section className="px-6 lg:px-16 py-24 max-w-3xl mx-auto">
@@ -15,7 +30,7 @@ export default function AGB() {
           Allgemeine <span className="text-[#e0a458]">Geschäftsbedingungen</span>
         </h1>
 
-        <p className="text-sm text-[#7a7a85] mb-12">Stand: 20. Mai 2026 · Version: agb-v2-2026-05-20</p>
+        <p className="text-sm text-[#7a7a85] mb-12">Stand: 24. Mai 2026 · Version: agb-v3-saas-2026-05-24</p>
 
         <article className="prose prose-invert max-w-none space-y-8 text-[#a4a4ad] leading-relaxed">
 
@@ -76,6 +91,13 @@ export default function AGB() {
               <li><strong>Paket M — Wachstum (12.900 €):</strong> Vollständige Implementation 1–2 Use Cases, Integration mit bestehenden Tools, 4–8 Wochen Lieferzeit, 3 Monate Support nach Go-Live.</li>
               <li><strong>Paket L — Skalierung (4.900 € / Monat):</strong> Laufende Optimierung, monatliche Performance-Reports, neue Use Cases on-demand, priorisierte Entwicklung.</li>
               <li><strong>Add-on-Services</strong> (Website, Lead-Gen-Setup, Content-Workflow, AI-Automation pro Use Case): einzelne Standalone-Pakete mit definiertem Scope, Preis und Lieferzeit gemäß Website.</li>
+              <li><strong>SaaS-Tools (Pay-per-Run, Credit-basiert):</strong> Self-Service Software-Tools (Script-Factory, DSGVO-Factory u.a.). Bereitstellung als Software-as-a-Service mit Credit-Verbrauch pro Lauf. Pakete:
+                <ul className="list-disc pl-6 mt-2 space-y-1">
+                  <li>Starter: 10 € (begrenztes monatliches Credit-Kontingent)</li>
+                  <li>Growth: 25 € (mittleres Kontingent)</li>
+                  <li>Pro: 50 € (großes Kontingent)</li>
+                </ul>
+              </li>
             </ul>
             <p>
               AEVUM ist berechtigt, Lieferungen in Teilleistungen zu erbringen. Liefertermine
@@ -132,6 +154,43 @@ export default function AGB() {
               <a href="#/datenschutz" className="text-[#e0a458] hover:underline">Datenschutzerklärung</a>{' '}
               detailliert beschrieben.
             </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 5a SaaS-Tools — Credit-Verbrauch, Refund-Policy und Premium-Track</h2>
+            <ol className="list-decimal pl-6 space-y-2">
+              <li>
+                <strong>Credit-Verbrauch:</strong> Jeder erfolgreiche Lauf eines SaaS-Tools (z.B.
+                Script-Factory, DSGVO-Factory) verbraucht eine in der Tool-Beschreibung
+                ausgewiesene Anzahl Credits aus dem aktiven Tarif-Paket des Kunden.
+              </li>
+              <li>
+                <strong>Auto-Refund bei Fehlschlag:</strong> Schlägt ein Lauf aufgrund technischer
+                Fehler oder LLM-Ausfälle fehl, werden die verbrauchten Credits automatisch dem
+                Konto wieder gutgeschrieben (System-Refund-Flow). Ein manueller Anspruch entsteht
+                nicht in Fällen unsachgemäßer Eingaben oder bewusster Missbrauchs-Versuche.
+              </li>
+              <li>
+                <strong>Bestand und Übertragbarkeit:</strong> Nicht verbrauchte Credits verfallen
+                am Monatsende bzw. am Ende der Abrechnungsperiode des gewählten Pakets. Eine
+                Übertragung zwischen Accounts oder Auszahlung in Geld ist ausgeschlossen.
+              </li>
+              <li>
+                <strong>Tool-Verfügbarkeit:</strong> SaaS-Tools werden „as-is" bereitgestellt.
+                AEVUM strebt eine Verfügbarkeit von 99 % im Monatsmittel an, ohne Anspruch auf
+                ständige Erreichbarkeit. Ausfälle bei LLM-Sub-Dienstleistern (Anthropic, OpenAI)
+                werden nicht in die Verfügbarkeitsberechnung einbezogen.
+              </li>
+              <li>
+                <strong>Premium-Track für Partner-Agenturen (z.B. Tim's Customer-Pipeline):</strong>{' '}
+                Bei separat vereinbarter Premium-Zusammenarbeit, in der eine Partner-Agentur
+                ihre eigenen Endkunden über AEVUM-Tools bedient, gilt: Die Partner-Agentur ist
+                Verantwortlicher im Sinne von Art 4 Nr 7 DSGVO für die Daten ihrer Endkunden,
+                AEVUM ist Auftragsverarbeiter nach Art 28 DSGVO. Ein separater AVV wird vor
+                Aufnahme der Zusammenarbeit geschlossen. Die Vergütungs- und Provisionsmodelle
+                werden in einem ergänzenden Partnervertrag geregelt.
+              </li>
+            </ol>
           </section>
 
           <section>

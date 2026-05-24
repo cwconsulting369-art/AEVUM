@@ -185,6 +185,36 @@ docsRouter.post('/upload', uploadMw.single('file'), async (req, res) => {
     if (!req.file) return res.status(400).json({ ok: false, error: 'no_file' });
 
     const filename = req.file.originalname;
+
+    // Wave H4 — Content-safety check: filename must be .md (FILENAME_RX) AND
+    // content must be text-only (no executable magic-bytes). Block PDF/ZIP/PE/ELF
+    // payloads renamed to .md.
+    const buf = req.file.buffer;
+    if (buf && buf.length >= 4) {
+      const b0 = buf[0], b1 = buf[1], b2 = buf[2], b3 = buf[3];
+      const isPdf  = b0 === 0x25 && b1 === 0x50 && b2 === 0x44 && b3 === 0x46;
+      const isZip  = b0 === 0x50 && b1 === 0x4B && (b2 === 0x03 || b2 === 0x05);
+      const isPe   = b0 === 0x4D && b1 === 0x5A;                            // MZ / Windows EXE
+      const isElf  = b0 === 0x7F && b1 === 0x45 && b2 === 0x4C && b3 === 0x46; // ELF
+      const isOle  = b0 === 0xD0 && b1 === 0xCF && b2 === 0x11 && b3 === 0xE0;
+      const isJpg  = b0 === 0xFF && b1 === 0xD8 && b2 === 0xFF;
+      const isPng  = b0 === 0x89 && b1 === 0x50 && b2 === 0x4E && b3 === 0x47;
+      if (isPdf || isZip || isPe || isElf || isOle || isJpg || isPng) {
+        return res.status(415).json({ ok: false, error: 'binary_content_not_allowed', hint: 'Nur Markdown-Text-Dateien erlaubt.' });
+      }
+      // Loose text-check on first 512 bytes — any non-printable + non-utf8 sequence rejects
+      const sample = buf.slice(0, Math.min(512, buf.length));
+      let printable = 0;
+      for (const byte of sample) {
+        if (byte === 0x09 || byte === 0x0A || byte === 0x0D || (byte >= 0x20 && byte <= 0x7E) || byte >= 0xC0) {
+          printable++;
+        }
+      }
+      if (printable / sample.length < 0.85) {
+        return res.status(415).json({ ok: false, error: 'non_text_content', hint: 'Datei scheint binär zu sein.' });
+      }
+    }
+
     const target = resolveSafe(slug, 'inbox', filename);
     await ensureDirs(slug);
     await fs.writeFile(target, req.file.buffer);

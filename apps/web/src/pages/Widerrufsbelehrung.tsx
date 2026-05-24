@@ -1,8 +1,21 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { usePageSeo } from '@/hooks/use-page-seo';
 
 export default function Widerrufsbelehrung() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
+  usePageSeo({
+    title: 'Widerrufsbelehrung — AEVUM',
+    description: 'Widerrufsbelehrung gemäß § 13 BGB für Verbraucher. 14-Tage-Widerrufsrecht ab Vertragsschluss.',
+    path: '/widerrufsbelehrung',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: 'Widerrufsbelehrung',
+      url: 'https://aevum-system.de/widerrufsbelehrung',
+      inLanguage: 'de-DE',
+    },
+  });
 
   return (
     <section className="px-6 lg:px-16 py-24 max-w-3xl mx-auto">

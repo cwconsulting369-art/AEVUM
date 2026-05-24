@@ -183,7 +183,17 @@ app.use('/api/audit', auditSubmitLimiter, auditUploadLimiter, dsgvoLimiter, audi
 
 // Checkout — create-session + pilot-status. Webhook is mounted above
 // with raw-body parser before express.json().
-app.use('/api/checkout', checkoutRouter);
+// Wave H4: explicit limit on POST endpoints to protect against Stripe-session spam.
+const checkoutLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: clientIpKey,
+  message: { ok: false, error: 'rate_limit_checkout', hint: 'Maximal 10 Checkout-Versuche pro Minute.' },
+  skip: (req) => req.method !== 'POST'
+});
+app.use('/api/checkout', checkoutLimiter, checkoutRouter);
 
 // AEVUM v2 — Account/Project/Blueprint layer (admin-token gated)
 app.use('/api/accounts', accountsRouter);
@@ -200,7 +210,19 @@ app.use('/api/leads', customerLeadsRouter);
 
 // AEVUM v2 — Customer-Portal auth + self-service (Block D)
 app.use('/api/auth', authRouter);
-app.use('/api/me', meRouter);
+
+// Wave H4: explicit /api/me upload-burst limit (5/min/IP for POST upload paths only).
+//          requireCustomerAuth + JWT already in meRouter; this is defense-in-depth.
+const meUploadLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: clientIpKey,
+  message: { ok: false, error: 'rate_limit_me_upload', hint: 'Maximal 5 Uploads pro Minute.' },
+  skip: (req) => req.method !== 'POST' || !/\/projects\/[^/]+\/docs\/upload$/.test(req.path)
+});
+app.use('/api/me', meUploadLimiter, meRouter);
 app.use('/api/cases', casesRouter);
 
 // Credit + Loyalty System
@@ -289,11 +311,32 @@ app.use('/api/shop-items', shopItemsRouter);
 app.use('/api/dashboard', dashboardStatsRouter);
 
 // SaaS Factories — Wave C (Pay-per-Run)
-app.use('/api/factories/script', scriptFactoryRouter);
-app.use('/api/factories/dsgvo', dsgvoFactoryRouter);
+// Wave H4: zusätzlicher IP-Burst-Schutz on top of agent-throttle + spendCredits.
+// Schützt vor Massen-Burst von einem Account/IP (auch wenn Credits-Pool gefüllt ist).
+const factoryRunLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: clientIpKey,
+  message: { ok: false, error: 'rate_limit_factory_run', hint: 'Maximal 3 Factory-Runs pro Minute.' },
+  skip: (req) => req.method !== 'POST' || req.path !== '/run'
+});
+app.use('/api/factories/script', factoryRunLimiter, scriptFactoryRouter);
+app.use('/api/factories/dsgvo', factoryRunLimiter, dsgvoFactoryRouter);
 
 // Knowledge-Hubs — Wave H1 (SSOT for Bauligs/Salinsky/etc; admin CRUD + public listing)
-app.use('/api/knowledge-hubs', knowledgeHubsRouter);
+// Wave H4: defense-in-depth limit (admin-token gated CRUD is the primary control).
+const knowledgeWriteLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: clientIpKey,
+  message: { ok: false, error: 'rate_limit_knowledge_write', hint: 'Maximal 20 Knowledge-Hub-Writes pro Minute.' },
+  skip: (req) => req.method === 'GET' || req.method === 'HEAD'
+});
+app.use('/api/knowledge-hubs', knowledgeWriteLimiter, knowledgeHubsRouter);
 
 // Sub-OS aevum-summary endpoints — Wave E3 (admin-token gated)
 //   /api/sub-os                      → list supported systems

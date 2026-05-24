@@ -3,7 +3,7 @@ Allow: /
 Disallow: /api/
 Disallow: /checkout/
 
-# Block AI training scrapers
+# Block AI training scrapers (Wave H4 — protect content from unconsented LLM training)
 User-agent: GPTBot
 Disallow: /
 
@@ -14,6 +14,24 @@ User-agent: anthropic-ai
 Disallow: /
 
 User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: FacebookBot
 Disallow: /
 
 Sitemap: https://aevum-system.de/sitemap.xml
