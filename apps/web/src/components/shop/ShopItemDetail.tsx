@@ -586,16 +586,38 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
       meta: { with_account: withAccount, source: 'shop_detail_page' },
     });
     try {
+      // Mit-Account-Flow: Email-Prompt vor Stripe (10c/€ + Stempelkarte + Login)
+      let buyerEmail = '';
+      let buyerName = '';
       if (withAccount) {
-        window.location.href = `/#/register?intent=checkout&blueprint=${item.slug}`;
-        return;
+        const email = window.prompt(
+          `🎁 Mit AEVUM-Account bekommst du:\n\n` +
+          `• 10 Credits pro 1€ (für SaaS-Tools nutzbar)\n` +
+          `• Stempelkarte: 5 Käufe = 1 Blueprint gratis\n` +
+          `• Wiederkehr-Login via TG oder Email\n` +
+          `• Persönliches Customer-Portal\n\n` +
+          `Deine E-Mail-Adresse:`
+        );
+        if (!email || !email.includes('@')) { setBuying(false); return; }
+        buyerEmail = email.trim().toLowerCase();
+        const name = window.prompt('Dein Vorname (optional):') || '';
+        buyerName = name.trim();
       }
       const { url } = await createCheckoutSession({
         product_id: item.slug,
         stripe_price_id: item.stripePriceId,
         mode: 'payment',
-        metadata: { blueprint_slug: item.slug },
-        success_url: window.location.origin + '/#/checkout/success',
+        metadata: {
+          blueprint_slug: item.slug,
+          ...(withAccount ? {
+            create_account: 'true',
+            source: `shop-detail:${item.slug}`,
+            purchase_type: item.type === 'bundle' ? 'bundle' : 'blueprint',
+            buyer_name: buyerName,
+            buyer_email: buyerEmail,
+          } : {}),
+        },
+        success_url: window.location.origin + '/#/checkout/success' + (withAccount ? '?type=shop-account' : ''),
         cancel_url: window.location.origin + '/#/checkout/cancelled',
       });
       window.location.href = url;

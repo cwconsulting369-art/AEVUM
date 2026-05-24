@@ -13,6 +13,7 @@ import { accountsRouter } from './routes/accounts.js';
 import { projectsRouter } from './routes/projects.js';
 import { blueprintsRouter } from './routes/blueprints.js';
 import { authRouter } from './routes/auth.js';
+import { googleAuthRouter } from './routes/auth-google.js';
 import { meRouter } from './routes/me.js';
 import { casesRouter } from './routes/cases.js';
 import { approvalRouter } from './routes/approval.js';
@@ -193,7 +194,26 @@ const checkoutLimiter = rateLimit({
   message: { ok: false, error: 'rate_limit_checkout', hint: 'Maximal 10 Checkout-Versuche pro Minute.' },
   skip: (req) => req.method !== 'POST'
 });
-app.use('/api/checkout', checkoutLimiter, checkoutRouter);
+// Payments-Pause-Guard — wenn app_settings.payments_paused=true → alle non-webhook checkout-Endpoints return 503
+import { paymentsPausedGuard, isPaymentsPaused, getPausedMessage } from './lib/payments-paused.js';
+const checkoutWithPauseGuard = (req, res, next) => {
+  // Webhook (POST /webhook) NIE blockieren — Stripe muss zustellen können falls historische Sessions
+  if (req.path === '/webhook' || req.path === '') return next();
+  return paymentsPausedGuard(req, res, next);
+};
+app.use('/api/checkout', checkoutLimiter, checkoutWithPauseGuard, checkoutRouter);
+
+// Public /api/config — Frontend liest hier ob Payments live sind
+app.get('/api/config', async (_req, res) => {
+  const paused = await isPaymentsPaused();
+  const msg = await getPausedMessage();
+  res.json({
+    ok: true,
+    payments_paused: paused,
+    payments_paused_message: msg,
+    timestamp: new Date().toISOString()
+  });
+});
 
 // AEVUM v2 — Account/Project/Blueprint layer (admin-token gated)
 app.use('/api/accounts', accountsRouter);
@@ -210,6 +230,10 @@ app.use('/api/leads', customerLeadsRouter);
 
 // AEVUM v2 — Customer-Portal auth + self-service (Block D)
 app.use('/api/auth', authRouter);
+
+// Wave I4 — Google-OAuth-Login (1-Click for SaaS/Shop)
+// Routes: GET /api/auth/google, GET /api/auth/google/callback
+app.use('/api/auth', googleAuthRouter);
 
 // Wave H4: explicit /api/me upload-burst limit (5/min/IP for POST upload paths only).
 //          requireCustomerAuth + JWT already in meRouter; this is defense-in-depth.

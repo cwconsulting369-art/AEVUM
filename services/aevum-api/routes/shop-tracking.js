@@ -37,7 +37,10 @@ const EVENT_TYPES = [
 
 const TrackSchema = z.object({
   session_id: z.string().min(8).max(64),
-  event_type: z.enum(EVENT_TYPES),
+  // Soft-Validation: erlaubt alle snake_case-event-types statt strict-enum.
+  // Verhindert Security-Block-Spam bei neuen Frontend-Events.
+  // EVENT_TYPES ist optional whitelist für strict-mode wenn nötig.
+  event_type: z.string().min(3).max(80).regex(/^[a-z][a-z0-9_]{2,79}$/, 'invalid_event_type'),
   path: z.string().max(500).optional().nullable(),
   referrer: z.string().max(1000).optional().nullable(),
   utm_source: z.string().max(120).optional().nullable(),
