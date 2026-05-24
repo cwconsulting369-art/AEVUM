@@ -25,6 +25,7 @@ import { shopItemsRouter } from './routes/shop-items.js';
 import { dashboardStatsRouter } from './routes/dashboard-stats.js';
 import { customerLeadsRouter } from './routes/customer-leads.js';
 import { waitlistRouter } from './routes/waitlist.js';
+import { leadMagnetsRouter } from './routes/lead-magnets.js';
 import { scriptFactoryRouter } from './routes/factories/script.js';
 import { dsgvoFactoryRouter } from './routes/factories/dsgvo.js';
 import { anonymizeIp } from './lib/security.js';
@@ -249,6 +250,18 @@ const waitlistLimiter = rateLimit({
   skip: (req) => req.method !== 'POST' || req.path !== '/saas'
 });
 app.use('/api/waitlist', waitlistLimiter, waitlistRouter);
+
+// Lead-Magnets — Wave D3 (PDF download via email-capture). 10/h/IP per slug.
+const leadMagnetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: clientIpKey,
+  message: { ok: false, error: 'rate_limit_lead_magnet', hint: 'Maximal 10 Anfragen pro Stunde.' },
+  skip: (req) => req.method !== 'POST'
+});
+app.use('/api/lead-magnets', leadMagnetLimiter, leadMagnetsRouter);
 
 // Shop-tracking — fire-and-forget page-view + funnel capture.
 // Tight rate-limit: 100/min/IP, scoped to POST /track only.

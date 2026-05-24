@@ -19,6 +19,7 @@ const CheckoutSuccess = lazy(() => import('./pages/CheckoutSuccess'));
 const CheckoutCancelled = lazy(() => import('./pages/CheckoutCancelled'));
 const Shop = lazy(() => import('./pages/Shop'));
 const ShopItemDetail = lazy(() => import('./components/shop/ShopItemDetail'));
+const LeadMagnetEuAiAct = lazy(() => import('./pages/LeadMagnetEuAiAct'));
 
 function LoadingFallback() {
   return (
@@ -47,6 +48,7 @@ const routeComponents: Record<string, React.ComponentType> = {
   '/checkout/success': CheckoutSuccess,
   '/checkout/cancelled': CheckoutCancelled,
   '/shop': Shop,
+  '/lead-magnets/eu-ai-act': LeadMagnetEuAiAct,
 };
 
 export default function App() {
