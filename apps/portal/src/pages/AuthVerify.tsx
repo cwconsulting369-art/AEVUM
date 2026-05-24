@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { verifyMagicLink } from '@/lib/api';
+import { verifyMagicLink, clearTokens } from '@/lib/api';
 import { CheckCircle2, XCircle, ArrowLeft } from 'lucide-react';
 import Spinner from '@/components/Spinner';
 import MeshBackground from '@/components/MeshBackground';
@@ -9,24 +9,37 @@ import Brand from '@/components/Brand';
 export default function AuthVerify() {
   const [params] = useSearchParams();
   const [state, setState] = useState<'verifying' | 'ok' | 'error'>('verifying');
+  const [accountInfo, setAccountInfo] = useState<{ slug: string; name: string } | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const nav = useNavigate();
 
   useEffect(() => {
     // Token kann im Fragment (#token=... oder #t=...) ODER Query (?token=...) sein.
-    // Fragment-First weil sicherer (CDN-Logs sehen Fragment nicht).
     const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
     const hashParams = new URLSearchParams(hash);
     const token = hashParams.get('token') || hashParams.get('t') || params.get('token');
     if (!token) { setState('error'); setErrorMsg('Kein Token in der URL'); return; }
-    // Fragment-Token aus URL strippen so dass kein Refresh-Re-Verify passiert
+    // CRITICAL: vorhandene Auth komplett löschen BEVOR der neue Token gesetzt wird.
+    // Sonst landet ein Admin der über Customer-Magic-Link kommt versehentlich auf
+    // seinem alten Dashboard. Hard-Logout = sichere Account-Trennung.
+    try {
+      clearTokens();
+      sessionStorage.clear();
+    } catch { /* noop */ }
     try {
       if (window.location.hash) window.history.replaceState({}, '', window.location.pathname);
     } catch { /* noop */ }
     (async () => {
       try {
         const data = await verifyMagicLink(token);
-        if (data.ok) { setState('ok'); setTimeout(() => nav('/dashboard'), 900); }
+        if (data.ok) {
+          setAccountInfo({ slug: data.account.slug, name: data.account.name });
+          setState('ok');
+          // Account-Slug in localStorage so dass Dashboard genau diesen Account lädt
+          // (auch falls /api/me cache-issues hat)
+          try { localStorage.setItem('aevum_active_account_slug', data.account.slug); } catch { /* noop */ }
+          setTimeout(() => nav('/dashboard'), 1200);
+        }
         else { setState('error'); setErrorMsg('Token ungültig oder abgelaufen'); }
       } catch (e: unknown) {
         setState('error');
@@ -56,8 +69,11 @@ export default function AuthVerify() {
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center animate-pulse-gold" style={{ animationName: 'pulse-gold' }}>
               <CheckCircle2 size={40} className="text-emerald-400" strokeWidth={1.8} />
             </div>
-            <div className="text-lg font-semibold text-white">Eingeloggt</div>
+            <div className="text-lg font-semibold text-white">Eingeloggt{accountInfo ? ` als ${accountInfo.name}` : ''}</div>
             <div className="text-sm text-ink-300 mt-2">Leite weiter zum Dashboard…</div>
+            {accountInfo && (
+              <div className="mt-3 text-xs text-ink-500">Account: <code className="text-amber-300">{accountInfo.slug}</code></div>
+            )}
           </div>
         )}
 
