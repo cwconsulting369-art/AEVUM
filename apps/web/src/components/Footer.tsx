@@ -32,7 +32,7 @@ export default function Footer() {
             <p className="text-sm text-[#a4a4ad] leading-relaxed mb-3">
               Individuelle KI-Betriebssysteme fuer Unternehmen.
             </p>
-            <p className="text-xs text-[#7a7a85] leading-relaxed mb-6">
+            <p className="text-xs text-[#9a9aa5] leading-relaxed mb-6">
               Solo gefuehrt aus Augsburg. Wenn dir jemand schreibt — ich bin's selbst.
               Keine Account-Manager-Kette, keine Uebergaben.
             </p>
@@ -60,7 +60,7 @@ export default function Footer() {
 
           {/* Product Column */}
           <div>
-            <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#7a7a85] mb-6">
+            <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#9a9aa5] mb-6">
               Produkt
             </h4>
             <ul className="space-y-3">
@@ -79,7 +79,7 @@ export default function Footer() {
 
           {/* Navigation Column */}
           <div>
-            <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#7a7a85] mb-6">
+            <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#9a9aa5] mb-6">
               Navigation
             </h4>
             <ul className="space-y-3">
@@ -98,7 +98,7 @@ export default function Footer() {
 
           {/* Contact Column */}
           <div>
-            <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#7a7a85] mb-6">
+            <h4 className="text-xs font-mono uppercase tracking-[0.1em] text-[#9a9aa5] mb-6">
               Kontakt
             </h4>
             <div className="space-y-4">
@@ -143,20 +143,20 @@ export default function Footer() {
 
         {/* Legal Links Bar */}
         <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[#7a7a85]">
+          <p className="text-xs text-[#9a9aa5]">
             &copy; 2026 {CONTACT.company}. Alle Rechte vorbehalten.
           </p>
           <nav className="flex items-center gap-6 flex-wrap justify-center">
-            <a href="#/datenschutz" className="text-xs text-[#7a7a85] hover:text-[#e0a458] transition-colors">
+            <a href="#/datenschutz" className="text-xs text-[#9a9aa5] hover:text-[#e0a458] transition-colors">
               Datenschutz
             </a>
-            <a href="#/impressum" className="text-xs text-[#7a7a85] hover:text-[#e0a458] transition-colors">
+            <a href="#/impressum" className="text-xs text-[#9a9aa5] hover:text-[#e0a458] transition-colors">
               Impressum
             </a>
-            <a href="#/agb" className="text-xs text-[#7a7a85] hover:text-[#e0a458] transition-colors">
+            <a href="#/agb" className="text-xs text-[#9a9aa5] hover:text-[#e0a458] transition-colors">
               AGB
             </a>
-            <a href="#/widerrufsbelehrung" className="text-xs text-[#7a7a85] hover:text-[#e0a458] transition-colors">
+            <a href="#/widerrufsbelehrung" className="text-xs text-[#9a9aa5] hover:text-[#e0a458] transition-colors">
               Widerruf
             </a>
           </nav>

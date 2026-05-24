@@ -16,6 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import CONTACT from '@/config/contact';
 import { track } from '@/lib/shop-track';
+import { usePageSeo } from '@/hooks/use-page-seo';
 
 /* ------------------------------------------------------------------ */
 /*  TYPES                                                             */
@@ -272,6 +273,11 @@ const DEFAULT_STATE: FormState = {
 /* ================================================================== */
 
 export default function Audit() {
+  usePageSeo({
+    title: 'Workflow-Audit kostenlos starten — AEVUM',
+    description: 'Kostenfreies Workflow-Audit für KMU, Kanzleien und Hausverwaltungen. In 4 Schritten zu Automation-Potenzialen, Kosten-Ersparnis und Pipeline-Wachstum.',
+    path: '/audit',
+  });
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [submitted, setSubmitted] = useState(false);
