@@ -31,6 +31,7 @@ import { scriptFactoryRouter } from './routes/factories/script.js';
 import { dsgvoFactoryRouter } from './routes/factories/dsgvo.js';
 import { leadScraperRouter } from './routes/factories/lead-scraper.js';
 import { knowledgeHubsRouter } from './routes/knowledge-hubs.js';
+import { trustpilotRouter } from './routes/trustpilot.js';
 import { subscriptionsRouter, projectSubscriptionsRouter } from './routes/subscriptions.js';
 import { subOsRouter } from './routes/sub-os.js';
 import { anonymizeIp } from './lib/security.js';
@@ -380,6 +381,7 @@ const knowledgeWriteLimiter = rateLimit({
   skip: (req) => req.method === 'GET' || req.method === 'HEAD'
 });
 app.use('/api/knowledge-hubs', knowledgeWriteLimiter, knowledgeHubsRouter);
+app.use('/api/trustpilot', trustpilotRouter);
 
 // Sub-OS aevum-summary endpoints — Wave E3 (admin-token gated)
 //   /api/sub-os                      → list supported systems

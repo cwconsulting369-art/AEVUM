@@ -7,6 +7,13 @@ import {
   CheckCircle2,
   Sparkles,
   Quote,
+  BarChart3,
+  Bot,
+  Zap,
+  Database,
+  X,
+  Lock,
+  Mail,
 } from 'lucide-react';
 
 interface ActivatedService {
@@ -257,6 +264,235 @@ function Testimonial({
   );
 }
 
+/* ──────────────────────── Stack-Preview (NDA-safe Demo-Cards) ──────────────────────── */
+/**
+ * Zeigt VISUELL was im Customer-Stack ist — OHNE echte Werte.
+ * Customer-Daten bleiben unter Lock (permissions=false) bis Freigabe.
+ * Carlos-Direktive 2026-05-24: keine Screenshots → keine echten Numbers.
+ */
+
+interface StackCardDef {
+  key: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  title: string;
+  statusLabel: string; // gedimmt, generisch
+  statusTone: 'active' | 'pending';
+  modalBody: string;
+}
+
+const STACK_CARDS: StackCardDef[] = [
+  {
+    key: 'live-dashboard',
+    icon: BarChart3,
+    title: 'Live-Dashboard',
+    statusLabel: 'Real-Time KPIs · wird sichtbar sobald Customer freigibt',
+    statusTone: 'pending',
+    modalBody:
+      'Live-KPI-Dashboard mit täglich aktualisierten Zahlen aus den Customer-Tools. Aktuell unter NDA — sobald der Customer Freigabe erteilt, erscheinen hier echte Werte. Details auf Anfrage bei Carlos.',
+  },
+  {
+    key: 'personal-agent',
+    icon: Bot,
+    title: 'Personal-AI-Agent',
+    statusLabel: 'Aktiv · Details auf Anfrage',
+    statusTone: 'active',
+    modalBody:
+      'Eigener KI-Agent mit Customer-Memory, Tool-Zugriff und WhatsApp/Telegram-Bridge. Architektur und Capabilities auf Anfrage bei Carlos.',
+  },
+  {
+    key: 'automation-stack',
+    icon: Zap,
+    title: 'Automation-Stack',
+    statusLabel: 'Verbundene Tools · Liste auf Anfrage',
+    statusTone: 'active',
+    modalBody:
+      'Mehrere produktive Workflows zwischen den Customer-Tools (Ad-Plattformen, CRM, Analytics, Datenbank, Messaging). Konkrete Tool-Liste und Workflow-Diagramme nur auf Anfrage.',
+  },
+  {
+    key: 'data-sync',
+    icon: Database,
+    title: 'Data-Sync',
+    statusLabel: 'Live-Pipeline · Status aktiv',
+    statusTone: 'active',
+    modalBody:
+      'Tägliche/stündliche Data-Pipelines synchronisieren alle relevanten Quellen in die Customer-DB. Schema und Frequenz auf Anfrage bei Carlos.',
+  },
+];
+
+function StackCard({
+  card,
+  index,
+  onOpen,
+}: {
+  card: StackCardDef;
+  index: number;
+  onOpen: (k: string) => void;
+}) {
+  const Icon = card.icon;
+  const isActive = card.statusTone === 'active';
+  return (
+    <motion.button
+      type="button"
+      onClick={() => onOpen(card.key)}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ delay: index * 0.07, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ y: -2 }}
+      className="group relative text-left bg-gradient-to-br from-bg-surface to-bg-surface/40 border border-white/10 hover:border-[#e0a458]/40 transition-all p-6 rounded overflow-hidden"
+    >
+      {/* Subtle gradient sheen on hover */}
+      <span
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-br from-[#e0a458]/0 via-[#e0a458]/0 to-[#e0a458]/5 opacity-0 group-hover:opacity-100 transition-opacity"
+      />
+
+      <div className="relative z-10 flex items-start gap-4">
+        <div
+          className={`w-11 h-11 rounded-md flex items-center justify-center flex-shrink-0 transition-colors ${
+            isActive
+              ? 'bg-[#e0a458]/15 border border-[#e0a458]/30 text-[#e0a458]'
+              : 'bg-white/[0.04] border border-white/10 text-[#7a7a85]'
+          }`}
+        >
+          <Icon size={18} />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1.5">
+            <h3 className="text-sm font-medium text-[#F9FAFB]">{card.title}</h3>
+            <span
+              className={`inline-flex items-center gap-1 text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                isActive
+                  ? 'bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/20'
+                  : 'bg-white/5 text-[#7a7a85] border border-white/10'
+              }`}
+            >
+              {isActive ? <CheckCircle2 size={9} /> : <Lock size={9} />}
+              {isActive ? 'aktiv' : 'NDA'}
+            </span>
+          </div>
+          <p className="text-xs text-[#a4a4ad] leading-relaxed">{card.statusLabel}</p>
+        </div>
+      </div>
+
+      <div className="relative z-10 mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-[#7a7a85] group-hover:text-[#e0a458] transition-colors">
+          Mehr Details
+        </span>
+        <ArrowRight
+          size={12}
+          className="text-[#7a7a85] group-hover:text-[#e0a458] group-hover:translate-x-0.5 transition-all"
+        />
+      </div>
+    </motion.button>
+  );
+}
+
+function StackModal({ cardKey, onClose }: { cardKey: string | null; onClose: () => void }) {
+  const card = STACK_CARDS.find((c) => c.key === cardKey) || null;
+
+  useEffect(() => {
+    if (!card) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [card, onClose]);
+
+  if (!card) return null;
+  const Icon = card.icon;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center px-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="stack-modal-title"
+    >
+      <motion.div
+        onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0, scale: 0.96, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        className="relative bg-bg-surface border border-[#e0a458]/30 rounded-lg max-w-lg w-full p-7 shadow-2xl"
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Schließen"
+          className="absolute top-4 right-4 text-[#7a7a85] hover:text-[#F9FAFB] transition-colors"
+        >
+          <X size={18} />
+        </button>
+
+        <div className="w-12 h-12 rounded-md bg-[#e0a458]/15 border border-[#e0a458]/30 flex items-center justify-center mb-5">
+          <Icon size={20} className="text-[#e0a458]" />
+        </div>
+
+        <h3 id="stack-modal-title" className="text-xl font-light text-[#F9FAFB] mb-3">
+          {card.title}
+        </h3>
+        <p className="text-sm text-[#a4a4ad] leading-relaxed mb-6">{card.modalBody}</p>
+
+        <div className="pt-5 border-t border-white/10 space-y-3">
+          <p className="text-[10px] font-mono uppercase tracking-wider text-[#7a7a85]">
+            Mehr Details bekommen?
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <a
+              href="https://wa.me/4915123456789"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 text-xs font-mono text-[#e0a458] hover:text-[#f5c481] border border-[#e0a458]/30 hover:border-[#e0a458]/60 px-4 py-2.5 rounded transition-colors flex-1"
+            >
+              <ExternalLink size={12} />
+              WhatsApp Carlos
+            </a>
+            <a
+              href="mailto:hi@aevum-system.de?subject=Stack-Details%20auf%20Anfrage"
+              className="inline-flex items-center justify-center gap-2 text-xs font-mono text-[#F9FAFB] hover:text-[#e0a458] border border-white/10 hover:border-[#e0a458]/40 px-4 py-2.5 rounded transition-colors flex-1"
+            >
+              <Mail size={12} />
+              hi@aevum-system.de
+            </a>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function StackPreview() {
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  return (
+    <Section
+      eyebrow="Beispiel-Setup"
+      title="Was bei diesem Kunden im Stack ist"
+    >
+      <p className="text-sm text-[#a4a4ad] mb-7 max-w-2xl">
+        Die konkreten Werte und Tool-Namen bleiben unter NDA bis der Customer Freigabe
+        erteilt. Hier ist der visuelle Überblick — Details auf Anfrage.
+      </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {STACK_CARDS.map((c, i) => (
+          <StackCard key={c.key} card={c} index={i} onOpen={setOpenKey} />
+        ))}
+      </div>
+      <StackModal cardKey={openKey} onClose={() => setOpenKey(null)} />
+    </Section>
+  );
+}
+
 /* ──────────────────────── CTA ──────────────────────── */
 
 function CTA() {
@@ -390,6 +626,7 @@ export default function CaseDetail({ slug }: { slug: string }) {
 
       <Services services={services} />
       <Kpis kpis={kpis} />
+      <StackPreview />
       <Testimonial quote={data.testimonial_quote} author={data.testimonial_author} />
       <CTA />
     </div>

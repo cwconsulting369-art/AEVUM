@@ -24,6 +24,7 @@ import {
 import CONTACT from '../config/contact';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import PathThreeCard from '@/components/ctas/PathThreeCard';
+import TrustpilotWidget from '@/components/TrustpilotWidget';
 import {
   Accordion,
   AccordionItem,
@@ -1215,6 +1216,16 @@ function TrustSection() {
               Founder
             </p>
           </div>
+        </motion.div>
+
+        <motion.div
+          custom={4}
+          variants={fadeUp}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          className="mt-12 flex justify-center"
+        >
+          <TrustpilotWidget />
         </motion.div>
       </div>
     </section>

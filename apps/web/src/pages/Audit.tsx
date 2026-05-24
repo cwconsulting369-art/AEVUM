@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import CONTACT from '@/config/contact';
 import { track } from '@/lib/shop-track';
 import { usePageSeo } from '@/hooks/use-page-seo';
+import TrustpilotWidget from '@/components/TrustpilotWidget';
 
 /* ------------------------------------------------------------------ */
 /*  TYPES                                                             */
@@ -357,6 +358,11 @@ function AuditHeroSection() {
             style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
             Wir bauen dein maßgeschneidertes KI-System. Mit Personal-Agent. Mit Dashboard. Langfristig.
           </p>
+
+          {/* Trustpilot Widget */}
+          <div className="flex justify-center mb-6">
+            <TrustpilotWidget />
+          </div>
 
           {/* Trust badges */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10">

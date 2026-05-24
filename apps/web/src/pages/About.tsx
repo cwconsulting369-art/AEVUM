@@ -23,6 +23,7 @@ import {
 import CONTACT from '../config/contact';
 import PathThreeCard from '@/components/ctas/PathThreeCard';
 import { usePageSeo } from '@/hooks/use-page-seo';
+import TrustpilotWidget from '@/components/TrustpilotWidget';
 
 /* ──────────────────────── Animation helpers ──────────────────────── */
 
@@ -636,6 +637,15 @@ function ValuesSection() {
             <ValueCard key={value.title} value={value} index={i} />
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-12 flex justify-center"
+        >
+          <TrustpilotWidget />
+        </motion.div>
       </div>
     </section>
   );
