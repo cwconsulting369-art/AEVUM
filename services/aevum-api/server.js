@@ -25,6 +25,8 @@ import { shopItemsRouter } from './routes/shop-items.js';
 import { dashboardStatsRouter } from './routes/dashboard-stats.js';
 import { customerLeadsRouter } from './routes/customer-leads.js';
 import { waitlistRouter } from './routes/waitlist.js';
+import { scriptFactoryRouter } from './routes/factories/script.js';
+import { dsgvoFactoryRouter } from './routes/factories/dsgvo.js';
 import { anonymizeIp } from './lib/security.js';
 
 const app = express();
@@ -264,6 +266,10 @@ app.use('/api/shop-items', shopItemsRouter);
 
 // Admin-token gated dashboard aggregate endpoints (shop / stripe / orders)
 app.use('/api/dashboard', dashboardStatsRouter);
+
+// SaaS Factories — Wave C (Pay-per-Run)
+app.use('/api/factories/script', scriptFactoryRouter);
+app.use('/api/factories/dsgvo', dsgvoFactoryRouter);
 
 // 404
 app.use((req, res) => {

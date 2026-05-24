@@ -197,3 +197,68 @@ export async function checkStampReward(account_id) {
   console.log(`[credits] stamp reward: +${totalBonus} credits for account ${account_id} (${pendingRewards} reward(s))`);
   return { ok: true, reward: true, bonus_credits: totalBonus };
 }
+
+// ─── spendCredits ─────────────────────────────────────────────
+// Atomic credit spend with optional refund (pass negative amount to refund).
+// Used by Script-Factory, DSGVO-Factory, etc. (Pay-per-Run SaaS).
+//
+// amount > 0  → DEBIT  (returns { ok:false, balance } if insufficient)
+// amount < 0  → CREDIT (refund — bypasses balance check)
+//
+// reference  → free-form tag for credit_transactions.description
+export async function spendCredits(account_id, amount, reference = 'spend') {
+  if (!account_id) throw new Error('spendCredits: account_id required');
+  if (typeof amount !== 'number' || amount === 0 || !Number.isFinite(amount)) {
+    throw new Error('spendCredits: amount must be non-zero number');
+  }
+
+  const row = await ensureCreditsRow(account_id);
+  if (!row) return { ok: false, error: 'credits_row_missing', balance: 0 };
+
+  // REFUND path (negative amount → add credits back)
+  if (amount < 0) {
+    const refundAmount = -amount;
+    const nowIso = new Date().toISOString();
+    await supabase.insert('credit_transactions', {
+      account_id,
+      amount: refundAmount,
+      type: 'refund',
+      reference_id: reference,
+      description: `Refund: ${reference}`
+    });
+    const upd = await supabase.update(
+      'account_credits',
+      `?account_id=eq.${account_id}`,
+      { balance: row.balance + refundAmount, updated_at: nowIso }
+    );
+    if (!upd.ok) return { ok: false, error: 'db_error', balance: row.balance };
+    console.log(`[credits] refund +${refundAmount} (${reference}) account ${account_id}`);
+    return { ok: true, balance: row.balance + refundAmount, refunded: refundAmount };
+  }
+
+  // DEBIT path — atomic optimistic update (balance >= amount guard)
+  if (row.balance < amount) {
+    return { ok: false, error: 'insufficient_credits', balance: row.balance, need: amount };
+  }
+  const nowIso = new Date().toISOString();
+  const upd = await supabase.update(
+    'account_credits',
+    `?account_id=eq.${account_id}&balance=gte.${amount}`,
+    { balance: row.balance - amount, updated_at: nowIso }
+  );
+  if (!upd.ok) return { ok: false, error: 'db_error', balance: row.balance };
+  if (!Array.isArray(upd.data) || upd.data.length === 0) {
+    return { ok: false, error: 'insufficient_credits_or_race', balance: row.balance };
+  }
+
+  await supabase.insert('credit_transactions', {
+    account_id,
+    amount: -amount,
+    type: 'redemption',
+    reference_id: reference,
+    description: `Spend: ${reference}`
+  });
+
+  console.log(`[credits] spent -${amount} (${reference}) account ${account_id}`);
+  return { ok: true, balance: row.balance - amount, spent: amount };
+}
