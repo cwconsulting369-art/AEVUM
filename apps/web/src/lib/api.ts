@@ -73,3 +73,52 @@ export async function createCreditPurchaseSession(
     body: JSON.stringify(params),
   });
 }
+
+/* ──────────────────────── Subscription (Wave I4) ──────────────────────── */
+
+export interface SubscriptionPlan {
+  slug: 'starter' | 'growth' | 'pro';
+  name: string;
+  price_eur: string;            // numeric returned as string
+  credits_per_month: number;
+  features: string[];
+  sort_order: number;
+}
+
+export async function fetchSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+  const r = await api<{ ok: boolean; plans: SubscriptionPlan[] }>('/api/checkout/subscription-plans');
+  return r.plans || [];
+}
+
+export interface SubscribeParams {
+  plan_slug: 'starter' | 'growth' | 'pro';
+  email: string;
+  name?: string;
+  source?: string;
+}
+
+export interface SubscribeResponse {
+  ok: boolean;
+  url: string;
+  error?: string;
+}
+
+export async function createSubscriptionSession(
+  params: SubscribeParams
+): Promise<SubscribeResponse> {
+  return api<SubscribeResponse>('/api/checkout/subscribe', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+}
+
+/* ──────────────────────── Google OAuth (Wave I4) ──────────────────────── */
+
+/** Returns the absolute URL for Google-OAuth-Start. Frontend redirects to this. */
+export function googleOAuthUrl(opts: { next?: string; source?: string } = {}): string {
+  const params = new URLSearchParams();
+  if (opts.next) params.set('next', opts.next);
+  if (opts.source) params.set('source', opts.source);
+  const qs = params.toString();
+  return `${API_BASE}/api/auth/google${qs ? '?' + qs : ''}`;
+}

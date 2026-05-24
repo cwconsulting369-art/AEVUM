@@ -311,11 +311,245 @@ checkoutRouter.post('/webhook', async (req, res) => {
         console.error('[checkout-webhook] saas-signup credit-grant error (non-fatal):', saasErr.message);
       }
     }
+    // ─── Subscription-Signup (Wave I4) ────────────────────────────
+    // checkout.session.completed mit mode='subscription' → Plan + Initial Credit-Grant
+    if (session.mode === 'subscription' && session.subscription) {
+      try {
+        await handleSubscriptionCheckoutCompleted(session, paidAtIso);
+      } catch (subErr) {
+        console.error('[checkout-webhook] subscription-signup error (non-fatal):', subErr.message);
+      }
+    }
   }
 
-  // Other event types ignored for now (payment_intent.succeeded etc. — redundant with checkout.session.completed)
+  // ─── Subscription-Lifecycle-Events (Wave I4) ────────────────────
+  // invoice.paid           → recurring renewal: credit-refill (skip first invoice — handled by checkout.session.completed)
+  // customer.subscription.updated → status sync (active/past_due/etc)
+  // customer.subscription.deleted → mark canceled
+  if (event.type === 'invoice.paid') {
+    try { await handleInvoicePaid(event.data.object); }
+    catch (e) { console.error('[checkout-webhook] invoice.paid error (non-fatal):', e.message); }
+  } else if (event.type === 'customer.subscription.updated') {
+    try { await handleSubscriptionUpdated(event.data.object); }
+    catch (e) { console.error('[checkout-webhook] sub.updated error (non-fatal):', e.message); }
+  } else if (event.type === 'customer.subscription.deleted') {
+    try { await handleSubscriptionDeleted(event.data.object); }
+    catch (e) { console.error('[checkout-webhook] sub.deleted error (non-fatal):', e.message); }
+  }
+
   return res.json({ received: true });
 });
+
+// ════════════════════════════════════════════════════════════════
+// Subscription-Helper-Functions (Wave I4)
+// ════════════════════════════════════════════════════════════════
+
+async function findPlanByPriceId(stripePriceId) {
+  const { data } = await supabase.select(
+    'subscription_plans',
+    `?stripe_price_id=eq.${encodeURIComponent(stripePriceId)}&select=slug,name,credits_per_month&limit=1`
+  );
+  return Array.isArray(data) ? data[0] : data;
+}
+
+async function grantSubscriptionCredits(account_id, amount, reference_id, description) {
+  await ensureCreditsRowForAccount(account_id);
+  const { data: ccRows } = await supabase.select(
+    'account_credits',
+    `?account_id=eq.${account_id}&select=id,balance,lifetime_earned&limit=1`
+  );
+  const ccRow = Array.isArray(ccRows) ? ccRows[0] : ccRows;
+  const newBalance = (Number(ccRow?.balance) || 0) + amount;
+  const newLifetime = (Number(ccRow?.lifetime_earned) || 0) + amount;
+  const nowIso = new Date().toISOString();
+  await supabase.update(
+    'account_credits',
+    `?account_id=eq.${account_id}`,
+    { balance: newBalance, lifetime_earned: newLifetime, updated_at: nowIso }
+  );
+  await supabase.insert('credit_transactions', {
+    account_id, type: 'subscription_refill',
+    amount, reference_id, description
+  }).catch(err => console.error('[sub] credit_transactions insert non-fatal:', err.message));
+}
+
+// Initial subscription signup — runs on checkout.session.completed (mode=subscription)
+async function handleSubscriptionCheckoutCompleted(session, paidAtIso) {
+  const buyerEmail = session.customer_details?.email?.toLowerCase();
+  if (!buyerEmail) {
+    console.warn('[sub] checkout.session.completed: no email');
+    return;
+  }
+  const subscriptionId = session.subscription;
+  const customerId = session.customer;
+
+  // Get subscription details from Stripe for price-id
+  const sub = await stripe.subscriptions.retrieve(subscriptionId, { expand: ['items.data.price'] });
+  const priceId = sub.items.data[0]?.price?.id;
+  if (!priceId) {
+    console.error('[sub] no price_id on subscription', subscriptionId);
+    return;
+  }
+
+  const plan = await findPlanByPriceId(priceId);
+  if (!plan) {
+    console.error(`[sub] no plan found for price_id ${priceId}`);
+    return;
+  }
+
+  // Find account (auto-created by main flow OR via google_oauth_sub OR by email)
+  const { data: acctRows } = await supabase.select(
+    'accounts',
+    `?email=eq.${encodeURIComponent(buyerEmail)}&select=id,name,email,subscription_plan&limit=1`
+  );
+  let acct = Array.isArray(acctRows) ? acctRows[0] : acctRows;
+
+  if (!acct) {
+    // Auto-create as saas-account
+    const slug = `${buyerEmail.split('@')[0].replace(/[^a-z0-9-]/g, '-').slice(0, 32)}-${Math.random().toString(36).slice(2, 6)}`;
+    const buyerName = session.customer_details?.name || session.metadata?.buyer_name || buyerEmail.split('@')[0];
+    const ins = await supabase.insert('accounts', {
+      slug, name: buyerName, email: buyerEmail,
+      account_type: 'saas', has_agent_access: false, status: 'active',
+      source: session.metadata?.source || 'subscription-signup',
+      first_purchase_at: paidAtIso,
+      last_activity_at: paidAtIso
+    });
+    acct = Array.isArray(ins.data) ? ins.data[0] : ins.data;
+  }
+
+  if (!acct?.id) {
+    console.error('[sub] account-create failed for', buyerEmail);
+    return;
+  }
+
+  // Update account with subscription-fields
+  const nextRenewal = sub.current_period_end
+    ? new Date(sub.current_period_end * 1000).toISOString()
+    : null;
+  await supabase.update('accounts', `?id=eq.${acct.id}`, {
+    subscription_plan: plan.slug,
+    subscription_status: sub.status,
+    stripe_subscription_id: subscriptionId,
+    stripe_customer_id: customerId,
+    subscription_next_renewal: nextRenewal,
+    updated_at: new Date().toISOString()
+  });
+
+  // Initial credit-grant
+  await grantSubscriptionCredits(
+    acct.id,
+    plan.credits_per_month,
+    session.id,
+    `Subscription-Initial: ${plan.name} (${plan.credits_per_month} Credits)`
+  );
+
+  console.log(`[sub] SIGNUP ${acct.id} → ${plan.slug} (${plan.credits_per_month} Credits granted)`);
+  notifyCarlos(
+    `🔁 *Neue AEVUM-Subscription* — ${plan.name} (€${plan.slug === 'starter' ? 19 : plan.slug === 'growth' ? 49 : 99}/Mo)\n*Kunde:* ${maskEmail(buyerEmail)}\n*Credits:* ${plan.credits_per_month}/Mo`
+  );
+
+  // Send magic-link mail for first-login
+  try {
+    const token = issueMagicLinkToken({
+      account_id: acct.id, email: acct.email,
+      purpose: 'invite', ttlSeconds: 60 * 60 * 24
+    });
+    const portalBase = process.env.AEVUM_PORTAL_BASE_URL || 'https://app.aevum-system.de';
+    const link = `${portalBase}/auth/verify?token=${encodeURIComponent(token)}`;
+    await mailer.send({
+      to: acct.email,
+      from: 'AEVUM SaaS <saas@aevum-system.de>',
+      subject: `Willkommen bei AEVUM — ${plan.name}-Abo aktiv`,
+      html: magicLinkHtml({ name: acct.name, link, purpose: 'invite' }),
+      text: magicLinkText({ name: acct.name, link, purpose: 'invite' }),
+    });
+  } catch (mailErr) {
+    console.error('[sub] signup magic-link mail error (non-fatal):', mailErr.message);
+  }
+}
+
+// Recurring renewal — invoice.paid for billing_reason='subscription_cycle' (not 'subscription_create')
+async function handleInvoicePaid(invoice) {
+  if (invoice.billing_reason === 'subscription_create') {
+    // Initial signup — handled by checkout.session.completed. Skip.
+    return;
+  }
+  if (!invoice.subscription) return;
+
+  const sub = await stripe.subscriptions.retrieve(invoice.subscription, { expand: ['items.data.price'] });
+  const priceId = sub.items.data[0]?.price?.id;
+  const plan = priceId ? await findPlanByPriceId(priceId) : null;
+  if (!plan) {
+    console.error(`[sub] invoice.paid: no plan for sub ${invoice.subscription}`);
+    return;
+  }
+
+  const { data: acctRows } = await supabase.select(
+    'accounts',
+    `?stripe_subscription_id=eq.${encodeURIComponent(invoice.subscription)}&select=id,email,subscription_plan&limit=1`
+  );
+  const acct = Array.isArray(acctRows) ? acctRows[0] : acctRows;
+  if (!acct) {
+    console.error(`[sub] invoice.paid: no account for sub ${invoice.subscription}`);
+    return;
+  }
+
+  await grantSubscriptionCredits(
+    acct.id, plan.credits_per_month, invoice.id,
+    `Subscription-Renewal: ${plan.name} (${plan.credits_per_month} Credits)`
+  );
+
+  const nextRenewal = sub.current_period_end
+    ? new Date(sub.current_period_end * 1000).toISOString()
+    : null;
+  await supabase.update('accounts', `?id=eq.${acct.id}`, {
+    subscription_status: sub.status,
+    subscription_next_renewal: nextRenewal,
+    updated_at: new Date().toISOString()
+  });
+
+  console.log(`[sub] RENEWAL ${acct.id} → ${plan.slug} (+${plan.credits_per_month} Credits)`);
+}
+
+async function handleSubscriptionUpdated(sub) {
+  const { data: acctRows } = await supabase.select(
+    'accounts',
+    `?stripe_subscription_id=eq.${encodeURIComponent(sub.id)}&select=id&limit=1`
+  );
+  const acct = Array.isArray(acctRows) ? acctRows[0] : acctRows;
+  if (!acct) return;
+
+  const priceId = sub.items?.data?.[0]?.price?.id;
+  const plan = priceId ? await findPlanByPriceId(priceId) : null;
+  const nextRenewal = sub.current_period_end
+    ? new Date(sub.current_period_end * 1000).toISOString()
+    : null;
+
+  await supabase.update('accounts', `?id=eq.${acct.id}`, {
+    subscription_plan: plan?.slug || null,
+    subscription_status: sub.status,
+    subscription_next_renewal: nextRenewal,
+    updated_at: new Date().toISOString()
+  });
+  console.log(`[sub] UPDATE ${acct.id} status=${sub.status} plan=${plan?.slug || '?'}`);
+}
+
+async function handleSubscriptionDeleted(sub) {
+  const { data: acctRows } = await supabase.select(
+    'accounts',
+    `?stripe_subscription_id=eq.${encodeURIComponent(sub.id)}&select=id,email&limit=1`
+  );
+  const acct = Array.isArray(acctRows) ? acctRows[0] : acctRows;
+  if (!acct) return;
+
+  await supabase.update('accounts', `?id=eq.${acct.id}`, {
+    subscription_status: 'canceled',
+    updated_at: new Date().toISOString()
+  });
+  console.log(`[sub] CANCEL ${acct.id}`);
+  notifyCarlos(`⚠️ *AEVUM-Subscription gekündigt* — ${maskEmail(acct.email || '')}`);
+}
 
 // ─── GET /api/checkout/pilot-status ─────────────────────────────
 // Public — frontend uses this to render "X/10 Pilot-Plätze frei"
@@ -459,4 +693,81 @@ checkoutRouter.post('/credit-purchase', async (req, res) => {
     console.error('[credit-purchase] stripe error:', err.message);
     return res.status(500).json({ ok: false, error: 'stripe_error', detail: err.message });
   }
+});
+
+// ─── POST /api/checkout/subscribe ───────────────────────────────
+// Wave I4 — Subscription-Signup (Knightvision-Style)
+// Anonymer Visitor wählt Subscription-Plan, kriegt Stripe-Subscription-Checkout-URL.
+// Nach Zahlung: Webhook erzeugt Account + setzt subscription_plan + Initial-Credit-Grant + Magic-Link-Mail.
+//
+// Body: { plan_slug, email, name?, source }
+// Returns: { ok, url }
+const SubscribeSchema = z.object({
+  plan_slug: z.enum(['starter', 'growth', 'pro']),
+  email: z.string().email().max(200).transform((s) => s.toLowerCase().trim()),
+  name: z.string().max(100).optional(),
+  source: z.string().max(120).optional().default('subscription-signup'),
+});
+
+checkoutRouter.post('/subscribe', async (req, res) => {
+  if (!stripe) return res.status(503).json({ ok: false, error: 'stripe_not_configured' });
+
+  const parsed = SubscribeSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ ok: false, error: 'validation_failed', details: parsed.error.flatten() });
+  }
+  const f = parsed.data;
+
+  // Plan aus DB (SSOT) holen
+  const { data: planRows } = await supabase.select(
+    'subscription_plans',
+    `?slug=eq.${encodeURIComponent(f.plan_slug)}&is_active=eq.true&select=slug,name,price_eur,credits_per_month,stripe_price_id&limit=1`
+  );
+  const plan = Array.isArray(planRows) ? planRows[0] : planRows;
+  if (!plan) return res.status(404).json({ ok: false, error: 'plan_not_found' });
+  if (!plan.stripe_price_id) {
+    return res.status(503).json({ ok: false, error: 'plan_not_configured', hint: `Stripe-Price-ID fehlt für ${plan.slug}` });
+  }
+
+  const FRONTEND_BASE = process.env.AEVUM_WEB_BASE_URL || 'https://aevum-system.de';
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      customer_email: f.email,
+      line_items: [{ price: plan.stripe_price_id, quantity: 1 }],
+      success_url: `${FRONTEND_BASE}/#/checkout/success?type=subscription&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${FRONTEND_BASE}/#/checkout/cancelled`,
+      allow_promotion_codes: true,
+      subscription_data: {
+        metadata: {
+          plan_slug: plan.slug,
+          source: f.source || 'subscription-signup',
+        }
+      },
+      metadata: {
+        create_account: 'true',
+        source: f.source || 'subscription-signup',
+        subscription_plan: plan.slug,
+        purchase_type: 'subscription',
+        buyer_name: f.name || '',
+        consent_at: new Date().toISOString(),
+      },
+    });
+
+    return res.json({ ok: true, url: session.url, session_id: session.id });
+  } catch (err) {
+    console.error('[subscribe] stripe error:', err.message);
+    return res.status(500).json({ ok: false, error: 'stripe_error', detail: err.message });
+  }
+});
+
+// ─── GET /api/checkout/subscription-plans (public) ──────────────
+// Frontend reads plans for Plan-Picker. SSOT.
+checkoutRouter.get('/subscription-plans', async (_req, res) => {
+  const { data } = await supabase.select(
+    'subscription_plans',
+    '?is_active=eq.true&select=slug,name,price_eur,credits_per_month,features,sort_order&order=sort_order'
+  );
+  res.json({ ok: true, plans: data || [] });
 });

@@ -114,7 +114,7 @@ export default function SaasScriptFactory() {
 
             {/* Trust-Badges */}
             <div className="flex flex-wrap items-center gap-2 mb-8">
-              <Badge icon={Coins} label="Pay-per-Use · 40 Credits" />
+              <Badge icon={Coins} label="Abo ab €19/Mo · oder Pay-per-Use" />
               <Badge icon={Zap} label="5-10 Varianten pro Run" />
               <Badge icon={FileCheck2} label="A-F-Grading automatisch" />
             </div>
@@ -125,7 +125,13 @@ export default function SaasScriptFactory() {
                 onClick={() => openSignup()}
                 className="inline-flex items-center gap-2 px-6 py-3.5 bg-[#e0a458] text-black text-sm font-semibold rounded hover:bg-[#e6b170] transition shadow-[0_8px_24px_-8px_rgba(224,164,88,0.5)]"
               >
-                <Sparkles size={15} /> Jetzt nutzen
+                <Sparkles size={15} /> Abo ab €19/Mo
+              </button>
+              <button
+                onClick={() => openSignup()}
+                className="inline-flex items-center gap-2 px-6 py-3.5 border border-[#e0a458]/40 hover:border-[#e0a458]/70 text-[#e0a458] text-sm rounded transition"
+              >
+                <Coins size={14} /> Einmalig ab €10
               </button>
               <a
                 href={`${PORTAL_BASE}/tools/script-factory`}

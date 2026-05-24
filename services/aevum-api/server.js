@@ -29,6 +29,7 @@ import { waitlistRouter } from './routes/waitlist.js';
 import { leadMagnetsRouter } from './routes/lead-magnets.js';
 import { scriptFactoryRouter } from './routes/factories/script.js';
 import { dsgvoFactoryRouter } from './routes/factories/dsgvo.js';
+import { leadScraperRouter } from './routes/factories/lead-scraper.js';
 import { knowledgeHubsRouter } from './routes/knowledge-hubs.js';
 import { subscriptionsRouter, projectSubscriptionsRouter } from './routes/subscriptions.js';
 import { subOsRouter } from './routes/sub-os.js';
@@ -199,6 +200,8 @@ import { paymentsPausedGuard, isPaymentsPaused, getPausedMessage } from './lib/p
 const checkoutWithPauseGuard = (req, res, next) => {
   // Webhook (POST /webhook) NIE blockieren — Stripe muss zustellen können falls historische Sessions
   if (req.path === '/webhook' || req.path === '') return next();
+  // Wave I4: GET /subscription-plans + /pilot-status sind read-only public listings → erlauben
+  if (req.method === 'GET' && (req.path === '/subscription-plans' || req.path === '/pilot-status')) return next();
   return paymentsPausedGuard(req, res, next);
 };
 app.use('/api/checkout', checkoutLimiter, checkoutWithPauseGuard, checkoutRouter);
@@ -348,6 +351,22 @@ const factoryRunLimiter = rateLimit({
 });
 app.use('/api/factories/script', factoryRunLimiter, scriptFactoryRouter);
 app.use('/api/factories/dsgvo', factoryRunLimiter, dsgvoFactoryRouter);
+
+// Lead-Scraper-Factory — Wave I5 Phase-1
+// Rate-limit campaign-creation + generation + send to prevent abuse.
+const leadScraperRunLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 6,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: clientIpKey,
+  message: { ok: false, error: 'rate_limit_lead_scraper', hint: 'Maximal 6 Lead-Scraper-Aktionen pro Minute.' },
+  skip: (req) => {
+    if (req.method !== 'POST') return true;
+    return !(req.path === '/campaigns' || /\/campaigns\/[^/]+\/(generate|send)$/.test(req.path));
+  }
+});
+app.use('/api/factories/lead-scraper', leadScraperRunLimiter, leadScraperRouter);
 
 // Knowledge-Hubs — Wave H1 (SSOT for Bauligs/Salinsky/etc; admin CRUD + public listing)
 // Wave H4: defense-in-depth limit (admin-token gated CRUD is the primary control).

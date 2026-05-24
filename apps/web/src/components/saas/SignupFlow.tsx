@@ -10,10 +10,13 @@
  */
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, Check, Sparkles, Loader2, AlertCircle, Mail, Package as PackageIcon } from 'lucide-react';
-import { createCreditPurchaseSession } from '@/lib/api';
+import { X, ArrowRight, Check, Sparkles, Loader2, AlertCircle, Mail, Package as PackageIcon, Repeat } from 'lucide-react';
+import { createCreditPurchaseSession, createSubscriptionSession, fetchSubscriptionPlans, googleOAuthUrl, type SubscriptionPlan } from '@/lib/api';
 import { track } from '@/lib/shop-track';
 import { CREDIT_PACKAGES, type CreditPackage } from '@/data/saas-tools';
+
+type BillingMode = 'one-time' | 'subscription';
+type SubSlug = 'starter' | 'growth' | 'pro';
 
 interface SignupFlowProps {
   open: boolean;
@@ -31,7 +34,10 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [consent, setConsent] = useState(false);
+  const [billingMode, setBillingMode] = useState<BillingMode>('subscription');
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage['slug']>(initialPackage ?? 'growth');
+  const [selectedPlan, setSelectedPlan] = useState<SubSlug>('growth');
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,10 +49,18 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
       setName('');
       setConsent(false);
       setError(null);
+      setBillingMode('subscription');
       setSelectedPackage(initialPackage ?? 'growth');
+      setSelectedPlan('growth');
       track('saas_signup_open', { tool: toolSlug });
     }
   }, [open, toolSlug, initialPackage]);
+
+  // Lazy-load Subscription-Plans on open
+  useEffect(() => {
+    if (!open || plans.length > 0) return;
+    fetchSubscriptionPlans().then(setPlans).catch(() => { /* keep empty, frontend fallback below */ });
+  }, [open, plans.length]);
 
   // ESC to close
   useEffect(() => {
@@ -73,28 +87,58 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
   async function submitCheckout() {
     setLoading(true);
     setError(null);
-    track('saas_signup_step', { tool: toolSlug, step: 3, package: selectedPackage });
+    track('saas_signup_step', {
+      tool: toolSlug,
+      step: 3,
+      billing: billingMode,
+      package: billingMode === 'one-time' ? selectedPackage : selectedPlan,
+    });
     try {
-      const res = await createCreditPurchaseSession({
-        email,
-        name: name || undefined,
-        package_slug: selectedPackage,
-        tool_slug: toolSlug,
-        source: `saas-signup:${toolSlug}`,
-        consent: true,
-      });
+      const source = `saas-signup:${toolSlug}`;
+      let res: { ok: boolean; url?: string; error?: string };
+      if (billingMode === 'subscription') {
+        const r = await createSubscriptionSession({
+          plan_slug: selectedPlan,
+          email,
+          name: name || undefined,
+          source,
+        });
+        res = r;
+      } else {
+        const r = await createCreditPurchaseSession({
+          email,
+          name: name || undefined,
+          package_slug: selectedPackage,
+          tool_slug: toolSlug,
+          source,
+          consent: true,
+        });
+        res = r;
+      }
       if (!res.ok || !res.url) {
         setError(res.error || 'checkout_failed');
         setLoading(false);
         return;
       }
-      track('saas_signup_checkout_redirect', { tool: toolSlug, package: selectedPackage });
+      track('saas_signup_checkout_redirect', {
+        tool: toolSlug,
+        billing: billingMode,
+        package: billingMode === 'one-time' ? selectedPackage : selectedPlan,
+      });
       window.location.href = res.url;
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'unknown_error';
       setError(msg);
       setLoading(false);
     }
+  }
+
+  function handleGoogleSignIn() {
+    track('saas_signup_google', { tool: toolSlug });
+    window.location.href = googleOAuthUrl({
+      source: `saas-signup:${toolSlug}`,
+      next: '/dashboard',
+    });
   }
 
   return (
@@ -164,14 +208,32 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
                 consent={consent}
                 setConsent={setConsent}
                 emailValid={emailValid}
+                onGoogle={handleGoogleSignIn}
               />
             )}
 
             {step === 2 && (
-              <Step2 selected={selectedPackage} onSelect={setSelectedPackage} toolName={toolName} />
+              <Step2
+                billingMode={billingMode}
+                setBillingMode={setBillingMode}
+                selectedPackage={selectedPackage}
+                setSelectedPackage={setSelectedPackage}
+                selectedPlan={selectedPlan}
+                setSelectedPlan={setSelectedPlan}
+                plans={plans}
+                toolName={toolName}
+              />
             )}
 
-            {step === 3 && <Step3 email={email} selectedPackage={selectedPackage} />}
+            {step === 3 && (
+              <Step3
+                email={email}
+                billingMode={billingMode}
+                selectedPackage={selectedPackage}
+                selectedPlan={selectedPlan}
+                plans={plans}
+              />
+            )}
 
             {error && (
               <div className="mt-4 flex items-start gap-2 text-rose-400 text-sm bg-rose-400/8 border border-rose-400/20 rounded px-3 py-2.5">
@@ -250,6 +312,7 @@ function Step1({
   consent,
   setConsent,
   emailValid,
+  onGoogle,
 }: {
   email: string;
   setEmail: (v: string) => void;
@@ -258,9 +321,26 @@ function Step1({
   consent: boolean;
   setConsent: (v: boolean) => void;
   emailValid: boolean;
+  onGoogle: () => void;
 }) {
   return (
     <div className="space-y-4">
+      {/* Google OAuth Button — Default-Pfad (Wave I4) */}
+      <button
+        onClick={onGoogle}
+        className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-white text-gray-900 text-sm font-medium rounded hover:bg-gray-100 transition border border-white/20"
+        type="button"
+      >
+        <GoogleLogo />
+        Mit Google fortfahren
+      </button>
+
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-white/10" />
+        <span className="text-[10px] font-mono uppercase tracking-widest text-text-primary/40">oder mit Email</span>
+        <div className="flex-1 h-px bg-white/10" />
+      </div>
+
       <div>
         <label className="text-xs font-mono uppercase tracking-wider text-text-primary/60 block mb-1.5">
           Email <span className="text-rose-400">*</span>
@@ -322,87 +402,238 @@ function Step1({
 
 /* ──────────────────── Step 2 ──────────────────── */
 
+// Fallback if API call fails — keeps UI consistent
+const FALLBACK_PLANS: SubscriptionPlan[] = [
+  { slug: 'starter', name: 'Starter', price_eur: '19.00', credits_per_month: 200, features: ['200 Credits/Mo', 'Pay-per-Run', 'Email-Support'], sort_order: 10 },
+  { slug: 'growth',  name: 'Growth',  price_eur: '49.00', credits_per_month: 600, features: ['600 Credits/Mo', 'Pay-per-Run', 'Brand-Profile-Save', 'Priority-Support'], sort_order: 20 },
+  { slug: 'pro',     name: 'Pro',     price_eur: '99.00', credits_per_month: 1500, features: ['1500 Credits/Mo', 'Pay-per-Run', 'Multi-Brand-Profiles', 'Slack-Support'], sort_order: 30 },
+];
+
 function Step2({
-  selected,
-  onSelect,
+  billingMode,
+  setBillingMode,
+  selectedPackage,
+  setSelectedPackage,
+  selectedPlan,
+  setSelectedPlan,
+  plans,
   toolName,
 }: {
-  selected: CreditPackage['slug'];
-  onSelect: (s: CreditPackage['slug']) => void;
+  billingMode: BillingMode;
+  setBillingMode: (m: BillingMode) => void;
+  selectedPackage: CreditPackage['slug'];
+  setSelectedPackage: (s: CreditPackage['slug']) => void;
+  selectedPlan: SubSlug;
+  setSelectedPlan: (s: SubSlug) => void;
+  plans: SubscriptionPlan[];
   toolName: string;
 }) {
+  const planList = plans.length > 0 ? plans : FALLBACK_PLANS;
+  // Pre-compute savings — Growth saves ~14% vs 3× Starter, Pro saves ~33% vs 5× Starter
   return (
     <div>
-      <div className="flex items-center gap-2 text-[#e0a458] mb-3">
-        <PackageIcon size={14} />
-        <span className="font-mono text-[10px] uppercase tracking-widest">
-          Initial-Credit-Paket für {toolName}
-        </span>
+      {/* Mode Tabs */}
+      <div className="grid grid-cols-2 gap-2 p-1 bg-white/5 rounded mb-5">
+        <button
+          onClick={() => setBillingMode('subscription')}
+          className={`flex items-center justify-center gap-2 py-2 text-xs font-mono uppercase tracking-wider rounded transition ${
+            billingMode === 'subscription'
+              ? 'bg-[#e0a458] text-black'
+              : 'text-text-primary/55 hover:text-text-primary'
+          }`}
+          type="button"
+        >
+          <Repeat size={12} /> Abo
+        </button>
+        <button
+          onClick={() => setBillingMode('one-time')}
+          className={`flex items-center justify-center gap-2 py-2 text-xs font-mono uppercase tracking-wider rounded transition ${
+            billingMode === 'one-time'
+              ? 'bg-[#e0a458] text-black'
+              : 'text-text-primary/55 hover:text-text-primary'
+          }`}
+          type="button"
+        >
+          <PackageIcon size={12} /> Einmalig
+        </button>
       </div>
-      <p className="text-sm text-text-primary/55 mb-5 leading-relaxed">
-        Kein Abo. Du zahlst einmal, Credits verfallen nicht. Nachladen jederzeit möglich.
-      </p>
 
-      <div className="space-y-2.5">
-        {CREDIT_PACKAGES.map((pkg) => {
-          const isSelected = selected === pkg.slug;
-          return (
-            <button
-              key={pkg.slug}
-              onClick={() => onSelect(pkg.slug)}
-              className={`w-full text-left p-4 rounded border transition-all ${
-                isSelected
-                  ? 'border-[#e0a458] bg-[#e0a458]/8'
-                  : 'border-white/10 bg-white/[0.02] hover:border-white/25'
-              }`}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-text-primary font-medium">{pkg.name}</span>
-                    {pkg.featured && (
-                      <span className="font-mono text-[9px] uppercase tracking-wider text-[#e0a458] bg-[#e0a458]/15 border border-[#e0a458]/30 px-1.5 py-0.5 rounded">
-                        Beliebt
-                      </span>
-                    )}
-                    {pkg.bonusPct > 0 && (
-                      <span className="font-mono text-[9px] uppercase tracking-wider text-emerald-400 bg-emerald-400/10 border border-emerald-400/25 px-1.5 py-0.5 rounded">
-                        +{pkg.bonusPct}% Bonus
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-xs text-text-primary/50 font-mono">
-                    {pkg.credits} Credits · {pkg.runsHint}
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="text-lg text-text-primary font-light">€{pkg.priceEur}</div>
-                  <div className="text-[10px] text-text-primary/40 font-mono uppercase">einmalig</div>
-                </div>
-                <div
-                  className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition ${
-                    isSelected ? 'border-[#e0a458] bg-[#e0a458]' : 'border-white/20'
+      {billingMode === 'subscription' ? (
+        <>
+          <div className="flex items-center gap-2 text-[#e0a458] mb-3">
+            <Repeat size={14} />
+            <span className="font-mono text-[10px] uppercase tracking-widest">
+              Monats-Abo für {toolName}
+            </span>
+          </div>
+          <p className="text-sm text-text-primary/55 mb-5 leading-relaxed">
+            Credits werden monatlich automatisch aufgeladen. Jederzeit kündbar.
+          </p>
+          <div className="space-y-2.5">
+            {planList.map((plan) => {
+              const isSelected = selectedPlan === plan.slug;
+              const isPopular = plan.slug === 'growth';
+              const savePct =
+                plan.slug === 'growth' ? 14 :
+                plan.slug === 'pro' ? 33 : 0;
+              return (
+                <button
+                  key={plan.slug}
+                  onClick={() => setSelectedPlan(plan.slug as SubSlug)}
+                  className={`w-full text-left p-4 rounded border transition-all ${
+                    isSelected
+                      ? 'border-[#e0a458] bg-[#e0a458]/8'
+                      : 'border-white/10 bg-white/[0.02] hover:border-white/25'
                   }`}
+                  type="button"
                 >
-                  {isSelected && <Check size={13} className="text-black" />}
-                </div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                        <span className="text-text-primary font-medium">{plan.name}</span>
+                        {isPopular && (
+                          <span className="font-mono text-[9px] uppercase tracking-wider text-[#e0a458] bg-[#e0a458]/15 border border-[#e0a458]/30 px-1.5 py-0.5 rounded">
+                            Beliebt
+                          </span>
+                        )}
+                        {savePct > 0 && (
+                          <span className="font-mono text-[9px] uppercase tracking-wider text-emerald-400 bg-emerald-400/10 border border-emerald-400/25 px-1.5 py-0.5 rounded">
+                            Save {savePct}%
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-text-primary/50 font-mono">
+                        {plan.credits_per_month} Credits / Monat
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-lg text-text-primary font-light">€{Math.round(Number(plan.price_eur))}</div>
+                      <div className="text-[10px] text-text-primary/40 font-mono uppercase">/ Monat</div>
+                    </div>
+                    <div
+                      className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition ${
+                        isSelected ? 'border-[#e0a458] bg-[#e0a458]' : 'border-white/20'
+                      }`}
+                    >
+                      {isSelected && <Check size={13} className="text-black" />}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-xs text-text-primary/40 mt-4 leading-relaxed">
+            Nach Bezahlung kriegst du sofort eine Login-Mail. Account wird automatisch erstellt.
+            Monatliche Erneuerung via Stripe — jederzeit kündbar.
+          </p>
+        </>
+      ) : (
+        <>
+          <div className="flex items-center gap-2 text-[#e0a458] mb-3">
+            <PackageIcon size={14} />
+            <span className="font-mono text-[10px] uppercase tracking-widest">
+              Initial-Credit-Paket für {toolName}
+            </span>
+          </div>
+          <p className="text-sm text-text-primary/55 mb-5 leading-relaxed">
+            Kein Abo. Du zahlst einmal, Credits verfallen nicht. Nachladen jederzeit möglich.
+          </p>
 
-      <p className="text-xs text-text-primary/40 mt-4 leading-relaxed">
-        Nach der Zahlung kriegst du sofort eine Login-Mail mit deinem Magic-Link. Account-Setup
-        passiert automatisch.
-      </p>
+          <div className="space-y-2.5">
+            {CREDIT_PACKAGES.map((pkg) => {
+              const isSelected = selectedPackage === pkg.slug;
+              return (
+                <button
+                  key={pkg.slug}
+                  onClick={() => setSelectedPackage(pkg.slug)}
+                  className={`w-full text-left p-4 rounded border transition-all ${
+                    isSelected
+                      ? 'border-[#e0a458] bg-[#e0a458]/8'
+                      : 'border-white/10 bg-white/[0.02] hover:border-white/25'
+                  }`}
+                  type="button"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-text-primary font-medium">{pkg.name}</span>
+                        {pkg.featured && (
+                          <span className="font-mono text-[9px] uppercase tracking-wider text-[#e0a458] bg-[#e0a458]/15 border border-[#e0a458]/30 px-1.5 py-0.5 rounded">
+                            Beliebt
+                          </span>
+                        )}
+                        {pkg.bonusPct > 0 && (
+                          <span className="font-mono text-[9px] uppercase tracking-wider text-emerald-400 bg-emerald-400/10 border border-emerald-400/25 px-1.5 py-0.5 rounded">
+                            +{pkg.bonusPct}% Bonus
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-text-primary/50 font-mono">
+                        {pkg.credits} Credits · {pkg.runsHint}
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-lg text-text-primary font-light">€{pkg.priceEur}</div>
+                      <div className="text-[10px] text-text-primary/40 font-mono uppercase">einmalig</div>
+                    </div>
+                    <div
+                      className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition ${
+                        isSelected ? 'border-[#e0a458] bg-[#e0a458]' : 'border-white/20'
+                      }`}
+                    >
+                      {isSelected && <Check size={13} className="text-black" />}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <p className="text-xs text-text-primary/40 mt-4 leading-relaxed">
+            Nach der Zahlung kriegst du sofort eine Login-Mail mit deinem Magic-Link. Account-Setup
+            passiert automatisch.
+          </p>
+        </>
+      )}
     </div>
   );
 }
 
 /* ──────────────────── Step 3 ──────────────────── */
 
-function Step3({ email, selectedPackage }: { email: string; selectedPackage: CreditPackage['slug'] }) {
+function Step3({
+  email,
+  billingMode,
+  selectedPackage,
+  selectedPlan,
+  plans,
+}: {
+  email: string;
+  billingMode: BillingMode;
+  selectedPackage: CreditPackage['slug'];
+  selectedPlan: SubSlug;
+  plans: SubscriptionPlan[];
+}) {
+  if (billingMode === 'subscription') {
+    const planList = plans.length > 0 ? plans : FALLBACK_PLANS;
+    const plan = planList.find((p) => p.slug === selectedPlan)!;
+    return (
+      <div className="text-center py-4">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#e0a458]/10 border border-[#e0a458]/25 mb-4">
+          <Loader2 size={20} className="animate-spin text-[#e0a458]" />
+        </div>
+        <h3 className="text-base text-text-primary font-medium mb-2">Stripe-Checkout wird geöffnet…</h3>
+        <p className="text-sm text-text-primary/55 mb-4 leading-relaxed">
+          Du wirst weitergeleitet zur sicheren Zahlung über Stripe.
+          <br />
+          Nach Bezahlung kriegst du eine Login-Mail an <span className="text-text-primary/80 font-mono">{email}</span>.
+        </p>
+        <div className="inline-flex items-center gap-2 text-xs font-mono text-text-primary/40 bg-white/5 border border-white/10 px-3 py-1.5 rounded">
+          <Repeat size={12} /> {plan.name}-Abo · {plan.credits_per_month} Credits/Mo · €{Math.round(Number(plan.price_eur))}/Mo
+        </div>
+      </div>
+    );
+  }
   const pkg = CREDIT_PACKAGES.find((p) => p.slug === selectedPackage)!;
   return (
     <div className="text-center py-4">
@@ -419,5 +650,17 @@ function Step3({ email, selectedPackage }: { email: string; selectedPackage: Cre
         <PackageIcon size={12} /> {pkg.name} · {pkg.credits} Credits · €{pkg.priceEur}
       </div>
     </div>
+  );
+}
+
+/* ──────────────────── Google Logo ──────────────────── */
+function GoogleLogo() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
+      <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
+      <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2.04a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/>
+      <path fill="#FBBC05" d="M4.5 10.48a4.8 4.8 0 0 1 0-3.04V5.37H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/>
+      <path fill="#EA4335" d="M8.98 4.72c1.16 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.37L4.5 7.44a4.77 4.77 0 0 1 4.48-3.3z"/>
+    </svg>
   );
 }
