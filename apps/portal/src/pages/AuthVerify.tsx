@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { verifyMagicLink, clearTokens } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
 import { CheckCircle2, XCircle, ArrowLeft } from 'lucide-react';
 import Spinner from '@/components/Spinner';
 import MeshBackground from '@/components/MeshBackground';
@@ -12,6 +13,7 @@ export default function AuthVerify() {
   const [accountInfo, setAccountInfo] = useState<{ slug: string; name: string } | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const nav = useNavigate();
+  const { refresh } = useAuth();
 
   useEffect(() => {
     // Token kann im Fragment (#token=... oder #t=...) ODER Query (?token=...) sein.
@@ -38,6 +40,8 @@ export default function AuthVerify() {
           // Account-Slug in localStorage so dass Dashboard genau diesen Account lädt
           // (auch falls /api/me cache-issues hat)
           try { localStorage.setItem('aevum_active_account_slug', data.account.slug); } catch { /* noop */ }
+          // CRITICAL: AuthProvider neu /api/me laden lassen — sonst sieht RequireAuth me=null + redirected zu /
+          try { await refresh(); } catch { /* noop */ }
           setTimeout(() => nav('/dashboard'), 1200);
         }
         else { setState('error'); setErrorMsg('Token ungültig oder abgelaufen'); }
@@ -46,7 +50,7 @@ export default function AuthVerify() {
         setErrorMsg(e instanceof Error ? e.message : 'unbekannter Fehler');
       }
     })();
-  }, [params, nav]);
+  }, [params, nav, refresh]);
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-ink-950 text-ink-100 overflow-hidden px-6">
