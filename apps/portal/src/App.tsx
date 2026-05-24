@@ -11,6 +11,7 @@ import Profile from './pages/Profile';
 import Permissions from './pages/Permissions';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
+import Documents from './pages/Documents';
 import Datenschutz from './pages/Datenschutz';
 import Impressum from './pages/Impressum';
 import AGB from './pages/AGB';
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="/permissions" element={<Permissions />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:slug" element={<ProjectDetail />} />
+          <Route path="/projects/:slug/documents" element={<Documents />} />
           <Route path="/credits" element={<Credits />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

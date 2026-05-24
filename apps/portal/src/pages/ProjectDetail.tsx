@@ -9,6 +9,7 @@ import CollaGlowDashboard from '@/components/dashboard/CollaGlowDashboard';
 import AEVUMDashboard from '@/components/dashboard/AEVUMDashboard';
 import ProjectAgentChat from '@/components/agent/ProjectAgentChat';
 import QuicklinksSection from '@/components/quicklinks/QuicklinksSection';
+import Documents from '@/pages/Documents';
 
 type ApiRow = { id: string; service: string; key_label: string | null; scope: string; health: string; added_at: string; last_used_at: string | null };
 type MeProject = { id: string; slug: string; name: string };
@@ -62,6 +63,9 @@ export default function ProjectDetail() {
     if (section === 'quicklinks') {
       return <QuicklinksSection projectSlug={slug} />;
     }
+    if (section === 'docs') {
+      return <Documents />;
+    }
     return <CollaGlowDashboard section={section} />;
   }
 
@@ -76,6 +80,9 @@ export default function ProjectDetail() {
     if (section === 'quicklinks') {
       return <QuicklinksSection projectSlug={slug} />;
     }
+    if (section === 'docs') {
+      return <Documents />;
+    }
     return <AEVUMDashboard section={section} />;
   }
 
@@ -88,6 +95,9 @@ export default function ProjectDetail() {
   }
   if (section === 'quicklinks') {
     return <QuicklinksSection projectSlug={slug} />;
+  }
+  if (section === 'docs') {
+    return <Documents />;
   }
   // overview (default) — show quicklinks first, then API keys
   return (

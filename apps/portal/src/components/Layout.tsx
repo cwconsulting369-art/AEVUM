@@ -5,7 +5,7 @@ import {
   LogOut, LayoutDashboard, User, ShieldCheck, FolderGit2,
   BarChart2, DollarSign, Mail, ShoppingBag, Globe, Bot,
   KeyRound, TrendingUp, ChevronLeft, Users, Menu, X, Coins,
-  Link as LinkIcon
+  Link as LinkIcon, FolderOpen
 } from 'lucide-react';
 import { Link } from 'react-router';
 import Footer from './Footer';
@@ -32,6 +32,7 @@ const PROJECT_SECTIONS: Record<string, ProjectSection[]> = {
     { s: 'shop',          label: 'Shop',         icon: ShoppingBag },
     { s: 'intelligence',  label: 'Intelligence', icon: Globe, dividerBefore: true },
     { s: 'quicklinks',    label: 'Quicklinks',   icon: LinkIcon },
+    { s: 'docs',          label: 'Dokumente',    icon: FolderOpen },
     { s: 'agent',         label: 'Agent',        icon: Bot },
     { s: 'apis',          label: 'API-Keys',     icon: KeyRound },
   ],
@@ -42,6 +43,7 @@ const PROJECT_SECTIONS: Record<string, ProjectSection[]> = {
     { s: 'kunden',     label: 'Kunden',     icon: Users },
     { s: 'content',    label: 'Content',    icon: Globe },
     { s: 'quicklinks', label: 'Quicklinks', icon: LinkIcon, dividerBefore: true },
+    { s: 'docs',       label: 'Dokumente',  icon: FolderOpen },
     { s: 'agent',      label: 'Agent',      icon: Bot },
     { s: 'apis',       label: 'API-Keys',   icon: KeyRound },
   ],
@@ -50,6 +52,7 @@ const PROJECT_SECTIONS: Record<string, ProjectSection[]> = {
 const DEFAULT_PROJECT_SECTIONS: ProjectSection[] = [
   { s: 'overview',    label: 'Übersicht',  icon: TrendingUp },
   { s: 'quicklinks',  label: 'Quicklinks', icon: LinkIcon },
+  { s: 'docs',        label: 'Dokumente',  icon: FolderOpen },
   { s: 'agent',       label: 'Agent',      icon: Bot },
   { s: 'apis',        label: 'API-Keys',   icon: KeyRound },
 ];
