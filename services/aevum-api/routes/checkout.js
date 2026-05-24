@@ -118,34 +118,76 @@ checkoutRouter.post('/webhook', async (req, res) => {
     //   - SaaS-User   = account_type='saas' → bleibt saas
     //   - Default-Row (customer + has_agent_access=false) → auf 'shop' downgraden
     //   - Kein Account → nur loggen (Carlos-Policy: kein auto-create)
+    // Carlos 2026-05-24 Update: Auto-Account-Create für Gast-Käufer wenn opt-in
+    // Auto-create wenn metadata.create_account==='true' ODER source startsWith 'saas-' (SaaS-Onboarding triggert immer Account-Create)
     const buyerEmail = session.customer_details?.email?.toLowerCase();
+    const buyerName = session.customer_details?.name || null;
+    const purchaseSource = session.metadata?.source || 'direct';
+    const wantsAccount = session.metadata?.create_account === 'true' || purchaseSource.startsWith('saas-');
+    const purchaseType = session.metadata?.purchase_type ||
+      (session.metadata?.blueprint_slug ? 'blueprint' :
+       session.metadata?.credit_package_slug ? 'saas-credits' :
+       'unknown');
+    const totalEurNum = amountTotal / 100;
+
     if (buyerEmail) {
       try {
         const { data: acctRows } = await supabase.select(
           'accounts',
-          `?email=eq.${encodeURIComponent(buyerEmail)}&select=id,account_type,has_agent_access&limit=1`
+          `?email=eq.${encodeURIComponent(buyerEmail)}&select=id,account_type,has_agent_access,first_purchase_at,lifetime_value_eur&limit=1`
         );
-        const acct = Array.isArray(acctRows) ? acctRows[0] : acctRows;
+        let acct = Array.isArray(acctRows) ? acctRows[0] : acctRows;
 
-        if (!acct) {
-          console.log(`[checkout-webhook] shop-buy ohne Account: ${maskEmail(buyerEmail)} — kein Account erzeugt (Carlos-Policy)`);
-        } else if (acct.account_type === 'customer' && acct.has_agent_access === true) {
-          console.log(`[checkout-webhook] Vollkunde ${acct.id} kauft Blueprint — account_type bleibt 'customer'`);
-        } else if (acct.account_type === 'shop') {
-          console.log(`[checkout-webhook] Account ${acct.id} bereits 'shop' — unverändert`);
-        } else if (acct.account_type === 'saas') {
-          console.log(`[checkout-webhook] Account ${acct.id} ist 'saas' — unverändert`);
+        if (!acct && wantsAccount) {
+          // Auto-Create Shop-Account (oder SaaS wenn Credit-Pack-Kauf)
+          const initialType = purchaseSource.startsWith('saas-') ? 'saas' : 'shop';
+          const slug = `${buyerEmail.split('@')[0].replace(/[^a-z0-9-]/g, '-').slice(0, 32)}-${Math.random().toString(36).slice(2, 6)}`;
+          const insertRes = await supabase.insert('accounts', {
+            slug,
+            name: buyerName || buyerEmail.split('@')[0],
+            email: buyerEmail,
+            account_type: initialType,
+            has_agent_access: false,
+            status: 'active',
+            source: purchaseSource,
+            first_purchase_at: paidAtIso,
+            first_purchase_amount_eur: totalEurNum,
+            first_purchase_type: purchaseType,
+            lifetime_value_eur: totalEurNum,
+            last_activity_at: paidAtIso
+          });
+          if (insertRes.ok) {
+            acct = Array.isArray(insertRes.data) ? insertRes.data[0] : insertRes.data;
+            console.log(`[checkout-webhook] Account auto-created: ${acct?.aevum_id || acct?.id} (${initialType}) for ${maskEmail(buyerEmail)} source=${purchaseSource}`);
+          } else {
+            console.error('[checkout-webhook] auto-create failed (non-fatal):', insertRes.error);
+          }
+        } else if (!acct) {
+          console.log(`[checkout-webhook] guest-buy: ${maskEmail(buyerEmail)} — kein Account (Gast-Modus)`);
         } else {
-          // Default-Row ohne Upgrade → auf 'shop' setzen
-          await supabase.update(
-            'accounts',
-            `?id=eq.${acct.id}`,
-            { account_type: 'shop', has_agent_access: false, updated_at: paidAtIso }
-          );
-          console.log(`[checkout-webhook] Account ${acct.id} (${acct.account_type}/agent=${acct.has_agent_access}) → account_type='shop' gesetzt`);
+          // Existing-Account: Type-Logik + Tracking-Update
+          const updateFields = {
+            last_activity_at: paidAtIso,
+            lifetime_value_eur: (Number(acct.lifetime_value_eur) || 0) + totalEurNum,
+            updated_at: paidAtIso
+          };
+          if (!acct.first_purchase_at) {
+            updateFields.first_purchase_at = paidAtIso;
+            updateFields.first_purchase_amount_eur = totalEurNum;
+            updateFields.first_purchase_type = purchaseType;
+          }
+          // Account-Type-Logik (Upgrade-Path one-way: shop→saas→customer):
+          // Vollkunde bleibt Vollkunde. SaaS bleibt SaaS. Shop kann zu SaaS upgraden wenn Credit-Pack gekauft.
+          if (acct.account_type === 'shop' && purchaseSource.startsWith('saas-')) {
+            updateFields.account_type = 'saas';
+            console.log(`[checkout-webhook] Account ${acct.id}: Upgrade shop→saas wegen Credit-Pack-Kauf`);
+          } else if (acct.account_type === 'customer' && acct.has_agent_access === true) {
+            console.log(`[checkout-webhook] Vollkunde ${acct.id} kauft — type bleibt customer (LTV +${totalEurNum.toFixed(2)})`);
+          }
+          await supabase.update('accounts', `?id=eq.${acct.id}`, updateFields);
         }
       } catch (acctErr) {
-        console.error('[checkout-webhook] account_type-Logik error (non-fatal):', acctErr.message);
+        console.error('[checkout-webhook] account-tracking error (non-fatal):', acctErr.message);
       }
     }
 
