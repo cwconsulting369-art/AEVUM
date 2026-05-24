@@ -21,8 +21,10 @@ import { helpbotRouter } from './routes/helpbot.js';
 import { botRouter } from './routes/bot.js';
 import { creditsRouter } from './routes/credits.js';
 import { shopTrackingRouter } from './routes/shop-tracking.js';
+import { shopItemsRouter } from './routes/shop-items.js';
 import { dashboardStatsRouter } from './routes/dashboard-stats.js';
 import { customerLeadsRouter } from './routes/customer-leads.js';
+import { waitlistRouter } from './routes/waitlist.js';
 import { anonymizeIp } from './lib/security.js';
 
 const app = express();
@@ -234,6 +236,18 @@ const helpbotEraseLimiter = rateLimit({
 });
 app.use('/api/helpbot', helpbotHourLimiter, helpbotDayLimiter, helpbotEraseLimiter, helpbotRouter);
 
+// SaaS Waitlist (Pfad C — Coming-Soon tools): 10 submits / hour / IP
+const waitlistLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: clientIpKey,
+  message: { ok: false, error: 'rate_limit_waitlist', hint: 'Maximal 10 Anfragen pro Stunde.' },
+  skip: (req) => req.method !== 'POST' || req.path !== '/saas'
+});
+app.use('/api/waitlist', waitlistLimiter, waitlistRouter);
+
 // Shop-tracking — fire-and-forget page-view + funnel capture.
 // Tight rate-limit: 100/min/IP, scoped to POST /track only.
 const shopTrackLimiter = rateLimit({
@@ -246,6 +260,7 @@ const shopTrackLimiter = rateLimit({
   skip: (req) => req.method !== 'POST' || req.path !== '/track'
 });
 app.use('/api/shop', shopTrackLimiter, shopTrackingRouter);
+app.use('/api/shop-items', shopItemsRouter);
 
 // Admin-token gated dashboard aggregate endpoints (shop / stripe / orders)
 app.use('/api/dashboard', dashboardStatsRouter);
