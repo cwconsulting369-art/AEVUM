@@ -109,7 +109,7 @@ function VideoSection() {
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full overflow-hidden border border-white/10 bg-[#111116]"
+          className="relative w-full overflow-hidden border border-white/10 bg-bg-surface"
           style={{ aspectRatio: '16 / 9' }}
         >
           {VIDEO_EMBED_URL ? (
@@ -287,7 +287,7 @@ function PillarCard({ pillar, index }: { pillar: PillarData; index: number }) {
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className="relative bg-[#111116] border border-white/10 p-8 hover:border-[#e0a458]/30 transition-all flex flex-col"
+      className="relative bg-bg-surface border border-white/10 p-8 hover:border-[#e0a458]/30 transition-all flex flex-col"
     >
       <div className="absolute top-4 right-5 font-mono text-xs text-[#3F3F46] tracking-widest">
         {pillar.number}
@@ -359,7 +359,7 @@ function TeamSection() {
             initial={{ opacity: 0, y: 40 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-[#111116] border border-white/10 p-8 md:p-10"
+            className="bg-bg-surface border border-white/10 p-8 md:p-10"
           >
             <div className="flex items-start gap-5 mb-6">
               <div className="w-20 h-20 rounded-full bg-[#e0a458]/10 border-2 border-[#e0a458]/30 flex items-center justify-center flex-shrink-0">
@@ -420,7 +420,7 @@ function TeamSection() {
             initial={{ opacity: 0, y: 40 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-[#111116] border border-white/10 p-8 md:p-10"
+            className="bg-bg-surface border border-white/10 p-8 md:p-10"
           >
             <div className="flex items-start gap-5 mb-6">
               <div className="w-20 h-20 rounded-full bg-[#e0a458]/10 border-2 border-[#e0a458]/30 flex items-center justify-center flex-shrink-0 relative">
@@ -548,7 +548,7 @@ function ClientsSection() {
               initial={{ opacity: 0, y: 24 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className="block bg-[#111116] border border-white/10 p-6 hover:border-[#e0a458]/30 transition-all group"
+              className="block bg-bg-surface border border-white/10 p-6 hover:border-[#e0a458]/30 transition-all group"
             >
               <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#71717A] mb-2">
                 {c.segment}
@@ -652,7 +652,7 @@ function ValueCard({ value, index }: { value: ValueData; index: number }) {
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className="bg-[#111116] border border-white/10 p-6 md:p-8 hover:border-[#e0a458]/30 transition-all text-center"
+      className="bg-bg-surface border border-white/10 p-6 md:p-8 hover:border-[#e0a458]/30 transition-all text-center"
     >
       <div className="w-14 h-14 rounded-xl bg-[#e0a458]/10 flex items-center justify-center mx-auto mb-5">
         <value.icon size={24} className="text-[#e0a458]" />
@@ -717,7 +717,7 @@ function TechStackSection() {
           {techStack.map((tech) => (
             <span
               key={tech}
-              className="px-5 py-2.5 bg-[#111116] border border-white/10 text-sm text-[#a4a4ad] hover:border-[#e0a458]/30 hover:text-[#e0a458] transition-all cursor-default"
+              className="px-5 py-2.5 bg-bg-surface border border-white/10 text-sm text-[#a4a4ad] hover:border-[#e0a458]/30 hover:text-[#e0a458] transition-all cursor-default"
             >
               {tech}
             </span>
@@ -790,7 +790,7 @@ export default function About() {
     path: '/about',
   });
   return (
-    <div className="bg-[#08080a] min-h-screen">
+    <div className="bg-bg-primary min-h-screen">
       <HeroSection />
       <VideoSection />
       <StorySection />

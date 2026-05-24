@@ -37,7 +37,7 @@ export default function Widerrufsbelehrung() {
             <p>
               Um Ihr Widerrufsrecht auszuüben, müssen Sie uns:
             </p>
-            <p className="bg-[#111116] border border-white/10 p-4 my-4 font-mono text-sm">
+            <p className="bg-bg-surface border border-white/10 p-4 my-4 font-mono text-sm">
               Carlos Wrusch<br />
               Federteilstr. 2e<br />
               86517 Wehringen<br />
@@ -101,7 +101,7 @@ export default function Widerrufsbelehrung() {
               Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular
               aus und senden Sie es zurück:
             </p>
-            <div className="bg-[#111116] border border-white/10 p-6 my-4 text-sm">
+            <div className="bg-bg-surface border border-white/10 p-6 my-4 text-sm">
               <p className="mb-2">An:</p>
               <p className="mb-2">
                 Carlos Wrusch<br />

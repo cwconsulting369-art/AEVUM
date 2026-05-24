@@ -70,7 +70,7 @@ function Card({ variant, href, onClick, title, subtitle, index }: CardProps) {
     </>
   );
 
-  const baseClass = `block w-full text-left bg-[#111116] border p-6 transition-all group ${s.border}`;
+  const baseClass = `block w-full text-left bg-bg-surface border p-6 transition-all group ${s.border}`;
 
   return (
     <motion.div

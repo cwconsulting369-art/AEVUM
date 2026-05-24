@@ -369,7 +369,7 @@ function ThreePathsSection() {
                 initial={{ opacity: 0, y: 24 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: i * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className={`group relative bg-[#111116] border ${s.border} p-7 md:p-8 transition-all flex flex-col hover:-translate-y-1`}
+                className={`group relative bg-bg-surface border ${s.border} p-7 md:p-8 transition-all flex flex-col hover:-translate-y-1`}
               >
                 {s.badge && (
                   <span className="absolute top-4 right-4 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-[#e0a458] bg-[#e0a458]/10 border border-[#e0a458]/30 px-2 py-0.5">
@@ -443,7 +443,7 @@ function AccountBenefitsSection() {
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
   return (
-    <section className="px-6 lg:px-16 py-20 md:py-24 bg-[#08080a]" ref={ref}>
+    <section className="px-6 lg:px-16 py-20 md:py-24 bg-bg-primary" ref={ref}>
       <div className="max-w-[1280px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -467,7 +467,7 @@ function AccountBenefitsSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.15, duration: 0.6 }}
-          className="hidden md:block bg-[#111116] border border-white/10 overflow-hidden"
+          className="hidden md:block bg-bg-surface border border-white/10 overflow-hidden"
         >
           <table className="w-full">
             <thead>
@@ -527,7 +527,7 @@ function AccountBenefitsSection() {
               initial={{ opacity: 0, y: 16 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: i * 0.08, duration: 0.5 }}
-              className={`bg-[#111116] border ${
+              className={`bg-bg-surface border ${
                 t.highlight ? 'border-[#e0a458]/40' : 'border-white/10'
               } p-5`}
             >
@@ -654,7 +654,7 @@ function ThesisSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className={`bg-[#111116] border border-white/10 hover:border-[#e0a458]/30 transition-all p-8 lg:p-10 ${
+              className={`bg-bg-surface border border-white/10 hover:border-[#e0a458]/30 transition-all p-8 lg:p-10 ${
                 step.isCTA ? 'border-[#e0a458]/40' : ''
               }`}
             >
@@ -727,7 +727,7 @@ function PillarsSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16 bg-[#111116]" ref={ref}>
+    <section className="section-padding px-6 lg:px-16 bg-bg-surface" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -751,7 +751,7 @@ function PillarsSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#08080a] p-8 lg:p-10 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
+              className="bg-bg-primary p-8 lg:p-10 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
             >
               <p.icon size={32} className="text-[#e0a458] mb-6" />
               <h3 className="font-mono text-sm uppercase tracking-[0.1em] text-[#e0a458] mb-3">
@@ -841,7 +841,7 @@ function ModulesSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#111116] p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1 group"
+              className="bg-bg-surface p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1 group"
             >
               <m.icon
                 size={28}
@@ -888,7 +888,7 @@ function ServicesSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16 bg-[#111116]" ref={ref}>
+    <section className="section-padding px-6 lg:px-16 bg-bg-surface" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -916,7 +916,7 @@ function ServicesSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#08080a] p-8 lg:p-10 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1 flex flex-col"
+              className="bg-bg-primary p-8 lg:p-10 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1 flex flex-col"
             >
               <s.icon size={32} className="text-[#e0a458] mb-6" />
               <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-[#7a7a85] mb-3 block">
@@ -1000,7 +1000,7 @@ function CasesSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#111116] p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
+              className="bg-bg-surface p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#e0a458] to-[#a86d27] flex items-center justify-center text-black font-bold text-lg">
@@ -1066,7 +1066,7 @@ function PricingSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16 bg-[#111116]" ref={ref}>
+    <section className="section-padding px-6 lg:px-16 bg-bg-surface" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -1090,7 +1090,7 @@ function PricingSection() {
           variants={fadeUp}
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
-          className="bg-[#08080a] border border-white/10 p-10 lg:p-14 mb-10 max-w-3xl mx-auto"
+          className="bg-bg-primary border border-white/10 p-10 lg:p-14 mb-10 max-w-3xl mx-auto"
         >
           <p className="text-base md:text-lg text-[#a4a4ad] leading-relaxed mb-8">
             Nach dem kostenlosen Audit analysieren wir gemeinsam:
@@ -1142,7 +1142,7 @@ function PricingSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="flex items-center gap-3 bg-[#08080a] border border-white/10 px-5 py-4"
+              className="flex items-center gap-3 bg-bg-primary border border-white/10 px-5 py-4"
             >
               <t.icon size={16} className="text-[#e0a458] shrink-0" />
               <span className="text-sm text-[#a4a4ad]">{t.text}</span>
@@ -1191,7 +1191,7 @@ function TrustSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#111116] p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1 text-center"
+              className="bg-bg-surface p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1 text-center"
             >
               <b.icon size={32} className="text-[#e0a458] mx-auto mb-4" />
               <p className="text-sm text-[#a4a4ad] leading-relaxed">{b.text}</p>
@@ -1263,7 +1263,7 @@ function FAQSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16 bg-[#111116]" ref={ref}>
+    <section className="section-padding px-6 lg:px-16 bg-bg-surface" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -1291,7 +1291,7 @@ function FAQSection() {
               <AccordionItem
                 key={i}
                 value={`faq-${i}`}
-                className="bg-[#08080a] border border-white/10 px-6"
+                className="bg-bg-primary border border-white/10 px-6"
               >
                 <AccordionTrigger className="text-left text-sm md:text-base font-medium py-5 hover:no-underline">
                   {faq.q}
@@ -1353,7 +1353,7 @@ export default function Home() {
     path: '/',
   });
   return (
-    <div className="bg-[#08080a]">
+    <div className="bg-bg-primary">
       <HeroSection />
       <ThreePathsSection />
       <AccountBenefitsSection />

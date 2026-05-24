@@ -57,7 +57,7 @@ function FooterColumn({ title, links }: FooterColumnProps) {
 
 export default function Footer() {
   return (
-    <footer className="bg-[#111116] border-t border-white/10">
+    <footer className="bg-bg-surface border-t border-white/10">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-16 py-16 lg:py-20">
         {/* Brand + Contact Strip */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-14 pb-14 border-b border-white/10">

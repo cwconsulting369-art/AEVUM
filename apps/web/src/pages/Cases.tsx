@@ -82,7 +82,7 @@ function CaseCard({ caseData, index }: { caseData: CaseSummary; index: number })
       initial={{ opacity: 0, y: 40 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: index * 0.08, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="block bg-[#111116] border border-white/10 p-6 md:p-8 hover:border-[#e0a458]/40 hover:bg-[#13131a] transition-all group"
+      className="block bg-bg-surface border border-white/10 p-6 md:p-8 hover:border-[#e0a458]/40 hover:bg-[#13131a] transition-all group"
     >
       <div className="flex items-start justify-between mb-5">
         <div className="flex items-center gap-3">
@@ -133,7 +133,7 @@ function CaseCard({ caseData, index }: { caseData: CaseSummary; index: number })
 
 function FallbackNotice({ message }: { message: string }) {
   return (
-    <div className="bg-[#111116] border border-white/10 p-8 md:p-10 text-center">
+    <div className="bg-bg-surface border border-white/10 p-8 md:p-10 text-center">
       <p className="text-sm text-[#a4a4ad] leading-relaxed">{message}</p>
     </div>
   );
@@ -211,7 +211,7 @@ function CasesGridSection() {
             {[0, 1, 2, 3].map(i => (
               <div
                 key={i}
-                className="bg-[#111116] border border-white/10 p-6 md:p-8 animate-pulse"
+                className="bg-bg-surface border border-white/10 p-6 md:p-8 animate-pulse"
                 aria-hidden="true"
               >
                 <div className="flex items-start gap-3">
@@ -298,7 +298,7 @@ export default function Cases() {
     path: '/cases',
   });
   return (
-    <div className="bg-[#08080a] min-h-screen">
+    <div className="bg-bg-primary min-h-screen">
       <HeroSection />
       <CasesGridSection />
       <CTASection />

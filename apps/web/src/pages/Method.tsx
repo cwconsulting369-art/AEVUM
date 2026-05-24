@@ -189,7 +189,7 @@ function StepCard({ step, index }: { step: StepData; index: number }) {
         <div className="hidden lg:block absolute top-12 left-[60%] right-0 h-[2px] bg-gradient-to-r from-[#e0a458]/30 to-transparent" />
       )}
 
-      <div className="bg-[#111116] border border-white/10 p-8 h-full flex flex-col hover:border-[#e0a458]/30 transition-all">
+      <div className="bg-bg-surface border border-white/10 p-8 h-full flex flex-col hover:border-[#e0a458]/30 transition-all">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-lg bg-[#e0a458]/10 flex items-center justify-center">
             <step.icon size={22} className="text-[#e0a458]" />
@@ -324,7 +324,7 @@ function PillarCard({ pillar, index }: { pillar: PillarData; index: number }) {
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className="bg-[#111116] border border-white/10 p-8 md:p-10 hover:border-[#e0a458]/30 transition-all"
+      className="bg-bg-surface border border-white/10 p-8 md:p-10 hover:border-[#e0a458]/30 transition-all"
     >
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-xl bg-[#e0a458]/10 flex items-center justify-center">
@@ -394,7 +394,7 @@ export default function Method() {
     path: '/method',
   });
   return (
-    <div className="bg-[#08080a] min-h-screen">
+    <div className="bg-bg-primary min-h-screen">
       <HeroSection />
       <ProcessSection />
       <PillarsSection />

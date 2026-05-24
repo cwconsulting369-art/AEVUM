@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, MessageCircle } from 'lucide-react';
 import CONTACT from '../config/contact';
+import ThemeToggle from './ThemeToggle';
 
 const navLinks = [
   { label: 'Shop', path: '/shop' },
@@ -45,7 +46,7 @@ export default function Navbar() {
     <nav
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-[#08080a]/80 backdrop-blur-xl border-b border-white/10'
+          ? 'bg-bg-primary/80 backdrop-blur-xl border-b border-white/10'
           : 'bg-transparent'
       }`}
     >
@@ -77,6 +78,7 @@ export default function Navbar() {
 
         {/* Desktop Right Side */}
         <div className="hidden md:flex items-center gap-3">
+          <ThemeToggle />
           <a
             href="https://app.aevum-system.de"
             target="_blank"
@@ -116,7 +118,7 @@ export default function Navbar() {
 
       {/* Mobile Overlay */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 top-16 bg-[#08080a]/98 backdrop-blur-xl z-40">
+        <div className="md:hidden fixed inset-0 top-16 bg-bg-primary/98 backdrop-blur-xl z-40">
           <div className="flex flex-col items-center justify-center gap-8 pt-20">
             {navLinks.map((link) => (
               <a
@@ -141,6 +143,7 @@ export default function Navbar() {
               Login &rarr; app.aevum-system.de
             </a>
             <div className="flex flex-col items-center gap-4 mt-8">
+              <ThemeToggle />
               <a
                 href={CONTACT.whatsapp}
                 target="_blank"

@@ -148,7 +148,7 @@ export default function LeadMagnetEuAiAct() {
             transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="space-y-4"
           >
-            <h2 className="text-xl md:text-2xl font-medium mb-4 text-white">Was drin steht</h2>
+            <h2 className="text-xl md:text-2xl font-medium mb-4 text-text-primary">Was drin steht</h2>
             {TEASER_BULLETS.map((b, i) => {
               const Icon = b.icon;
               return (
@@ -163,7 +163,7 @@ export default function LeadMagnetEuAiAct() {
                     <Icon className="w-5 h-5 text-[#e0a458]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-white mb-1">{b.title}</div>
+                    <div className="font-medium text-text-primary mb-1">{b.title}</div>
                     <div className="text-sm text-[#a4a4ad] leading-relaxed">{b.desc}</div>
                   </div>
                 </motion.div>
@@ -185,7 +185,7 @@ export default function LeadMagnetEuAiAct() {
                     <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-[#e0a458]/15 flex items-center justify-center">
                       <CheckCircle2 className="w-7 h-7 text-[#e0a458]" />
                     </div>
-                    <h3 className="text-xl font-medium text-white mb-2">Checkliste ist unterwegs</h3>
+                    <h3 className="text-xl font-medium text-text-primary mb-2">Checkliste ist unterwegs</h3>
                     <p className="text-sm text-[#a4a4ad] mb-6">
                       Wir haben dir die Checkliste auch per Email geschickt — falls du sie später nochmal brauchst.
                     </p>
@@ -219,7 +219,7 @@ export default function LeadMagnetEuAiAct() {
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                      <h3 className="text-xl font-medium text-white mb-1">PDF anfordern</h3>
+                      <h3 className="text-xl font-medium text-text-primary mb-1">PDF anfordern</h3>
                       <p className="text-sm text-[#a4a4ad]">
                         Email eintragen → Download-Link kommt direkt + per Mail.
                       </p>
@@ -326,7 +326,7 @@ export default function LeadMagnetEuAiAct() {
             <span className="font-mono text-xs uppercase tracking-[0.18em] text-[#e0a458] mb-3 block">
               Mehr in Vorbereitung
             </span>
-            <h2 className="text-2xl md:text-3xl font-light text-white">
+            <h2 className="text-2xl md:text-3xl font-light text-text-primary">
               Weitere kostenlose <span className="text-gradient font-medium">Werkzeuge</span>
             </h2>
           </div>
@@ -337,7 +337,7 @@ export default function LeadMagnetEuAiAct() {
                 className="p-5 rounded-lg border border-white/[0.06] bg-white/[0.02] opacity-70"
               >
                 <div className="flex items-start justify-between mb-2">
-                  <div className="font-medium text-white">{item.title}</div>
+                  <div className="font-medium text-text-primary">{item.title}</div>
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[#e0a458] bg-[#e0a458]/10 px-2 py-1 rounded">
                     {item.eta}
                   </span>

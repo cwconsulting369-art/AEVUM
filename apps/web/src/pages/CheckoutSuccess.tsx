@@ -59,7 +59,7 @@ export default function CheckoutSuccess() {
           </p>
         )}
 
-        <div className="bg-[#111116] border border-white/10 p-8 mb-10 text-left">
+        <div className="bg-bg-surface border border-white/10 p-8 mb-10 text-left">
           <h2 className="text-lg font-medium mb-4">Was passiert jetzt?</h2>
           <ol className="space-y-3 text-sm text-[#a4a4ad] list-decimal pl-5">
             <li>Du erhältst innerhalb weniger Minuten eine Stripe-Zahlungsbestätigung per E-Mail.</li>
@@ -122,8 +122,8 @@ function SaasSignupSuccess({ sessionId }: { sessionId: string | null }) {
           und die Credits werden aufgeladen.
         </p>
 
-        <div className="bg-[#111116] border border-white/10 p-7 mb-10 text-left rounded-lg">
-          <h2 className="text-lg font-medium mb-4 flex items-center gap-2 text-white">
+        <div className="bg-bg-surface border border-white/10 p-7 mb-10 text-left rounded-lg">
+          <h2 className="text-lg font-medium mb-4 flex items-center gap-2 text-text-primary">
             <Mail size={18} className="text-[#e0a458]" /> Check deine Mail
           </h2>
           <p className="text-sm text-[#a4a4ad] leading-relaxed">

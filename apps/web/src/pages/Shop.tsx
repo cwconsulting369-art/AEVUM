@@ -430,7 +430,7 @@ function TabBar({ active, onChange }: { active: ShopTab; onChange: (t: ShopTab) 
   ];
 
   return (
-    <div className="px-6 lg:px-16 sticky top-[68px] z-30 bg-[#08080a]/85 backdrop-blur-md border-b border-white/5">
+    <div className="px-6 lg:px-16 sticky top-[68px] z-30 bg-bg-primary/85 backdrop-blur-md border-b border-white/5">
       <div className="max-w-[1440px] mx-auto">
         <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 py-3 overflow-x-auto">
           {tabs.map((t) => {
@@ -616,7 +616,7 @@ function BlueprintCard({
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className="relative bg-[#111116] border border-white/10 p-7 flex flex-col hover:border-[#e0a458]/35 transition-all group"
+      className="relative bg-bg-surface border border-white/10 p-7 flex flex-col hover:border-[#e0a458]/35 transition-all group"
     >
       {blueprint.tag && (
         <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-[#e0a458] bg-[#e0a458]/10 border border-[#e0a458]/20 px-2 py-0.5">
@@ -764,7 +764,7 @@ function BlueprintsSection() {
           initial={{ opacity: 0, y: 32 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-12 bg-[#111116] border border-[#e0a458]/20 p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden"
+          className="mt-12 bg-bg-surface border border-[#e0a458]/20 p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden"
         >
           <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-[#e0a458]/5 blur-3xl pointer-events-none" />
           <div>
@@ -947,7 +947,7 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className="relative bg-[#111116] border border-white/10 p-7 flex flex-col hover:border-[#e0a458]/35 transition-all group"
+      className="relative bg-bg-surface border border-white/10 p-7 flex flex-col hover:border-[#e0a458]/35 transition-all group"
     >
       {service.tag && (
         <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-[#e0a458] bg-[#e0a458]/10 border border-[#e0a458]/20 px-2 py-0.5">
@@ -1101,7 +1101,7 @@ function DFYSection() {
           initial={{ opacity: 0, y: 32 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-16 border border-white/10 p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 bg-[#111116] relative overflow-hidden"
+          className="mt-16 border border-white/10 p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 bg-bg-surface relative overflow-hidden"
         >
           <div className="absolute -bottom-16 right-0 w-64 h-64 rounded-full bg-[#e0a458]/4 blur-3xl pointer-events-none" />
           <div>
@@ -1324,7 +1324,7 @@ function EcosystemSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-[#111116] border border-white/10 p-7 flex flex-col gap-4 hover:border-[#e0a458]/30 transition-all"
+              className="bg-bg-surface border border-white/10 p-7 flex flex-col gap-4 hover:border-[#e0a458]/30 transition-all"
             >
               <div className="w-11 h-11 rounded-lg bg-[#e0a458]/10 flex items-center justify-center flex-shrink-0">
                 <p.icon size={20} className="text-[#e0a458]" />
@@ -1369,7 +1369,7 @@ export default function Shop() {
   };
 
   return (
-    <div className="bg-[#08080a] min-h-screen">
+    <div className="bg-bg-primary min-h-screen">
       <HeroStrip />
       <TabBar active={tab} onChange={changeTab} />
 

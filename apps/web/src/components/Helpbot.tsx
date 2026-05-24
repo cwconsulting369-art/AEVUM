@@ -543,7 +543,7 @@ export default function Helpbot() {
               transition={{ type: 'spring', stiffness: 240, damping: 26 }}
               role="dialog"
               aria-label="AEVUM Assistant Chat"
-              className="fixed z-[99] inset-0 sm:inset-auto sm:bottom-5 sm:right-5 lg:bottom-6 lg:right-6 sm:w-[420px] sm:max-w-[calc(100vw-2.5rem)] sm:h-[600px] sm:max-h-[calc(100vh-3rem)] flex flex-col bg-[#08080a] sm:rounded-2xl overflow-hidden border-0 sm:border sm:border-white/10 shadow-[0_20px_60px_-12px_rgba(0,0,0,0.7)]"
+              className="fixed z-[99] inset-0 sm:inset-auto sm:bottom-5 sm:right-5 lg:bottom-6 lg:right-6 sm:w-[420px] sm:max-w-[calc(100vw-2.5rem)] sm:h-[600px] sm:max-h-[calc(100vh-3rem)] flex flex-col bg-bg-primary sm:rounded-2xl overflow-hidden border-0 sm:border sm:border-white/10 shadow-[0_20px_60px_-12px_rgba(0,0,0,0.7)]"
               style={{ fontFamily: 'inherit' }}
             >
               {/* Header */}
@@ -653,7 +653,7 @@ export default function Helpbot() {
               </div>
 
               {/* Input */}
-              <div className="flex-shrink-0 border-t border-white/[0.06] bg-[#08080a] px-3 pt-3 pb-3 sm:pb-3" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
+              <div className="flex-shrink-0 border-t border-white/[0.06] bg-bg-primary px-3 pt-3 pb-3 sm:pb-3" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
                 <div className="relative flex items-end gap-2 rounded-xl border border-white/10 bg-[#101216] focus-within:border-[#e0a458]/50 focus-within:shadow-[0_0_0_3px_rgba(224, 164, 88,0.08)] transition-all">
                   <textarea
                     ref={inputRef}

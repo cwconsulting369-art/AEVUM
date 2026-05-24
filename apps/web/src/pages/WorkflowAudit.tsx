@@ -143,10 +143,10 @@ function FormSection() {
   };
 
   const inputClasses =
-    'w-full bg-[#08080a] border border-white/10 px-4 py-3 text-sm text-[#F8FAFC] placeholder-[#52525B] focus:border-[#e0a458]/50 focus:outline-none transition-colors';
+    'w-full bg-bg-primary border border-white/10 px-4 py-3 text-sm text-[#F8FAFC] placeholder-[#52525B] focus:border-[#e0a458]/50 focus:outline-none transition-colors';
   const labelClasses = 'flex items-center gap-2 text-sm text-[#a4a4ad] mb-2';
   const selectClasses =
-    'w-full bg-[#08080a] border border-white/10 px-4 py-3 text-sm text-[#F8FAFC] focus:border-[#e0a458]/50 focus:outline-none transition-colors appearance-none cursor-pointer';
+    'w-full bg-bg-primary border border-white/10 px-4 py-3 text-sm text-[#F8FAFC] focus:border-[#e0a458]/50 focus:outline-none transition-colors appearance-none cursor-pointer';
 
   if (submitted) {
     return (
@@ -156,7 +156,7 @@ function FormSection() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
-            className="bg-[#111116] border border-[#e0a458]/30 p-10 lg:p-16 text-center"
+            className="bg-bg-surface border border-[#e0a458]/30 p-10 lg:p-16 text-center"
           >
             <div className="w-20 h-20 bg-[#e0a458]/10 border border-[#e0a458]/30 flex items-center justify-center mx-auto mb-8">
               <CheckCircle size={40} className="text-[#e0a458]" />
@@ -198,7 +198,7 @@ function FormSection() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
           onSubmit={handleSubmit}
-          className="bg-[#111116] border border-white/10 p-8 lg:p-12"
+          className="bg-bg-surface border border-white/10 p-8 lg:p-12"
         >
           {/* Honeypot — visually hidden, off-screen. Real users never see/fill this. Bots auto-fill. */}
           <div
@@ -458,7 +458,7 @@ function FormSection() {
                 <Upload size={16} className="text-[#e0a458]" />
                 Dokumente hochladen (optional)
               </label>
-              <div className="w-full bg-[#08080a] border border-dashed border-white/20 hover:border-[#e0a458]/30 px-4 py-10 text-center transition-colors cursor-pointer group">
+              <div className="w-full bg-bg-primary border border-dashed border-white/20 hover:border-[#e0a458]/30 px-4 py-10 text-center transition-colors cursor-pointer group">
                 <Upload size={28} className="text-[#7a7a85] group-hover:text-[#e0a458] mx-auto mb-3 transition-colors" />
                 <p className="text-sm text-[#7a7a85] group-hover:text-[#a4a4ad] transition-colors">
                   PDF, DOC, oder Bilder hierher ziehen
@@ -559,7 +559,7 @@ function NextStepsSection() {
   ];
 
   return (
-    <section className="px-6 lg:px-16 py-24 bg-[#111116]" ref={ref}>
+    <section className="px-6 lg:px-16 py-24 bg-bg-surface" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -583,9 +583,9 @@ function NextStepsSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="relative text-center p-8 bg-[#08080a] border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
+              className="relative text-center p-8 bg-bg-primary border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
             >
-              <div className="w-16 h-16 bg-[#111116] border border-[#e0a458]/30 flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-bg-surface border border-[#e0a458]/30 flex items-center justify-center mx-auto mb-6">
                 <step.icon size={28} className="text-[#e0a458]" />
               </div>
               <span className="font-mono text-xs text-[#7a7a85] uppercase tracking-wider block mb-3">
@@ -622,7 +622,7 @@ function TestimonialSection() {
           transition={{ duration: 0.7 }}
           className="max-w-3xl mx-auto"
         >
-          <div className="bg-[#111116] border border-[#e0a458]/20 p-10 lg:p-12">
+          <div className="bg-bg-surface border border-[#e0a458]/20 p-10 lg:p-12">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#e0a458] to-[#a86d27] flex items-center justify-center text-black font-bold text-xl">
                 K
@@ -669,7 +669,7 @@ function FinalCTA() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section className="px-6 lg:px-16 py-24 bg-[#111116]" ref={ref}>
+    <section className="px-6 lg:px-16 py-24 bg-bg-surface" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -718,7 +718,7 @@ function FinalCTA() {
 
 export default function WorkflowAudit() {
   return (
-    <div className="bg-[#08080a]">
+    <div className="bg-bg-primary">
       <HeroSection />
       <FormSection />
       <NextStepsSection />

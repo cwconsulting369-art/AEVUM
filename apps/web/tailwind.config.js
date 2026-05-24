@@ -8,6 +8,16 @@ module.exports = {
         sans: ['Manrope', 'Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
+        'bg-primary': 'var(--bg-primary)',
+        'bg-surface': 'var(--bg-surface)',
+        'bg-elevated': 'var(--bg-elevated)',
+        'text-primary': 'var(--text-primary)',
+        'text-secondary': 'var(--text-secondary)',
+        'text-muted': 'var(--text-muted)',
+        'theme-accent': 'var(--theme-accent)',
+        'theme-accent-hover': 'var(--theme-accent-hover)',
+        'theme-border': 'var(--theme-border)',
+        'theme-border-strong': 'var(--theme-border-strong)',
         gold: {
           50:  '#fdf6e7',
           100: '#fbecc8',

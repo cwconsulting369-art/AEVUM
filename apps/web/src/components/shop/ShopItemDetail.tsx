@@ -268,7 +268,7 @@ function ContentSection({
 function FAQItem({ q, a, idx }: { q: string; a: string; idx: number }) {
   const [open, setOpen] = useState(idx === 0);
   return (
-    <div className="border border-white/8 rounded-lg overflow-hidden bg-[#111116]">
+    <div className="border border-white/8 rounded-lg overflow-hidden bg-bg-surface">
       <button
         onClick={() => setOpen((s) => !s)}
         className="w-full text-left flex items-center justify-between gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors"
@@ -302,7 +302,7 @@ function DownloadsSection({ status }: { status: BuildStatus }) {
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
         {status.n8n_export_url && (
-          <div className="border border-white/8 bg-[#111116] p-4 rounded-lg flex items-center gap-3">
+          <div className="border border-white/8 bg-bg-surface p-4 rounded-lg flex items-center gap-3">
             <FileJson size={20} className="text-[#e0a458] flex-shrink-0" />
             <div className="flex-1">
               <span className="block text-sm font-medium text-[#F9FAFB]">n8n-Workflow JSON</span>
@@ -312,7 +312,7 @@ function DownloadsSection({ status }: { status: BuildStatus }) {
           </div>
         )}
         {status.pdf_url && (
-          <div className="border border-white/8 bg-[#111116] p-4 rounded-lg flex items-center gap-3">
+          <div className="border border-white/8 bg-bg-surface p-4 rounded-lg flex items-center gap-3">
             <FileText size={20} className="text-[#e0a458] flex-shrink-0" />
             <div className="flex-1">
               <span className="block text-sm font-medium text-[#F9FAFB]">Setup-Anleitung PDF</span>
@@ -322,7 +322,7 @@ function DownloadsSection({ status }: { status: BuildStatus }) {
           </div>
         )}
         {status.demo_video_url && (
-          <div className="border border-white/8 bg-[#111116] p-4 rounded-lg flex items-center gap-3 sm:col-span-2">
+          <div className="border border-white/8 bg-bg-surface p-4 rounded-lg flex items-center gap-3 sm:col-span-2">
             <Video size={20} className="text-[#e0a458] flex-shrink-0" />
             <div className="flex-1">
               <span className="block text-sm font-medium text-[#F9FAFB]">Demo-Video</span>
@@ -374,7 +374,7 @@ function InstallOptionSection({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Self-Install Card */}
-            <div className="bg-[#111116] border border-white/10 p-6 md:p-7 flex flex-col">
+            <div className="bg-bg-surface border border-white/10 p-6 md:p-7 flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <span className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-[#a4a4ad] bg-white/5 border border-white/10 px-2.5 py-1 rounded">
                   <Download size={11} />
@@ -574,7 +574,7 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
   const isBuyable = (item.type === 'blueprint' || item.type === 'bundle') && !item.comingSoon;
 
   return (
-    <div className="bg-[#08080a] min-h-screen">
+    <div className="bg-bg-primary min-h-screen">
       <HeroSection item={item} status={status} onBuy={handleBuy} isBuying={buying} />
 
       {buyError && (
@@ -737,7 +737,7 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
       {/* Final CTA */}
       <section className="px-6 lg:px-16 py-20 bg-[#0c0c10]">
         <div className="max-w-[1100px] mx-auto">
-          <div className="border border-white/10 bg-[#111116] p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+          <div className="border border-white/10 bg-bg-surface p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
             <div className="absolute -top-12 right-0 w-64 h-64 rounded-full bg-[#e0a458]/4 blur-3xl pointer-events-none" />
             <div className="flex-1">
               <h3 className="text-xl md:text-2xl font-light tracking-tight mb-2">

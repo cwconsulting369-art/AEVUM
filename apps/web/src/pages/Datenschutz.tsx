@@ -75,7 +75,7 @@ export default function Datenschutz() {
             </p>
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm border border-white/10">
-                <thead className="bg-[#111116]">
+                <thead className="bg-bg-surface">
                   <tr className="text-left">
                     <th className="px-3 py-2 border-b border-white/10 text-[#F8FAFC] font-normal">Anbieter</th>
                     <th className="px-3 py-2 border-b border-white/10 text-[#F8FAFC] font-normal">Zweck</th>

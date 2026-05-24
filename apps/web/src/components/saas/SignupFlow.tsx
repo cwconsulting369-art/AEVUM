@@ -111,13 +111,13 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.96, opacity: 0, y: 8 }}
           transition={{ duration: 0.18 }}
-          className="relative w-full max-w-xl bg-[#0a0a0a] border border-[#e0a458]/25 rounded-lg shadow-2xl my-8"
+          className="relative w-full max-w-xl bg-bg-primary border border-[#e0a458]/25 rounded-lg shadow-2xl my-8"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-white/40 hover:text-white transition p-1.5 rounded hover:bg-white/5"
+            className="absolute top-4 right-4 text-text-primary/40 hover:text-text-primary transition p-1.5 rounded hover:bg-white/5"
             aria-label="Schließen"
           >
             <X size={18} />
@@ -129,8 +129,8 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
               <Sparkles size={14} />
               <span className="font-mono text-[10px] uppercase tracking-widest">Account anlegen</span>
             </div>
-            <h2 className="text-xl text-white font-light">{toolName} nutzen</h2>
-            <p className="text-sm text-white/50 mt-1">
+            <h2 className="text-xl text-text-primary font-light">{toolName} nutzen</h2>
+            <p className="text-sm text-text-primary/50 mt-1">
               Email + Credit-Paket. Account wird nach Zahlung automatisch erstellt.
             </p>
 
@@ -143,7 +143,7 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
                       step >= (s as Step) ? 'bg-[#e0a458]' : 'bg-white/8'
                     }`}
                   />
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-white/40 mt-1.5">
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-text-primary/40 mt-1.5">
                     {s === 1 && 'Email'}
                     {s === 2 && 'Paket'}
                     {s === 3 && 'Bezahlen'}
@@ -188,7 +188,7 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
           <div className="px-7 py-4 border-t border-white/5 flex items-center justify-between gap-3">
             <button
               onClick={step > 1 ? () => setStep((step - 1) as Step) : onClose}
-              className="text-xs text-white/50 hover:text-white/80 transition font-mono uppercase tracking-wider"
+              className="text-xs text-text-primary/50 hover:text-text-primary/80 transition font-mono uppercase tracking-wider"
               disabled={loading}
             >
               {step > 1 ? '← Zurück' : 'Abbrechen'}
@@ -262,17 +262,17 @@ function Step1({
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-xs font-mono uppercase tracking-wider text-white/60 block mb-1.5">
+        <label className="text-xs font-mono uppercase tracking-wider text-text-primary/60 block mb-1.5">
           Email <span className="text-rose-400">*</span>
         </label>
         <div className="relative">
-          <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+          <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-primary/30" />
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="du@firma.de"
-            className={`w-full bg-black border rounded px-9 py-2.5 text-sm text-white placeholder-white/30 outline-none transition-colors ${
+            className={`w-full bg-black border rounded px-9 py-2.5 text-sm text-text-primary placeholder-white/30 outline-none transition-colors ${
               email && !emailValid ? 'border-rose-400/40' : 'border-white/10 focus:border-[#e0a458]/40'
             }`}
             autoFocus
@@ -284,8 +284,8 @@ function Step1({
       </div>
 
       <div>
-        <label className="text-xs font-mono uppercase tracking-wider text-white/60 block mb-1.5">
-          Vorname <span className="text-white/30">(optional)</span>
+        <label className="text-xs font-mono uppercase tracking-wider text-text-primary/60 block mb-1.5">
+          Vorname <span className="text-text-primary/30">(optional)</span>
         </label>
         <input
           type="text"
@@ -293,7 +293,7 @@ function Step1({
           onChange={(e) => setName(e.target.value)}
           placeholder="Carlos"
           maxLength={100}
-          className="w-full bg-black border border-white/10 rounded px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-[#e0a458]/40 transition-colors"
+          className="w-full bg-black border border-white/10 rounded px-3 py-2.5 text-sm text-text-primary placeholder-white/30 outline-none focus:border-[#e0a458]/40 transition-colors"
         />
       </div>
 
@@ -304,7 +304,7 @@ function Step1({
           onChange={(e) => setConsent(e.target.checked)}
           className="mt-0.5 accent-[#e0a458] w-4 h-4 cursor-pointer"
         />
-        <span className="text-sm text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
+        <span className="text-sm text-text-primary/70 leading-relaxed group-hover:text-text-primary/90 transition-colors">
           Ich stimme den{' '}
           <a href="#/agb" target="_blank" className="text-[#e0a458] hover:underline">
             AGB
@@ -339,7 +339,7 @@ function Step2({
           Initial-Credit-Paket für {toolName}
         </span>
       </div>
-      <p className="text-sm text-white/55 mb-5 leading-relaxed">
+      <p className="text-sm text-text-primary/55 mb-5 leading-relaxed">
         Kein Abo. Du zahlst einmal, Credits verfallen nicht. Nachladen jederzeit möglich.
       </p>
 
@@ -359,7 +359,7 @@ function Step2({
               <div className="flex items-center justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-white font-medium">{pkg.name}</span>
+                    <span className="text-text-primary font-medium">{pkg.name}</span>
                     {pkg.featured && (
                       <span className="font-mono text-[9px] uppercase tracking-wider text-[#e0a458] bg-[#e0a458]/15 border border-[#e0a458]/30 px-1.5 py-0.5 rounded">
                         Beliebt
@@ -371,13 +371,13 @@ function Step2({
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-white/50 font-mono">
+                  <div className="text-xs text-text-primary/50 font-mono">
                     {pkg.credits} Credits · {pkg.runsHint}
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="text-lg text-white font-light">€{pkg.priceEur}</div>
-                  <div className="text-[10px] text-white/40 font-mono uppercase">einmalig</div>
+                  <div className="text-lg text-text-primary font-light">€{pkg.priceEur}</div>
+                  <div className="text-[10px] text-text-primary/40 font-mono uppercase">einmalig</div>
                 </div>
                 <div
                   className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition ${
@@ -392,7 +392,7 @@ function Step2({
         })}
       </div>
 
-      <p className="text-xs text-white/40 mt-4 leading-relaxed">
+      <p className="text-xs text-text-primary/40 mt-4 leading-relaxed">
         Nach der Zahlung kriegst du sofort eine Login-Mail mit deinem Magic-Link. Account-Setup
         passiert automatisch.
       </p>
@@ -409,13 +409,13 @@ function Step3({ email, selectedPackage }: { email: string; selectedPackage: Cre
       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#e0a458]/10 border border-[#e0a458]/25 mb-4">
         <Loader2 size={20} className="animate-spin text-[#e0a458]" />
       </div>
-      <h3 className="text-base text-white font-medium mb-2">Stripe-Checkout wird geöffnet…</h3>
-      <p className="text-sm text-white/55 mb-4 leading-relaxed">
+      <h3 className="text-base text-text-primary font-medium mb-2">Stripe-Checkout wird geöffnet…</h3>
+      <p className="text-sm text-text-primary/55 mb-4 leading-relaxed">
         Du wirst weitergeleitet zur sicheren Zahlung über Stripe.
         <br />
-        Nach Bezahlung kriegst du eine Login-Mail an <span className="text-white/80 font-mono">{email}</span>.
+        Nach Bezahlung kriegst du eine Login-Mail an <span className="text-text-primary/80 font-mono">{email}</span>.
       </p>
-      <div className="inline-flex items-center gap-2 text-xs font-mono text-white/40 bg-white/5 border border-white/10 px-3 py-1.5 rounded">
+      <div className="inline-flex items-center gap-2 text-xs font-mono text-text-primary/40 bg-white/5 border border-white/10 px-3 py-1.5 rounded">
         <PackageIcon size={12} /> {pkg.name} · {pkg.credits} Credits · €{pkg.priceEur}
       </div>
     </div>

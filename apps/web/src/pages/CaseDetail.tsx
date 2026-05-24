@@ -160,7 +160,7 @@ function Services({ services }: { services: ActivatedService[] }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ delay: i * 0.06, duration: 0.5 }}
-            className="bg-[#111116] border border-white/10 hover:border-[#e0a458]/30 transition-colors p-5"
+            className="bg-bg-surface border border-white/10 hover:border-[#e0a458]/30 transition-colors p-5"
           >
             <div className="flex items-start gap-3">
               <div className="w-9 h-9 rounded bg-[#e0a458]/10 border border-[#e0a458]/20 flex items-center justify-center flex-shrink-0">
@@ -199,7 +199,7 @@ function Kpis({ kpis }: { kpis: LiveKpi[] }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ delay: i * 0.06, duration: 0.5 }}
-            className="bg-[#111116] border border-white/10 p-5"
+            className="bg-bg-surface border border-white/10 p-5"
           >
             <p className="text-[10px] font-mono uppercase tracking-wider text-[#7a7a85] mb-1.5">
               {k.label}
@@ -235,7 +235,7 @@ function Testimonial({
   if (!quote && !author) return null;
   return (
     <section className="px-6 lg:px-16 py-16 border-t border-white/5">
-      <div className="max-w-[900px] mx-auto bg-[#111116] border border-[#e0a458]/20 p-8 md:p-12 relative">
+      <div className="max-w-[900px] mx-auto bg-bg-surface border border-[#e0a458]/20 p-8 md:p-12 relative">
         <Quote
           size={32}
           className="text-[#e0a458]/30 absolute top-6 left-6"
@@ -282,7 +282,7 @@ function CTA() {
 
 function LoadingState() {
   return (
-    <div className="bg-[#08080a] min-h-screen px-6 lg:px-16 pt-24">
+    <div className="bg-bg-primary min-h-screen px-6 lg:px-16 pt-24">
       <div className="max-w-[1100px] mx-auto animate-pulse space-y-6">
         <div className="h-3 w-32 bg-white/5 rounded" />
         <div className="h-12 w-3/4 bg-white/5 rounded" />
@@ -295,7 +295,7 @@ function LoadingState() {
 
 function NotFoundState() {
   return (
-    <div className="bg-[#08080a] min-h-screen flex items-center justify-center px-6">
+    <div className="bg-bg-primary min-h-screen flex items-center justify-center px-6">
       <div className="max-w-md text-center">
         <h1 className="text-2xl font-light text-[#F9FAFB] mb-3">Case nicht gefunden</h1>
         <p className="text-[#a4a4ad] mb-8">
@@ -367,7 +367,7 @@ export default function CaseDetail({ slug }: { slug: string }) {
   const kpis = data.live_kpis || [];
 
   return (
-    <div className="bg-[#08080a] min-h-screen">
+    <div className="bg-bg-primary min-h-screen">
       <Hero data={data} />
 
       {data.project_description && (
