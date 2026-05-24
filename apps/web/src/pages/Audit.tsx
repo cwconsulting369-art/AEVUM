@@ -23,6 +23,8 @@ import { track } from '@/lib/shop-track';
 
 type Segment = 'AG' | 'PB' | 'FI' | null;
 type Urgency = 'sofort' | '1-4-wochen' | 'nur-infos';
+type SetupBudget = '500-2k' | '2-8k' | '8-20k' | '20k+' | '';
+type RetainerBudget = '0-500' | '500-2k' | '2-5k' | '5k+' | '';
 
 // Shared contact data
 interface ContactData {
@@ -30,6 +32,12 @@ interface ContactData {
   email: string;
   phone: string;
   urgency: Urgency | '';
+}
+
+// Budget step (V2-Master §10 — Step 6)
+interface BudgetData {
+  setup: SetupBudget;
+  retainer: RetainerBudget;
 }
 
 // AG — Agentur / Freelancer-Team
@@ -58,6 +66,7 @@ interface FormState {
   ag: AGData;
   pb: PBData;
   fi: FIData;
+  budget: BudgetData;
   contact: ContactData;
   consent_dsgvo: boolean;
 }
@@ -126,16 +135,49 @@ const URGENCY_OPTIONS = [
   { value: 'nur-infos' as const, label: 'Ich sammle erst Infos' },
 ];
 
+// Budget — mig009 tier-Ranges (Setup-Bereitschaft)
+const BUDGET_SETUP_OPTIONS = [
+  { value: '500-2k' as const, label: '€ 500 – 2.000', desc: 'Audit / sehr schlankes Setup' },
+  { value: '2-8k' as const,   label: '€ 2.000 – 8.000', desc: 'Tier S — 1 Use Case + Basics' },
+  { value: '8-20k' as const,  label: '€ 8.000 – 20.000', desc: 'Tier M — 2-3 Use Cases + Custom' },
+  { value: '20k+' as const,   label: '€ 20.000+', desc: 'Tier L — Multi-Project / Enterprise' },
+];
+
+// Budget — Retainer-Bereitschaft / Mo
+const BUDGET_RETAINER_OPTIONS = [
+  { value: '0-500' as const,  label: '€ 0 – 500 / Mo',     desc: 'Audit-Only / kein Retainer' },
+  { value: '500-2k' as const, label: '€ 500 – 2.000 / Mo', desc: 'Basics / kleinere Skalierung' },
+  { value: '2-5k' as const,   label: '€ 2.000 – 5.000 / Mo', desc: 'Growth / aktives Optimieren' },
+  { value: '5k+' as const,    label: '€ 5.000+ / Mo',      desc: 'Skalierung / Enterprise' },
+];
+
+// Map UI ranges → numeric min/max for backend (matches mig009)
+const SETUP_BUDGET_RANGE: Record<SetupBudget, { min: number; max: number }> = {
+  '500-2k':  { min: 500,   max: 2000 },
+  '2-8k':    { min: 2000,  max: 8000 },
+  '8-20k':   { min: 8000,  max: 20000 },
+  '20k+':    { min: 20000, max: 75000 },
+  '':        { min: 0,     max: 0 },
+};
+const RETAINER_BUDGET_RANGE: Record<RetainerBudget, { min: number; max: number }> = {
+  '0-500':   { min: 0,    max: 500 },
+  '500-2k':  { min: 500,  max: 2000 },
+  '2-5k':    { min: 2000, max: 5000 },
+  '5k+':     { min: 5000, max: 10000 },
+  '':        { min: 0,    max: 0 },
+};
+
 /* ------------------------------------------------------------------ */
 /*  STEPS (segment-aware)                                             */
 /* ------------------------------------------------------------------ */
 // Step 0: Segment
 // Step 1: Segment-Fragen
-// Step 2: Kontakt
-// Step 3: Review + Submit
+// Step 2: Budget + Timeline
+// Step 3: Kontakt
+// Step 4: Review + Submit
 
-const STEP_LABELS = ['Wer bist du?', 'Deine Situation', 'Kontakt', 'Bestätigung'];
-const TOTAL_STEPS = 4;
+const STEP_LABELS = ['Wer bist du?', 'Deine Situation', 'Investment', 'Kontakt', 'Bestätigung'];
+const TOTAL_STEPS = 5;
 
 /* ------------------------------------------------------------------ */
 /*  HELPBOT                                                           */
@@ -220,6 +262,7 @@ const DEFAULT_STATE: FormState = {
   ag: { kundenanzahl: '', zeitfresser: '', monthly_revenue: '' },
   pb: { hauptkanal: '', skalierung: '', monthly_revenue: '' },
   fi: { branche: '', mitarbeiterzahl: '', pain: '' },
+  budget: { setup: '', retainer: '' },
   contact: { name: '', email: '', phone: '', urgency: '' },
   consent_dsgvo: false,
 };
@@ -271,7 +314,7 @@ export default function Audit() {
     setFormState(prev => ({ ...prev, [key]: value }));
   }, []);
 
-  const updateSub = useCallback(<K extends 'ag' | 'pb' | 'fi' | 'contact'>(
+  const updateSub = useCallback(<K extends 'ag' | 'pb' | 'fi' | 'contact' | 'budget'>(
     key: K, field: keyof FormState[K], value: string
   ) => {
     setFormState(prev => ({
@@ -290,7 +333,8 @@ export default function Audit() {
       if (s.segment === 'FI') return !!(s.fi.branche && s.fi.mitarbeiterzahl && s.fi.pain);
       return false;
     }
-    if (step === 2) return !!(s.contact.name && s.contact.email && s.contact.urgency);
+    if (step === 2) return !!(s.budget.setup && s.budget.retainer);
+    if (step === 3) return !!(s.contact.name && s.contact.email && s.contact.urgency);
     return true;
   }, [step, formState]);
 
@@ -358,6 +402,9 @@ export default function Audit() {
         formState.segment === 'PB' ? formState.pb :
         formState.segment === 'FI' ? formState.fi : {};
 
+      const setupRange = SETUP_BUDGET_RANGE[formState.budget.setup];
+      const retainerRange = RETAINER_BUDGET_RANGE[formState.budget.retainer];
+
       const payload: Record<string, unknown> = {
         form_version: 'v3-branching',
         segment: formState.segment,
@@ -366,7 +413,24 @@ export default function Audit() {
         phone: formState.contact.phone || '',
         consent: true,
         urgency: formState.contact.urgency,
-        answers: { segment: formState.segment, ...segmentAnswers, contact: formState.contact },
+        budget_setup_min: setupRange.min,
+        budget_setup_max: setupRange.max,
+        budget_retainer_min: retainerRange.min,
+        budget_retainer_max: retainerRange.max,
+        answers: {
+          segment: formState.segment,
+          ...segmentAnswers,
+          contact: formState.contact,
+          urgency: formState.contact.urgency,
+          budget: {
+            setup_label: formState.budget.setup,
+            retainer_label: formState.budget.retainer,
+            setup_min: setupRange.min,
+            setup_max: setupRange.max,
+            retainer_min: retainerRange.min,
+            retainer_max: retainerRange.max,
+          },
+        },
         uploaded_files: uploadedFiles,
         submitted_email: formState.contact.email,
       };
@@ -431,7 +495,7 @@ export default function Audit() {
             </h1>
             <p className="text-lg sm:text-xl mb-4 max-w-lg mx-auto"
               style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
-              Wir analysieren dein Profil und melden uns innerhalb von 48 Stunden.
+              Wir analysieren dein Profil und schicken dir das individuelle Auto-Plan-PDF (Tier-Empfehlung, Tool-Stack, Roadmap, Cashflow-/Revenue-Share-Alternativen) per Mail.
             </p>
             {formState.contact.urgency === 'sofort' && (
               <p className="text-sm mb-10 max-w-md mx-auto"
@@ -574,8 +638,16 @@ export default function Audit() {
                   <StepFI data={formState.fi} onChange={(f, v) => updateSub('fi', f, v)} />
                 )}
 
-                {/* ====== STEP 3: KONTAKT ====== */}
+                {/* ====== STEP 3: BUDGET + TIMELINE ====== */}
                 {step === 2 && (
+                  <StepBudget
+                    data={formState.budget}
+                    onChange={(f, v) => updateSub('budget', f, v as string)}
+                  />
+                )}
+
+                {/* ====== STEP 4: KONTAKT ====== */}
+                {step === 3 && (
                   <StepContact
                     data={formState.contact}
                     onChange={(f, v) => updateSub('contact', f, v)}
@@ -592,8 +664,8 @@ export default function Audit() {
                   />
                 )}
 
-                {/* ====== STEP 4: REVIEW + SUBMIT ====== */}
-                {step === 3 && (
+                {/* ====== STEP 5: REVIEW + SUBMIT ====== */}
+                {step === 4 && (
                   <StepReview
                     formState={formState}
                     consent={formState.consent_dsgvo}
@@ -834,6 +906,74 @@ function StepFI({ data, onChange }: { data: FIData; onChange: (f: keyof FIData, 
   );
 }
 
+/* ---- Budget Step ---- */
+
+function StepBudget({ data, onChange }: { data: BudgetData; onChange: (f: keyof BudgetData, v: string) => void }) {
+  return (
+    <div className="space-y-8">
+      <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
+        <FieldLabel required>Setup-Budget (einmalig)</FieldLabel>
+        <p className="text-xs mb-4" style={{ color: '#71717A' }}>
+          Wie viel kannst du einmalig in den Aufbau investieren? Hilft uns, das passende Paket vorzuschlagen.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {BUDGET_SETUP_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange('setup', opt.value)}
+              className="rounded-lg px-4 py-4 text-sm text-left transition-all duration-150"
+              style={{
+                background: data.setup === opt.value ? 'rgba(224,164,88,0.12)' : 'rgba(255,255,255,0.03)',
+                border: `1.5px solid ${data.setup === opt.value ? 'rgba(224,164,88,0.6)' : 'rgba(255,255,255,0.08)'}`,
+              }}>
+              <div className="font-semibold mb-1" style={{ color: data.setup === opt.value ? '#F9FAFB' : '#A1A1AA' }}>
+                {opt.label}
+              </div>
+              <div className="text-xs" style={{ color: '#71717A' }}>{opt.desc}</div>
+            </button>
+          ))}
+        </div>
+      </motion.div>
+
+      <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
+        <FieldLabel required>Monatlicher Retainer (laufende Betreuung)</FieldLabel>
+        <p className="text-xs mb-4" style={{ color: '#71717A' }}>
+          Wie viel ist dir laufende Optimierung + Support pro Monat wert?
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {BUDGET_RETAINER_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange('retainer', opt.value)}
+              className="rounded-lg px-4 py-4 text-sm text-left transition-all duration-150"
+              style={{
+                background: data.retainer === opt.value ? 'rgba(224,164,88,0.12)' : 'rgba(255,255,255,0.03)',
+                border: `1.5px solid ${data.retainer === opt.value ? 'rgba(224,164,88,0.6)' : 'rgba(255,255,255,0.08)'}`,
+              }}>
+              <div className="font-semibold mb-1" style={{ color: data.retainer === opt.value ? '#F9FAFB' : '#A1A1AA' }}>
+                {opt.label}
+              </div>
+              <div className="text-xs" style={{ color: '#71717A' }}>{opt.desc}</div>
+            </button>
+          ))}
+        </div>
+      </motion.div>
+
+      <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
+        <div className="rounded-lg p-4" style={{ background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.15)' }}>
+          <p className="text-xs" style={{ color: '#A1A1AA', lineHeight: 1.6 }}>
+            <Shield className="w-3.5 h-3.5 inline mr-1.5" style={{ color: '#10B981' }} />
+            Kein Cash für Setup, aber Wachstums-Case? Wir haben <span style={{ color: '#e0a458' }}>Cashflow- und Revenue-Share-Modelle</span>.
+            Im Auto-Plan-PDF werden dir passende Alternativen automatisch vorgeschlagen.
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 /* ---- Contact Step ---- */
 
 interface StepContactProps {
@@ -1000,6 +1140,8 @@ function StepReview({ formState, consent, onConsentChange, submitError }: {
     ] : [];
 
   const urgencyLabel = URGENCY_OPTIONS.find(o => o.value === formState.contact.urgency)?.label || formState.contact.urgency;
+  const setupBudgetLabel = BUDGET_SETUP_OPTIONS.find(o => o.value === formState.budget.setup)?.label || '—';
+  const retainerBudgetLabel = BUDGET_RETAINER_OPTIONS.find(o => o.value === formState.budget.retainer)?.label || '—';
 
   return (
     <div className="space-y-6">
@@ -1015,6 +1157,12 @@ function StepReview({ formState, consent, onConsentChange, submitError }: {
           {segmentRows.map(r => (
             <ReviewRow key={r.label} label={r.label} value={r.value} />
           ))}
+        </ReviewBlock>
+
+        {/* Budget block */}
+        <ReviewBlock title="Investment">
+          <ReviewRow label="Setup-Budget" value={setupBudgetLabel} />
+          <ReviewRow label="Retainer / Mo" value={retainerBudgetLabel} />
         </ReviewBlock>
 
         {/* Contact block */}

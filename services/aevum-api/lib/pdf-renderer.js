@@ -73,6 +73,73 @@ function renderHtml({ audit, analysis }) {
   const deal = (a.deal_recommendation || 'A').toString().toUpperCase();
   const dealCfg = dealBadge(deal);
   const confidence = a.confidence_score ?? 0;
+  const selectedTier = a.selected_tier || null;
+  const tierRange = a.tier_range || null;
+  const tierValidation = a.tier_validation || null;
+  const alternatives = Array.isArray(a.alternative_offers) ? a.alternative_offers : [];
+  const tierLabelMap = {
+    'audit-only':        'Audit Only',
+    'tier-S-start':      'Tier S — Start',
+    'tier-M-growth':     'Tier M — Growth',
+    'tier-L-skalierung': 'Tier L — Skalierung',
+    'tier-B-cashflow':   'Tier B — Cashflow-Deal',
+    'tier-C-growth-share': 'Tier C — Growth + Revenue-Share'
+  };
+  const tierLabel = selectedTier ? (tierLabelMap[selectedTier] || selectedTier) : null;
+
+  // Alternatives HTML (Cashflow / RevShare options)
+  const alternativesHtml = alternatives.length === 0 ? '' : `
+    <div class="alt-block">
+      <h3 style="color: var(--accent); margin-bottom: 8px;">Alternative Deal-Modelle</h3>
+      <p class="muted" style="margin-bottom: 12px; font-size: 11px;">Falls Cash für Setup knapp ist oder du Performance-gekoppelt arbeiten willst — diese Optionen stehen zusätzlich offen:</p>
+      ${alternatives.map(alt => `
+        <div class="card" style="margin-bottom: 10px; padding: 12px 14px; border-color: var(--accent-dim);">
+          <div class="row-between" style="margin-bottom: 6px;">
+            <div style="font-weight: 700; color: var(--accent);">${esc(alt.label || alt.tier)}</div>
+            <div class="muted" style="font-size: 10px;">${esc(alt.tier)}</div>
+          </div>
+          <div class="desc">${esc(alt.description || '')}</div>
+          <div class="kv-row" style="margin-top: 8px;">
+            <div class="kv"><span class="kv-k">Setup-Range</span><span class="kv-v">${fmtEur(alt.setup_range?.[0] || 0)} – ${fmtEur(alt.setup_range?.[1] || 0)}</span></div>
+            <div class="kv"><span class="kv-k">Retainer / Mo</span><span class="kv-v">${fmtEur(alt.retainer_range?.[0] || 0)} – ${fmtEur(alt.retainer_range?.[1] || 0)}</span></div>
+            ${alt.revshare_pct_range
+              ? `<div class="kv"><span class="kv-k">RevShare</span><span class="kv-v">${alt.revshare_pct_range[0]}–${alt.revshare_pct_range[1]}%</span></div>`
+              : ''}
+            ${alt.min_term_months ? `<div class="kv"><span class="kv-k">Mindestlaufzeit</span><span class="kv-v">${alt.min_term_months} Mo</span></div>` : ''}
+            ${alt.term_months ? `<div class="kv"><span class="kv-k">Laufzeit</span><span class="kv-v">${alt.term_months} Mo</span></div>` : ''}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  const tierBannerHtml = !selectedTier ? '' : `
+    <div class="tier-banner">
+      <div class="tier-banner-head">
+        <div class="tier-eyebrow">Empfohlenes Paket (mig009-Tier-Mapping)</div>
+        <div class="tier-name">${esc(tierLabel)}</div>
+      </div>
+      <div class="tier-ranges">
+        <div class="tier-range-item">
+          <div class="kv-k">Setup-Range</div>
+          <div class="kv-v">${fmtEur(tierRange?.setup_min || 0)} – ${fmtEur(tierRange?.setup_max || 0)}</div>
+        </div>
+        <div class="tier-range-item">
+          <div class="kv-k">Retainer / Mo</div>
+          <div class="kv-v">${fmtEur(tierRange?.retainer_min || 0)} – ${fmtEur(tierRange?.retainer_max || 0)}</div>
+        </div>
+        <div class="tier-range-item">
+          <div class="kv-k">Komplexität</div>
+          <div class="kv-v">${esc(tierValidation?.complexity_score ?? '?')}/10</div>
+        </div>
+        <div class="tier-range-item">
+          <div class="kv-k">Deal-Type</div>
+          <div class="kv-v">${esc(tierRange?.deal_type || 'A')}</div>
+        </div>
+      </div>
+      ${tierValidation?.rationale ? `<div class="tier-rationale">${esc(tierValidation.rationale)}</div>` : ''}
+    </div>
+  `;
 
   // Pain-Points
   const painPointsHtml = painPoints.length === 0
@@ -283,6 +350,20 @@ function renderHtml({ audit, analysis }) {
 
   .formula { font-size: 10px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-top: 8px; padding: 8px 10px; background: var(--bg-card-2); border-radius: 4px; }
 
+  /* Tier-Banner (Wave A6) */
+  .tier-banner { border: 1.5px solid var(--accent); background: linear-gradient(135deg, rgba(224,164,88,0.08), rgba(224,164,88,0.02)); border-radius: 8px; padding: 14px 18px; margin-bottom: 18px; }
+  .tier-banner-head { margin-bottom: 12px; }
+  .tier-eyebrow { font-size: 9px; color: var(--accent); letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 4px; }
+  .tier-name { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
+  .tier-ranges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .tier-range-item { background: var(--bg-card-2); border-radius: 4px; padding: 8px 10px; }
+  .tier-range-item .kv-k { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 4px; display: block; }
+  .tier-range-item .kv-v { font-size: 12px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+  .tier-rationale { margin-top: 12px; font-size: 10px; color: var(--text-dim); padding: 8px 10px; background: var(--bg-card-2); border-radius: 4px; line-height: 1.5; }
+
+  /* Alternative-Block */
+  .alt-block { margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--border); }
+
   /* Roadmap */
   .roadmap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .phase { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
@@ -424,6 +505,8 @@ function renderHtml({ audit, analysis }) {
   <h2 style="margin-top: 28px;">4. Kosten-Kalkulation</h2>
   <p style="margin-bottom: 16px;">AEVUM-Pricing: Setup ≈ 3× Retainer (Baulig-Faustregel). Tool-Lizenzen werden mit Margin-Faktor ×2 weiterberechnet (Service-Margin).</p>
 
+  ${tierBannerHtml}
+
   <div class="cost-grid">
     <div class="cost-box">
       <div class="label">Setup (einmalig)</div>
@@ -464,6 +547,8 @@ function renderHtml({ audit, analysis }) {
   <div class="formula">
     Formel: setup_fee + 12 × (retainer_monthly + tool_costs_with_margin) = first_year_total
   </div>
+
+  ${alternativesHtml}
 </section>
 
 <!-- ===== ROADMAP ===== -->

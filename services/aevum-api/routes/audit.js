@@ -49,7 +49,7 @@ const AuditSchema = z.object({
 // AEVUM v2 audit-form schema — structured answers + file-upload metadata
 // Used by aevum-system.de v2 audit form (Kimi-refactored)
 const AuditV2Schema = z.object({
-  form_version: z.literal('v2'),
+  form_version: z.union([z.literal('v2'), z.literal('v3-branching')]),
   audit_form_blueprint_id: z.string().max(100).optional().default('aevum-audit-v2'),
   // Anti-bot reused
   website: z.string().max(500).optional().default(''),
@@ -61,8 +61,17 @@ const AuditV2Schema = z.object({
   // Required top-level for indexing + GDPR
   email: z.string().email().max(200).transform((s) => s.toLowerCase()),
   name: z.string().min(1).max(200),
-  company: z.string().min(1).max(200),
+  // v2 required, v3-branching optional (form derives company from segment)
+  company: z.string().max(200).optional().default(''),
   phone: z.string().max(50).optional().default(''),
+  // v3-branching extras (top-level for convenience)
+  segment: z.enum(['AG', 'PB', 'FI']).optional(),
+  urgency: z.enum(['sofort', '1-4-wochen', 'nur-infos', '']).optional(),
+  // v3-branching: explicit budget step (if user filled it)
+  budget_setup_min: z.number().int().nonnegative().optional(),
+  budget_setup_max: z.number().int().nonnegative().optional(),
+  budget_retainer_min: z.number().int().nonnegative().optional(),
+  budget_retainer_max: z.number().int().nonnegative().optional(),
   // Full structured answers (per AEVUM-V2-SCHEMAS §3)
   answers: z.record(z.any()),
   // Uploaded file metadata only — actual files in Storage Bucket "audit-uploads"
@@ -81,8 +90,8 @@ auditRouter.post('/submit', async (req, res) => {
   const ua = req.get('user-agent') || '';
   const ctx = { ip, user_agent: ua, endpoint: 'POST /api/audit/submit' };
 
-  // ─── v2 detection: route to v2-handler if form_version="v2" present ───
-  if (req.body?.form_version === 'v2') {
+  // ─── v2 / v3-branching detection: route to v2-handler ───
+  if (req.body?.form_version === 'v2' || req.body?.form_version === 'v3-branching') {
     return handleAuditV2(req, res, ctx, ip, ua);
   }
 
@@ -236,6 +245,27 @@ async function handleAuditV2(req, res, ctx, ip, ua) {
 
   // Merge: explicit form-fields ALWAYS win over helpbot extraction.
   const mergedAnswers = { ...(f.answers || {}) };
+
+  // ── v3-branching enrichment: stash budget + segment + urgency into answers
+  //    so the auto-plan engine (tier-mapper.deriveBudgetSignal) sees them.
+  if (f.form_version === 'v3-branching') {
+    if (f.segment && !mergedAnswers.segment) mergedAnswers.segment = f.segment;
+    if (f.urgency && !mergedAnswers.urgency) mergedAnswers.urgency = f.urgency;
+    if (
+      Number(f.budget_setup_max) > 0
+      || Number(f.budget_retainer_max) > 0
+      || Number(f.budget_setup_min) > 0
+      || Number(f.budget_retainer_min) > 0
+    ) {
+      mergedAnswers.budget = {
+        setup_min: Number(f.budget_setup_min) || 0,
+        setup_max: Number(f.budget_setup_max) || 0,
+        retainer_min: Number(f.budget_retainer_min) || 0,
+        retainer_max: Number(f.budget_retainer_max) || 0
+      };
+    }
+  }
+
   if (helpbotExtract) {
     // Cherry-pick under a `_helpbot` namespace so downstream consumers can see provenance.
     mergedAnswers._helpbot = helpbotExtract;
@@ -257,17 +287,24 @@ async function handleAuditV2(req, res, ctx, ip, ua) {
   }
 
   const consentAt = new Date().toISOString();
+  // v3-branching has no top-level company field — derive a placeholder from segment+name
+  const companyVal = f.company && f.company.length > 0
+    ? clean(f.company)
+    : (f.form_version === 'v3-branching'
+        ? clean(`${f.segment || 'lead'}: ${(f.name || '').split(' ')[0] || 'Solo'}`)
+        : clean(f.company || 'unknown'));
+
   const row = {
     // Legacy required fields (still NOT NULL on table)
     name: clean(f.name),
-    company: clean(f.company),
+    company: companyVal,
     email: clean(f.email),
     phone: clean(f.phone),
     // v2 structured payload (with helpbot enrichment)
     answers: mergedAnswers,
     uploaded_files: f.uploaded_files,
-    form_version: 'v2',
-    audit_form_blueprint_id: f.audit_form_blueprint_id ?? 'aevum-audit-v2',
+    form_version: f.form_version, // preserve 'v2' or 'v3-branching'
+    audit_form_blueprint_id: f.audit_form_blueprint_id ?? (f.form_version === 'v3-branching' ? 'aevum-audit-v3' : 'aevum-audit-v2'),
     consent_version: CONSENT_VERSION,
     consent_at: consentAt,
     meta: {
@@ -304,8 +341,8 @@ async function handleAuditV2(req, res, ctx, ip, ua) {
   const emailMasked = f.email.replace(/^(.).+(@.+)$/, '$1***$2');
   const industry = f.answers?.unternehmen?.industry || f.answers?.industry || null;
   const summary = [
-    `📋 *Neuer Audit v2* — \`${idShort}\``,
-    `*Firma:* ${f.company}`,
+    `📋 *Neuer Audit ${f.form_version}* — \`${idShort}\``,
+    `*Firma:* ${companyVal}`,
     `*Kontakt:* ${firstName} · ${emailMasked}`,
     industry ? `*Branche:* ${industry}` : null,
     f.uploaded_files?.length ? `*Files:* ${f.uploaded_files.length}` : null,
@@ -319,7 +356,7 @@ async function handleAuditV2(req, res, ctx, ip, ua) {
     runAutoPlan(inserted.id).catch(err => console.error('[auto-plan] fire-and-forget failed:', err.message));
   }
 
-  return res.json({ ok: true, id: inserted?.id, form_version: 'v2' });
+  return res.json({ ok: true, id: inserted?.id, form_version: f.form_version });
 }
 
 // maskEmail comes from lib/security.js (single source of truth)
