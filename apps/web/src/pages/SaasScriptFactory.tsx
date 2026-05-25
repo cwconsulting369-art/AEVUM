@@ -44,10 +44,10 @@ const STEPS = [
 ];
 
 const KNOWLEDGE_HUBS = [
-  { slug: 'bauligs',        name: 'Bauligs Knowledge-Hub',     desc: 'Phone-Skripte · High-Ticket Sales',    badge: 'Live' },
-  { slug: 'salinsky',       name: 'Salinsky Knowledge-Hub',    desc: 'E-Commerce · Ad-Copy Frameworks',     badge: 'Live' },
-  { slug: 'aevum-default',  name: 'AEVUM Default',             desc: 'Allgemeine Best-Practices',           badge: 'Live' },
-  { slug: 'custom',         name: 'Custom-Hub',                desc: 'Eigene Frameworks (für Vollkunden)',  badge: 'Soon' },
+  { slug: 'high-ticket-sales',  name: 'High-Ticket Sales',     desc: 'Phone-Skripte · B2B-Closing-Patterns',  badge: 'Live' },
+  { slug: 'ecom-ad-copy',       name: 'E-Commerce Ad-Copy',    desc: 'DTC · Hook-Frameworks · Direct-Response', badge: 'Live' },
+  { slug: 'aevum-default',      name: 'AEVUM Default',         desc: 'Allgemeine Best-Practices',             badge: 'Live' },
+  { slug: 'custom',             name: 'Custom-Hub',            desc: 'Eigene Frameworks (für Vollkunden)',    badge: 'Soon' },
 ];
 
 const FAQ = [
@@ -109,7 +109,7 @@ export default function SaasScriptFactory() {
             </p>
             <p className="text-base text-text-primary/55 leading-relaxed mb-8 max-w-3xl">
               AI-Pipeline für Phone-Scripts, Ad-Copy und E-Commerce. Vorher-Nachher-Vergleich.
-              Knowledge-Hubs von Bauligs &amp; Salinsky integriert.
+              Spezialisierte Knowledge-Hubs für High-Ticket-Sales und E-Commerce integriert.
             </p>
 
             {/* Trust-Badges */}
@@ -235,7 +235,7 @@ export default function SaasScriptFactory() {
               gradeColor="rose"
               hook={4.5}
               tone="neutral"
-              text={`Hey Bauligs Team,\n\nIch möchte gerne mehr über Ihr Coaching-Programm erfahren.\nKönnen Sie mir Infos schicken?\n\nDanke,\nMax`}
+              text={`Hey Team,\n\nIch möchte gerne mehr über Ihr Coaching-Programm erfahren.\nKönnen Sie mir Infos schicken?\n\nDanke,\nMax`}
               points={[
                 { sign: '-', text: 'Generischer Opener, kein Pattern-Interrupt' },
                 { sign: '-', text: 'Keine ICP-Spezifität' },
