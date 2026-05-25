@@ -64,6 +64,8 @@ export default function MaintenanceBanner() {
           email: email.trim().toLowerCase(),
           source: 'banner',
           interest: 'launch',
+          interest_tier: 'unsure',
+          consent_version: '2026-05-25-v1',
         }),
       });
       const j = await res.json().catch(() => ({}));

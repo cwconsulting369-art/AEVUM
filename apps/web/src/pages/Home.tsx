@@ -192,6 +192,16 @@ function HeroSection() {
       <div className="noise-overlay absolute inset-0 pointer-events-none" aria-hidden />
       <ParticleCanvas />
       <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+        <motion.a
+          href="#/waitlist"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="inline-flex items-center gap-2 font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.14em] text-[#e0a458] mb-6 border border-[#e0a458]/30 bg-[#e0a458]/[0.06] hover:bg-[#e0a458]/[0.1] px-3 py-1.5 transition-colors"
+        >
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#e0a458] animate-pulse" />
+          Pre-Launch · Public-Open ~Juli 2026 · Liste eintragen →
+        </motion.a>
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

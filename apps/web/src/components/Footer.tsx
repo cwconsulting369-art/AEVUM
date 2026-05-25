@@ -1,6 +1,7 @@
 
-import { MessageCircle, Calendar, Mail, Phone } from 'lucide-react';
+import { MessageCircle, Calendar, Mail, Phone, Sparkles } from 'lucide-react';
 import CONTACT from '../config/contact';
+import WaitlistForm from './WaitlistForm';
 
 const shopLinks = [
   { label: 'Blueprints', path: '/shop' },
@@ -16,6 +17,7 @@ const saasLinks = [
 
 const auditLinks = [
   { label: 'Kostenloses Audit', path: '/audit' },
+  { label: 'Pre-Launch-Liste', path: '/waitlist' },
   { label: 'Cases', path: '/cases' },
   { label: 'Method', path: '/method' },
   { label: 'About', path: '/about' },
@@ -59,6 +61,30 @@ export default function Footer() {
   return (
     <footer className="bg-bg-surface border-t border-white/10">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-16 py-16 lg:py-20">
+        {/* Pre-Launch Email-Capture (Block A2) */}
+        <div className="mb-14 pb-14 border-b border-white/10 grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-8 md:gap-12 items-start">
+          <div>
+            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[#e0a458] mb-3 border border-[#e0a458]/30 bg-[#e0a458]/[0.06] px-2.5 py-1">
+              <Sparkles size={11} />
+              Pre-Launch · Foundation Window
+            </span>
+            <h3 className="text-xl md:text-2xl font-light tracking-tight text-[#F9FAFB] mb-3 leading-snug">
+              Public-Launch ~Juli 2026.
+              <span className="block text-gradient font-medium">Early-Access vorbestellen.</span>
+            </h3>
+            <p className="text-sm text-[#a4a4ad] leading-relaxed">
+              1 Woche vor Public-Opening + 20% Pre-Launch-Discount auf Setup-Fees.
+              Kein Newsletter-Spam — 2-3 Updates max.{' '}
+              <a href="#/waitlist" className="text-[#e0a458] hover:underline">
+                Mehr erfahren →
+              </a>
+            </p>
+          </div>
+          <div>
+            <WaitlistForm source="footer" showTierPicker={false} compact />
+          </div>
+        </div>
+
         {/* Brand + Contact Strip */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-14 pb-14 border-b border-white/10">
           <div>
