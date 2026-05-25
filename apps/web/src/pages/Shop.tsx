@@ -769,7 +769,7 @@ function BlueprintsSection() {
             <span className="text-gradient font-medium">Mit oder ohne Account.</span>
           </h2>
           <p className="text-sm text-[#7a7a85] max-w-lg">
-            Fertige n8n-Workflows mit Setup-Guide. Kaufen, herunterladen, in 30 Minuten live. Kein Retainer, kein Abo.
+            n8n-Workflows mit Setup-Guide. Nach Kauf erhältst du Workflow-Datei + Anleitung. Setup-Zeit hängt von deiner n8n-Erfahrung und den benötigten Credentials ab — plan realistisch 30-90 Minuten ein. Kein Retainer, kein Abo.
           </p>
         </motion.div>
 

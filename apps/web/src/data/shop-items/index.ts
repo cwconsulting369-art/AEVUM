@@ -59,7 +59,7 @@ const contentFactory: ShopItemContent = {
   faq: [
     { q: 'Wie schnell deploy-bar?', a: '30-90 Minuten je nach n8n-Erfahrung. Anleitung ist Schritt-für-Schritt mit Screenshots.' },
     { q: 'Refund?', a: 'Innerhalb 14 Tagen wenn der Workflow nicht wie beschrieben läuft. Bei Account-Konfig-Problemen geben wir Setup-Support statt Refund.' },
-    { q: 'Updates inklusive?', a: 'Major-Updates kostenlos für 12 Monate. Patch-Updates dauerhaft.' },
+    { q: 'Updates inklusive?', a: 'Aktuell gibt es noch kein automatisches Update-Programm. Wenn wir die Workflow-Vorlage anpassen (z.B. bei API-Änderungen), informieren wir die Käufer per Mail über die geänderte Version und stellen die neue Datei kostenlos bereit. Wir bauen den Mechanismus derzeit aus.' },
     { q: 'Support bei Setup?', a: 'PDF + Helpbot frei. Live-Setup-Call: optional €99 (oder 1.000 Credits einlösen).' },
     { q: 'Brauche ich Coding-Skills?', a: 'Nein. n8n ist visuell. Wenn du Zapier benutzen kannst, kannst du das.' },
   ],
@@ -292,7 +292,7 @@ const coldOutreachSystem: ShopItemContent = {
   ],
   pricingNote: 'DSGVO-Premium. Berechtigte-Interessen-Doku spart Rechts-Stress.',
   securityNote:
-    'DSGVO-Level: Opt-out-Automation, Erasure-API, EU-Datenverarbeitung Pflicht. Berechtigte-Interessen-Vorlage anwaltsgeprüft.',
+    'DSGVO-Level: Opt-out-Automation, Erasure-API, EU-Datenverarbeitung Pflicht. Berechtigte-Interessen-Vorlage als Entwurf (keine anwaltliche Prüfung — Eigenverantwortung beim Kunden).',
   faq: [
     { q: 'Ist Cold-Outreach in DE überhaupt legal?', a: 'B2B ja, unter Berechtigtem Interesse. Wir liefern die Doku-Vorlage. B2C nein, Workflow ist nur für B2B.' },
     { q: 'Welche Outbound-Tools?', a: 'Smartlead, Instantly, Apollo nativ. Andere via Webhook.' },
@@ -345,7 +345,7 @@ const bundleAll: ShopItemContent = {
   faq: [
     { q: 'Kann ich Blueprints einzeln kriegen statt Bundle?', a: 'Ja, jeder hat eine Detail-Page mit eigenem Kauf-Button.' },
     { q: 'Refund auf einzelne Blueprints?', a: 'Bundle ist Bundle — Refund nur als Komplett-Rückgabe (14 Tage).' },
-    { q: 'Updates?', a: 'Alle 6 Blueprints kriegen Major-Updates 12 Monate kostenlos.' },
+    { q: 'Updates?', a: 'Wenn wir einen Blueprint anpassen (z.B. bei API-Änderungen), bekommen Bundle-Käufer die aktualisierte Version per Mail. Ein formales SLA gibt es derzeit nicht — der Mechanismus ist im Aufbau.' },
   ],
 };
 
@@ -1115,7 +1115,7 @@ const dsgvoFactory: ShopItemContent = {
   faq: [
     { q: 'Wann verfügbar?', a: 'Konzept-Phase aktuell, ETA Q4 2026 wenn Scope und Markt-Validierung steht.' },
     { q: 'Wofür Interesse anmelden?', a: 'Audit-Call buchen mit "DSGVO-Factory Wait-List" → wir nehmen dich in den Beta-Pool.' },
-    { q: 'Anwaltsersatz?', a: 'Nein. Bausteine + Vorlagen, anwaltsgeprüft, aber kein Rechtsbeistand.' },
+    { q: 'Anwaltsersatz?', a: 'Nein. Es handelt sich um Bausteine und Vorlagen-Entwürfe, nicht um Rechtsberatung. Vor produktivem Einsatz wende dich an einen IT-Fachanwalt deines Vertrauens.' },
   ],
 };
 

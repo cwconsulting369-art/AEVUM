@@ -69,11 +69,11 @@ export default function Footer() {
               Pre-Launch · Foundation Window
             </span>
             <h3 className="text-xl md:text-2xl font-light tracking-tight text-[#F9FAFB] mb-3 leading-snug">
-              Public-Launch ~Juli 2026.
+              Public-Launch in Vorbereitung.
               <span className="block text-gradient font-medium">Early-Access vorbestellen.</span>
             </h3>
             <p className="text-sm text-[#a4a4ad] leading-relaxed">
-              1 Woche vor Public-Opening + 20% Pre-Launch-Discount auf Setup-Fees.
+              ~1 Woche vor Public-Opening + Setup-Discount für die erste Welle.
               Kein Newsletter-Spam — 2-3 Updates max.{' '}
               <a href="#/waitlist" className="text-[#e0a458] hover:underline">
                 Mehr erfahren →

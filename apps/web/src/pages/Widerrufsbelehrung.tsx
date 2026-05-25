@@ -28,11 +28,18 @@ export default function Widerrufsbelehrung() {
           Widerrufs<span className="text-[#e0a458]">belehrung</span>
         </h1>
 
-        <p className="text-sm text-[#7a7a85] mb-12">
+        <p className="text-sm text-[#7a7a85] mb-6">
           Stand: 20. Mai 2026. Diese Belehrung gilt für Verbraucher im Sinne von § 13 BGB.
           B2B-Kunden haben kein gesetzliches Widerrufsrecht — siehe AGB § 11 für freiwillige
           Stornierungsregeln.
         </p>
+
+        <div className="mb-12 border border-[#e0a458]/30 bg-[#e0a458]/[0.06] px-5 py-4 text-sm text-[#cfcfd4] leading-relaxed">
+          <strong className="text-[#e0a458]">Hinweis (Stand 25.05.2026):</strong> Diese Belehrung
+          orientiert sich am gesetzlichen Muster nach Anlage 1 zu Art. 246a § 1 Abs. 2 EGBGB. Sie
+          wurde noch nicht durch eine externe Rechtsanwaltskanzlei freigegeben. Wir arbeiten an
+          einer anwaltlichen Prüfung vor produktivem B2C-Vertrieb.
+        </div>
 
         <article className="prose prose-invert max-w-none space-y-8 text-[#a4a4ad] leading-relaxed">
 

@@ -141,13 +141,13 @@ const dsgvoFactory: SaasTool = {
   statusLabel: 'Beta — AVV live',
   category: 'Compliance',
   securityLevel: 'dsgvo',
-  tagline: 'Compliance-Texte personalisiert generieren — AVV, Datenschutzerklärung, Cookie-Banner.',
+  tagline: 'Compliance-Text-Entwürfe personalisiert generieren — AVV, Datenschutzerklärung, Cookie-Banner. Vorlagen, kein Rechtsbeistand.',
   shortDescription:
-    'Self-Service DSGVO-Bausteine. Du fütterst Firma + Tech-Stack + Datenflüsse, kriegst personalisierte Rechtstexte. Aktuell live: AVV-Generator. In Build: Datenschutzerklärung + Cookie-Banner-Logic.',
+    'Self-Service DSGVO-Vorlagen. Du fütterst Firma + Tech-Stack + Datenflüsse, kriegst einen personalisierten Text-Entwurf. Aktuell live: AVV-Generator (Stub). In Build: Datenschutzerklärung + Cookie-Banner-Logic. Hinweis: alle Outputs sind Entwürfe und ersetzen keine anwaltliche Prüfung.',
   pricePerRunLabel: '25 Credits / Run (~€2.50)',
   creditsPerRun: 25,
   whatIsIt:
-    'Compliance-Texte werden aktuell von 80% der DE-Unternehmen aus Templates kopiert — und sind damit angreifbar. Die DSGVO-Factory generiert dir personalisierte Texte basierend auf deinem echten Tech-Stack. AVV (Auftragsverarbeitungsvertrag) zwischen dir und deinen Sub-Processors ist live. Datenschutzerklärung-Generator + Cookie-Banner mit Logic-Engine sind in Build.',
+    'Viele Unternehmen kopieren Compliance-Texte 1:1 aus generischen Vorlagen — das ist angreifbar. Die DSGVO-Factory generiert dir einen Text-Entwurf basierend auf deinem echten Tech-Stack. AVV-Generator (Auftragsverarbeitungsvertrag, Stub-MVP) ist live. Datenschutzerklärung + Cookie-Banner mit Logic-Engine sind in Build. Wichtig: Output ist Entwurf, juristische Prüfung empfohlen.',
   whatItDoes: [
     {
       step: 1,
@@ -157,7 +157,7 @@ const dsgvoFactory: SaasTool = {
     {
       step: 2,
       title: 'Tech-Stack mappen',
-      detail: 'Auswahl aus 150+ Tools (Hosting, Analytics, Mail, Payment, CRM). System weiß welche Daten wo fließen.',
+      detail: 'Auswahl aus einer Liste gängiger Tools (Hosting, Analytics, Mail, Payment, CRM) — Liste wird laufend erweitert. Eigene Sub-Processors lassen sich frei ergänzen.',
     },
     {
       step: 3,
@@ -167,7 +167,7 @@ const dsgvoFactory: SaasTool = {
     {
       step: 4,
       title: 'Text-Generation',
-      detail: 'AVV-Text personalisiert per Vendor (Stripe-AVV, Resend-AVV, Supabase-AVV ...). Anwaltsgeprüfte Templates.',
+      detail: 'AVV-Text-Entwurf personalisiert per Vendor (Stripe, Resend, Supabase, ...). Vorlagen wurden von uns sorgfältig recherchiert, sind aber nicht anwaltlich freigegeben — juristische Prüfung vor Verwendung empfohlen.',
     },
     {
       step: 5,
@@ -176,10 +176,9 @@ const dsgvoFactory: SaasTool = {
     },
   ],
   useCases: [
-    'Solo-Founder die DSGVO-Compliance ohne Anwalt brauchen',
-    'Agenturen die für 10+ Kunden Compliance-Bausteine generieren',
-    'Hausverwaltungen mit komplexen Sub-Processor-Ketten',
-    'Finanzdienstleister mit zusätzlichen BaFin-Anforderungen',
+    'Solo-Founder die einen Compliance-Entwurf als Ausgangspunkt brauchen',
+    'Agenturen die für mehrere Kunden Vorlagen-Bausteine generieren',
+    'Unternehmen mit komplexen Sub-Processor-Ketten als Vorbereitung für die Anwalts-Prüfung',
   ],
   demoOutput: {
     title: 'Beispiel: AVV-Auszug (Sub-Processor Stripe)',
@@ -189,19 +188,19 @@ const dsgvoFactory: SaasTool = {
   faq: [
     {
       q: 'Ersetzt das einen Anwalt?',
-      a: 'Nein. Die Templates sind anwaltsgeprüft, aber für komplexe Edge-Cases (z.B. Health-Data, Kreditdaten) brauchst du weiterhin Rechtsbeistand.',
+      a: 'Nein. Die Outputs sind Text-Entwürfe und keine Rechtsberatung. Für rechtsverbindliche Versionen wende dich an einen IT-Fachanwalt deines Vertrauens.',
     },
     {
       q: 'Welche Bausteine sind live?',
-      a: 'AVV-Generator live. Datenschutzerklärung-Generator + Cookie-Banner-Logic in Build (ETA Q3 2026).',
+      a: 'AVV-Generator als Stub-MVP. Datenschutzerklärung-Generator + Cookie-Banner-Logic sind noch in Build, kein verbindliches Launch-Datum.',
     },
     {
-      q: 'Updates wenn Recht sich ändert?',
-      a: 'Ja — du kriegst Notification + Re-Run-Empfehlung. Re-Run kostet nur 50% Credits.',
+      q: 'Was passiert wenn sich Recht ändert?',
+      a: 'Aktuell gibt es noch kein automatisches Update-Workflow. Wenn wir relevante Änderungen einarbeiten, informieren wir die Nutzer per Mail und du kannst den Generator neu laufen lassen. Re-Run-Pricing wird beim Launch bestätigt.',
     },
     {
       q: 'Sub-Processor nicht in Liste?',
-      a: 'Du kannst Custom-Sub-Processors hinzufügen mit deinem eigenen DPA-Link. System integriert das.',
+      a: 'Du kannst Custom-Sub-Processors mit eigenem DPA-Link ergänzen — das System übernimmt den Eintrag in den Entwurf.',
     },
   ],
   portalToolSlug: 'dsgvo-factory',

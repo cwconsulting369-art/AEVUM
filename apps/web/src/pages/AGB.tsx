@@ -30,7 +30,15 @@ export default function AGB() {
           Allgemeine <span className="text-[#e0a458]">Geschäftsbedingungen</span>
         </h1>
 
-        <p className="text-sm text-[#7a7a85] mb-12">Stand: 24. Mai 2026 · Version: agb-v3-saas-2026-05-24</p>
+        <p className="text-sm text-[#7a7a85] mb-6">Stand: 24. Mai 2026 · Version: agb-v3-saas-2026-05-24</p>
+
+        <div className="mb-12 border border-[#e0a458]/30 bg-[#e0a458]/[0.06] px-5 py-4 text-sm text-[#cfcfd4] leading-relaxed">
+          <strong className="text-[#e0a458]">Hinweis (Stand 25.05.2026):</strong> Dieser Text ist ein
+          Eigen-Entwurf des Anbieters und wurde noch nicht durch eine externe Rechtsanwaltskanzlei
+          freigegeben. Wir arbeiten aktiv an einer anwaltlichen Prüfung vor produktivem Vertrieb.
+          Bis dahin gilt: bei rechtlich kritischen Konstellationen bitte vor Vertragsschluss
+          zusätzlich eigene anwaltliche Beratung einholen.
+        </div>
 
         <article className="prose prose-invert max-w-none space-y-8 text-[#a4a4ad] leading-relaxed">
 

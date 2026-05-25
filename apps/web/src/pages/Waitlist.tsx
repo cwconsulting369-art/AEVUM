@@ -21,36 +21,32 @@ const TIMELINE = [
   {
     when: 'Jetzt',
     label: 'Foundation-Window',
-    desc: 'Wyoming-LLC in Vorbereitung. 4 Vollkunden laufen. Stack-Hardening + Shop-Items werden quality-getestet, kein aktiver Sales-Push.',
+    desc: 'Mehrere Vollkunden-Projekte laufen. Stack-Hardening + Shop-Items werden quality-getestet, kein aktiver Sales-Push.',
   },
   {
-    when: '~Juli 2026',
-    label: 'US-LLC live · Public-Launch',
-    desc: 'LLC steht. Shop + SaaS gehen scharf. Pre-Launch-Liste bekommt Early-Access 1 Woche vor Public-Opening und automatischen 20%-Discount auf Setup-Fees.',
+    when: 'Bald',
+    label: 'Public-Launch',
+    desc: 'Shop + SaaS gehen scharf. Pre-Launch-Liste bekommt Early-Access ~1 Woche vor Public-Opening sowie einen Setup-Discount (Höhe wird vor Launch bestätigt).',
   },
   {
-    when: 'Q4 2026',
+    when: 'Danach',
     label: 'Skalierungs-Phase',
-    desc: 'Full-Audit-Slots öffnen breiter. Self-Service-SaaS verlässt Closed-Beta. Founder-Community erweitert sich auf neue Vollkunden.',
+    desc: 'Full-Audit-Slots öffnen breiter. Self-Service-SaaS verlässt Closed-Beta. Founder-Community erweitert sich.',
   },
 ];
 
 const FAQ = [
   {
-    q: 'Warum jetzt eintragen, wenn ihr eh erst Juli launcht?',
-    a: 'Weil die Pre-Launch-Liste 1 Woche vor allen anderen Zugriff bekommt — plus automatisch 20% auf Setup-Fees. Wer wartet, zahlt voll.',
+    q: 'Warum jetzt eintragen?',
+    a: 'Die Pre-Launch-Liste bekommt ~1 Woche vor Public-Opening Zugriff und einen Setup-Discount. Exakte Höhe und Datum kommunizieren wir mit der Launch-Mail.',
   },
   {
     q: 'Was bekomme ich konkret in der Zwischenzeit?',
-    a: 'Eine Bestätigungs-Mail jetzt, danach 2-3 kurze Sneak-Peek-Updates während des Foundation-Windows. Kein Newsletter-Spam. Wenn nichts Relevantes passiert, schreiben wir auch nicht.',
+    a: 'Eine Bestätigungs-Mail jetzt, danach maximal 2-3 kurze Updates während des Foundation-Windows. Kein Newsletter-Spam. Wenn nichts Relevantes passiert, schreiben wir auch nicht.',
   },
   {
     q: 'Ist das ein Pre-Sale? Muss ich bezahlen?',
     a: 'Nein. Reine Email-Liste. Kein Geld, kein Commitment. Du kannst dich jederzeit per Klick abmelden (Link in jeder Mail).',
-  },
-  {
-    q: 'Wieso Wyoming-LLC, wenn ihr aus DACH seid?',
-    a: 'Pragmatik. US-Stripe + saubere Finanz-Trennung + globale B2B-Abrechnung. Operativ bleibt der Betrieb DSGVO-konform, EU-Hosting, deutscher Support.',
   },
   {
     q: 'Was passiert mit meinen Daten?',
@@ -58,7 +54,7 @@ const FAQ = [
   },
   {
     q: 'Kann ich schon vorher mit euch arbeiten?',
-    a: 'Ja — aber nur für maßgeschneiderte Full-Audit-Projekte (kostenloses Audit buchen). Shop + Self-Service-SaaS sind bis zum Launch pausiert.',
+    a: 'Ja — für maßgeschneiderte Full-Audit-Projekte (kostenloses Audit buchen). Shop + Self-Service-SaaS sind bis zum Launch pausiert.',
   },
 ];
 
@@ -82,8 +78,8 @@ function HeroBlock() {
           transition={{ duration: 0.7, delay: 0.1 }}
           className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-[1.15] mb-6"
         >
-          Wir launchen offiziell
-          <span className="block text-gradient font-medium mt-2">~Juli 2026 als US-LLC.</span>
+          AEVUM ist im
+          <span className="block text-gradient font-medium mt-2">Pre-Launch.</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 12 }}
@@ -91,7 +87,7 @@ function HeroBlock() {
           transition={{ duration: 0.7, delay: 0.2 }}
           className="text-base md:text-lg text-[#a4a4ad] leading-relaxed mb-10 max-w-2xl mx-auto"
         >
-          Bis dahin Foundation-Bau, nicht Sales-Hustle. Wenn du dabei sein willst wenn Shop + SaaS scharf gehen — trag dich auf die Pre-Launch-Liste ein. Erste Welle bekommt Early-Access plus 20% auf Setup-Fees.
+          Aktuell Foundation-Bau, nicht Sales-Hustle. Wenn du dabei sein willst wenn Shop + SaaS scharf gehen — trag dich auf die Pre-Launch-Liste ein. Erste Welle bekommt Early-Access und einen Setup-Discount.
         </motion.p>
 
         <motion.div
@@ -212,7 +208,7 @@ function FAQSection() {
 export default function Waitlist() {
   usePageSeo({
     title: 'AEVUM Pre-Launch · Early-Access-Liste',
-    description: 'AEVUM launcht offiziell ~Juli 2026 als US-LLC. Trag dich ein für Early-Access (1 Woche vor Public-Launch) und 20% auf Setup-Fees.',
+    description: 'AEVUM ist im Pre-Launch. Trag dich ein für Early-Access ~1 Woche vor Public-Launch und einen Setup-Discount.',
     path: '/waitlist',
   });
 

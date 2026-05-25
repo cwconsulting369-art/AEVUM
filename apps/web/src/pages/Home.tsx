@@ -201,7 +201,7 @@ function HeroSection() {
           className="inline-flex items-center gap-2 font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.14em] text-[#e0a458] mb-6 border border-[#e0a458]/30 bg-[#e0a458]/[0.06] hover:bg-[#e0a458]/[0.1] px-3 py-1.5 transition-colors"
         >
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#e0a458] animate-pulse" />
-          Pre-Launch · Public-Open ~Juli 2026 · Liste eintragen →
+          Pre-Launch · Early-Access-Liste eintragen →
         </motion.a>
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
@@ -881,21 +881,21 @@ function ServicesSection() {
       tag: 'Fuer Agenturen + Personal Brands',
       title: 'Content- & Workflow-Automatisierung',
       desc: 'Wir automatisieren deine Content-Produktion, Briefing-Prozesse und internen Workflows — von der Idee bis zum Publishing. Dein Team arbeitet, ohne dass du jeden Schritt koordinieren musst.',
-      result: 'Typisches Ergebnis: 8-15 Stunden manuelle Arbeit pro Woche eliminiert.',
+      result: 'Ziel-Range: ~8-15 Stunden manueller Arbeit pro Woche reduzieren (Schätzung basierend auf bisherigen Pilot-Setups, individuell unterschiedlich).',
     },
     {
       icon: Target,
       tag: 'Fuer alle drei Segmente',
       title: 'Lead-Qualifizierung + CRM-Automatisierung',
       desc: 'Kein Lead faellt mehr durchs Raster. Automatische Qualifizierung, CRM-Sync und Follow-up-Sequenzen — abgestimmt auf deinen Sales-Prozess.',
-      result: 'Typisches Ergebnis: Antwortzeit von Tagen auf Minuten, Abschlussrate steigt.',
+      result: 'Ziel: schnellere Reaktionszeit auf Leads + sauberer CRM-Status pro Kontakt. Konkrete Kennzahlen hängen vom bestehenden Sales-Prozess ab.',
     },
     {
       icon: BarChart3,
       tag: 'Fuer ambitionierte Mittelstaendler',
       title: 'KI-gestuetztes Reporting & Dashboard',
       desc: 'Ein zentrales Echtzeit-Dashboard fuer alle relevanten KPIs. Kein Excel-Export mehr, keine verstreuten Datenquellen. Entscheidungen auf Basis echter Zahlen — nicht aus dem Bauchgefuehl.',
-      result: 'Typisches Ergebnis: Vollstaendige Datentransparenz, Reportingzeit halbiert.',
+      result: 'Ziel: zentrale Daten-Sicht statt verstreuter Reports. Genaue Zeit-Ersparnis hängt vom aktuellen Reporting-Aufwand ab.',
     },
   ];
 
@@ -1072,9 +1072,9 @@ function PricingSection() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   const trustSignals = [
-    { icon: Lock, text: 'Kein Lock-in' },
-    { icon: ShieldCheck, text: '14 Tage Ergebnis-Garantie' },
-    { icon: Globe, text: 'EU-Hosting' },
+    { icon: Lock, text: 'Kein Lock-in · Export-Pfad ab Tag 1' },
+    { icon: ShieldCheck, text: '14 Tage Rückgaberecht für Verbraucher' },
+    { icon: Globe, text: 'EU-Hosting (Supabase Frankfurt)' },
   ];
 
   return (
@@ -1275,7 +1275,7 @@ function FAQSection() {
     },
     {
       q: 'Behaltet ihr meine Daten?',
-      a: 'Du behaeltst jederzeit die volle Kontrolle. Wir arbeiten mit Read-only API-Keys und speichern keine sensitiven Daten.',
+      a: 'Du behaeltst die Kontrolle. API-Keys werden AES-256-GCM-verschluesselt in deinem Account abgelegt und nie im Frontend gelesen. Wo immer moeglich nutzen wir Read-only-Scopes; bei Workflows die Schreibrechte brauchen, beschraenken wir den Scope auf das Minimum und dokumentieren das im Setup. Details siehe Datenschutzerklaerung.',
     },
     {
       q: 'Kann ich das System spaeter selbst uebernehmen?',
@@ -1283,7 +1283,7 @@ function FAQSection() {
     },
     {
       q: 'Was ist mit Tool-Lizenz-Kosten?',
-      a: 'Tool-Kosten werden mit 2x Multiplier weitergegeben. Das ist unsere Margin-Pflicht und sichert transparente Kalkulation.',
+      a: 'Wir kalkulieren Tool-Lizenzen transparent. Aktuell ueblich: Listenpreis + Faktor fuer Setup, Wartung und Support. Den konkreten Multiplikator besprechen wir im Audit, weil er stark vom Stack abhaengt.',
     },
     {
       q: 'Ihr seid in Deutschland? DSGVO?',
