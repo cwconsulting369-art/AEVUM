@@ -14,6 +14,7 @@
 import { supabase } from './supabase.js';
 import { notifyCarlos } from './tg-notify.js';
 import { renderPitchPdf } from './pdf-renderer.js';
+import { logUsage } from './credit-spend.js';
 import {
   TIER_RANGES,
   mapComplexityToTier,
@@ -25,13 +26,131 @@ import {
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5-20250929';
 
+// D1 Edge-Case-Handling — exportable helpers for unit-tests
+// ───────────────────────────────────────────────────────────
+
+// Truncate huge audit answers (>MAX bytes). Keeps top-level keys, trims string values.
+export const MAX_ANSWERS_BYTES = 100 * 1024; // 100KB hard cap
+export function truncateAnswers(answers) {
+  if (!answers || typeof answers !== 'object') return { answers: {}, truncated: false, originalBytes: 0 };
+  const raw = JSON.stringify(answers);
+  const bytes = Buffer.byteLength(raw, 'utf8');
+  if (bytes <= MAX_ANSWERS_BYTES) return { answers, truncated: false, originalBytes: bytes };
+
+  // Walk + truncate string values progressively until under cap
+  const clone = JSON.parse(raw);
+  const stringRefs = [];
+  function collect(obj, path = []) {
+    if (!obj || typeof obj !== 'object') return;
+    for (const [k, v] of Object.entries(obj)) {
+      if (typeof v === 'string') stringRefs.push({ obj, key: k, len: v.length });
+      else if (typeof v === 'object') collect(v, [...path, k]);
+    }
+  }
+  collect(clone);
+  stringRefs.sort((a, b) => b.len - a.len);
+  let cap = 2000;
+  while (Buffer.byteLength(JSON.stringify(clone), 'utf8') > MAX_ANSWERS_BYTES && cap > 100) {
+    for (const r of stringRefs) {
+      if (r.obj[r.key].length > cap) r.obj[r.key] = r.obj[r.key].slice(0, cap) + '…[truncated]';
+    }
+    cap = Math.floor(cap / 2);
+  }
+  return {
+    answers: clone,
+    truncated: true,
+    originalBytes: bytes,
+    note: `audit-answers exceeded ${MAX_ANSWERS_BYTES} bytes — string values truncated`
+  };
+}
+
+// Extract JSON from LLM text response. Handles ```json fences, leading prose, trailing text.
+export function extractJson(text) {
+  if (typeof text !== 'string') return null;
+  const stripped = text.trim();
+  // Strip ```json fences if present
+  const fence = stripped.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+  const body = fence ? fence[1] : stripped;
+  // Greedy match first {...} block
+  const match = body.match(/\{[\s\S]*\}/);
+  if (!match) return null;
+  try {
+    return JSON.parse(match[0]);
+  } catch {
+    return null;
+  }
+}
+
+// Validate llm result against minimum shape contract before passing to finalize
+export function validateLlmResult(r) {
+  if (!r || typeof r !== 'object') return { ok: false, reason: 'not_object' };
+  const required = ['complexity_score', 'identified_pain_points', 'recommended_blueprints'];
+  for (const k of required) {
+    if (!(k in r)) return { ok: false, reason: `missing_${k}` };
+  }
+  if (!Array.isArray(r.identified_pain_points)) return { ok: false, reason: 'pain_points_not_array' };
+  if (!Array.isArray(r.recommended_blueprints)) return { ok: false, reason: 'blueprints_not_array' };
+  const c = Number(r.complexity_score);
+  if (!Number.isFinite(c) || c < 1 || c > 10) return { ok: false, reason: 'complexity_out_of_range' };
+  return { ok: true };
+}
+
+// Sleep helper for exponential backoff
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Anthropic API call with retry on timeout / 5xx / overloaded. Returns { ok, data, attempts, error }.
+export async function callAnthropicWithRetry({ apiKey, model, body, maxRetries = 2, timeoutMs = 60_000 }) {
+  let attempts = 0;
+  let lastErr = null;
+  while (attempts <= maxRetries) {
+    attempts += 1;
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(body),
+        signal: ctrl.signal
+      });
+      clearTimeout(t);
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) return { ok: true, data, attempts };
+      // Retry on 429/5xx/overloaded; bail on 4xx else
+      const retryable = res.status === 429 || res.status >= 500 || data?.error?.type === 'overloaded_error';
+      lastErr = { status: res.status, payload: data };
+      if (!retryable || attempts > maxRetries) return { ok: false, error: lastErr, attempts };
+    } catch (err) {
+      clearTimeout(t);
+      lastErr = { status: 0, message: err.message, aborted: err.name === 'AbortError' };
+      if (attempts > maxRetries) return { ok: false, error: lastErr, attempts };
+    }
+    // Exponential backoff: 500ms, 1500ms, 3500ms ...
+    await sleep(500 * Math.pow(3, attempts - 1));
+  }
+  return { ok: false, error: lastErr, attempts };
+}
+
 // ──────────────────────────────────────────────────────────
 // LLM-Analyse — single Claude call with structured JSON output
 // ──────────────────────────────────────────────────────────
-async function llmAnalyze({ answers, uploadedFiles, blueprintWorkflows, pricingTiers }) {
+async function llmAnalyze({ answers, uploadedFiles, blueprintWorkflows, pricingTiers, telemetry = {} }) {
   if (!ANTHROPIC_API_KEY) {
     console.warn('[auto-plan] No ANTHROPIC_API_KEY — returning stub analysis');
+    telemetry.fallback_reason = 'no_api_key';
     return stubAnalysis(answers);
+  }
+
+  // D1 Edge: Truncate huge audit-answers (>100KB) before sending to LLM
+  const { answers: safeAnswers, truncated, originalBytes, note } = truncateAnswers(answers);
+  if (truncated) {
+    console.warn(`[auto-plan] ${note} (was ${originalBytes} bytes)`);
+    telemetry.answers_truncated = true;
+    telemetry.original_bytes = originalBytes;
   }
 
   const workflowList = blueprintWorkflows.map(w => ({
@@ -48,7 +167,7 @@ async function llmAnalyze({ answers, uploadedFiles, blueprintWorkflows, pricingT
   const system = `Du bist der AEVUM Auto-Plan-Generator. Du analysierst Audit-Antworten und generierst strukturierten JSON-Output (Schema aevum/auto-plan/v1). Du gibst NIEMALS einen Tier oder finale Setup-/Retainer-Preise selbst aus — das Tier-Mapping ist deterministisch und passiert nach deiner Analyse. Antworte NUR mit valid JSON, keine Erklärungen.`;
 
   const user = `# AUDIT-ANTWORTEN
-${JSON.stringify(answers, null, 2)}
+${JSON.stringify(safeAnswers, null, 2)}
 
 # UPLOADED FILES (Metadata)
 ${JSON.stringify(uploadedFiles || [], null, 2)}
@@ -81,59 +200,118 @@ WICHTIG:
 
 Antworte NUR mit JSON.`;
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: ANTHROPIC_MODEL,
-        max_tokens: 4096,
-        system,
-        messages: [{ role: 'user', content: user }]
-      })
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      console.error('[auto-plan] LLM error:', data);
-      return stubAnalysis(answers);
-    }
-    const text = data.content?.[0]?.text || '';
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error('[auto-plan] no JSON in LLM response');
-      return stubAnalysis(answers);
-    }
-    return JSON.parse(jsonMatch[0]);
-  } catch (err) {
-    console.error('[auto-plan] LLM exception:', err.message);
-    return stubAnalysis(answers);
+  const t0 = Date.now();
+  const result = await callAnthropicWithRetry({
+    apiKey: ANTHROPIC_API_KEY,
+    model: ANTHROPIC_MODEL,
+    body: {
+      model: ANTHROPIC_MODEL,
+      max_tokens: 4096,
+      system,
+      messages: [{ role: 'user', content: user }]
+    },
+    maxRetries: 2,
+    timeoutMs: 60_000
+  });
+  telemetry.latency_ms = Date.now() - t0;
+  telemetry.attempts = result.attempts;
+
+  if (!result.ok) {
+    const errSummary = result.error?.status === 0
+      ? `network/timeout (${result.error.aborted ? 'timeout' : result.error.message})`
+      : `HTTP ${result.error?.status}`;
+    console.error(`[auto-plan] LLM failed after ${result.attempts} attempts: ${errSummary}`);
+    telemetry.fallback_reason = 'llm_failed';
+    telemetry.error = errSummary;
+    notifyCarlos(`⚠️ *Auto-Plan LLM fallback* — ${errSummary} after ${result.attempts} attempts. Using stub.`).catch(() => {});
+    return stubAnalysis(safeAnswers);
   }
+
+  const data = result.data;
+  telemetry.input_tokens = data.usage?.input_tokens || 0;
+  telemetry.output_tokens = data.usage?.output_tokens || 0;
+
+  // D1 Edge: token-limit detection — Claude returns stop_reason='max_tokens' when truncated
+  if (data.stop_reason === 'max_tokens') {
+    console.warn('[auto-plan] LLM hit max_tokens — response may be truncated');
+    telemetry.max_tokens_hit = true;
+  }
+
+  const text = data.content?.[0]?.text || '';
+  const parsed = extractJson(text);
+  if (!parsed) {
+    console.error('[auto-plan] non-parseable JSON in LLM response (first 200 chars):', text.slice(0, 200));
+    telemetry.fallback_reason = 'parse_failed';
+    telemetry.parse_success = false;
+    notifyCarlos(`⚠️ *Auto-Plan parse-fail* — LLM response not valid JSON. Stub fallback used.`).catch(() => {});
+    return stubAnalysis(safeAnswers);
+  }
+  telemetry.parse_success = true;
+
+  // D1 Edge: validate shape — if invalid, log + fallback
+  const validation = validateLlmResult(parsed);
+  if (!validation.ok) {
+    console.error(`[auto-plan] LLM result failed validation: ${validation.reason}`);
+    telemetry.fallback_reason = `validation_${validation.reason}`;
+    notifyCarlos(`⚠️ *Auto-Plan validation-fail* — \`${validation.reason}\`. Stub fallback used.`).catch(() => {});
+    return stubAnalysis(safeAnswers);
+  }
+
+  return parsed;
 }
 
-function stubAnalysis(answers) {
-  const industry = answers?.unternehmen?.industry || answers?.industry || answers?.fi?.branche || 'other';
-  const pain = answers?.pain_points?.biggest_time_waster
-    || answers?.fi?.pain
-    || answers?.ag?.zeitfresser
-    || answers?.pb?.skalierung
+export function stubAnalysis(answers) {
+  const a = answers || {};
+  const industry = a?.unternehmen?.industry || a?.industry || a?.fi?.branche || a?.branche || 'other';
+  const pain = a?.pain_points?.biggest_time_waster
+    || a?.fi?.pain
+    || a?.ag?.zeitfresser
+    || a?.pb?.skalierung
+    || a?.pain
     || 'Unbekannt';
+
+  // Derive complexity from team-size + revenue heuristics
+  const teamSize = Number(a?.unternehmen?.team_size || a?.team_size || a?.ag?.mitarbeiter || 0);
+  const monthlyRev = Number(a?.unternehmen?.monthly_revenue || a?.monthly_revenue || 0);
+  let complexity = 3;
+  if (teamSize >= 20 || monthlyRev >= 100000) complexity = 7;
+  else if (teamSize >= 10 || monthlyRev >= 50000) complexity = 5;
+  else if (teamSize >= 5 || monthlyRev >= 20000) complexity = 4;
+
+  // Heuristic: deeper pain description → higher confidence
+  const painLen = typeof pain === 'string' ? pain.length : 0;
+  const confidence = Math.min(60, 30 + Math.floor(painLen / 20) * 5);
+
+  // Blueprint selection based on pain category keywords
+  const painLower = String(pain).toLowerCase();
+  const blueprints = [];
+  if (/(report|kpi|dashboard|metrik|zahl|finance)/.test(painLower)) {
+    blueprints.push({ blueprint_id: 'reporting-pipeline-v1', blueprint_version: 'v1.0.0',
+      rationale: 'Reduziert manuelle Reporting-Arbeit', estimated_setup_hours: 4, estimated_monthly_value_hours_saved: 8 });
+  }
+  if (/(lead|akquise|sales|crm|kunde)/.test(painLower)) {
+    blueprints.push({ blueprint_id: 'lead-scraper-v1', blueprint_version: 'v1.0.0',
+      rationale: 'Automatisiert Lead-Akquise', estimated_setup_hours: 6, estimated_monthly_value_hours_saved: 12 });
+  }
+  if (/(mail|email|inbox|kommunikation)/.test(painLower)) {
+    blueprints.push({ blueprint_id: 'inbox-triage-v1', blueprint_version: 'v1.0.0',
+      rationale: 'Mail-Triage + Auto-Response', estimated_setup_hours: 3, estimated_monthly_value_hours_saved: 10 });
+  }
+  if (blueprints.length === 0) {
+    blueprints.push({ blueprint_id: 'reporting-pipeline-v1', blueprint_version: 'v1.0.0',
+      rationale: 'Default Reporting-Baustein (Pain unklar)', estimated_setup_hours: 4, estimated_monthly_value_hours_saved: 8 });
+  }
+
   return {
-    complexity_score: 3,
+    complexity_score: complexity,
     budget_signal: null,
     cashflow_indicator: false,
     growth_share_indicator: false,
     identified_pain_points: [
-      { category: 'workflow', description: pain, severity: 'medium', impact_estimate_hours_monthly: 20 }
+      { category: 'workflow', description: typeof pain === 'string' ? pain : 'Unbekannt',
+        severity: complexity >= 5 ? 'high' : 'medium', impact_estimate_hours_monthly: complexity * 5 }
     ],
-    recommended_blueprints: [
-      { blueprint_id: 'reporting-pipeline-v1', blueprint_version: 'v1.0.0',
-        rationale: 'Reduziert manuelle Reporting-Arbeit',
-        estimated_setup_hours: 4, estimated_monthly_value_hours_saved: 8 }
-    ],
+    recommended_blueprints: blueprints,
     tool_stack_recommendation: { keep: [], add: [], remove: [] },
     roadmap: {
       phase_1_days_0_30: ['Setup AEVUM-OS-Dashboard', 'Audit Workflows', 'API-Keys einsammeln'],
@@ -145,7 +323,7 @@ function stubAnalysis(answers) {
       language_primary: 'de', skills: ['kpi-reporter', 'data-fetcher'], required_apis: []
     },
     dashboard_modules: ['kpi-grid', 'finance-widget', 'roadmap-timeline', 'workflow-status'],
-    confidence_score: 35,
+    confidence_score: confidence,
     _stub: true
   };
 }
@@ -311,12 +489,25 @@ export async function runAutoPlan(auditId) {
     supabase.select('blueprint_pricing', 'select=*&is_active=eq.true')
   ]);
 
+  const telemetry = {};
   const llmResult = await llmAnalyze({
     answers: audit.answers || {},
     uploadedFiles: audit.uploaded_files || [],
     blueprintWorkflows: bpRes.data || [],
-    pricingTiers: prRes.data || []
+    pricingTiers: prRes.data || [],
+    telemetry
   });
+
+  // Persist telemetry to agent_usage_log (best-effort, fire-and-forget)
+  logUsage({
+    accountId: audit.account_id || null,
+    sessionId: auditId,
+    endpoint: 'auto-plan',
+    model: ANTHROPIC_MODEL,
+    inputTokens: telemetry.input_tokens || 0,
+    outputTokens: telemetry.output_tokens || 0,
+    context: `auto-plan latency=${telemetry.latency_ms}ms attempts=${telemetry.attempts} parse=${telemetry.parse_success} fallback=${telemetry.fallback_reason || 'none'} truncated=${telemetry.answers_truncated || false}`
+  }).catch((err) => console.error('[auto-plan] telemetry log failed:', err.message));
 
   // Deterministic finalization — tier-mapping + margin-check (no LLM)
   const result = finalizeAnalysis(llmResult, audit.answers || {});

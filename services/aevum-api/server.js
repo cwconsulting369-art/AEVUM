@@ -8,6 +8,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import slowDown from 'express-slow-down';
 import { auditRouter } from './routes/audit.js';
 import { accountsRouter } from './routes/accounts.js';
 import { projectsRouter } from './routes/projects.js';
@@ -26,15 +27,22 @@ import { shopItemsRouter } from './routes/shop-items.js';
 import { dashboardStatsRouter } from './routes/dashboard-stats.js';
 import { customerLeadsRouter } from './routes/customer-leads.js';
 import { waitlistRouter } from './routes/waitlist.js';
+import { dripRouter } from './routes/drip.js';
 import { leadMagnetsRouter } from './routes/lead-magnets.js';
 import { scriptFactoryRouter } from './routes/factories/script.js';
 import { dsgvoFactoryRouter } from './routes/factories/dsgvo.js';
 import { leadScraperRouter } from './routes/factories/lead-scraper.js';
 import { knowledgeHubsRouter } from './routes/knowledge-hubs.js';
 import { trustpilotRouter } from './routes/trustpilot.js';
+import { referralsRouter } from './routes/referrals.js';
 import { subscriptionsRouter, projectSubscriptionsRouter } from './routes/subscriptions.js';
 import { subOsRouter } from './routes/sub-os.js';
-import { anonymizeIp } from './lib/security.js';
+import {
+  anonymizeIp,
+  requestIdMiddleware,
+  hostileBotGuard,
+  adminApiKeyGuard
+} from './lib/security.js';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3210', 10);
@@ -119,11 +127,31 @@ function clientIpKey(req) {
   return ipKeyGenerator(raw);
 }
 
-// Basic request log
+// D3: Request-ID propagation — UUID per request for tracing/debugging
+app.use(requestIdMiddleware);
+
+// D3: Hostile-bot guard — reject known scrapers/scanners before LLM cost
+app.use(hostileBotGuard);
+
+// Basic request log (now includes request-id)
 app.use((req, _res, next) => {
-  console.log(`${new Date().toISOString()} ${req.method} ${req.path} ip=${anonymizeIp(clientIp(req)) || 'unknown'}`);
+  console.log(`${new Date().toISOString()} rid=${req.id} ${req.method} ${req.path} ip=${anonymizeIp(clientIp(req)) || 'unknown'}`);
   next();
 });
+
+// D3: Progressive slow-down — kicks in BEFORE the global rate-limit cutoff.
+// After 30 fast requests in a 1-min window, each additional request gets a
+// 250ms (+250ms cumulative) delay, capped at 5s. Slows abusive clients without
+// fully blocking legitimate burst usage.
+const globalSlowDown = slowDown({
+  windowMs: 60 * 1000,
+  delayAfter: 30,
+  delayMs: (hits) => Math.min(250 * (hits - 30), 5000),
+  maxDelayMs: 5000,
+  keyGenerator: clientIpKey,
+  validate: { delayMs: false } // silence v2 warning
+});
+app.use(globalSlowDown);
 
 // Rate-Limits
 // Global: 60 requests / minute / IP — generous catch-all
@@ -181,6 +209,23 @@ const dsgvoLimiter = (req, res, next) => {
 // Routes
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, service: 'aevum-api', uptime: process.uptime() });
+});
+
+// D3: Admin debug endpoints — Bearer ADMIN_API_KEY only.
+// Used for ops/debug; per-route admin actions still go through x-aevum-admin-token.
+app.get('/api/admin/health', adminApiKeyGuard, (req, res) => {
+  res.json({
+    ok: true,
+    rid: req.id,
+    service: 'aevum-api',
+    uptime: process.uptime(),
+    memory_mb: Math.round(process.memoryUsage().rss / 1024 / 1024),
+    node: process.version,
+    pid: process.pid
+  });
+});
+app.get('/api/admin/whoami', adminApiKeyGuard, (req, res) => {
+  res.json({ ok: true, rid: req.id, admin: true });
 });
 app.use('/api/audit', auditSubmitLimiter, auditUploadLimiter, dsgvoLimiter, auditRouter);
 
@@ -309,6 +354,9 @@ const waitlistLimiter = rateLimit({
 });
 app.use('/api/waitlist', waitlistLimiter, waitlistRouter);
 
+// Drip-Sequence Orchestrator (Block A3 — admin-only, n8n consumes)
+app.use('/api/drip', dripRouter);
+
 // Lead-Magnets — Wave D3 (PDF download via email-capture). 10/h/IP per slug.
 const leadMagnetLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -382,6 +430,7 @@ const knowledgeWriteLimiter = rateLimit({
 });
 app.use('/api/knowledge-hubs', knowledgeWriteLimiter, knowledgeHubsRouter);
 app.use('/api/trustpilot', trustpilotRouter);
+app.use('/api/referrals', referralsRouter);
 
 // Sub-OS aevum-summary endpoints — Wave E3 (admin-token gated)
 //   /api/sub-os                      → list supported systems

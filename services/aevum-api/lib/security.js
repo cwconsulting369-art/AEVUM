@@ -153,6 +153,89 @@ export function scanPayload(obj) {
   return findings;
 }
 
+// ─── D3 Security-Firewall Extensions ─────────────────────────
+
+// Known-bot UA fingerprints (case-insensitive). Curl/wget/python-requests
+// are *not* in here — server-to-server calls (e.g., n8n webhooks) use them.
+// We block ONLY clearly malicious scraper/scanner bots.
+const HOSTILE_BOT_UAS = [
+  /\bsemrushbot\b/i,
+  /\bahrefsbot\b/i,
+  /\bdotbot\b/i,
+  /\bmj12bot\b/i,
+  /\bblexbot\b/i,
+  /\bpetalbot\b/i,
+  /\bnimbostratus\b/i,
+  /\bzgrab\b/i,
+  /\bmasscan\b/i,
+  /\bnessus\b/i,
+  /\bnikto\b/i,
+  /\bsqlmap\b/i,
+  /\bnmap\b/i,
+  /\bcommix\b/i,
+  /\bwpscan\b/i,
+  /\bsearchpreview\b/i,
+];
+
+// Returns the matched pattern source if hostile, else null.
+export function detectHostileBot(userAgent) {
+  if (typeof userAgent !== 'string' || !userAgent) return null;
+  for (const re of HOSTILE_BOT_UAS) {
+    if (re.test(userAgent)) return re.source;
+  }
+  return null;
+}
+
+// Generate a per-request UUID for request-tracing / debugging.
+// Uses Node crypto.randomUUID (Node >= 19); falls back to randomBytes.
+export function genRequestId() {
+  try {
+    // node:crypto.randomUUID is available globally as crypto.randomUUID
+    if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  } catch {}
+  return randomBytes(16).toString('hex');
+}
+
+// Express middleware: assign req.id from X-Request-Id header (if trusted) or generate one.
+// Echoes back as X-Request-Id response header.
+export function requestIdMiddleware(req, res, next) {
+  const incoming = req.headers['x-request-id'];
+  const safe = typeof incoming === 'string' && /^[a-zA-Z0-9_-]{4,128}$/.test(incoming);
+  req.id = safe ? incoming : genRequestId();
+  res.setHeader('X-Request-Id', req.id);
+  next();
+}
+
+// Express middleware: hard-reject hostile bots BEFORE rate-limit + LLM-calls.
+export function hostileBotGuard(req, res, next) {
+  const ua = req.get('user-agent') || '';
+  const hit = detectHostileBot(ua);
+  if (hit) {
+    console.warn(`[security] hostile_bot rid=${req.id || '-'} ua="${ua.slice(0, 80)}" pattern=${hit}`);
+    return res.status(403).json({ ok: false, error: 'forbidden' });
+  }
+  next();
+}
+
+// Express middleware: protect /api/admin/* paths with timing-safe Bearer-token check.
+// Token comes from ADMIN_API_KEY env (separate from AEVUM_ADMIN_TOKEN, which gates per-route admin endpoints).
+// ADMIN_API_KEY is for ops/debug endpoints that should never be exposed to customers.
+export function adminApiKeyGuard(req, res, next) {
+  const expected = process.env.ADMIN_API_KEY;
+  if (!expected) {
+    // Fail closed — admin endpoint must have a key configured
+    console.error(`[security] ADMIN_API_KEY not configured — rejecting ${req.path}`);
+    return res.status(503).json({ ok: false, error: 'admin_not_configured' });
+  }
+  const auth = req.get('authorization') || '';
+  const bearer = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!safeCompare(bearer, expected)) {
+    console.warn(`[security] admin_key_invalid rid=${req.id || '-'} path=${req.path}`);
+    return res.status(401).json({ ok: false, error: 'unauthorized' });
+  }
+  next();
+}
+
 // Lightweight sanitizer — removes null bytes + control chars, trims
 export function clean(text) {
   if (typeof text !== 'string') return text;
