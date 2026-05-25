@@ -166,6 +166,12 @@ export default function Datenschutz() {
                     <td className="px-3 py-2 border-b border-white/10">Vereinigte Arabische Emirate / Schweiz</td>
                     <td className="px-3 py-2 border-b border-white/10">Standard-Drittland-Übertragung; nur ID-Felder + Magic-Link-URL übermittelt, keine PII-Inhalte; opt-in Basis Art 6 Abs 1 lit a</td>
                   </tr>
+                  <tr>
+                    <td className="px-3 py-2 border-b border-white/10">OpenRouter Inc.</td>
+                    <td className="px-3 py-2 border-b border-white/10">LLM-Routing-Gateway (Anthropic-Modelle) für ausgewählte interne Background-Tasks (z.B. Klassifizierung, Idea-Processing). Verarbeitet keine Customer-Chat-Inhalte direkt — primäre LLM-Verarbeitung läuft über Anthropic-Direct-API.</td>
+                    <td className="px-3 py-2 border-b border-white/10">USA</td>
+                    <td className="px-3 py-2 border-b border-white/10">AVV ausstehend (vor Q3 2026 zu signieren); EU-SCCs (Modul 2). Zero-Retention-Mode wo verfügbar.</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
