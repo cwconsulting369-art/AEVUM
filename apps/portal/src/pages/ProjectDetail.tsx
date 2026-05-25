@@ -9,6 +9,7 @@ import CollaGlowDashboard from '@/components/dashboard/CollaGlowDashboard';
 import AEVUMDashboard from '@/components/dashboard/AEVUMDashboard';
 import ProjectAgentChat from '@/components/agent/ProjectAgentChat';
 import QuicklinksSection from '@/components/quicklinks/QuicklinksSection';
+import LeadFunnel from '@/pages/dashboards/LeadFunnel';
 import Documents from '@/pages/Documents';
 
 type ApiRow = { id: string; service: string; key_label: string | null; scope: string; health: string; added_at: string; last_used_at: string | null };
@@ -98,6 +99,9 @@ export default function ProjectDetail() {
   }
   if (section === 'docs') {
     return <Documents />;
+  }
+  if (section === 'lead-funnel') {
+    return <LeadFunnel projectSlug={slug} projectName={project?.name || slug} />;
   }
   // overview (default) — show quicklinks first, then API keys
   return (

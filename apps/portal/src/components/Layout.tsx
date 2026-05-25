@@ -5,7 +5,8 @@ import {
   LogOut, LayoutDashboard, User, ShieldCheck, FolderGit2,
   BarChart2, DollarSign, Mail, ShoppingBag, Globe, Bot,
   KeyRound, TrendingUp, ChevronLeft, Users, Menu, X, Coins,
-  Link as LinkIcon, FolderOpen, Megaphone, Film, ShieldAlert, Wrench
+  Link as LinkIcon, FolderOpen, Megaphone, Film, ShieldAlert, Wrench,
+  Funnel
 } from 'lucide-react';
 import { Link } from 'react-router';
 import Footer from './Footer';
@@ -57,6 +58,14 @@ const PROJECT_SECTIONS: Record<string, ProjectSection[]> = {
     { s: 'docs',       label: 'Dokumente',  icon: FolderOpen },
     { s: 'agent',      label: 'Agent',      icon: Bot },
     { s: 'apis',       label: 'API-Keys',   icon: KeyRound },
+  ],
+  'thailand-re-leadfunnel': [
+    { s: 'overview',    label: 'Übersicht',    icon: LayoutDashboard },
+    { s: 'lead-funnel', label: 'Lead Funnel',  icon: Funnel },
+    { s: 'quicklinks',  label: 'Quicklinks',   icon: LinkIcon, dividerBefore: true },
+    { s: 'docs',        label: 'Dokumente',    icon: FolderOpen },
+    { s: 'agent',       label: 'Agent',        icon: Bot },
+    { s: 'apis',        label: 'API-Keys',     icon: KeyRound },
   ],
 };
 
