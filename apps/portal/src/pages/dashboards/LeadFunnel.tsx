@@ -6,14 +6,14 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   Activity, TrendingUp, Users, DollarSign, FileText, Gift,
   ChevronRight, Sparkles, Award, AlertCircle, ExternalLink,
-  Mail, Phone, Linkedin, Send
+  Mail, Phone, Send, Upload, Play, Check, Pause, X, Edit3
 } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api, getAccessToken } from '@/lib/api';
 import Spinner from '@/components/Spinner';
 import { stagger } from '@/lib/animations';
 import { toast } from 'sonner';
 
-type Tab = 'metrics' | 'leads' | 'spend' | 'content' | 'referrals';
+type Tab = 'metrics' | 'leads' | 'akquise' | 'spend' | 'content' | 'referrals';
 
 type Metrics = {
   leads_total: number;
@@ -116,6 +116,8 @@ const STATUS_LABEL: Record<string, string> = {
   closed_won: 'Gewonnen', closed_lost: 'Verloren', nurturing: 'Nurturing'
 };
 
+type Tab = 'metrics' | 'leads' | 'akquise' | 'spend' | 'content' | 'referrals';
+
 export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: string; projectName: string }) {
   const [tab, setTab] = useState<Tab>('metrics');
   const [data, setData] = useState<LeadFunnelData | null>(null);
@@ -161,6 +163,7 @@ export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: 
         {[
           { id: 'metrics' as const,   label: 'Metriken',  icon: TrendingUp },
           { id: 'leads' as const,     label: 'Leads',     icon: Users },
+          { id: 'akquise' as const,   label: 'Akquise',   icon: Upload },
           { id: 'spend' as const,     label: 'Spend',     icon: DollarSign },
           { id: 'content' as const,   label: 'Content',   icon: FileText },
           { id: 'referrals' as const, label: 'Referrals', icon: Gift }
@@ -182,6 +185,7 @@ export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: 
 
       {tab === 'metrics' && <MetricsSection metrics={data.metrics} leadsCount={data.leads.length} />}
       {tab === 'leads' && <LeadsSection leads={data.leads} />}
+      {tab === 'akquise' && <AkquiseSection onRefresh={load} />}
       {tab === 'spend' && <SpendSection spend={data.spend} />}
       {tab === 'content' && <ContentSection content={data.content} />}
       {tab === 'referrals' && <ReferralsSection
@@ -263,6 +267,408 @@ function MetricsSection({ metrics, leadsCount }: { metrics: Metrics; leadsCount:
 }
 
 // ─── Leads Section ─────────────────────────────────────────────
+// ─── Akquise Section (CSV-Upload + Email-Flow) ────────────────
+type AkquiseCampaign = {
+  id: string;
+  name: string;
+  status: string;
+  outreach_channel: string;
+  source_csv_filename: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+type AkquiseLeadDetail = {
+  id: string;
+  owner_name: string | null;
+  owner_email: string;
+  owner_linkedin_url: string | null;
+  company_name: string | null;
+  pitch_variants: Array<{ subject: string; body: string; tone: string; hook_angle: string }>;
+  pitch_selected_index: number | null;
+  outreach_status: string;
+  outreach_message: string | null;
+  outreach_message_subject: string | null;
+};
+
+function AkquiseSection({ onRefresh }: { onRefresh: () => void }) {
+  const [campaigns, setCampaigns] = useState<AkquiseCampaign[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showUpload, setShowUpload] = useState(false);
+
+  const loadCampaigns = async () => {
+    try {
+      const r = await api<{ ok: boolean; campaigns: AkquiseCampaign[] }>('/api/factories/lead-scraper/campaigns');
+      setCampaigns(r.campaigns || []);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Campaigns laden fehlgeschlagen');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { loadCampaigns(); }, []);
+
+  if (loading) return <div className="card-premium p-10 flex justify-center"><Spinner size="md" /></div>;
+
+  return (
+    <>
+      <SectionHeader icon={Upload} title="Akquise (Cold-Email-Funnel)" sub="Bestehende Lead-Listen hochladen, AI-Pitches in deinem Brandtone, Email-Versand via AEVUM" />
+
+      {/* Pro-Hinweis + Upload-Toggle */}
+      <div className="card-premium p-5">
+        <div className="flex items-start gap-3 mb-3">
+          <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center shrink-0">
+            <Sparkles size={16} className="text-gold-300" />
+          </div>
+          <div className="flex-1">
+            <div className="font-semibold text-white text-sm">So funktioniert der Email-Flow</div>
+            <ol className="text-xs text-ink-300 mt-2 space-y-1 list-decimal list-inside leading-relaxed">
+              <li>CSV mit Lead-Liste hochladen (Pflicht-Spalte: <code className="text-gold-200">owner_email</code>)</li>
+              <li>AI generiert 3 Pitch-Varianten pro Lead in deinem Brandtone (12 Credits/Lead)</li>
+              <li>Jeden Pitch reviewen + approven (oder editieren)</li>
+              <li>Approved-Leads → Resend versendet personalisiert via deine AEVUM-Email-Adresse</li>
+              <li>Tracking aller Status-Changes (sent/opened/replied) im selben Dashboard</li>
+            </ol>
+          </div>
+        </div>
+        <button onClick={() => setShowUpload(s => !s)} className="btn-gold text-sm">
+          {showUpload ? <><X size={13} /> Abbrechen</> : <><Upload size={13} /> Neue Campaign starten</>}
+        </button>
+      </div>
+
+      {showUpload && <UploadCampaignForm onCreated={() => { loadCampaigns(); setShowUpload(false); }} />}
+
+      {/* Campaign-Liste */}
+      <section>
+        <SectionHeader icon={Send} title="Deine Campaigns" sub={`${campaigns.length} insgesamt`} />
+        {campaigns.length === 0 ? (
+          <div className="card-premium p-10 text-center">
+            <Send size={28} className="mx-auto text-ink-400 mb-3" />
+            <p className="text-sm text-ink-400">Noch keine Campaign gestartet.</p>
+            <p className="text-xs text-ink-400 mt-2">Klick oben „Neue Campaign starten" um deine erste Lead-Liste zu uploaden.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {campaigns.map((c, i) => (
+              <CampaignCard
+                key={c.id}
+                campaign={c}
+                expanded={expandedId === c.id}
+                onToggle={() => setExpandedId(expandedId === c.id ? null : c.id)}
+                onAction={() => { loadCampaigns(); onRefresh(); }}
+                index={i}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+    </>
+  );
+}
+
+function UploadCampaignForm({ onCreated }: { onCreated: () => void }) {
+  const [name, setName] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file) { toast.error('Bitte CSV-Datei wählen'); return; }
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('name', name.trim());
+      fd.append('csv', file);
+      const token = getAccessToken();
+      const res = await fetch(`${import.meta.env.VITE_AEVUM_API_BASE_URL || 'https://api.aevum-system.de'}/api/factories/lead-scraper/campaigns`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        toast.error(data.error || 'Upload fehlgeschlagen');
+      } else {
+        toast.success(`Campaign erstellt — ${data.leads_imported} Leads importiert${data.skipped ? `, ${data.skipped} übersprungen` : ''}`);
+        setName(''); setFile(null);
+        onCreated();
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Upload fehlgeschlagen');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="card-premium p-5 space-y-4 animate-slide-up">
+      <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+        <Upload size={14} className="text-gold-300" />
+        <h3 className="text-xs font-semibold text-ink-100 uppercase tracking-wider">Neue Campaign</h3>
+      </div>
+
+      <Field label="Campaign-Name (z.B. Apollo-Rentner-2026-05-26)">
+        <input required value={name} onChange={e => setName(e.target.value)} placeholder="Apollo-Segment1-2026-05-26" className="input-premium" />
+      </Field>
+
+      <Field label="CSV-Datei (Pflicht-Spalten: owner_email)">
+        <div className="relative">
+          <input
+            required
+            type="file"
+            accept=".csv,text/csv"
+            onChange={e => setFile(e.target.files?.[0] ?? null)}
+            className="input-premium file:bg-gold-400/15 file:border-0 file:px-3 file:py-1 file:rounded file:text-gold-200 file:mr-3 file:text-xs file:font-medium"
+          />
+        </div>
+        <p className="text-[0.65rem] text-ink-400 mt-1.5 leading-relaxed">
+          Erkannte Spalten: <code>company_name</code>, <code>company_domain</code>, <code>owner_name</code>, <code className="text-gold-200">owner_email (Pflicht)</code>, <code>owner_linkedin_url</code>
+        </p>
+      </Field>
+
+      <button disabled={uploading || !name || !file} className="btn-gold text-sm">
+        {uploading ? <>Lade hoch…</> : <><Upload size={13} /> CSV hochladen + Campaign erstellen</>}
+      </button>
+    </form>
+  );
+}
+
+function CampaignCard({ campaign, expanded, onToggle, onAction, index }: {
+  campaign: AkquiseCampaign;
+  expanded: boolean;
+  onToggle: () => void;
+  onAction: () => void;
+  index: number;
+}) {
+  const [leads, setLeads] = useState<AkquiseLeadDetail[]>([]);
+  const [loadingLeads, setLoadingLeads] = useState(false);
+  const [actionRunning, setActionRunning] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!expanded) return;
+    setLoadingLeads(true);
+    api<{ ok: boolean; leads: AkquiseLeadDetail[] }>(`/api/factories/lead-scraper/campaigns/${campaign.id}`)
+      .then(r => setLeads(r.leads || []))
+      .catch(e => toast.error(e instanceof Error ? e.message : 'Leads laden fehlgeschlagen'))
+      .finally(() => setLoadingLeads(false));
+  }, [expanded, campaign.id, campaign.status]);
+
+  const generatePitches = async () => {
+    setActionRunning('generate');
+    try {
+      const r = await api<{ ok: boolean; leads_to_generate: number; credits_spent: number; estimated_duration_sec: number }>(
+        `/api/factories/lead-scraper/campaigns/${campaign.id}/generate`, { method: 'POST' }
+      );
+      toast.success(`Generiere ${r.leads_to_generate} Pitches (${r.credits_spent} Credits, ~${r.estimated_duration_sec}s)`);
+      setTimeout(onAction, 2000);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Generierung fehlgeschlagen');
+    } finally {
+      setActionRunning(null);
+    }
+  };
+
+  const sendApproved = async () => {
+    if (!confirm('Alle approved Leads jetzt per Email versenden?')) return;
+    setActionRunning('send');
+    try {
+      const r = await api<{ ok: boolean; scheduled: number }>(`/api/factories/lead-scraper/campaigns/${campaign.id}/send`, { method: 'POST' });
+      toast.success(`${r.scheduled} Emails geschedulet — Versand läuft`);
+      setTimeout(onAction, 1500);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Versand fehlgeschlagen');
+    } finally {
+      setActionRunning(null);
+    }
+  };
+
+  const statusBadge: Record<string, string> = {
+    draft: 'badge', generating: 'badge-gold', ready_to_send: 'badge-emerald',
+    sending: 'badge-gold', complete: 'badge-emerald', paused: 'badge'
+  };
+
+  const pendingCount = leads.filter(l => l.outreach_status === 'pending').length;
+  const generatedCount = leads.filter(l => l.outreach_status === 'generated').length;
+  const approvedCount = leads.filter(l => l.outreach_status === 'approved').length;
+  const sentCount = leads.filter(l => l.outreach_status === 'sent').length;
+
+  return (
+    <div className="card-premium animate-fade-up" style={stagger(index, 30, 30)}>
+      <button onClick={onToggle} className="w-full p-4 flex items-center justify-between gap-3 hover:bg-white/[0.02] transition rounded-t-xl">
+        <div className="text-left min-w-0 flex-1">
+          <div className="font-medium text-white text-sm truncate">{campaign.name}</div>
+          <div className="text-xs text-ink-400 mt-0.5">
+            {campaign.source_csv_filename} · {new Date(campaign.created_at).toLocaleDateString('de-DE')}
+          </div>
+        </div>
+        <span className={`badge shrink-0 ${statusBadge[campaign.status] || ''}`}>{campaign.status}</span>
+        <ChevronRight size={14} className={`text-ink-400 shrink-0 transition-transform ${expanded ? 'rotate-90' : ''}`} />
+      </button>
+
+      {expanded && (
+        <div className="border-t border-white/5 p-4 space-y-4">
+          {loadingLeads ? (
+            <div className="flex justify-center py-6"><Spinner size="md" /></div>
+          ) : (
+            <>
+              {/* Action Bar */}
+              <div className="flex flex-wrap items-center gap-2">
+                {pendingCount > 0 && (
+                  <button onClick={generatePitches} disabled={actionRunning === 'generate'} className="btn-gold text-xs">
+                    {actionRunning === 'generate' ? 'Läuft…' : <><Sparkles size={12} /> Pitches generieren ({pendingCount} × 12 Credits = {pendingCount * 12})</>}
+                  </button>
+                )}
+                {approvedCount > 0 && (
+                  <button onClick={sendApproved} disabled={actionRunning === 'send'} className="btn-gold text-xs">
+                    {actionRunning === 'send' ? 'Sende…' : <><Send size={12} /> {approvedCount} Approved Email versenden</>}
+                  </button>
+                )}
+                <div className="text-xs text-ink-400 ml-auto">
+                  pending: {pendingCount} · generiert: {generatedCount} · approved: {approvedCount} · gesendet: {sentCount}
+                </div>
+              </div>
+
+              {/* Leads-List */}
+              <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                {leads.map(l => (
+                  <LeadPitchRow key={l.id} lead={l} onAction={onAction} />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LeadPitchRow({ lead, onAction }: { lead: AkquiseLeadDetail; onAction: () => void }) {
+  const [selectedIdx, setSelectedIdx] = useState(lead.pitch_selected_index ?? 0);
+  const [editing, setEditing] = useState(false);
+  const [editBody, setEditBody] = useState(lead.outreach_message || '');
+  const [editSubject, setEditSubject] = useState(lead.outreach_message_subject || '');
+  const [saving, setSaving] = useState(false);
+
+  const variants = lead.pitch_variants || [];
+  const hasPitch = variants.length > 0 || lead.outreach_message;
+
+  const approve = async () => {
+    setSaving(true);
+    try {
+      const body = editing
+        ? { outreach_status: 'approved', outreach_message: editBody, outreach_message_subject: editSubject }
+        : { outreach_status: 'approved', pitch_selected_index: selectedIdx };
+      await api(`/api/factories/lead-scraper/leads/${lead.id}`, { method: 'PATCH', body: JSON.stringify(body) });
+      toast.success('Lead approved');
+      setEditing(false);
+      onAction();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Approve fehlgeschlagen');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const reject = async () => {
+    setSaving(true);
+    try {
+      await api(`/api/factories/lead-scraper/leads/${lead.id}`, { method: 'PATCH', body: JSON.stringify({ outreach_status: 'failed' }) });
+      toast.success('Lead übersprungen');
+      onAction();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Fehler');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const statusColor: Record<string, string> = {
+    pending: 'badge', generated: 'badge-gold', approved: 'badge-emerald',
+    sent: 'badge-emerald', failed: 'badge-rose', opened: 'badge-emerald', replied: 'badge-gold'
+  };
+
+  return (
+    <div className="card-premium p-3 border border-white/5">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-medium text-white">{lead.owner_name || lead.owner_email}</div>
+          <div className="text-xs text-ink-400 flex items-center gap-3 mt-0.5 flex-wrap">
+            <span className="inline-flex items-center gap-1"><Mail size={10} /> {lead.owner_email}</span>
+            {lead.owner_linkedin_url && (
+              <a href={lead.owner_linkedin_url} target="_blank" rel="noopener noreferrer" className="text-gold-300 hover:underline">LinkedIn</a>
+            )}
+            {lead.company_name && <span>· {lead.company_name}</span>}
+          </div>
+        </div>
+        <span className={`badge ${statusColor[lead.outreach_status] || ''}`}>{lead.outreach_status}</span>
+      </div>
+
+      {hasPitch && (
+        <div className="mt-3 pt-3 border-t border-white/5">
+          {!editing && variants.length > 1 && (
+            <div className="flex gap-2 mb-2">
+              {variants.map((v, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedIdx(i)}
+                  className={`text-[0.65rem] px-2.5 py-1 rounded-full border transition ${
+                    selectedIdx === i ? 'border-gold-400/50 bg-gold-400/10 text-gold-200' : 'border-white/10 text-ink-400'
+                  }`}
+                >
+                  Variante {i + 1} <span className="opacity-60">({v.tone})</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {editing ? (
+            <div className="space-y-2">
+              <input value={editSubject} onChange={e => setEditSubject(e.target.value)} placeholder="Subject" className="input-premium text-xs" />
+              <textarea value={editBody} onChange={e => setEditBody(e.target.value)} rows={5} className="input-premium text-xs resize-none" />
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              <div className="text-[0.65rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">Subject</div>
+              <div className="text-sm text-white">{variants[selectedIdx]?.subject || lead.outreach_message_subject}</div>
+              <div className="text-[0.65rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mt-2">Body</div>
+              <div className="text-xs text-ink-200 whitespace-pre-wrap leading-relaxed">{variants[selectedIdx]?.body || lead.outreach_message}</div>
+            </div>
+          )}
+
+          {lead.outreach_status !== 'sent' && lead.outreach_status !== 'failed' && (
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/5">
+              {editing ? (
+                <>
+                  <button onClick={approve} disabled={saving} className="btn-gold text-xs"><Check size={11} /> Speichern + Approve</button>
+                  <button onClick={() => { setEditing(false); setEditBody(variants[selectedIdx]?.body || ''); setEditSubject(variants[selectedIdx]?.subject || ''); }} className="text-xs text-ink-400 hover:text-white px-2 py-1">Abbrechen</button>
+                </>
+              ) : (
+                <>
+                  <button onClick={approve} disabled={saving || lead.outreach_status === 'approved'} className="btn-gold text-xs">
+                    <Check size={11} /> {lead.outreach_status === 'approved' ? 'Approved' : 'Approve'}
+                  </button>
+                  <button onClick={() => { setEditing(true); setEditBody(variants[selectedIdx]?.body || ''); setEditSubject(variants[selectedIdx]?.subject || ''); }} className="text-xs text-ink-300 hover:text-gold-300 px-2 py-1 inline-flex items-center gap-1">
+                    <Edit3 size={10} /> Editieren
+                  </button>
+                  <button onClick={reject} disabled={saving} className="text-xs text-rose-300 hover:text-rose-200 px-2 py-1 ml-auto inline-flex items-center gap-1">
+                    <X size={10} /> Skip
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {!hasPitch && lead.outreach_status === 'pending' && (
+        <div className="mt-2 text-xs text-ink-400 italic">Wartet auf Pitch-Generation</div>
+      )}
+    </div>
+  );
+}
+
 function LeadsSection({ leads }: { leads: Lead[] }) {
   const [filter, setFilter] = useState<'all' | 'A' | 'B' | 'new' | 'qualified'>('all');
   const filtered = useMemo(() => {
