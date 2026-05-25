@@ -13,6 +13,7 @@ import Testimonial from './pages/Testimonial';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import Documents from './pages/Documents';
+import CustomerDocs from './components/CustomerDocs';
 import Datenschutz from './pages/Datenschutz';
 import Impressum from './pages/Impressum';
 import AGB from './pages/AGB';
@@ -66,6 +67,7 @@ export default function App() {
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:slug" element={<ProjectDetail />} />
           <Route path="/projects/:slug/documents" element={<Documents />} />
+          <Route path="/documents" element={<CustomerDocs />} />
           <Route path="/credits" element={<Credits />} />
           <Route path="/tools/script-factory" element={<RequireToolsAccess><ScriptFactoryTool /></RequireToolsAccess>} />
           <Route path="/tools/script-factory/customers" element={<RequireToolsAccess><TimCustomers /></RequireToolsAccess>} />

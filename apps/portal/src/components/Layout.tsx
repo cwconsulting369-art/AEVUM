@@ -6,18 +6,24 @@ import {
   BarChart2, DollarSign, Mail, ShoppingBag, Globe, Bot,
   KeyRound, TrendingUp, ChevronLeft, Users, Menu, X, Coins,
   Link as LinkIcon, FolderOpen, Megaphone, Film, ShieldAlert, Wrench,
-  Funnel
+  Funnel, Activity
 } from 'lucide-react';
 import { Link } from 'react-router';
 import Footer from './Footer';
 import Brand from './Brand';
 
 // ── Generic portal nav ────────────────────────────────────────
-const TIM_WHITELIST = new Set(['carlos@aevum-system.de', 'cwconsulting369@gmail.com', 'tim@knightvision.tech']);
+// Power-User-Whitelist via env (config in apps/portal/.env or Vercel-env: VITE_POWER_USER_EMAILS as comma-separated list)
+const POWER_USER_EMAILS = (import.meta.env.VITE_POWER_USER_EMAILS || '')
+  .split(',')
+  .map((e: string) => e.trim().toLowerCase())
+  .filter(Boolean);
+const TIM_WHITELIST = new Set<string>(POWER_USER_EMAILS);
 
 const portalNav = [
   { to: '/dashboard',   label: 'Dashboard',   icon: LayoutDashboard },
   { to: '/projects',    label: 'Projekte',     icon: FolderGit2 },
+  { to: '/documents',   label: 'Dokumente',    icon: FolderOpen },
   { to: '/credits',     label: 'Credits',      icon: Coins },
   { to: '/profile',     label: 'Profil',       icon: User },
   { to: '/permissions', label: 'Freigaben',    icon: ShieldCheck },
@@ -45,6 +51,7 @@ const PROJECT_SECTIONS: Record<string, ProjectSection[]> = {
     { s: 'intelligence',  label: 'Intelligence', icon: Globe, dividerBefore: true },
     { s: 'quicklinks',    label: 'Quicklinks',   icon: LinkIcon },
     { s: 'docs',          label: 'Dokumente',    icon: FolderOpen },
+    { s: 'activity',      label: 'Aktivität',    icon: Activity },
     { s: 'agent',         label: 'Agent',        icon: Bot },
     { s: 'apis',          label: 'API-Keys',     icon: KeyRound },
   ],
@@ -56,6 +63,7 @@ const PROJECT_SECTIONS: Record<string, ProjectSection[]> = {
     { s: 'content',    label: 'Content',    icon: Globe },
     { s: 'quicklinks', label: 'Quicklinks', icon: LinkIcon, dividerBefore: true },
     { s: 'docs',       label: 'Dokumente',  icon: FolderOpen },
+    { s: 'activity',   label: 'Aktivität',  icon: Activity },
     { s: 'agent',      label: 'Agent',      icon: Bot },
     { s: 'apis',       label: 'API-Keys',   icon: KeyRound },
   ],
@@ -64,6 +72,7 @@ const PROJECT_SECTIONS: Record<string, ProjectSection[]> = {
     { s: 'lead-funnel', label: 'Lead Funnel',  icon: Funnel },
     { s: 'quicklinks',  label: 'Quicklinks',   icon: LinkIcon, dividerBefore: true },
     { s: 'docs',        label: 'Dokumente',    icon: FolderOpen },
+    { s: 'activity',    label: 'Aktivität',    icon: Activity },
     { s: 'agent',       label: 'Agent',        icon: Bot },
     { s: 'apis',        label: 'API-Keys',     icon: KeyRound },
   ],
@@ -73,6 +82,7 @@ const DEFAULT_PROJECT_SECTIONS: ProjectSection[] = [
   { s: 'overview',    label: 'Übersicht',  icon: TrendingUp },
   { s: 'quicklinks',  label: 'Quicklinks', icon: LinkIcon },
   { s: 'docs',        label: 'Dokumente',  icon: FolderOpen },
+  { s: 'activity',    label: 'Aktivität',  icon: Activity },
   { s: 'agent',       label: 'Agent',      icon: Bot },
   { s: 'apis',        label: 'API-Keys',   icon: KeyRound },
 ];

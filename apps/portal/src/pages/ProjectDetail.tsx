@@ -11,6 +11,7 @@ import ProjectAgentChat from '@/components/agent/ProjectAgentChat';
 import QuicklinksSection from '@/components/quicklinks/QuicklinksSection';
 import LeadFunnel from '@/pages/dashboards/LeadFunnel';
 import Documents from '@/pages/Documents';
+import CustomerActivity from '@/components/CustomerActivity';
 
 type ApiRow = { id: string; service: string; key_label: string | null; scope: string; health: string; added_at: string; last_used_at: string | null };
 type MeProject = { id: string; slug: string; name: string };
@@ -67,6 +68,9 @@ export default function ProjectDetail() {
     if (section === 'docs') {
       return <Documents />;
     }
+    if (section === 'activity') {
+      return <CustomerActivity />;
+    }
     return <CollaGlowDashboard section={section} />;
   }
 
@@ -84,6 +88,9 @@ export default function ProjectDetail() {
     if (section === 'docs') {
       return <Documents />;
     }
+    if (section === 'activity') {
+      return <CustomerActivity />;
+    }
     return <AEVUMDashboard section={section} />;
   }
 
@@ -99,6 +106,9 @@ export default function ProjectDetail() {
   }
   if (section === 'docs') {
     return <Documents />;
+  }
+  if (section === 'activity') {
+    return <CustomerActivity />;
   }
   if (section === 'lead-funnel') {
     return <LeadFunnel projectSlug={slug} projectName={project?.name || slug} />;
