@@ -32,7 +32,7 @@ export default function Datenschutz() {
               Deutschland
             </p>
             <p className="mt-3">
-              E-Mail: <a href="mailto:cwconsulting369@gmail.com" className="text-amber-500 hover:underline">cwconsulting369@gmail.com</a><br />
+              E-Mail: <a href="mailto:info@aevum-system.de" className="text-amber-500 hover:underline">info@aevum-system.de</a><br />
               Telefon: <a href="tel:+491772288372" className="text-amber-500 hover:underline">+49 177 228 83 72</a>
             </p>
             <p className="mt-3 text-sm">
@@ -191,7 +191,7 @@ export default function Datenschutz() {
             </ul>
             <p className="mt-3">
               Die Rechte kannst du formlos per Mail an{' '}
-              <a href="mailto:cwconsulting369@gmail.com" className="text-amber-500 hover:underline">cwconsulting369@gmail.com</a>{' '}
+              <a href="mailto:info@aevum-system.de" className="text-amber-500 hover:underline">info@aevum-system.de</a>{' '}
               ausüben. Account-Löschung und Datenexport sind zusätzlich direkt im Portal unter „Profile" verfügbar.
             </p>
           </section>
