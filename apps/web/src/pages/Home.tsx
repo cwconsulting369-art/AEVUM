@@ -25,6 +25,7 @@ import CONTACT from '../config/contact';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import PathThreeCard from '@/components/ctas/PathThreeCard';
 import TrustpilotWidget from '@/components/TrustpilotWidget';
+import TrustpilotReviews from '@/components/TrustpilotReviews';
 import {
   Accordion,
   AccordionItem,
@@ -1236,6 +1237,17 @@ function TrustSection() {
           className="mt-12 flex justify-center"
         >
           <TrustpilotWidget />
+        </motion.div>
+
+        {/* Block F3 (2026-05-25) — full Review-Cards Grid (placeholder mode bis Public-Launch) */}
+        <motion.div
+          custom={5}
+          variants={fadeUp}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          className="mt-16"
+        >
+          <TrustpilotReviews />
         </motion.div>
       </div>
     </section>
