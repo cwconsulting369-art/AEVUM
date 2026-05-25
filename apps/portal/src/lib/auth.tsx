@@ -17,7 +17,16 @@ export type Me = {
   profile: any;
   permissions: any;
   agent: any;
-  projects: Array<{ id: string; slug: string; name: string; status: string }>;
+  projects: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    status: string;
+    _operator_view?: boolean;
+    owner_slug?: string;
+    owner_name?: string;
+  }>;
+  is_operator?: boolean;
 };
 
 type AuthState = {

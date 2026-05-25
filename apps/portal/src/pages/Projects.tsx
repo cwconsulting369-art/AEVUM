@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/auth';
 import { api } from '@/lib/api';
-import { FolderGit2, Plus, ArrowRight, X, Sparkles } from 'lucide-react';
+import { FolderGit2, Plus, ArrowRight, X, Sparkles, Eye, Shield } from 'lucide-react';
 import { stagger } from '@/lib/animations';
 
 export default function Projects() {
@@ -77,33 +77,58 @@ export default function Projects() {
         </form>
       )}
 
+      {me?.is_operator && (
+        <div className="card-premium p-4 mb-6 flex items-start gap-3 border-l-2 border-gold-400/40 bg-gold-400/[0.04]">
+          <Shield size={18} className="text-gold-300 shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <div className="text-sm font-semibold text-white mb-0.5">AEVUM Operator-View aktiv</div>
+            <p className="text-xs text-ink-400 leading-relaxed">
+              Du siehst zusätzlich zu deinen eigenen Projekten alle Customer-Projekte als <span className="text-gold-200">Read-Only-Monitoring</span>. Mutations (Quicklinks/APIs erstellen/ändern) bleiben Customer-only — du nutzt dafür den Impersonate-Flow via Customer-Bot.
+            </p>
+          </div>
+        </div>
+      )}
+
       {me?.projects.length === 0 ? (
         <EmptyProjects onCreate={() => setShowCreate(true)} />
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
-          {me?.projects.map((p, i) => (
-            <Link
-              key={p.id}
-              to={`/projects/${p.slug}`}
-              className="card-premium block p-6 group animate-fade-up"
-              style={stagger(i, 50, 60)}
-            >
-              <div className="flex justify-between items-start mb-3">
-                <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-lg text-white truncate group-hover:text-gold-100 transition">{p.name}</div>
-                  <div className="text-xs text-ink-400 mt-1 font-mono">/{p.slug}</div>
+          {me?.projects.map((p, i) => {
+            const isOperatorView = (p as { _operator_view?: boolean })._operator_view === true;
+            const ownerName = (p as { owner_name?: string }).owner_name;
+            return (
+              <Link
+                key={p.id}
+                to={`/projects/${p.slug}`}
+                className={`card-premium block p-6 group animate-fade-up ${isOperatorView ? 'border border-white/5' : ''}`}
+                style={stagger(i, 50, 60)}
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-lg text-white truncate group-hover:text-gold-100 transition">{p.name}</div>
+                    <div className="text-xs text-ink-400 mt-1 font-mono">/{p.slug}</div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span className={`badge ${p.status === 'active' ? 'badge-emerald' : ''}`}>
+                      <span className={`dot ${p.status === 'active' ? 'dot-ok' : 'dot-off'}`} />
+                      {p.status}
+                    </span>
+                    {isOperatorView && (
+                      <span className="badge badge-gold text-[0.6rem]">
+                        <Eye size={9} className="inline mr-1" /> Operator
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <span className={`badge shrink-0 ${p.status === 'active' ? 'badge-emerald' : ''}`}>
-                  <span className={`dot ${p.status === 'active' ? 'dot-ok' : 'dot-off'}`} />
-                  {p.status}
-                </span>
-              </div>
-              <div className="flex items-center justify-between pt-3 mt-3 border-t border-white/5">
-                <span className="text-xs text-ink-400">Details</span>
-                <ArrowRight size={14} className="text-ink-500 group-hover:text-gold-300 group-hover:translate-x-0.5 transition-all" />
-              </div>
-            </Link>
-          ))}
+                <div className="flex items-center justify-between pt-3 mt-3 border-t border-white/5">
+                  <span className="text-xs text-ink-400 truncate">
+                    {isOperatorView && ownerName ? <>Owner: <span className="text-ink-200">{ownerName}</span></> : 'Details'}
+                  </span>
+                  <ArrowRight size={14} className="text-ink-500 group-hover:text-gold-300 group-hover:translate-x-0.5 transition-all" />
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
