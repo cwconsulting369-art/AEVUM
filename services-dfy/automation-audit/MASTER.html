@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM DFY: automation-audit</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM DFY: automation-audit</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-done-for-you-automation-audit">AEVUM Done-for-You —
+automation-audit</h1>
+<blockquote>
+<p>Generated 2026-05-25. Combined Master-Doc.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<h2 id="in-einem-satz">In einem Satz</h2>
+<p>Wir analysieren dein gesamtes Ops-Stack, identifizieren die teuersten
+Ineffizienzen und liefern eine priorisierte, umsetzbare 90-Tage-Roadmap
+— damit du weißt, was du automatisieren sollst, in welcher Reihenfolge
+und warum.</p>
+<hr />
+<h2 id="wer-das-braucht">Wer das braucht</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Konkreter Use-Case</th>
+<th>Fit-Rating</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AG</strong> (Agentur 3-50 MA)</td>
+<td>Agentur wächst, aber Prozesse skalieren nicht: manuelle Onboardings,
+Excel-Reportings, Copy-Paste zwischen Tools, kein klarer
+Automation-Stack</td>
+<td>★★★★★</td>
+</tr>
+<tr class="even">
+<td><strong>PB</strong> (Personal Brand)</td>
+<td>Creator/Coach mit €30k+/Mo, aber 60% der Zeit geht für Admin,
+Fulfillment-Coordination und manuelle Launches drauf — kein Überblick wo
+die echten Bottlenecks liegen</td>
+<td>★★★★☆</td>
+</tr>
+<tr class="odd">
+<td><strong>FI</strong> (Mittelstand B2B 10-100 MA)</td>
+<td>Unternehmen evaluiert Digitalisierungsbudget, braucht internen
+Business-Case + Stakeholder-Roadmap bevor sie in Umsetzung
+investieren</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="was-customer-bekommt">Was Customer bekommt</h2>
+<ol type="1">
+<li><strong>Process-Inventory</strong> — dokumentierter Ist-Stand aller
+kritischen Workflows (Sales, Ops, Fulfillment, Reporting,
+Kommunikation)</li>
+<li><strong>Tool-Stack-Analyse</strong> — Bewertung jedes aktiven Tools
+auf Utilization, Overlap, Hidden-Costs und Integrationspotenzial</li>
+<li><strong>Ineffizienz-Matrix</strong> — Quantifizierte Bewertung aller
+identifizierten Prozesslücken (Zeit-Verlust/Mo, Fehlerrate,
+Skalierungsrisiko)</li>
+<li><strong>Automation-Kandidaten-Liste</strong> — Priorisierte
+Long-List aller automatisierbaren Prozesse mit
+Effort/Impact-Einschätzung</li>
+<li><strong>Quick-Win-Sheet</strong> — Top 5 Automationen die in &lt;2
+Wochen umsetzbar sind, ohne große Systemänderungen</li>
+<li><strong>90-Tage-Roadmap</strong> — Phasenplan mit konkreten
+Projekten, Sequenzlogik, geschätzten Aufwänden und empfohlener
+Umsetzungsreihenfolge</li>
+<li><strong>ROI-Kalkulation</strong> — konservative Schätzwerte für
+Zeit-Einsparung, FTE-Equivalent und Umsatzpotenzial pro
+Roadmap-Phase</li>
+<li><strong>Stack-Empfehlung</strong> — konkrete Tool-Empfehlungen
+(inkl. Begründung für Behalten / Ersetzen / Hinzufügen)</li>
+<li><strong>Findings-Präsentation</strong> — strukturiertes Readout-Deck
+für Entscheider/Team (Executive Summary + Detail-Anhang)</li>
+<li><strong>Handover-Call</strong> — 90-minütiger Deep-Dive durch alle
+Findings mit Q&amp;A und Priorisierungs-Workshop</li>
+</ol>
+<hr />
+<h2 id="mehrwert-konkret">Mehrwert (konkret)</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Vorher</th>
+<th>Nachher</th>
+<th>Schätzwert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Klarheit über Ops-Stack</td>
+<td>“Wir haben 14 Tools, keiner weiß ob die sich überschneiden”</td>
+<td>Dokumentierter Stack mit Utilization-Score + Handlungsempfehlung pro
+Tool</td>
+<td>100% Übersicht</td>
+</tr>
+<tr class="even">
+<td>Entscheidungsgrundlage</td>
+<td>Bauchgefühl-Investitionen in Automation</td>
+<td>ROI-validierter Projektplan mit Priorisierung</td>
+<td>3-5x höhere Treffsicherheit bei Automation-Spend</td>
+</tr>
+<tr class="odd">
+<td>Gesparte Management-Zeit</td>
+<td>4-8h/Woche für ungeplante Ops-Feuerwehr</td>
+<td>Strukturierter Investitionsplan, kein Blindflug mehr</td>
+<td>~6h/Woche Management-Entlastung</td>
+</tr>
+<tr class="even">
+<td>Umsetzungsgeschwindigkeit</td>
+<td>Automation-Projekte starten verzögert weil unklar wo anfangen</td>
+<td>Team startet mit priorisierten Quick-Wins in Woche 1 nach Audit</td>
+<td>4-8 Wochen schnellerer Start</td>
+</tr>
+<tr class="odd">
+<td>Budget-Effizienz</td>
+<td>Geld für falsche Automationen ausgegeben</td>
+<td>Nur noch Projekte mit nachgewiesenem ROI-Potenzial</td>
+<td>20-40% Einsparung auf Automation-Budget</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pricing-logic">Pricing-Logic</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tier</th>
+<th>Setup (einmalig)</th>
+<th>Retainer (optional)</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>M — Standard Audit</strong></td>
+<td>€8.000 – €12.000</td>
+<td>Kein Retainer (Standalone)</td>
+<td>Bis 3 Kern-Workflows, bis 15 Tools, 1 Readout-Session,
+Standard-Roadmap</td>
+</tr>
+<tr class="even">
+<td><strong>M — Extended Audit</strong></td>
+<td>€12.000 – €18.000</td>
+<td>€2.000/Mo (Roadmap-Begleitung 3 Mo.)</td>
+<td>Bis 6 Workflows, bis 25 Tools, 2 Readout-Sessions, ROI-Kalkulation,
+Stack-Empfehlung vollständig</td>
+</tr>
+<tr class="odd">
+<td><strong>L — Enterprise Audit</strong></td>
+<td>€22.000 – €35.000</td>
+<td>€3.000/Mo (Umsetzungsbegleitung 6 Mo.)</td>
+<td>Unbegrenzte Workflows, Multi-Dept., Stakeholder-Workshops,
+Change-Management-Empfehlungen, Execution-Support</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Hinweis:</strong> Der Audit ist primär ein
+Standalone-Produkt. Retainer-Option gilt nur wenn Customer die Roadmap
+mit AEVUM umsetzt.</p>
+</blockquote>
+<hr />
+<h2 id="timeline">Timeline</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th>Zeitraum</th>
+<th>Inhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Phase 1 — Onboarding &amp; Intake</strong></td>
+<td>Woche 1</td>
+<td>Kick-off Call, Fragebogen-Ausgabe, Tool-Access-Setup,
+Stakeholder-Interviews planen</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 2 — Discovery</strong></td>
+<td>Woche 2-3</td>
+<td>Process-Interviews (3-5 Stakeholder), Tool-Stack-Review,
+Workflow-Dokumentation Ist-Stand</td>
+</tr>
+<tr class="odd">
+<td><strong>Phase 3 — Analyse</strong></td>
+<td>Woche 3-4</td>
+<td>Ineffizienz-Scoring, Automation-Kandidaten identifizieren,
+ROI-Kalkulation, Stack-Bewertung</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 4 — Roadmap-Erstellung</strong></td>
+<td>Woche 4-5</td>
+<td>90-Tage-Roadmap bauen, Quick-Win-Sheet finalisieren, Findings-Deck
+erstellen</td>
+</tr>
+<tr class="odd">
+<td><strong>Phase 5 — Readout &amp; Handover</strong></td>
+<td>Woche 5-6</td>
+<td>Findings-Präsentation, Priorisierungs-Workshop, Fragen klären,
+Handover-Package übergeben</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Standard-Audit: 5-6 Wochen. Extended: 6-8 Wochen. Enterprise: 8-12
+Wochen.</p>
+</blockquote>
+<hr />
+<h2 id="voraussetzungen-customer">Voraussetzungen Customer</h2>
+<ul>
+<li>Zugang zu allen relevanten Tools (View-Rechte reichen für Phase 1;
+Admin-Rechte für tiefere Analyse)</li>
+<li>Verfügbarkeit von 2-3 Stakeholdern für je 60-90 min Interviews</li>
+<li>Bereitschaft zur Offenlegung von Prozess-Schwachstellen (kein
+Schönreden im Interview)</li>
+<li>Bestehende Tool-Rechnungen / SaaS-Kostenübersicht
+(idealerweise)</li>
+<li>Mindestens 6 Monate Betrieb des aktuellen Setups (keine frischen
+Startups ohne Datenbasis)</li>
+</ul>
+<hr />
+<h2 id="nicht-ziele-out-of-scope">Nicht-Ziele (Out of Scope)</h2>
+<ol type="1">
+<li><strong>Keine Umsetzung</strong> — der Audit empfiehlt, baut aber
+nichts. Implementation = separates Projekt.</li>
+<li><strong>Kein IT-Security-Audit</strong> — wir bewerten keine
+Sicherheitslücken, DSGVO-Compliance oder Datenschutz-Architektur.</li>
+<li><strong>Kein Tool-Switching-Management</strong> — wir empfehlen
+Stack-Änderungen, migrieren aber keine Daten.</li>
+<li><strong>Keine HR/Org-Beratung</strong> — Effizienzprobleme durch
+Personalstruktur sind Out of Scope.</li>
+<li><strong>Kein Code-Review</strong> — bestehende
+Custom-Softwarelösungen werden funktional bewertet, nicht auf Code-Ebene
+geprüft.</li>
+<li><strong>Keine Finanz- oder Steuerberatung</strong> —
+ROI-Kalkulationen sind Schätzwerte, keine testierten Zahlen.</li>
+<li><strong>Kein laufendes Monitoring</strong> — nach Handover endet der
+Auftrag; kein automatisches Follow-up.</li>
+</ol>
+<hr />
+<h2 id="upsell-pfade">Upsell-Pfade</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Trigger</th>
+<th>Next Service</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Audit zeigt: Sales-Prozess ist größter Bottleneck</td>
+<td><code>sales-os</code> — Sales-Pipeline mit AI-Scoring</td>
+</tr>
+<tr class="even">
+<td>Audit zeigt: Lead-Gen läuft manuell, keine Qualifizierung</td>
+<td><code>ai-lead-engine</code> — Full-Stack Lead-Generation</td>
+</tr>
+<tr class="odd">
+<td>Audit zeigt: Kein zentrales Ops-Dashboard, Multi-Tool-Chaos</td>
+<td><code>command-center-dashboard</code> — Cross-Tool-Sichtbarkeit</td>
+</tr>
+<tr class="even">
+<td>Audit zeigt: Content-Produktion frisst 30%+ der Arbeitszeit</td>
+<td><code>content-engine</code> — End-to-End Content-Pipeline</td>
+</tr>
+<tr class="odd">
+<td>Customer will gesamtes Business digitalisieren</td>
+<td><code>business-os</code> — Komplettes Business-OS</td>
+</tr>
+<tr class="even">
+<td>Audit zeigt: Daten in 5+ Quellen, kein reporting</td>
+<td><code>database-system</code> — Multi-Source Data-Pipeline</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conversion-story">Conversion-Story</h2>
+<p>Die meisten Unternehmen, die zu uns kommen, wissen dass sie zu viel
+manuell machen. Sie spüren es täglich: im Team-Meeting, wenn wieder
+dieselben Fehler auftauchen. In der P&amp;L, wenn sie sehen dass drei
+Vollzeitkräfte Dinge tun, die Software erledigen könnte. Aber sie wissen
+nicht wo sie anfangen sollen — und das Falsche zu automatisieren kostet
+mehr als gar nichts zu tun.</p>
+<p>Der Automation Audit existiert für genau diesen Moment. Nicht als
+Berater-Slideshow mit generischen Empfehlungen, sondern als harter Blick
+von außen auf deinen spezifischen Stack, deine spezifischen Workflows
+und dein spezifisches Team. Wir sprechen mit deinen Leuten, sehen uns an
+was wirklich passiert (nicht was im Handbuch steht), und bauen daraus
+eine Roadmap die realistisch ist — nicht beeindruckend auf dem Papier,
+sondern umsetzbar in der Realität.</p>
+<p>Was Customer am Ende hat: keine Ungewissheit mehr. Einen konkreten
+Plan. Die Gewissheit, dass jeder Euro der danach in Automation fließt,
+auf validierter Analyse basiert — nicht auf Bauchgefühl oder dem Pitch
+des nächsten SaaS-Vendors. Wer diesen Schritt überspringt und direkt in
+Umsetzung geht, riskiert teure Fehlentscheidungen. Wer ihn macht, kauft
+sich die Klarheit, die jeden nachfolgenden Investment-Euro effizienter
+macht. </p>
+<h1 id="scope-checklist">2. Scope-Checklist</h1>
+<h2 id="in-scope">In-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Item</th>
+<th>Aufwand-Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Intake</strong></td>
+<td>Kick-off Call (Ziele, Erwartungen, Logistik)</td>
+<td>1,5h</td>
+</tr>
+<tr class="even">
+<td><strong>Intake</strong></td>
+<td>Ausgabe + Auswertung Onboarding-Fragebogen (strukturiert, 40-60
+Fragen)</td>
+<td>3h</td>
+</tr>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Stakeholder-Interviews (bis 5 Personen, je 60-90 min)</td>
+<td>6-8h</td>
+</tr>
+<tr class="even">
+<td><strong>Discovery</strong></td>
+<td>Tool-Stack-Inventarisierung (alle aktiven Tools, Lizenzen,
+Kosten)</td>
+<td>3-4h</td>
+</tr>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Prozess-Dokumentation Ist-Stand (bis 6 Kern-Workflows,
+Flowchart-Level)</td>
+<td>6-10h</td>
+</tr>
+<tr class="even">
+<td><strong>Analyse</strong></td>
+<td>Ineffizienz-Scoring pro Workflow (Zeit/Fehler/Risiko-Matrix)</td>
+<td>4-6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Analyse</strong></td>
+<td>Automation-Kandidaten-Identifikation +
+Effort/Impact-Einschätzung</td>
+<td>4-5h</td>
+</tr>
+<tr class="even">
+<td><strong>Analyse</strong></td>
+<td>ROI-Kalkulation (konservative Schätzwerte, keine Garantien)</td>
+<td>3-4h</td>
+</tr>
+<tr class="odd">
+<td><strong>Analyse</strong></td>
+<td>Tool-Stack-Bewertung (Behalten / Ersetzen / Ergänzen)</td>
+<td>2-3h</td>
+</tr>
+<tr class="even">
+<td><strong>Roadmap</strong></td>
+<td>Quick-Win-Sheet (Top 5 Automationen, sofort umsetzbar)</td>
+<td>2h</td>
+</tr>
+<tr class="odd">
+<td><strong>Roadmap</strong></td>
+<td>90-Tage-Phasenplan (Projekte, Sequenz, Aufwände,
+Abhängigkeiten)</td>
+<td>4-5h</td>
+</tr>
+<tr class="even">
+<td><strong>Deliverable</strong></td>
+<td>Findings-Deck (Executive Summary + Detail-Anhang, max. 30
+Slides)</td>
+<td>4-6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Deliverable</strong></td>
+<td>Readout-Präsentation (bis 2 Sessions à 90 min)</td>
+<td>3h</td>
+</tr>
+<tr class="even">
+<td><strong>Deliverable</strong></td>
+<td>Priorisierungs-Workshop (live, 60 min, mit Entscheider)</td>
+<td>1h</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover</strong></td>
+<td>Vollständiges Handover-Package (alle Docs + Video-Walkthrough)</td>
+<td>2h</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gesamt-Aufwand-Estimate Standard-Audit: 48-65h
+intern</strong></p>
+<hr />
+<h2 id="out-of-scope">Out-of-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Was Customer NICHT bekommt</th>
+<th>Begründung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Umsetzung / Bau von Automationen</td>
+<td>Das ist ein separates Implementation-Projekt</td>
+</tr>
+<tr class="even">
+<td>Technische Tool-Migrationen oder Datentransfers</td>
+<td>Requires separate Scoping</td>
+</tr>
+<tr class="odd">
+<td>DSGVO-/Compliance-/Security-Bewertung</td>
+<td>Erfordert Rechtsexperten, nicht Automation-Strategen</td>
+</tr>
+<tr class="even">
+<td>HR-Prozess-Optimierung (Hiring, Payroll, Org-Design)</td>
+<td>Out of AEVUM’s Kompetenzbereich</td>
+</tr>
+<tr class="odd">
+<td>Code-Review bestehender Custom-Lösungen</td>
+<td>Nur funktionale Bewertung, kein technisches Audit</td>
+</tr>
+<tr class="even">
+<td>Garantierte ROI-Zahlen</td>
+<td>Schätzwerte basierend auf Industrie-Benchmarks, keine
+Testierung</td>
+</tr>
+<tr class="odd">
+<td>Laufendes Monitoring nach Handover</td>
+<td>Endet mit Übergabe, Retainer ist separates Produkt</td>
+</tr>
+<tr class="even">
+<td>Training des Customer-Teams auf neue Tools</td>
+<td>Nur Empfehlung, kein Live-Training</td>
+</tr>
+<tr class="odd">
+<td>Vendor-Verhandlungen oder Tool-Purchasing</td>
+<td>Liegt beim Customer</td>
+</tr>
+<tr class="even">
+<td>Mehr als 6 Kern-Workflows (Standard-Tier)</td>
+<td>Extended/Enterprise für mehr Tiefe</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer-side">Voraussetzungen
+Customer-Side</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Anforderung</th>
+<th>Kritikalität</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Access</strong></td>
+<td>View-Rechte auf alle relevanten Tools</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td><strong>Access</strong></td>
+<td>Admin-Rechte für Tool-Stack-Details (optional aber hilfreich)</td>
+<td>Nice-to-have</td>
+</tr>
+<tr class="odd">
+<td><strong>Daten</strong></td>
+<td>SaaS-Kostenübersicht / Tool-Rechnungen letzter 3 Mo.</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td><strong>Daten</strong></td>
+<td>Grobe Zeiterfassungsdaten oder Schätzungen (wie lang dauern
+Prozesse)</td>
+<td>Pflicht</td>
+</tr>
+<tr class="odd">
+<td><strong>Zeit</strong></td>
+<td>Kick-off Call: 90 min (Entscheider + 1-2 Ops-Verantwortliche)</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td><strong>Zeit</strong></td>
+<td>Stakeholder-Interviews: 5 x 60-90 min (verschiedene Rollen)</td>
+<td>Pflicht</td>
+</tr>
+<tr class="odd">
+<td><strong>Zeit</strong></td>
+<td>Readout-Session: 90 min (Entscheider anwesend)</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td><strong>Team</strong></td>
+<td>Klarer Ansprechpartner (Single Point of Contact) auf
+Customer-Seite</td>
+<td>Pflicht</td>
+</tr>
+<tr class="odd">
+<td><strong>Mindset</strong></td>
+<td>Bereitschaft zur offenen Darstellung von Problemen und Fehlern</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td><strong>Reifegrad</strong></td>
+<td>Mindestens 6 Monate Betrieb aktueller Prozesse</td>
+<td>Pflicht</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-standards">Quality-Standards</h2>
+<p>AEVUM sagt “Done” wenn folgende Kriterien erfüllt sind:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Standard</th>
+<th>Kriterium</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Vollständigkeit</strong></td>
+<td>Alle in Scope definierten Deliverables sind übergeben</td>
+</tr>
+<tr class="even">
+<td><strong>Prozess-Dokumentation</strong></td>
+<td>Jeder dokumentierte Workflow enthält: Trigger, Schritte, beteiligte
+Tools, Handoff-Punkte, bekannte Fehlerquellen</td>
+</tr>
+<tr class="odd">
+<td><strong>Ineffizienz-Matrix</strong></td>
+<td>Jede Lücke hat: Zeit-Verlust-Schätzung, Fehlerrate-Einschätzung,
+Automatisierbarkeits-Score (1-5)</td>
+</tr>
+<tr class="even">
+<td><strong>Roadmap</strong></td>
+<td>Enthält: Phasen, Projekte pro Phase, Abhängigkeiten,
+Effort-Estimate, Priority-Score</td>
+</tr>
+<tr class="odd">
+<td><strong>ROI-Kalkulation</strong></td>
+<td>Mindestens 3 Szenarien (konservativ / realistisch / optimistisch)
+mit Quellenangabe der Annahmen</td>
+</tr>
+<tr class="even">
+<td><strong>Findings-Deck</strong></td>
+<td>Executive Summary max. 5 Slides, vollständiger Detail-Anhang, keine
+generischen Empfehlungen ohne Datenbasis</td>
+</tr>
+<tr class="odd">
+<td><strong>Quick-Win-Sheet</strong></td>
+<td>Top 5 Automationen mit: Tool-Empfehlung, geschätzter Aufwand,
+geschätzter Nutzen, nächste konkrete Schritte</td>
+</tr>
+<tr class="even">
+<td><strong>Readout</strong></td>
+<td>Customer hat aktiv Feedback gegeben, offene Fragen sind dokumentiert
+und beantwortet</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover-Package</strong></td>
+<td>Alle Dokumente in strukturiertem Ordner, Video-Walkthrough vorhanden
+(min. 20 min)</td>
+</tr>
+<tr class="even">
+<td><strong>Customer Sign-Off</strong></td>
+<td>Schriftliche Bestätigung des Customers dass Findings vollständig und
+verständlich sind</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="change-request-policy">Change-Request-Policy</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Szenario</th>
+<th>Handling</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Customer möchte zusätzliche Workflows in den Audit einbeziehen (über
+Scope hinaus)</td>
+<td>Change-Request-Formular, Kosten-Schätzung innerhalb 48h,
+Customer-Approval vor Start</td>
+</tr>
+<tr class="even">
+<td>Customer möchte tiefere technische Analyse einzelner Tools</td>
+<td>Bewertet als Add-On (€800-2.500 je nach Aufwand), separates SOW</td>
+</tr>
+<tr class="odd">
+<td>Customer möchte nach Audit-Abschluss Roadmap-Revision</td>
+<td>1x kostenlose Minor-Revision innerhalb 14 Tage nach Handover; danach
+€150/h</td>
+</tr>
+<tr class="even">
+<td>Customer stellt nachträglich fest, dass kritische Prozesse nicht
+erfasst wurden (Customer-Fehler)</td>
+<td>Zusatz-Interview möglich, Aufwand wird berechnet (€150/h)</td>
+</tr>
+<tr class="odd">
+<td>AEVUM hat relevante Workflows nicht erfasst (AEVUM-Fehler)</td>
+<td>Kostenlose Nachbesserung innerhalb Projekt-Scope</td>
+</tr>
+<tr class="even">
+<td>Customer-Ansprechpartner wechselt mid-project</td>
+<td>Re-Onboarding-Aufwand (max. 3h) wird kostenpflichtig wenn &gt;1
+Wechsel</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pricing-variations">Pricing-Variations</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Add-On / Variation</th>
+<th>Preis-Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Jeder zusätzliche Kern-Workflow (über 6 hinaus)</td>
+<td>+€800-1.200 pro Workflow</td>
+</tr>
+<tr class="even">
+<td>Jeder zusätzliche Stakeholder-Interview über 5 hinaus</td>
+<td>+€400 pro Interview</td>
+</tr>
+<tr class="odd">
+<td>Vollständiger Multi-Department-Scope (3+ Abteilungen)</td>
+<td>Upgrade auf Enterprise-Tier (+€10.000-20.000)</td>
+</tr>
+<tr class="even">
+<td>Roadmap-Begleitung (3 Mo. Retainer nach Audit)</td>
+<td>+€2.000/Mo</td>
+</tr>
+<tr class="odd">
+<td>Umsetzungs-Begleitung (6 Mo. Retainer nach Audit)</td>
+<td>+€3.000/Mo</td>
+</tr>
+<tr class="even">
+<td>Zweite Readout-Session (zusätzlich zur Standard-Session)</td>
+<td>+€800</td>
+</tr>
+<tr class="odd">
+<td>Stakeholder-Präsentation für Board/Investoren (angepasstes
+Deck)</td>
+<td>+€1.500</td>
+</tr>
+<tr class="even">
+<td>Deutsch + Englisch Deliverables (bilingual)</td>
+<td>+€1.200 Pauschal</td>
+</tr>
+<tr class="odd">
+<td>Express-Delivery (Zeitrahmen um 30% reduziert)</td>
+<td>+25% auf Setup-Fee</td>
+</tr>
+</tbody>
+</table>
+<h1 id="delivery-plan">3. Delivery-Plan</h1>
+<h2 id="phasen">Phasen</h2>
+<h3 id="phase-1-onboarding-intake-woche-1">Phase 1 — Onboarding &amp;
+Intake (Woche 1)</h3>
+<p><strong>Ziel:</strong> Vollständiges Verständnis von Kontext,
+Erwartungen und Zugang.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Customer-Touchpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kick-off Call (90 min)</td>
+<td>Founder + Customer-Success</td>
+<td>✅ Kick-off Call</td>
+</tr>
+<tr class="even">
+<td>Fragebogen-Ausgabe (40-60 Fragen, async)</td>
+<td>Customer-Success</td>
+<td>Fragebogen per Notion/PDF</td>
+</tr>
+<tr class="odd">
+<td>Tool-Access-Setup (alle relevanten Logins)</td>
+<td>Customer-Success + Engineering</td>
+<td>Async, Checkliste</td>
+</tr>
+<tr class="even">
+<td>Stakeholder-Interviews planen (Termine blocken)</td>
+<td>Customer-Success</td>
+<td>Terminkoordination</td>
+</tr>
+<tr class="odd">
+<td>Projekt-Folder aufsetzen (Notion/Drive)</td>
+<td>Customer-Success</td>
+<td>Einladung + Erklärung</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="phase-2-discovery-woche-2-3">Phase 2 — Discovery (Woche
+2-3)</h3>
+<p><strong>Ziel:</strong> Vollständige Ist-Dokumentation Workflows +
+Tool-Stack.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Customer-Touchpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Stakeholder-Interviews durchführen (3-5 Personen)</td>
+<td>Founder / Senior-Analyst</td>
+<td>Interview-Calls (je 60-90 min)</td>
+</tr>
+<tr class="even">
+<td>Tool-Stack-Inventarisierung abschließen</td>
+<td>Engineering</td>
+<td>Async-Review</td>
+</tr>
+<tr class="odd">
+<td>Workflow-Dokumentation Ist-Stand (Flowcharts)</td>
+<td>Senior-Analyst</td>
+<td>Async, Draft per Notion</td>
+</tr>
+<tr class="even">
+<td>Fragebogen-Auswertung abgeschlossen</td>
+<td>Customer-Success</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Wöchentlicher Status-Check</td>
+<td>Customer-Success</td>
+<td>✅ Weekly-Sync Woche 2</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="phase-3-analyse-woche-3-4">Phase 3 — Analyse (Woche 3-4)</h3>
+<p><strong>Ziel:</strong> Tiefe Bewertung aller Ineffizienzen +
+Automation-Potenziale.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Customer-Touchpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ineffizienz-Matrix finalisiert</td>
+<td>Senior-Analyst</td>
+<td>Async (kein Customer-Call nötig)</td>
+</tr>
+<tr class="even">
+<td>Automation-Kandidaten-Liste erstellt + gescort</td>
+<td>Founder + Senior-Analyst</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>ROI-Kalkulation (3 Szenarien)</td>
+<td>Founder</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Tool-Stack-Bewertung abgeschlossen</td>
+<td>Engineering + Founder</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Internes Quality-Gate Review (Phase 3)</td>
+<td>Founder</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Wöchentlicher Status-Check</td>
+<td>Customer-Success</td>
+<td>✅ Weekly-Sync Woche 4</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="phase-4-roadmap-deliverable-erstellung-woche-4-5">Phase 4 —
+Roadmap &amp; Deliverable-Erstellung (Woche 4-5)</h3>
+<p><strong>Ziel:</strong> Alle Deliverables fertiggestellt,
+Findings-Deck gebaut.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Customer-Touchpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Quick-Win-Sheet finalisiert</td>
+<td>Founder</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>90-Tage-Roadmap (Phasenplan) abgeschlossen</td>
+<td>Founder</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Findings-Deck gebaut (Executive Summary + Anhang)</td>
+<td>Founder + Customer-Success</td>
+<td>Vorab-Versand 48h vor Readout</td>
+</tr>
+<tr class="even">
+<td>Internes Quality-Gate Review (finales Deliverable)</td>
+<td>Founder</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="phase-5-readout-handover-woche-5-6">Phase 5 ��� Readout &amp;
+Handover (Woche 5-6)</h3>
+<p><strong>Ziel:</strong> Customer versteht alle Findings, Roadmap ist
+abgenommen.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Customer-Touchpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Readout-Präsentation (90 min)</td>
+<td>Founder</td>
+<td>✅ Readout-Call</td>
+</tr>
+<tr class="even">
+<td>Priorisierungs-Workshop (60 min)</td>
+<td>Founder</td>
+<td>✅ Workshop-Call (gleicher Tag oder Folgetag)</td>
+</tr>
+<tr class="odd">
+<td>Offene Fragen dokumentieren + beantworten</td>
+<td>Customer-Success</td>
+<td>Async innerhalb 48h</td>
+</tr>
+<tr class="even">
+<td>Video-Walkthrough aufnehmen (alle Deliverables)</td>
+<td>Customer-Success</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Handover-Package übergeben</td>
+<td>Customer-Success</td>
+<td>✅ Handover-Call (30 min)</td>
+</tr>
+<tr class="even">
+<td>Customer Sign-Off einholen</td>
+<td>Customer-Success</td>
+<td>Schriftlich per E-Mail</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="team-allocation">Team-Allocation</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rolle</th>
+<th>Phase 1</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+<th>Phase 4</th>
+<th>Phase 5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Founder</strong></td>
+<td>Kick-off, Scope-Klärung</td>
+<td>Stakeholder-Interviews leiten</td>
+<td>Analyse, ROI-Kalkulation, Automation-Scoring</td>
+<td>Roadmap bauen, Deck finalisieren</td>
+<td>Readout, Workshop</td>
+</tr>
+<tr class="even">
+<td><strong>Senior-Analyst</strong></td>
+<td>Fragebogen-Auswertung</td>
+<td>Workflow-Dokumentation, Interviews supporten</td>
+<td>Ineffizienz-Matrix, Kandidaten-Liste</td>
+<td>Review + Input</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td><strong>Engineering</strong></td>
+<td>Tool-Access-Setup</td>
+<td>Tool-Stack-Inventarisierung</td>
+<td>Tool-Bewertung (technische Layer)</td>
+<td>Stack-Empfehlung finalisieren</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td><strong>Customer-Success</strong></td>
+<td>Projektsetup, Koordination</td>
+<td>Terminkoordination, Weekly-Sync</td>
+<td>Status-Update, Async-Kommunikation</td>
+<td>Deck-Formatierung, Versand</td>
+<td>Handover-Package, Sign-Off, Video</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2
+id="customer-onboarding-touchpoints">Customer-Onboarding-Touchpoints</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Touchpoint</th>
+<th>Zeitpunkt</th>
+<th>Format</th>
+<th>Dauer</th>
+<th>Ziel</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Kick-off Call</strong></td>
+<td>Woche 1, Tag 1-3</td>
+<td>Video-Call</td>
+<td>90 min</td>
+<td>Erwartungen alignen, Scope bestätigen, Access-Checkliste
+übergeben</td>
+</tr>
+<tr class="even">
+<td><strong>Weekly-Sync #1</strong></td>
+<td>Ende Woche 2</td>
+<td>Video-Call</td>
+<td>30 min</td>
+<td>Discovery-Status, offene Fragen klären, Interview-Scheduling
+bestätigen</td>
+</tr>
+<tr class="odd">
+<td><strong>Weekly-Sync #2</strong></td>
+<td>Ende Woche 4</td>
+<td>Video-Call</td>
+<td>30 min</td>
+<td>Analyse-Status, erste Impressionen teilen, Feedback auf
+Prioritäten</td>
+</tr>
+<tr class="even">
+<td><strong>Readout-Präsentation</strong></td>
+<td>Woche 5-6</td>
+<td>Video-Call</td>
+<td>90 min</td>
+<td>Alle Findings präsentieren, Diskussion, erstes Feedback
+einholen</td>
+</tr>
+<tr class="odd">
+<td><strong>Priorisierungs-Workshop</strong></td>
+<td>Woche 5-6 (nach Readout)</td>
+<td>Video-Call</td>
+<td>60 min</td>
+<td>Roadmap gemeinsam priorisieren, Next-Steps definieren</td>
+</tr>
+<tr class="even">
+<td><strong>Handover-Call</strong></td>
+<td>Woche 6</td>
+<td>Video-Call</td>
+<td>30 min</td>
+<td>Handover-Package übergeben, Video-Walkthrough erklären,
+Sign-Off</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="risk-register">Risk-Register</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Risk</th>
+<th>Wahrscheinlichkeit</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Stakeholder-Availability</strong> — Customer-Ansprechpartner
+nicht verfügbar für Interviews, Verzögerungen</td>
+<td>Hoch</td>
+<td>Hoch</td>
+<td>Termine in Woche 1 blocken; falls &gt;1 Woche Verzögerung:
+Timeline-Extension kommunizieren + dokumentieren</td>
+</tr>
+<tr class="even">
+<td><strong>Schönfärben im Interview</strong> — Customer-Team zeigt nur
+Best-Case-Prozesse, echte Pain-Points bleiben verborgen</td>
+<td>Mittel</td>
+<td>Hoch</td>
+<td>Anonymisierte Einzelinterviews; direkte Fragen nach Fehlerquellen;
+Tool-Log-Analyse als Daten-Cross-Check</td>
+</tr>
+<tr class="odd">
+<td><strong>Tool-Access-Probleme</strong> — Customer gibt Access nicht
+rechtzeitig oder nur eingeschränkt</td>
+<td>Mittel</td>
+<td>Mittel</td>
+<td>Access-Checkliste Tag 1; klare Deadline für Access in Woche 1;
+Eskalations-Protokoll an Entscheider</td>
+</tr>
+<tr class="even">
+<td><strong>Scope-Creep Customer-Side</strong> — Customer will während
+Audit immer mehr Workflows hineinziehen</td>
+<td>Mittel</td>
+<td>Mittel</td>
+<td>Scope klar schriftlich fixieren bei Kick-off; Change-Request-Prozess
+aktiv kommunizieren; CR frühzeitig auslösen</td>
+</tr>
+<tr class="odd">
+<td><strong>Overloaded Findings</strong> — Zu viele Baustellen
+identifiziert, Roadmap wird unübersichtlich und Customer verliert
+Fokus</td>
+<td>Niedrig</td>
+<td>Hoch</td>
+<td>Hard Prioritization im Roadmap-Build (max. 3 Projekte pro Phase);
+Priorisierungs-Workshop nutzen um auf Quick-Wins zu fokussieren</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-gates">Quality-Gates</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Gate</th>
+<th>Zeitpunkt</th>
+<th>Prüfer</th>
+<th>Kriterium</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Gate 1 — Intake vollständig</strong></td>
+<td>Ende Woche 1</td>
+<td>Customer-Success</td>
+<td>Fragebogen ausgefüllt, alle Tool-Accesses vorhanden, Interviews
+terminiert</td>
+</tr>
+<tr class="even">
+<td><strong>Gate 2 — Discovery abgeschlossen</strong></td>
+<td>Ende Woche 3</td>
+<td>Founder</td>
+<td>Alle Workflows dokumentiert, Tool-Stack inventarisiert, Interviews
+durchgeführt</td>
+</tr>
+<tr class="odd">
+<td><strong>Gate 3 — Analyse-Qualität</strong></td>
+<td>Mitte Woche 4</td>
+<td>Founder</td>
+<td>Ineffizienz-Matrix vollständig, ROI-Annahmen dokumentiert, keine
+generischen Empfehlungen ohne Datenbasis</td>
+</tr>
+<tr class="even">
+<td><strong>Gate 4 — Deliverables intern abgenommen</strong></td>
+<td>Ende Woche 4</td>
+<td>Founder</td>
+<td>Deck, Roadmap, Quick-Win-Sheet vollständig und auf
+Qualitätsstandard; kein Boilerplate-Content</td>
+</tr>
+<tr class="odd">
+<td><strong>Gate 5 — Customer-Sign-Off</strong></td>
+<td>Ende Woche 6</td>
+<td>Customer-Success</td>
+<td>Schriftliche Bestätigung Customer; alle offenen Fragen beantwortet;
+Video-Walkthrough vorhanden</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="handover-package">Handover-Package</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Format</th>
+<th>Beschreibung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Process-Inventory-Dokument</strong></td>
+<td>Notion/PDF</td>
+<td>Vollständige Ist-Dokumentation aller Workflows (Flowcharts +
+Beschreibung)</td>
+</tr>
+<tr class="even">
+<td><strong>Tool-Stack-Bewertung</strong></td>
+<td>Notion/PDF/Sheet</td>
+<td>Inventar aller Tools mit Utilization-Score, Kosten, Empfehlung</td>
+</tr>
+<tr class="odd">
+<td><strong>Ineffizienz-Matrix</strong></td>
+<td>Sheet/PDF</td>
+<td>Alle identifizierten Lücken mit Scoring</td>
+</tr>
+<tr class="even">
+<td><strong>Automation-Kandidaten-Liste</strong></td>
+<td>Sheet/Notion</td>
+<td>Full Long-List mit Effort/Impact-Matrix</td>
+</tr>
+<tr class="odd">
+<td><strong>Quick-Win-Sheet</strong></td>
+<td>PDF/Notion</td>
+<td>Top 5 sofort umsetzbare Automationen</td>
+</tr>
+<tr class="even">
+<td><strong>90-Tage-Roadmap</strong></td>
+<td>Notion/PDF</td>
+<td>Vollständiger Phasenplan mit Projekten, Abhängigkeiten,
+Aufwänden</td>
+</tr>
+<tr class="odd">
+<td><strong>ROI-Kalkulation</strong></td>
+<td>Sheet/PDF</td>
+<td>3-Szenarien-Modell mit Annahmen-Dokumentation</td>
+</tr>
+<tr class="even">
+<td><strong>Findings-Deck</strong></td>
+<td>PDF/Slides</td>
+<td>Executive Summary + vollständiger Detail-Anhang</td>
+</tr>
+<tr class="odd">
+<td><strong>Stack-Empfehlung</strong></td>
+<td>PDF</td>
+<td>Konkrete Tool-Empfehlungen mit Begründung</td>
+</tr>
+<tr class="even">
+<td><strong>Video-Walkthrough</strong></td>
+<td>MP4/Loom (min. 20 min)</td>
+<td>Founder erklärt alle Findings + Roadmap</td>
+</tr>
+<tr class="odd">
+<td><strong>Gesammeltes Audit-Archiv</strong></td>
+<td>Google Drive / Notion</td>
+<td>Alle Assets in strukturiertem Ordner, Customer-Zugang dauerhaft</td>
+</tr>
+</tbody>
+</table>
+<h1 id="quality-gate">4. Quality-Gate</h1>
+<h2 id="asset-inventory">Asset-Inventory</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Asset</th>
+<th>Format</th>
+<th>Status</th>
+<th>Verantwortlich</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Process-Inventory-Dokument</td>
+<td>Notion + PDF-Export</td>
+<td>☐</td>
+<td>Senior-Analyst</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Tool-Stack-Bewertungs-Sheet</td>
+<td>Google Sheets + PDF</td>
+<td>☐</td>
+<td>Engineering</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Ineffizienz-Matrix</td>
+<td>Google Sheets + PDF</td>
+<td>☐</td>
+<td>Senior-Analyst</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Automation-Kandidaten-Liste</td>
+<td>Google Sheets + Notion</td>
+<td>☐</td>
+<td>Founder</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Quick-Win-Sheet</td>
+<td>PDF + Notion</td>
+<td>☐</td>
+<td>Founder</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>90-Tage-Roadmap</td>
+<td>Notion + PDF</td>
+<td>☐</td>
+<td>Founder</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>ROI-Kalkulation (3 Szenarien)</td>
+<td>Google Sheets + PDF</td>
+<td>☐</td>
+<td>Founder</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Findings-Deck (Executive + Detail)</td>
+<td>Google Slides + PDF</td>
+<td>☐</td>
+<td>Founder + CS</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Stack-Empfehlung-Dokument</td>
+<td>PDF</td>
+<td>☐</td>
+<td>Founder + Engineering</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Video-Walkthrough (min. 20 min)</td>
+<td>Loom / MP4</td>
+<td>☐</td>
+<td>Customer-Success</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Audit-Archiv (vollständig)</td>
+<td>Google Drive / Notion</td>
+<td>☐</td>
+<td>Customer-Success</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Customer-Sign-Off (schriftlich)</td>
+<td>E-Mail-Bestätigung</td>
+<td>☐</td>
+<td>Customer-Success</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien">Sign-Off-Kriterien</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Kriterium</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Alle 12 Assets aus dem Inventory sind übergeben und für Customer
+zugänglich</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Jeder dokumentierte Workflow enthält Trigger, Schritte, beteiligte
+Tools, Handoff-Punkte und bekannte Fehlerquellen</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Ineffizienz-Matrix enthält für jede Lücke: Zeit-Verlust-Schätzung,
+Fehlerrate-Einschätzung und Automatisierbarkeits-Score</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>90-Tage-Roadmap enthält Phasen, Projekte, Abhängigkeiten,
+Effort-Estimate und Priority-Score (keine Phase ohne konkrete
+Projekte)</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>ROI-Kalkulation enthält alle 3 Szenarien (konservativ / realistisch
+/ optimistisch) mit dokumentierten Annahmen</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Findings-Deck enthält Executive Summary (max. 5 Slides) +
+vollständigen Anhang; keine generischen Empfehlungen ohne
+Datenbasis</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Quick-Win-Sheet enthält für jede der Top 5 Automationen:
+Tool-Empfehlung, Aufwand-Schätzung, Nutzen-Schätzung, konkreten nächsten
+Schritt</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Readout-Call hat stattgefunden, Entscheider war anwesend, offene
+Fragen sind dokumentiert und beantwortet</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Video-Walkthrough ist min. 20 min, deckt alle Kern-Deliverables ab
+und ist verständlich ohne Vorwissen</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Schriftlicher Customer-Sign-Off vorhanden (E-Mail-Bestätigung mit
+Wording: “Findings vollständig und verständlich”)</td>
+<td>☐</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Alle 10 Punkte müssen ✅ sein bevor das Projekt als “Done” markiert
+wird.</p>
+</blockquote>
+<hr />
+<h2 id="known-limitations-phase-2-items">Known-Limitations
+(Phase-2-Items)</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Limitation</th>
+<th>Begründung</th>
+<th>Möglicher Folge-Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ROI-Schätzwerte sind keine testierten Zahlen</td>
+<td>Basieren auf Industrie-Benchmarks und Interview-Angaben, nicht auf
+gemessenen Daten</td>
+<td>Nach 90 Tagen Umsetzung: Retrospektive mit echten Daten</td>
+</tr>
+<tr class="even">
+<td>Workflows wurden beschrieben, nicht beobachtet</td>
+<td>Prozess-Doku basiert auf Interviews; tatsächliche Ausführung kann
+abweichen</td>
+<td>Process-Mining-Tool (z.B. Celonis Lite) als Zusatz-Schritt</td>
+</tr>
+<tr class="odd">
+<td>Tool-Stack-Bewertung ist point-in-time</td>
+<td>SaaS-Markt ändert sich; Empfehlungen können in 12 Monaten überholt
+sein</td>
+<td>Jährliches Re-Audit oder Retainer-Check empfohlen</td>
+</tr>
+<tr class="even">
+<td>Keine Integration von HR/People-Faktoren</td>
+<td>Effizienzprobleme durch Teamstruktur oder Skills sind nicht im
+Scope</td>
+<td>HR-Strategieberatung separat</td>
+</tr>
+<tr class="odd">
+<td>Roadmap nicht executable ohne Umsetzungs-Partner</td>
+<td>Der Plan ist vollständig, aber Umsetzung erfordert Ressourcen
+(intern oder AEVUM DFY)</td>
+<td>Direkt-Upsell auf relevante DFY-Services</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="db-update-befehl">DB-Update-Befehl</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> aevum_service_items</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  status                <span class="op">=</span> <span class="st">&#39;active&#39;</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  item_slug             <span class="op">=</span> <span class="st">&#39;automation-audit&#39;</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  item_type             <span class="op">=</span> <span class="st">&#39;dfy&#39;</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  tier_min              <span class="op">=</span> <span class="st">&#39;M&#39;</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  tier_max              <span class="op">=</span> <span class="st">&#39;L&#39;</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  setup_fee_min_eur     <span class="op">=</span> <span class="dv">8000</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  setup_fee_max_eur     <span class="op">=</span> <span class="dv">35000</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  retainer_fee_min_eur  <span class="op">=</span> <span class="dv">0</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  retainer_fee_max_eur  <span class="op">=</span> <span class="dv">3000</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  retainer_optional     <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  timeline_weeks_min    <span class="op">=</span> <span class="dv">5</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  timeline_weeks_max    <span class="op">=</span> <span class="dv">12</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  icp_ag                <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  icp_pb                <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  icp_fi                <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  icp_ag_fit_score      <span class="op">=</span> <span class="dv">5</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  icp_pb_fit_score      <span class="op">=</span> <span class="dv">4</span>,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  icp_fi_fit_score      <span class="op">=</span> <span class="dv">5</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  upsell_slugs          <span class="op">=</span> <span class="dt">ARRAY</span>[</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>                            <span class="st">&#39;sales-os&#39;</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>                            <span class="st">&#39;ai-lead-engine&#39;</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>                            <span class="st">&#39;command-center-dashboard&#39;</span>,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>                            <span class="st">&#39;content-engine&#39;</span>,</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>                            <span class="st">&#39;business-os&#39;</span>,</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                            <span class="st">&#39;database-system&#39;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>                          ],</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  last_updated          <span class="op">=</span> NOW(),</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  updated_by            <span class="op">=</span> <span class="st">&#39;dfy-builder-v1&#39;</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> item_slug <span class="op">=</span> <span class="st">&#39;automation-audit&#39;</span>;</span></code></pre></div>
+<hr />
+<h2 id="pattern-notes-für-dfy-builder-pattern">Pattern-Notes für
+DFY-Builder-Pattern</h2>
+<pre><code>PATTERN: audit-first-productized-service
+
+KATEGORIE: Discovery / Strategy / Diagnostic
+POSITIONIERUNG: Standalone-Produkt + natürlicher Upsell-Funnel-Einstieg
+
+KEY-DIFFERENTIATOR vs. generische Beratung:
+- Deliverables sind klar definiert (kein offenes Beratungsmandat)
+- Time-boxed (5-12 Wochen, harte Deadline)
+- Handover-Package macht Customer unabhängig von AEVUM
+- ROI-Kalkulation als integraler Bestandteil (kein Soft-Consulting)
+
+PRICING-LOGIK SPEZIFISCH:
+- Kein verpflichtender Retainer (Standalone-tauglich)
+- Retainer nur wenn Customer Roadmap mit AEVUM umsetzt
+- Setup-Fee ist der primäre Revenue-Driver dieses Items
+- Niedrige Einstiegs-Fee (€8k) senkt Hürde für erste Engagement
+
+UPSELL-MECHANIK:
+- Audit findet per Definition die Probleme die DFY-Services lösen
+- Natural Handoff: Roadmap-Präsentation = impliziter Sales-Pitch für nächstes Item
+- Customer, der Audit gemacht hat, ist 3-4x wahrscheinlicher für Follow-up DFY
+- Empfehlung: Roadmap immer mit konkreten AEVUM-Service-Slugs als Lösungsoption referenzieren
+
+RISK-PROFIL: Niedrig (kein Build, kein Tech-Stack, keine Integration)
+DELIVERY-KOMPLEXITÄT: Mittel (hohe Analyse-Qualität erforderlich; Findings müssen spezifisch und nicht generisch sein)
+
+HÄUFIGSTER FEHLER BEI DELIVERY:
+- Generische Roadmap-Empfehlungen die nicht auf Customer-Daten basieren
+- Zu viele Items auf Roadmap → Customer verliert Fokus → Roadmap wird nicht umgesetzt
+- Findings-Call ohne Priorisierungs-Workshop → kein klarer nächster Schritt für Customer
+
+ANTI-PATTERN:
+- Audit nicht als &quot;Consulting-Projekt&quot; positionieren (verliert Produktcharakter)
+- Kein unbegrenztes Scope-Creep erlauben (5-6 Workflows ist hard limit für Standard-Tier)</code></pre>
+</body>
+</html>

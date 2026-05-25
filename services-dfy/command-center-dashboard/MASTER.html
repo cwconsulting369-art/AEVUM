@@ -1,0 +1,2041 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM DFY: command-center-dashboard</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM DFY: command-center-dashboard</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-done-for-you-command-center-dashboard">AEVUM Done-for-You
+— command-center-dashboard</h1>
+<blockquote>
+<p>Generated 2026-05-25. Combined Master-Doc.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<h2
+id="custom-dashboard-für-cross-tool-sichtbarkeit-dein-business-auf-einem-bildschirm">Custom
+Dashboard für Cross-Tool-Sichtbarkeit — dein Business auf einem
+Bildschirm</h2>
+<hr />
+<h3 id="in-einem-satz">In einem Satz</h3>
+<p>AEVUM baut dir ein zentrales, live-aktualisiertes Dashboard, das alle
+deine wichtigen Tools, KPIs und Datenquellen auf einer Oberfläche
+zusammenzieht — damit du aufhörst, in fünf Tabs gleichzeitig nach
+Wahrheit zu suchen.</p>
+<hr />
+<h3 id="wer-das-braucht">Wer das braucht</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Konkreter Use-Case</th>
+<th>Fit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AG</strong> (Agenturen 3-50 MA)</td>
+<td>Agentur-Lead sieht Client-Pipeline (HubSpot), laufende Projekte
+(Asana/ClickUp), Teamauslastung und aktuellen MRR auf einem Screen —
+kein Morning-Chaos mehr</td>
+<td>★★★★★</td>
+</tr>
+<tr class="even">
+<td><strong>AG</strong></td>
+<td>Account-Manager tracked Retainer-Kunden: welche Kunden sind aktiv,
+welche nähern sich Deadline, welche sind überfällig — ohne Manual-Pull
+aus 4 Tools</td>
+<td>★★★★☆</td>
+</tr>
+<tr class="odd">
+<td><strong>PB</strong> (Personal Brands)</td>
+<td>Creator sieht Follower-Wachstum, Newsletter-Öffnungsraten,
+Produkt-Sales und Content-Kalender-Status in einem View — statt 3 native
+Dashboards täglich zu öffnen</td>
+<td>★★★☆☆</td>
+</tr>
+<tr class="even">
+<td><strong>PB</strong></td>
+<td>Consultant mit Coursegeschäft: Cohort-Teilnehmer, Conversion-Rate
+Webinar → Kauf, aktueller MRR aus Stripe — alles live</td>
+<td>★★★★☆</td>
+</tr>
+<tr class="odd">
+<td><strong>FI</strong> (Mittelstand 10-100 MA)</td>
+<td>Geschäftsführung will täglich: Umsatz YTD, offene Angebote,
+Projektfortschritt und HR-Auslastung — ohne wöchentliches Reporting
+durch Assistenz</td>
+<td>★★★★★</td>
+</tr>
+<tr class="even">
+<td><strong>FI</strong></td>
+<td>Vertriebsleitung tracked Pipeline-Stages, Forecast, Won/Lost-Ratio
+und Top-Performer-Leaderboard in Echtzeit</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="was-customer-bekommt">Was Customer bekommt</h3>
+<ol type="1">
+<li><strong>Discovery &amp; Data-Map</strong> — vollständige
+Inventarisierung aller relevanten Datenquellen, Tools und KPIs mit
+Priorisierung (welche Daten sind Entscheidungs-relevant
+vs. Nice-to-have)</li>
+<li><strong>Custom Dashboard-Architektur</strong> — maßgeschneiderte
+Informations-Hierarchie: welche KPIs auf welchem Level sichtbar sind
+(Executive View vs. Ops View vs. Team View)</li>
+<li><strong>Tool-Anbindungen (bis 6 Quellen)</strong> — direkte
+API-Integrationen oder Daten-Pipes zu den Tools des Customers (CRM,
+PM-Tool, Marketing-Platform, Finance-Tool, eigene DB etc.)</li>
+<li><strong>Echtzeit- oder Near-Realtime-Datenbankschicht</strong> —
+aufbereitete Datenbankstruktur, die Rohdaten aus den Quellen
+normalisiert und aggregiert (kein Direktverbinden auf
+Production-DBs)</li>
+<li><strong>Fertig-gebautes Frontend-Dashboard</strong> — auf Basis der
+vereinbarten Plattform (Softr, Retool, Looker Studio oder Custom) —
+responsive, branded mit Logo/Farben des Customers</li>
+<li><strong>Alerting-Mechanismus</strong> — konfigurierbares
+Threshold-Alerting für kritische KPIs (z.B. Churn-Rate über 5%, MRR
+unter Zielwert, Pipeline leer) per Slack/E-Mail</li>
+<li><strong>Nutzer-Rollen &amp; Access-Management</strong> —
+differenzierte View-Berechtigungen (CEO sieht alles, Account-Manager
+sieht nur eigene Clients, Team-Member sieht eigene Tasks)</li>
+<li><strong>Dokumentation der Data-Flows</strong> — technische
+Dokumentation aller Daten-Verbindungen, Update-Frequenzen und
+Datenmodell (für Customer-Eigenständigkeit nach Übergabe)</li>
+<li><strong>Onboarding-Session + Walkthrough-Video</strong> — 60-min
+Live-Session mit Kernnutzern + aufgezeichnetes Walkthrough-Video für
+neue Team-Mitglieder</li>
+<li><strong>30-Tage Post-Launch-Support</strong> — Bug-Fixes, kleinere
+Anpassungen und Stabilisierung nach Go-Live inbegriffen im
+Setup-Preis</li>
+</ol>
+<hr />
+<h3 id="mehrwert-konkret">Mehrwert (konkret)</h3>
+<h4 id="vorher-nachher">Vorher / Nachher</h4>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Vorher</th>
+<th>Nachher</th>
+<th>Schätzwert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Reporting-Zeit</strong></td>
+<td>Wöchentliches manuelles Reporting durch Assistenz oder
+Führungskraft</td>
+<td>Vollautomatisch, immer aktuell</td>
+<td>-4 bis 8h/Woche</td>
+</tr>
+<tr class="even">
+<td><strong>Entscheidungsgeschwindigkeit</strong></td>
+<td>Entscheidung wartet auf nächstes Weekly-Meeting</td>
+<td>Entscheidung auf Basis live-Daten sofort möglich</td>
+<td>-2 bis 5 Tage Lag</td>
+</tr>
+<tr class="odd">
+<td><strong>Tab-Chaos</strong></td>
+<td>5-8 Tools täglich öffnen, Daten im Kopf zusammenbauen</td>
+<td>1 URL, 1 Bildschirm</td>
+<td>subjektiv: erheblich</td>
+</tr>
+<tr class="even">
+<td><strong>Reporting-Fehler</strong></td>
+<td>Copy-Paste-Fehler, veraltete Zahlen in PowerPoints</td>
+<td>Single-Source-of-Truth, immer aktuell</td>
+<td>-80-90% Fehlerquote</td>
+</tr>
+<tr class="odd">
+<td><strong>Management-Vertrauen</strong></td>
+<td>GF verlässt sich auf Bauchgefühl oder verzögerte Reports</td>
+<td>Daten-gestützte Gespräche mit Kunden/Investoren</td>
+<td>qualitativ hoch</td>
+</tr>
+<tr class="even">
+<td><strong>Onboarding neuer MA</strong></td>
+<td>“Erkläre ich dir nächste Woche”</td>
+<td>Dashboard-Walkthrough sofort</td>
+<td>-1-3 Tage Onboarding</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Time-Save-Estimate:</strong> 4-8h/Woche operativer
+Reporting-Aufwand eliminiert. Bei 50 €/h interner Stundensatz: 800-1.600
+€/Monat Opportunitätskosten gespart.</p>
+<hr />
+<h3 id="pricing-logic">Pricing-Logic</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Tier M</strong></th>
+<th><strong>Tier L</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Setup-Range</strong></td>
+<td>€8.000 – €14.000</td>
+<td>€18.000 – €35.000</td>
+</tr>
+<tr class="even">
+<td><strong>Monthly Retainer</strong></td>
+<td>€1.800 – €2.800</td>
+<td>€3.000 – €4.500</td>
+</tr>
+<tr class="odd">
+<td><strong>Datenquellen</strong></td>
+<td>bis 4 Tool-Anbindungen</td>
+<td>bis 10 Tool-Anbindungen</td>
+</tr>
+<tr class="even">
+<td><strong>Views/Dashboards</strong></td>
+<td>1-2 Haupt-Views</td>
+<td>3-6 Views (Executive/Ops/Team/Client)</td>
+</tr>
+<tr class="odd">
+<td><strong>Alerting</strong></td>
+<td>Basic Threshold-Alerts (Slack/Mail)</td>
+<td>Advanced Alerting + Anomalie-Erkennung</td>
+</tr>
+<tr class="even">
+<td><strong>Nutzer-Rollen</strong></td>
+<td>2 Rollen</td>
+<td>4+ Rollen mit granularer Berechtigung</td>
+</tr>
+<tr class="odd">
+<td><strong>Update-Frequenz</strong></td>
+<td>Near-Realtime (15-60 Min.)</td>
+<td>Near-Realtime bis Live (&lt; 5 Min.)</td>
+</tr>
+<tr class="even">
+<td><strong>Custom Branding</strong></td>
+<td>Standard-Branding (Logo/Farben)</td>
+<td>Full White-Label-Option</td>
+</tr>
+<tr class="odd">
+<td><strong>Typischer Customer</strong></td>
+<td>AG (5-15 MA), PB mit Online-Business</td>
+<td>FI (25-100 MA), AG mit Multi-Client-Bedarf</td>
+</tr>
+<tr class="even">
+<td><strong>Implementation</strong></td>
+<td>5-8 Wochen</td>
+<td>8-14 Wochen</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Setup-to-Retainer-Ratio:</strong> ca. 5:1 (Tier M) bis 7:1
+(Tier L). Retainer deckt: Daten-Monitoring, Quell-Änderungen
+(API-Breaks), Anpassungen bis 3h/Mo, Hosting/Infrastruktur.</p>
+<hr />
+<h3 id="timeline">Timeline</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th>Woche</th>
+<th>Inhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Phase 1: Discovery</strong></td>
+<td>W1-2</td>
+<td>Data-Audit, KPI-Workshop mit Customer, Tool-Access, Priorisierung
+der Metriken</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 2: Architektur</strong></td>
+<td>W2-3</td>
+<td>Datenmodell-Design, Dashboard-Wireframes, Approval durch
+Customer</td>
+</tr>
+<tr class="odd">
+<td><strong>Phase 3: Daten-Pipeline</strong></td>
+<td>W3-6</td>
+<td>API-Anbindungen, Normalisierung, Datenbankschicht aufbauen,
+Testing</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 4: Frontend-Build</strong></td>
+<td>W5-7</td>
+<td>Dashboard-Entwicklung, Branding, Rollen-Setup</td>
+</tr>
+<tr class="odd">
+<td><strong>Phase 5: UAT &amp; Refinement</strong></td>
+<td>W7-8</td>
+<td>User-Acceptance-Testing mit Customer, Bug-Fixes, Feintuning</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 6: Go-Live &amp; Handover</strong></td>
+<td>W8-9</td>
+<td>Live-Schaltung, Onboarding-Session, Dokumentation,
+30-Tage-Support-Start</td>
+</tr>
+</tbody>
+</table>
+<p><em>Tier L: Phasen 3-4 verlängert auf bis zu 14 Wochen je nach
+Komplexität.</em></p>
+<hr />
+<h3 id="voraussetzungen-customer">Voraussetzungen Customer</h3>
+<ul>
+<li>Zugang zu allen relevanten Tools mit Admin- oder API-Berechtigung
+(Customer organisiert, AEVUM dokumentiert)</li>
+<li>Klarheit über die 10-15 wichtigsten KPIs vor Kick-off (oder
+Bereitschaft für 2h KPI-Workshop in W1)</li>
+<li>Mindestens eine interne Ansprechperson mit Entscheidungskompetenz
+für Dashboard-Design-Approvals</li>
+<li>Bereitschaft zu 3-4 Feedback-Iterationen im UAT (realistisch: 2-3h
+Zeitaufwand Customer-seitig)</li>
+<li>Definierte Nutzergruppen und Anzahl der User, die Zugang erhalten
+sollen</li>
+<li>Bei Custom-DB: Lesezugang zur Produktionsdatenbank oder
+Staging-Export</li>
+</ul>
+<hr />
+<h3 id="nicht-ziele-out-of-scope">Nicht-Ziele (Out-of-Scope)</h3>
+<ol type="1">
+<li><strong>Keine Analyse oder Interpretation der Daten</strong> — AEVUM
+baut das Dashboard, gibt aber keine Business-Intelligence-Beratung oder
+Empfehlungen was die Zahlen bedeuten</li>
+<li><strong>Kein Ersetzen von Buchhaltungssoftware oder ERP</strong> —
+Dashboard liest Daten, schreibt niemals zurück in Quell-Systeme</li>
+<li><strong>Keine native App (iOS/Android)</strong> — responsives
+Web-Dashboard; keine App-Store-Entwicklung</li>
+<li><strong>Kein unbegrenztes Scope-Creep nach Sign-Off</strong> —
+Datenquellen und KPIs werden in Phase 2 eingefroren; weitere Quellen =
+Change Request</li>
+<li><strong>Keine Prognose-/Forecast-Modelle mit ML</strong> —
+Standard-Dashboards zeigen historische und aktuelle Daten;
+Predictive-Analytics ist separates Add-on</li>
+<li><strong>Kein 24/7-SLA-Support</strong> — Retainer deckt
+Business-Hours-Support (Mo-Fr, 9-18 Uhr); kein Incident-Response auf
+Production-Ausfall in Echtzeit</li>
+<li><strong>Keine Datenmigration aus Legacy-Systemen</strong> — wenn
+Quell-Daten erst bereinigt/migriert werden müssen, ist das separates
+Projekt</li>
+</ol>
+<hr />
+<h3 id="upsell-pfade">Upsell-Pfade</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Trigger</th>
+<th>Next-Service</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Customer fragt “Können wir auch Leads aus dem Dashboard heraus
+ansprechen?”</td>
+<td><code>ai-lead-engine</code></td>
+<td>Dashboard zeigt Lücken in Pipeline → logisch: diese auch füllen</td>
+</tr>
+<tr class="even">
+<td>Customer will Daten nicht nur sehen, sondern Workflows auslösen
+(“wenn KPI X, dann Aktion Y”)</td>
+<td><code>business-os</code> oder <code>automation-audit</code></td>
+<td>Vom Sehen zum Tun — Automation-Schicht obendrauf</td>
+</tr>
+<tr class="odd">
+<td>Retainer-Gespräch: Customer hat Sales-Pipeline im Dashboard, will
+AI-Scoring</td>
+<td><code>sales-os</code></td>
+<td>Dashboard ist der Einstieg; Sales-OS fügt Intelligenz hinzu</td>
+</tr>
+<tr class="even">
+<td>Customer merkt: Daten sind inkonsistent, Quellen nicht gepflegt</td>
+<td><code>database-system</code></td>
+<td>Dashboard als Symptom-Finder für Daten-Chaos → saubere Pipeline
+nötig</td>
+</tr>
+<tr class="odd">
+<td>Dashboard funktioniert, Customer will jetzt auch Content-Performance
+tracken</td>
+<td><code>content-engine</code></td>
+<td>Wenn KPIs gut, nächste Frage: wie skalieren wir Reichweite?</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="conversion-story">Conversion-Story</h3>
+<p>Du kennst das Gefühl. Montagmorgen, 8:47 Uhr. Du öffnest HubSpot,
+dann ClickUp, dann Stripe, dann dein Excel-Sheet aus letzter Woche — und
+versuchst, in deinem Kopf ein kohärentes Bild zusammenzubauen: Wie läuft
+das Business gerade wirklich? Die Antwort ist immer dieselbe: irgendwie
+okay. Ungefähr. Soweit du weißt. Das Problem ist nicht, dass du keine
+Daten hast. Das Problem ist, dass deine Daten in fünf verschiedenen
+Systemen leben, nie gleichzeitig aktuell sind und jede Auswertung dich
+mindestens 45 Minuten kostet.</p>
+<p>AEVUM baut dir genau eine Sache: ein zentrales Dashboard, das diese
+fünf Tabs zu einem macht. Kein Feature-Friedhof, keine Demo-Ware, keine
+Vorlage die du selbst befüllen musst. Wir verbinden deine tatsächlichen
+Tools — dein CRM, dein Projektmanagement, deine Finance-Daten —
+normalisieren die Daten in einer sauberen Schicht und bauen dir eine
+Oberfläche, die du morgens einmal öffnest und weißt: hier steht die
+Wahrheit. Jetzt. Nicht von gestern. Nicht vom letzten Weekly.</p>
+<p>Der Unterschied nach drei Monaten ist subtiler als du denkst — und
+gleichzeitig massiver. Du hörst auf, auf Meetings zu warten, um
+Entscheidungen zu treffen. Du fängst an, Probleme zu sehen, bevor sie
+eskalieren. Dein Team redet über Zahlen, die alle aus derselben Quelle
+kommen. Das ist kein Software-Projekt. Das ist Klarheit — und Klarheit
+ist in einem wachsenden Business das knappste Gut. </p>
+<h1 id="scope-checklist">2. Scope-Checklist</h1>
+<h3 id="intern-sales-call-projekt-baseline">Intern: Sales-Call &amp;
+Projekt-Baseline</h3>
+<hr />
+<h2 id="in-scope">In-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Item</th>
+<th>Aufwand-Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>KPI-Workshop mit Customer (max. 2h, remote)</td>
+<td>2-3h AEVUM</td>
+</tr>
+<tr class="even">
+<td><strong>Discovery</strong></td>
+<td>Data-Source-Audit (welche Tools, welche APIs, welche Daten)</td>
+<td>3-5h AEVUM</td>
+</tr>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Dokumentation der Daten-Landschaft als Data-Map</td>
+<td>2-3h AEVUM</td>
+</tr>
+<tr class="even">
+<td><strong>Architektur</strong></td>
+<td>Dashboard-Wireframes (Figma oder äquivalent)</td>
+<td>4-8h AEVUM</td>
+</tr>
+<tr class="odd">
+<td><strong>Architektur</strong></td>
+<td>Datenmodell-Design (Schema, Normalisierung)</td>
+<td>4-8h AEVUM</td>
+</tr>
+<tr class="even">
+<td><strong>Architektur</strong></td>
+<td>Approval-Loop mit Customer (max. 2 Revision-Runden)</td>
+<td>2h AEVUM + Customer</td>
+</tr>
+<tr class="odd">
+<td><strong>Daten-Pipeline</strong></td>
+<td>API-Anbindung Quelle 1-4 (Tier M) / 1-10 (Tier L)</td>
+<td>4-8h pro Quelle</td>
+</tr>
+<tr class="even">
+<td><strong>Daten-Pipeline</strong></td>
+<td>Daten-Normalisierung und Transformation</td>
+<td>8-16h AEVUM</td>
+</tr>
+<tr class="odd">
+<td><strong>Daten-Pipeline</strong></td>
+<td>Datenbankschicht aufsetzen (intermediäre DB)</td>
+<td>4-8h AEVUM</td>
+</tr>
+<tr class="even">
+<td><strong>Daten-Pipeline</strong></td>
+<td>Automatisierte Update-Jobs (Scheduler/Webhooks)</td>
+<td>4-6h AEVUM</td>
+</tr>
+<tr class="odd">
+<td><strong>Daten-Pipeline</strong></td>
+<td>Fehler-Logging und Monitoring der Pipeline</td>
+<td>2-4h AEVUM</td>
+</tr>
+<tr class="even">
+<td><strong>Frontend</strong></td>
+<td>Dashboard-Entwicklung auf vereinbarter Plattform</td>
+<td>12-24h AEVUM</td>
+</tr>
+<tr class="odd">
+<td><strong>Frontend</strong></td>
+<td>Branding (Logo, Primärfarben, Typografie)</td>
+<td>2-4h AEVUM</td>
+</tr>
+<tr class="even">
+<td><strong>Frontend</strong></td>
+<td>Rollen-Setup und Access-Management (2-4 Rollen)</td>
+<td>2-4h AEVUM</td>
+</tr>
+<tr class="odd">
+<td><strong>Alerting</strong></td>
+<td>Threshold-Alert-Konfiguration (bis 5 KPIs)</td>
+<td>3-5h AEVUM</td>
+</tr>
+<tr class="even">
+<td><strong>Alerting</strong></td>
+<td>Slack- und/oder E-Mail-Notification-Setup</td>
+<td>1-2h AEVUM</td>
+</tr>
+<tr class="odd">
+<td><strong>Testing</strong></td>
+<td>Daten-Validierung (Dashboard vs. Quell-Tool: Spot-Check 80% der
+KPIs)</td>
+<td>4-8h AEVUM</td>
+</tr>
+<tr class="even">
+<td><strong>Testing</strong></td>
+<td>UAT-Begleitung Customer (max. 2 Wochen, 2 Feedback-Runden)</td>
+<td>3-6h AEVUM</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover</strong></td>
+<td>Technische Dokumentation (Data-Flows, Schema, Zugänge)</td>
+<td>4-6h AEVUM</td>
+</tr>
+<tr class="even">
+<td><strong>Handover</strong></td>
+<td>Onboarding-Session live (60 Min.)</td>
+<td>1h AEVUM</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover</strong></td>
+<td>Walkthrough-Video-Aufnahme</td>
+<td>1-2h AEVUM</td>
+</tr>
+<tr class="even">
+<td><strong>Post-Launch</strong></td>
+<td>30-Tage-Bug-Fix-Support (Business Hours)</td>
+<td>bis 5h AEVUM</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gesamt-Estimate Tier M:</strong> 80-130h | <strong>Tier
+L:</strong> 140-220h</p>
+<hr />
+<h2 id="out-of-scope">Out-of-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Was Customer NICHT bekommt</th>
+<th>Warum explizit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mehr als 4 (Tier M) / 10 (Tier L) Datenquellen im Initial-Setup</td>
+<td>Jede weitere Quelle ist separater Change Request (+€800-2.500 je
+nach Komplexität)</td>
+</tr>
+<tr class="even">
+<td>Schreib-Zugriff auf Quell-Systeme (Dashboard is read-only)</td>
+<td>Architektur-Entscheidung aus Sicherheits- und Haftungsgründen</td>
+</tr>
+<tr class="odd">
+<td>Predictive Analytics / ML-basierte Forecasts</td>
+<td>Separates Service-Item; erfordert andere Infrastruktur</td>
+</tr>
+<tr class="even">
+<td>Native Mobile App</td>
+<td>Web-responsive, kein App-Store-Development</td>
+</tr>
+<tr class="odd">
+<td>Datenmigration oder -bereinigung in Quell-Systemen</td>
+<td>Wenn Quelldaten dirty sind, braucht es erst
+<code>database-system</code></td>
+</tr>
+<tr class="even">
+<td>Business-Intelligence-Beratung (“Was bedeuten diese Zahlen?”)</td>
+<td>AEVUM baut Sichtbarkeit, nicht Strategie</td>
+</tr>
+<tr class="odd">
+<td>Unbegrenzte Design-Iterationen nach Wire-Approval</td>
+<td>Nach 2 genehmigten Revisionrunden: Change Request</td>
+</tr>
+<tr class="even">
+<td>SLA für Quell-API-Ausfälle (z.B. wenn HubSpot-API down ist)</td>
+<td>Liegt außerhalb AEVUM-Kontrolle; Monitoring zeigt Fehler, Fix wird
+priorisiert</td>
+</tr>
+<tr class="odd">
+<td>Eigener Hosting-Betrieb durch Customer ohne Retainer</td>
+<td>Übergabe ohne Retainer nur auf expliziten Wunsch und mit
+vollständiger Übergabe-Doku</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer-side">Voraussetzungen
+Customer-Side</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Voraussetzung</th>
+<th>Details</th>
+<th>Blocker wenn fehlt?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Tool-Zugang</strong></td>
+<td>Admin- oder API-Key-Zugang für alle vereinbarten Quell-Systeme</td>
+<td>Ja — kein Access, kein Build</td>
+</tr>
+<tr class="even">
+<td><strong>KPI-Klarheit</strong></td>
+<td>Mind. 80% der gewünschten KPIs vor Kick-off bekannt oder im Workshop
+definierbar</td>
+<td>Ja — Discovery verlängert sich sonst unbegrenzt</td>
+</tr>
+<tr class="odd">
+<td><strong>Ansprechpartner</strong></td>
+<td>1 interne Person mit Entscheidungskompetenz für
+Design-Approvals</td>
+<td>Ja — ohne Approval-Power kein Fortschritt</td>
+</tr>
+<tr class="even">
+<td><strong>Feedback-Kapazität</strong></td>
+<td>Customer-Ansprechpartner reserviert 3-4h über Projekt-Laufzeit für
+Reviews</td>
+<td>Weich — verzögert sonst Timeline</td>
+</tr>
+<tr class="odd">
+<td><strong>Nutzer-Definition</strong></td>
+<td>Liste der Dashboard-Nutzer mit Rollen vor Phase 4</td>
+<td>Ja — Rollen-Setup nicht möglich ohne</td>
+</tr>
+<tr class="even">
+<td><strong>Tool-Stabilität</strong></td>
+<td>Die Quell-Tools bleiben während der Implementation die vereinbarten
+— kein spontaner Tool-Wechsel</td>
+<td>Weich — Tool-Wechsel mid-project = Change Request</td>
+</tr>
+<tr class="odd">
+<td><strong>Daten-Qualität</strong></td>
+<td>Quell-Daten sind grundsätzlich valide (kein massiver Datenmüll in
+den Quellen)</td>
+<td>Ja — bei dirty data: erst <code>database-system</code> nötig</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-standards">Quality-Standards</h2>
+<p>AEVUM erklärt das Projekt erst als “Done”, wenn alle folgenden
+Kriterien erfüllt sind:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Standard</th>
+<th>Kriterium</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Daten-Genauigkeit</strong></td>
+<td>Spot-Check: mind. 10 KPIs werden manuell gegen Quell-Tool verglichen
+— Abweichung max. ±2% (Rundungsdifferenzen ausgenommen)</td>
+</tr>
+<tr class="even">
+<td><strong>Update-Frequenz</strong></td>
+<td>Alle Daten-Verbindungen aktualisieren sich zuverlässig in der
+vereinbarten Frequenz (15min/60min/live) ohne manuellen Eingriff</td>
+</tr>
+<tr class="odd">
+<td><strong>Alert-Funktion</strong></td>
+<td>Mindestens 3 Test-Alerts werden ausgelöst und landen korrekt in
+Slack/E-Mail</td>
+</tr>
+<tr class="even">
+<td><strong>Rollen-Isolation</strong></td>
+<td>Jede User-Rolle sieht ausschließlich die für sie vorgesehenen Daten
+— Cross-Role-Datenleck = Blocker</td>
+</tr>
+<tr class="odd">
+<td><strong>Performance</strong></td>
+<td>Dashboard lädt unter 3 Sekunden bei normaler Datenmenge (Desktop, 50
+Mbit+ Verbindung)</td>
+</tr>
+<tr class="even">
+<td><strong>Fehler-Handling</strong></td>
+<td>Bei API-Ausfall einer Quelle: Dashboard zeigt Fehler-Status statt
+falsche/alte Daten ohne Kennzeichnung</td>
+</tr>
+<tr class="odd">
+<td><strong>Dokumentation vollständig</strong></td>
+<td>Data-Flow-Doku, Zugangsdaten-Übergabe, Schema-Doku — alle drei
+Dokumente übergeben</td>
+</tr>
+<tr class="even">
+<td><strong>Customer-Approval</strong></td>
+<td>Schriftlicher Sign-Off durch Kunden-Ansprechpartner nach UAT</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="change-request-policy">Change-Request-Policy</h2>
+<p><strong>Was ist ein Change Request (CR)?</strong> Alles, was nach dem
+Wire-Approval (Ende Phase 2) hinzukommt oder sich fundamental ändert —
+neue Datenquellen, neue Views, neue KPIs, die nicht im ursprünglichen
+Scope waren, oder Umbauten an bereits gebauten Komponenten auf
+Customer-Wunsch.</p>
+<p><strong>Prozess:</strong> 1. Customer äußert Änderungswunsch
+(schriftlich per E-Mail/Slack) 2. AEVUM schätzt Aufwand und kommuniziert
+innerhalb 48h Kosten + Timeline-Impact 3. Customer approved schriftlich
+→ Umsetzung wird eingeplant 4. Kein CR wird ohne schriftliches Approval
+umgesetzt</p>
+<p><strong>CR-Pricing-Orientierung:</strong> - Kleine Anpassungen (&lt;
+2h): pauschal €250-400 - Neue Datenquelle anbinden: €800-2.500 je nach
+API-Komplexität - Neuer Dashboard-View: €600-1.500 - Fundamental-Umbau
+nach Wire-Approval: Neu-Angebot</p>
+<p><strong>Retainer-Inklusive (kein CR nötig):</strong> - Bug-Fixes an
+bestehenden Verbindungen - Anpassungen an bestehenden KPI-Definitionen
+(gleiche Quelle, andere Berechnung) - Bis 3h/Monat Minor-Adjustments</p>
+<hr />
+<h2 id="pricing-variations">Pricing-Variations</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Szenario</th>
+<th>Auswirkung auf Preis</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>&lt; 3 Datenquellen, 1 View, 1 Rolle</strong></td>
+<td>Tier-M-Minimum: ab €6.500 Setup — reduzierter Scope</td>
+</tr>
+<tr class="even">
+<td><strong>Standard Tier M (4 Quellen, 2 Views, 2 Rollen)</strong></td>
+<td>€8.000-12.000 Setup, €1.800-2.500/Mo</td>
+</tr>
+<tr class="odd">
+<td><strong>Tier M + Anomalie-Erkennung</strong></td>
+<td>+€1.500-2.500 Setup</td>
+</tr>
+<tr class="even">
+<td><strong>Tier M + Custom-Domain + Full White-Label</strong></td>
+<td>+€800-1.500 Setup</td>
+</tr>
+<tr class="odd">
+<td><strong>Tier L (8-10 Quellen, 5+ Views, 4+ Rollen)</strong></td>
+<td>€18.000-30.000 Setup, €3.000-4.500/Mo</td>
+</tr>
+<tr class="even">
+<td><strong>Tier L + Live-Streaming (&lt; 1 Min. Delay)</strong></td>
+<td>+€3.000-8.000 Setup je nach Infrastruktur</td>
+</tr>
+<tr class="odd">
+<td><strong>Retainer ohne Hosting (Customer hostet selbst)</strong></td>
+<td>-€400-600/Mo, aber: Dokumentationspflicht erhöht sich; einmalig
++€800 für Übergabe-Paket</td>
+</tr>
+<tr class="even">
+<td><strong>Externer Datenquellen-Zugangsbeschaffung durch
+AEVUM</strong></td>
+<td>+€150/h Discovery-Aufwand</td>
+</tr>
+</tbody>
+</table>
+<h1 id="delivery-plan">3. Delivery-Plan</h1>
+<h3 id="internes-playbook-für-aevum-team">Internes Playbook für
+AEVUM-Team</h3>
+<hr />
+<h2 id="phasen">Phasen</h2>
+<h3 id="phase-1-discovery-data-audit-w1-2">Phase 1: Discovery &amp;
+Data-Audit (W1-2)</h3>
+<p><strong>Ziel:</strong> Vollständiges Bild der Datenlandschaft,
+KPI-Priorisierung, technische Machbarkeits-Klärung</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Status-Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kick-off-Call durchgeführt (Agenda: Tools, KPIs, Ziele,
+Timeline)</td>
+<td>Founder / CS</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Data-Source-Inventory (alle Tools, APIs, Datenstrukturen)</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>KPI-Workshop-Output: priorisierte KPI-Liste (Top-10-15)</td>
+<td>Founder + Customer</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>API-Machbarkeits-Check für alle genannten Quellen</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Discovery-Bericht an Customer (1-Pager: was wir verstanden
+haben)</td>
+<td>CS</td>
+<td>[ ]</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Kick-off-Call (90 Min.),
+Discovery-Bericht-Review (async, 24h Feedback-Fenster)</p>
+<hr />
+<h3 id="phase-2-architektur-wireframes-w2-4">Phase 2: Architektur &amp;
+Wireframes (W2-4)</h3>
+<p><strong>Ziel:</strong> Datenmodell steht, Dashboard-Design ist
+approved, Scope ist eingefroren</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Status-Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Datenmodell-Schema (welche Tabellen, welche Felder, welche
+Relationen)</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Update-Frequenz-Entscheidung pro Quelle (dokumentiert)</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Dashboard-Wireframes (Figma oder äquivalent) für alle vereinbarten
+Views</td>
+<td>Founder / Design</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Rollen-Matrix (wer sieht was)</td>
+<td>Founder + Customer</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td><strong>Wire-Approval durch Customer (schriftlich)</strong></td>
+<td>Customer</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Scope-Freeze-Confirmation (alle Datenquellen und KPIs
+eingefroren)</td>
+<td>CS</td>
+<td>[ ]</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Wire-Review-Call (60 Min.),
+schriftlicher Approval via E-Mail</p>
+<p><strong>Quality-Gate 1:</strong> Wire-Approval + Scope-Freeze vor
+Phase-3-Start — kein Weiterarbeiten ohne beides.</p>
+<hr />
+<h3 id="phase-3-daten-pipeline-build-w3-7">Phase 3: Daten-Pipeline-Build
+(W3-7)</h3>
+<p><strong>Ziel:</strong> Alle Datenquellen angebunden, Normalisierung
+läuft, Daten landen sauber in intermediärer DB</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Status-Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Intermediäre Datenbank aufgesetzt (Schema deployed)</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Quelle 1 angebunden + getestet</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Quelle 2 angebunden + getestet</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Quelle 3 angebunden + getestet</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Quelle 4 angebunden + getestet</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td><em>(Tier L: Quellen 5-10 analog)</em></td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Transformations-Jobs laufen stabil (24h Monitoring ohne manuelle
+Eingriffe)</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Fehler-Logging aktiv (Alerts wenn Quelle down oder
+Daten-Anomalie)</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Internes Daten-Validierungs-Protokoll (Eng prüft: sind Zahlen
+plausibel?)</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Wöchentlicher Sync (15 Min.,
+Status-Update, Blocker-Reporting)</p>
+<p><strong>Quality-Gate 2:</strong> Internes
+Daten-Validierungs-Protokoll abgeschlossen vor Frontend-Start. Eng-Lead
+signiert ab.</p>
+<hr />
+<h3 id="phase-4-frontend-build-w5-8">Phase 4: Frontend-Build (W5-8)</h3>
+<p><strong>Ziel:</strong> Dashboard ist gebaut, gebrandnet, Rollen sind
+konfiguriert, Alerts live</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Status-Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Dashboard-Plattform aufgesetzt (Softr / Retool / Looker Studio /
+Custom — je nach Entscheidung Phase 2)</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>View 1 gebaut und mit Daten verbunden</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>View 2 gebaut und mit Daten verbunden <em>(falls in Scope)</em></td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Branding angewendet (Logo, Farben, Typografie)</td>
+<td>Eng / Design</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Rollen-Setup und Access-Management konfiguriert</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Alerting-Konfiguration (Threshold-Alerts,
+Slack/Mail-Integration)</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Interner Review-Call (Founder + Eng: entspricht Dashboard dem
+Wire-Approval?)</td>
+<td>Founder + Eng</td>
+<td>[ ]</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Interim-Preview-Demo (optional,
+30 Min.) — Customer sieht ersten Stand vor UAT</p>
+<p><strong>Quality-Gate 3:</strong> Interner Founder-Review vor
+UAT-Übergabe. Dashboard muss Wire-Approval entsprechen.</p>
+<hr />
+<h3 id="phase-5-uat-refinement-w7-9">Phase 5: UAT &amp; Refinement
+(W7-9)</h3>
+<p><strong>Ziel:</strong> Customer testet, Feedback wird verarbeitet,
+Dashboard ist production-ready</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Status-Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>UAT-Zugang für Customer-Ansprechpartner bereitgestellt</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>UAT-Briefing an Customer (was testen, wie Feedback melden)</td>
+<td>CS</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Feedback-Runde 1 gesammelt und priorisiert</td>
+<td>CS</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Fixes und Anpassungen Runde 1 implementiert</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Feedback-Runde 2 <em>(falls nötig)</em></td>
+<td>CS</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Fixes und Anpassungen Runde 2 <em>(falls nötig)</em></td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Spot-Check-Validierung: 10 KPIs manuell gegen Quell-Tool
+geprüft</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Performance-Check: Ladezeit &lt; 3s unter realen Bedingungen</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td><strong>Customer-Sign-Off nach UAT (schriftlich)</strong></td>
+<td>Customer</td>
+<td>[ ]</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> UAT-Kick-off (30 Min.),
+Feedback-Review-Call nach Runde 1 (45 Min.)</p>
+<p><strong>Quality-Gate 4:</strong> Schriftlicher Customer-Sign-Off +
+alle Quality-Standards aus Scope-Checklist erfüllt.</p>
+<hr />
+<h3 id="phase-6-go-live-handover-w8-10">Phase 6: Go-Live &amp; Handover
+(W8-10)</h3>
+<p><strong>Ziel:</strong> Dashboard live, Customer ongeboardet,
+Retainer-Betrieb gestartet</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Status-Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Production-Environment live geschaltet</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Alle User-Zugänge erstellt und versandt</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Onboarding-Session live durchgeführt (60 Min.)</td>
+<td>Founder / CS</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Walkthrough-Video aufgenommen und übergeben</td>
+<td>CS</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Technische Dokumentation übergeben</td>
+<td>Eng</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>30-Tage-Post-Launch-Support-Fenster kommuniziert</td>
+<td>CS</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>Retainer-Onboarding: monatlicher Check-in-Rhythmus kommuniziert</td>
+<td>CS</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>Internes Projekt-Retro (Was lief gut? Was verbessern?)</td>
+<td>Founder + Team</td>
+<td>[ ]</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Onboarding-Session (60 Min.
+live), 30-Tage-Check-in-Call (30 Min. nach Go-Live)</p>
+<hr />
+<h2 id="team-allocation">Team-Allocation</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rolle</th>
+<th>Phase 1</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+<th>Phase 4</th>
+<th>Phase 5</th>
+<th>Phase 6</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Founder</strong></td>
+<td>Lead (KPI-Workshop, Strategie)</td>
+<td>Approval-Loop, Wire-Sign-Off</td>
+<td>Oversight</td>
+<td>Interner Review</td>
+<td>Eskalation bei CRs</td>
+<td>Onboarding-Session</td>
+</tr>
+<tr class="even">
+<td><strong>Engineering</strong></td>
+<td>API-Machbarkeits-Check</td>
+<td>Datenmodell, Schema</td>
+<td>Haupt-Owner (Pipeline)</td>
+<td>Haupt-Owner (Frontend)</td>
+<td>Fixes, Spot-Check</td>
+<td>Go-Live, Doku</td>
+</tr>
+<tr class="odd">
+<td><strong>Customer Success</strong></td>
+<td>Kick-off-Koordination, Discovery-Bericht</td>
+<td>Approval-Koordination</td>
+<td>Wöchentlicher Sync</td>
+<td>Interim-Preview-Koordination</td>
+<td>UAT-Begleitung, CR-Management</td>
+<td>Handover, Retainer-Start</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2
+id="customer-onboarding-touchpoints-übersicht">Customer-Onboarding-Touchpoints
+(Übersicht)</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Touchpoint</th>
+<th>Zeitpunkt</th>
+<th>Format</th>
+<th>Owner AEVUM</th>
+<th>Dauer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Kick-off-Call</strong></td>
+<td>W1</td>
+<td>Video-Call</td>
+<td>Founder + CS</td>
+<td>90 Min.</td>
+</tr>
+<tr class="even">
+<td><strong>Discovery-Bericht-Review</strong></td>
+<td>W1-2</td>
+<td>Async (Dokument)</td>
+<td>CS</td>
+<td>24h Feedback-Fenster</td>
+</tr>
+<tr class="odd">
+<td><strong>Wire-Review-Call</strong></td>
+<td>W3</td>
+<td>Video-Call</td>
+<td>Founder</td>
+<td>60 Min.</td>
+</tr>
+<tr class="even">
+<td><strong>Wöchentlicher Sync</strong></td>
+<td>W3-W8</td>
+<td>Video-Call oder Slack-Update</td>
+<td>CS</td>
+<td>15 Min.</td>
+</tr>
+<tr class="odd">
+<td><strong>Interim-Preview</strong></td>
+<td>W6-7 (optional)</td>
+<td>Video-Call oder Loom</td>
+<td>Eng + CS</td>
+<td>30 Min.</td>
+</tr>
+<tr class="even">
+<td><strong>UAT-Kick-off</strong></td>
+<td>W7</td>
+<td>Video-Call</td>
+<td>CS</td>
+<td>30 Min.</td>
+</tr>
+<tr class="odd">
+<td><strong>Feedback-Review Runde 1</strong></td>
+<td>W7-8</td>
+<td>Video-Call</td>
+<td>CS</td>
+<td>45 Min.</td>
+</tr>
+<tr class="even">
+<td><strong>Onboarding-Session</strong></td>
+<td>W9-10</td>
+<td>Video-Call (aufgezeichnet)</td>
+<td>Founder + CS</td>
+<td>60 Min.</td>
+</tr>
+<tr class="odd">
+<td><strong>30-Tage-Check-in</strong></td>
+<td>W13-14</td>
+<td>Video-Call</td>
+<td>CS</td>
+<td>30 Min.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="risk-register">Risk-Register</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Risk</th>
+<th>Wahrscheinlichkeit</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>API-Zugang fehlt oder ist eingeschränkt</strong> (Customer
+hat kein Admin-Recht, API nicht freigeschaltet, Third-Party-API
+erfordert kostenpflichtigen Plan)</td>
+<td>Hoch</td>
+<td>Hoch — blockiert Pipeline-Build</td>
+<td>Discovery-Phase: alle API-Zugänge werden vorab geprüft; Customer
+bekommt technische Checkliste in W1; kein Phase-3-Start ohne
+verifizierten Zugang</td>
+</tr>
+<tr class="even">
+<td><strong>KPI-Scope-Creep nach Wire-Approval</strong> (Customer
+entdeckt während UAT neue KPIs die “unbedingt” rein müssen)</td>
+<td>Sehr hoch</td>
+<td>Mittel — Timeline und Budget-Druck</td>
+<td>Scope-Freeze-Confirmation in Phase 2 schriftlich; CR-Policy von
+Anfang an kommuniziert; UAT-Briefing enthält explizit: “Was wir jetzt
+testen vs. was ein CR wäre”</td>
+</tr>
+<tr class="odd">
+<td><strong>Quell-Daten sind dirty / inkonsistent</strong> (z.B.
+HubSpot-Daten ohne saubere Stage-Definitionen, Stripe mit mehreren
+Währungen ohne Normalisierung)</td>
+<td>Mittel</td>
+<td>Hoch — verfälscht Dashboard-Aussage</td>
+<td>Data-Audit in Phase 1 identifiziert Qualitätsprobleme; Workarounds
+werden documented; extreme Fälle: Customer wird auf
+<code>database-system</code> als Vorprojekt hingewiesen</td>
+</tr>
+<tr class="even">
+<td><strong>Customer-Ansprechpartner wechselt mid-project</strong></td>
+<td>Niedrig</td>
+<td>Mittel — Wissenstransfer-Verlust, Approval-Verzögerung</td>
+<td>Alle Entscheidungen schriftlich dokumentiert (E-Mail-Trails,
+Scope-Dokument); Kick-off-Call aufgezeichnet; bei Wechsel: 1h
+Re-Briefing als CR einplanen</td>
+</tr>
+<tr class="odd">
+<td><strong>Plattform-Wahl führt zu Limitations</strong> (z.B. Retool zu
+teuer für Customer im Betrieb, Looker Studio zu unflexibel für
+Rollen-Anforderungen)</td>
+<td>Mittel</td>
+<td>Hoch — kann Rebuild erfordern</td>
+<td>Plattform-Entscheidung explizit in Phase 2 mit Pros/Cons
+dokumentiert und vom Customer approved; kein Rebuild ohne separates
+Angebot</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-gates-zusammenfassung">Quality-Gates
+(Zusammenfassung)</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Gate</th>
+<th>Zeitpunkt</th>
+<th>Kriterium</th>
+<th>Sign-Off durch</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>QG1: Scope-Freeze</strong></td>
+<td>Ende Phase 2</td>
+<td>Wire-Approval + schriftlicher Scope-Freeze</td>
+<td>Founder + Customer</td>
+</tr>
+<tr class="even">
+<td><strong>QG2: Pipeline-Validation</strong></td>
+<td>Ende Phase 3</td>
+<td>Internes Daten-Validierungs-Protokoll abgeschlossen</td>
+<td>Eng-Lead</td>
+</tr>
+<tr class="odd">
+<td><strong>QG3: Interner Review</strong></td>
+<td>Ende Phase 4</td>
+<td>Dashboard entspricht Wire-Approval, Rollen korrekt</td>
+<td>Founder</td>
+</tr>
+<tr class="even">
+<td><strong>QG4: UAT-Sign-Off</strong></td>
+<td>Ende Phase 5</td>
+<td>Customer-Sign-Off + alle Quality-Standards erfüllt</td>
+<td>Customer + CS</td>
+</tr>
+<tr class="odd">
+<td><strong>QG5: Go-Live-Clearance</strong></td>
+<td>Phase 6 Start</td>
+<td>Production-Environment stable, alle User-Zugänge ready</td>
+<td>Eng + CS</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="handover-package">Handover-Package</h2>
+<p>Customer erhält am Ende folgendes Paket:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Format</th>
+<th>Übergabe-Methode</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Dashboard-Zugang (Production)</strong></td>
+<td>URL + persönliche Login-Daten für alle User</td>
+<td>Direkt-E-Mail an jeden User</td>
+</tr>
+<tr class="even">
+<td><strong>Data-Flow-Dokumentation</strong></td>
+<td>PDF oder Notion-Seite</td>
+<td>Übergabe in Onboarding-Session</td>
+</tr>
+<tr class="odd">
+<td><strong>Datenmodell-Schema</strong></td>
+<td>Technisches Dokument (Tabellen, Felder, Relationen)</td>
+<td>Notion oder PDF</td>
+</tr>
+<tr class="even">
+<td><strong>API-Verbindungen-Übersicht</strong></td>
+<td>Tabelle: Tool → API-Endpoint → Update-Frequenz → Auth-Typ</td>
+<td>Notion oder PDF</td>
+</tr>
+<tr class="odd">
+<td><strong>Credentials-Übergabe</strong></td>
+<td>Alle AEVUM-seitig erstellten API-Keys und Service-Accounts</td>
+<td>Passwort-Manager-Share (1Password / Bitwarden) oder sicherer
+E-Mail</td>
+</tr>
+<tr class="even">
+<td><strong>Alert-Konfiguration-Übersicht</strong></td>
+<td>Welche Alerts auf welchen Schwellenwerten aktiv</td>
+<td>Dokument</td>
+</tr>
+<tr class="odd">
+<td><strong>Walkthrough-Video</strong></td>
+<td>Aufnahme der Onboarding-Session (60 Min.)</td>
+<td>Loom-Link oder Download</td>
+</tr>
+<tr class="even">
+<td><strong>CR-und-Retainer-Briefing</strong></td>
+<td>Was der Retainer abdeckt, wie CRs beantragt werden</td>
+<td>E-Mail + Dokument</td>
+</tr>
+</tbody>
+</table>
+<h1 id="quality-gate">4. Quality-Gate</h1>
+<h3 id="version-1.0-projekt-abschluss-dokumentation">Version 1.0 |
+Projekt-Abschluss-Dokumentation</h3>
+<hr />
+<h2 id="asset-inventory">Asset-Inventory</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Status</th>
+<th>Übergeben an</th>
+<th>Datum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Production-Dashboard (URL)</td>
+<td>[ ] Übergeben</td>
+<td>Customer-Admin</td>
+<td>________</td>
+</tr>
+<tr class="even">
+<td>User-Zugänge (alle Rollen)</td>
+<td>[ ] Erstellt + versandt</td>
+<td>Alle User</td>
+<td>________</td>
+</tr>
+<tr class="odd">
+<td>Data-Flow-Dokumentation</td>
+<td>[ ] Übergeben</td>
+<td>Customer-Ansprechpartner</td>
+<td>________</td>
+</tr>
+<tr class="even">
+<td>Datenmodell-Schema</td>
+<td>[ ] Übergeben</td>
+<td>Customer-Ansprechpartner</td>
+<td>________</td>
+</tr>
+<tr class="odd">
+<td>API-Verbindungen-Übersicht</td>
+<td>[ ] Übergeben</td>
+<td>Customer-Ansprechpartner</td>
+<td>________</td>
+</tr>
+<tr class="even">
+<td>Credentials (API-Keys, Service-Accounts)</td>
+<td>[ ] Übergeben</td>
+<td>Customer-Admin</td>
+<td>________</td>
+</tr>
+<tr class="odd">
+<td>Alert-Konfiguration-Übersicht</td>
+<td>[ ] Übergeben</td>
+<td>Customer-Ansprechpartner</td>
+<td>________</td>
+</tr>
+<tr class="even">
+<td>Walkthrough-Video</td>
+<td>[ ] Aufgenommen + übergeben</td>
+<td>Customer-Ansprechpartner</td>
+<td>________</td>
+</tr>
+<tr class="odd">
+<td>Onboarding-Session-Recording</td>
+<td>[ ] Übergeben</td>
+<td>Customer-Ansprechpartner</td>
+<td>________</td>
+</tr>
+<tr class="even">
+<td>CR- und Retainer-Briefing-Dokument</td>
+<td>[ ] Übergeben</td>
+<td>Customer-Ansprechpartner</td>
+<td>________</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien-alle-10-müssen-sein">Sign-Off-Kriterien (alle
+10 müssen ✅ sein)</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Kriterium</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Dashboard ist live und über Production-URL erreichbar</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Alle vereinbarten Datenquellen sind angebunden und liefern Daten in
+der vereinbarten Frequenz</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Spot-Check-Validierung abgeschlossen: mind. 10 KPIs gegen Quell-Tool
+geprüft, Abweichung ≤ 2%</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Alle Rollen sind korrekt konfiguriert — keine Cross-Role-Datenlecks
+identifiziert</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Mind. 3 Test-Alerts wurden ausgelöst und korrekt in Slack/E-Mail
+zugestellt</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Ladezeit des Dashboards unter 3 Sekunden (Desktop,
+Standard-Verbindung) — getestet und dokumentiert</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Fehler-Handling aktiv: bei API-Ausfall einer Quelle zeigt Dashboard
+Fehler-Status (kein Silent-Fail mit alten Daten)</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Vollständiges Handover-Package übergeben (alle Assets aus Inventory
+mit ✅ versehen)</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Onboarding-Session durchgeführt und aufgezeichnet</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Schriftlicher Customer-Sign-Off nach UAT vorliegend (E-Mail-Trail
+oder Dokument)</td>
+<td>[ ] ✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sign-Off-Status:</strong> OFFEN / ABGESCHLOSSEN</p>
+<p><strong>Unterzeichnet AEVUM-seitig:</strong>
+______________________________ Datum: ________ <strong>Unterzeichnet
+Customer-seitig:</strong> ______________________________ Datum:
+________</p>
+<hr />
+<h2
+id="known-limitations-phase-2-items-explizite-nicht-lieferungen">Known-Limitations
+(Phase-2-Items / Explizite Nicht-Lieferungen)</h2>
+<p>Diese Punkte sind bekannte Einschränkungen der aktuellen
+Implementation. Sie sind kein Bug — sie sind bewusste
+Scope-Entscheidungen. Für Aktivierung: neue Angebotsrunde oder
+Add-on-CR.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Limitation</th>
+<th>Auswirkung</th>
+<th>Lösungsweg (wenn Customer will)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Keine Predictive-Analytics</strong> — Dashboard zeigt
+historische und aktuelle Daten, keine Forecasts</td>
+<td>Customer kann nicht “wo werden wir in 30 Tagen sein” aus dem
+Dashboard ablesen</td>
+<td>Add-on: ML-Forecast-Modul (separates Angebot, typisch +€4.000-12.000
+Setup)</td>
+</tr>
+<tr class="even">
+<td><strong>Read-Only-Architektur</strong> — kein Schreib-Zugriff auf
+Quell-Systeme</td>
+<td>Customer kann aus dem Dashboard heraus keine Daten ändern oder
+Workflows auslösen</td>
+<td>Upgrade auf <code>business-os</code> oder
+<code>automation-audit</code> für Action-Layer</td>
+</tr>
+<tr class="odd">
+<td><strong>Datenquellen eingefroren auf Scope-Freeze-Stand</strong> —
+neue Quellen erfordern CR</td>
+<td>Wenn Customer neues Tool einführt, erscheint es nicht automatisch im
+Dashboard</td>
+<td>CR-Prozess: neue Quelle für €800-2.500 anbinden</td>
+</tr>
+<tr class="even">
+<td><strong>Alerting auf Threshold-Basis</strong> — keine KI-gestützte
+Anomalie-Erkennung im Standard</td>
+<td>Alerts nur wenn vordefinierter Schwellenwert über- oder
+unterschritten wird; unerwartete Muster werden nicht automatisch
+erkannt</td>
+<td>Add-on: Anomalie-Detection (+€1.500-3.000 Setup)</td>
+</tr>
+<tr class="odd">
+<td><strong>Performance bei sehr großen Datensätzen (&gt; 1M
+Rows)</strong> — nicht spezifisch für diese Datenmenge optimiert</td>
+<td>Bei massivem Datenwachstum kann Ladezeit leiden</td>
+<td>Dann: Architektur-Review nötig (DB-Indexing, Query-Optimierung) als
+gesonderter Aufwand</td>
+</tr>
+<tr class="even">
+<td><strong>Plattform-Abhängigkeit</strong> — Dashboard läuft auf
+vereinbarter Plattform (Softr/Retool etc.)</td>
+<td>Plattform-Pricing-Änderungen oder Plattform-Abkündigung liegen
+außerhalb AEVUM-Kontrolle</td>
+<td>Migration bei Bedarf als separates Projekt</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="db-update-befehl">DB-Update-Befehl</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- AEVUM Service-Item: command-center-dashboard</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- Status-Update nach erfolgreichem Delivery</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> aevum_service_items</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  status                  <span class="op">=</span> <span class="st">&#39;delivered&#39;</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  delivery_completed_at   <span class="op">=</span> NOW(),</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  sign_off_customer       <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  sign_off_aevum          <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  retainer_active         <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  post_launch_support_end <span class="op">=</span> NOW() <span class="op">+</span> <span class="dt">INTERVAL</span> <span class="st">&#39;30 days&#39;</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  known_limitations       <span class="op">=</span> <span class="dt">ARRAY</span>[</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;no_predictive_analytics&#39;</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;read_only_architecture&#39;</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;sources_frozen_at_scope_freeze&#39;</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;threshold_alerting_only&#39;</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;large_dataset_performance_not_optimized&#39;</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;platform_dependency&#39;</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  ],</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  phase2_items            <span class="op">=</span> <span class="dt">ARRAY</span>[</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;ml_forecast_module&#39;</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;action_layer_write_back&#39;</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;anomaly_detection&#39;</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;additional_data_sources&#39;</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  ],</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  upsell_candidates       <span class="op">=</span> <span class="dt">ARRAY</span>[</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;ai-lead-engine&#39;</span>,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;business-os&#39;</span>,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;sales-os&#39;</span>,</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;database-system&#39;</span>,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;content-engine&#39;</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  ],</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  updated_at              <span class="op">=</span> NOW()</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  slug      <span class="op">=</span> <span class="st">&#39;command-center-dashboard&#39;</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="kw">AND</span> customer_id <span class="op">=</span> <span class="ch">:customer_id</span>  <span class="co">-- Placeholder ersetzen</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="kw">AND</span> project_id  <span class="op">=</span> <span class="ch">:project_id</span>;  <span class="co">-- Placeholder ersetzen</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="co">-- Verification</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> slug, status, delivery_completed_at, retainer_active, sign_off_customer</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> aevum_service_items</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> slug <span class="op">=</span> <span class="st">&#39;command-center-dashboard&#39;</span> <span class="kw">AND</span> customer_id <span class="op">=</span> <span class="ch">:customer_id</span>;</span></code></pre></div>
+<hr />
+<h2 id="pattern-notes-für-dfy-builder-pattern">Pattern-Notes für
+DFY-Builder-Pattern</h2>
+<p><strong>Service-Charakteristika die dieses Item von anderen
+unterscheiden:</strong></p>
+<pre><code>ITEM: command-center-dashboard
+PATTERN-TYPE: visibility-layer (kein Action-Layer, kein AI-Layer)
+
+DIFFERENZIERUNG:
+- Read-Only by design — das ist Feature, nicht Bug; explizit kommunizieren
+- Der kritischste Erfolgsfaktor ist Phase 2 (Wire-Approval + Scope-Freeze),
+  nicht Phase 3 (Build) — wer hier unklar ist, baut zweimal
+- Discovery-Phase ist billiger als bei business-os, aber trotzdem nicht weglassbar:
+  Kunden unterschätzen wie unklar ihre eigenen KPI-Definitionen sind
+- Plattform-Entscheidung (Softr vs. Retool vs. Looker vs. Custom) muss in Phase 2
+  explizit dokumentiert werden mit Begründung — ist späterer Streitpunkt wenn
+  Customer die Plattform-Kosten im Retainer nicht erwartet hat
+- Daten-Qualität der Quellen ist das häufigste unerwartete Blocking-Issue;
+  Discovery-Phase muss Data-Quality-Assessment beinhalten
+- Retainer-Begründung für Kunden: API-Breaks sind frequent (jeder Anbieter
+  ändert APIs); ohne Monitoring merkt Customer es nicht bis Zahlen seit 3 Wochen
+  falsch waren
+
+UPSELL-SIGNAL-DETECTION im Retainer:
+- Customer fragt &quot;können wir das automatisch auslösen wenn X?&quot; → business-os
+- Customer fragt &quot;können wir Leads daraus qualifizieren?&quot; → ai-lead-engine
+- Customer merkt: ihre Pipeline ist leer, die Zahlen sehen es → ai-lead-engine
+- Customer hat dirty data-Probleme → database-system als Vorprojekt
+
+HÄUFIGSTE SALES-EINWÄNDE:
+- &quot;Kann ich das nicht einfach mit Looker Studio selbst bauen?&quot;
+  → Antwort: Technisch ja. Zeitaufwand: 40-80h für Setup, dauerhafter Maintenance.
+    AEVUM baut es in der Zeit, du nutzt es.
+- &quot;Haben wir nicht schon Dashboards in unseren Tools?&quot;
+  → Antwort: Native-Dashboards zeigen nur Tool-eigene Daten. Dieses Dashboard
+    ist der Cross-Tool-Layer — der existiert nativ nie.
+
+TIER-ENTSCHEIDUNGS-HEURISTIK für Sales-Call:
+- &lt; 4 Datenquellen + 1-2 Views + klare KPIs → Tier M
+- 5+ Datenquellen ODER 3+ Views ODER 4+ Rollen ODER Live-Streaming-Anforderung → Tier L
+- Dirty-Data-Warnung in Discovery → potentiell Vorprojekt `database-system` empfehlen
+  bevor Dashboard-Scope finalisiert wird</code></pre>
+</body>
+</html>

@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM DFY: ecommerce-os</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM DFY: ecommerce-os</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-done-for-you-ecommerce-os">AEVUM Done-for-You —
+ecommerce-os</h1>
+<blockquote>
+<p>Generated 2026-05-25. Combined Master-Doc.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<h2 id="in-einem-satz">In einem Satz</h2>
+<p>Wir bauen dir ein vollständiges operatives Backend für deinen
+Online-Shop: Order-Management, Inventory-Sync,
+Customer-Support-Automation und Reporting — alles verbunden, alles
+automatisiert, ohne dass du täglich ins System greifen musst.</p>
+<hr />
+<h2 id="wer-das-braucht">Wer das braucht</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Konkreter Use-Case</th>
+<th>Fit-Rating</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AG</strong> (Agenturen 3–50 MA)</td>
+<td>Agentur managed mehrere Shop-Kunden, braucht ein skalierbares
+Backend-Template das sie für jeden Client deployen können; oder eigener
+Merch-/Kurs-Shop läuft halbmanuell</td>
+<td>★★★★☆</td>
+</tr>
+<tr class="even">
+<td><strong>PB</strong> (Personal Brands)</td>
+<td>Creator/Experte betreibt Kurs-Shop, Merch-Store oder digitale
+Produkte — Orders laufen über 3 Tools, Support-Mails stapeln sich,
+Inventory ist Excel</td>
+<td>★★★☆☆</td>
+</tr>
+<tr class="odd">
+<td><strong>FI</strong> (Mittelstand B2B, 10–100 MA)</td>
+<td>B2B-Shop mit konfigurierbaren Produkten, Wiederverkäufer-Preisen,
+manuellen Fulfillment-Prozessen, Buchhaltungs-Übergabe die wöchentlich
+Stunden kostet</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="was-customer-bekommt">Was Customer bekommt</h2>
+<ol type="1">
+<li><strong>Shop-Connector-Setup</strong> — API-Integration von Shopify
+/ WooCommerce / Shopware zu zentraler Daten-Schicht (bidirektional)</li>
+<li><strong>Order-Management-System</strong> — Automatisierte
+Order-Routing-Logik: Zahlungseingang → Fulfillment-Trigger →
+Status-Updates → Kundenbenachrichtigung, ohne manuelle Eingriffe</li>
+<li><strong>Inventory-Sync-Layer</strong> — Echtzeit-Abgleich zwischen
+Shop-Frontend, Lager-Tool (Warehouse / Sheet / ERP-Lite) und
+Lieferanten-Feed; Low-Stock-Alerts mit definierten Schwellwerten</li>
+<li><strong>Customer-Support-Automation</strong> — Ticket-Triage
+(Helpdesk-Integration: Freshdesk / Gorgias / Zendesk), automatische
+Antworten auf Top-10-FAQ-Kategorien, Eskalations-Routing zu
+Human-Agent</li>
+<li><strong>Returns &amp; Refund Workflow</strong> — Standardisierter
+RMA-Prozess: Antrag → Prüfung → Approval/Rejection → Erstattungs-Trigger
+→ Inventory-Rückbuchung</li>
+<li><strong>Customer-Data-Hub</strong> — Zentrales Kundenprofil:
+Kaufhistorie, LTV-Score, Segment-Tag (New / Repeat / VIP / At-Risk),
+Sync mit E-Mail-Marketing-Tool</li>
+<li><strong>Reporting-Dashboard</strong> — KPI-Board (GMV, AOV,
+Conversion, Return-Rate, Ticket-Volumen, Response-Time) mit täglichem
+Auto-Report an Operator</li>
+<li><strong>Fulfillment-Partner-Integration</strong> — Anbindung eines
+Fulfillment-Dienstleisters (3PL / Eigenlogistik) inkl.
+Tracking-Link-Automation und Versandbestätigungs-Flow</li>
+<li><strong>Buchhaltungs-Export-Automatik</strong> — Strukturierter
+Daten-Export (Rechnungen, Stornos, Gutschriften) an Steuerberater-Tool
+oder DATEV-kompatibler CSV-Output</li>
+<li><strong>SOP-Dokumentation</strong> — Schriftliche
+Betriebsanleitungen für alle automatisierten Flows + Video-Walkthroughs
+für die häufigsten Operator-Eingriffe</li>
+</ol>
+<hr />
+<h2 id="mehrwert-konkret">Mehrwert (konkret)</h2>
+<h3 id="vorher-nachher">Vorher / Nachher</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Vorher</th>
+<th>Nachher</th>
+<th>Schätzwert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Order-Bearbeitung</td>
+<td>Manuell: Zahlung prüfen, Fulfillment auslösen, Kunde
+informieren</td>
+<td>Vollautomatisch, trigger-basiert</td>
+<td><strong>-4–8 Std./Woche</strong></td>
+</tr>
+<tr class="even">
+<td>Inventory-Fehler</td>
+<td>Überverkäufe, falsche Bestände, Nachbestell-Vergessen</td>
+<td>Echtzeit-Sync, automatische Alerts</td>
+<td><strong>-80% Inventory-Fehler</strong></td>
+</tr>
+<tr class="odd">
+<td>Support-Volumen</td>
+<td>Jede WISMO-Mail landet beim Team</td>
+<td>60–70% der Standard-Tickets automatisch beantwortet</td>
+<td><strong>-60% manueller Support-Aufwand</strong></td>
+</tr>
+<tr class="even">
+<td>Reporting</td>
+<td>Monatliches manuelles Zusammenziehen aus 4 Tools</td>
+<td>Täglicher Auto-Report, Echtzeit-Dashboard</td>
+<td><strong>+3–5 Std./Monat zurückgewonnen</strong></td>
+</tr>
+<tr class="odd">
+<td>Revenue-Sichtbarkeit</td>
+<td>Umsatz wird erst Monatsende klar</td>
+<td>Tagesaktuelle GMV/AOV-Sicht</td>
+<td><strong>Schnellere Entscheidungen, geschätzter Revenue-Lift +5–12%
+durch besseres Replenishment + VIP-Identifikation</strong></td>
+</tr>
+<tr class="even">
+<td>Rückgabe-Prozess</td>
+<td>Chaos: Mail-Thread, manueller Refund</td>
+<td>Standardisiert, dokumentiert, schneller</td>
+<td><strong>Reduzierte Bearbeitungszeit von Ø 3 Tagen auf
+&lt;24h</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pricing-logic">Pricing-Logic</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Tier M</strong></th>
+<th><strong>Tier L</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Setup-Range</strong></td>
+<td>€8.000 – €14.000</td>
+<td>€18.000 – €40.000</td>
+</tr>
+<tr class="even">
+<td><strong>Monthly Retainer</strong></td>
+<td>€2.000 – €3.000</td>
+<td>€3.000 – €5.000</td>
+</tr>
+<tr class="odd">
+<td><strong>Scope-Profil</strong></td>
+<td>1 Shop-System, bis 5 Module, 1 Fulfillment-Partner, bis 500
+Orders/Mo</td>
+<td>2+ Shop-Systeme oder Multi-Storefront, 8+ Module, komplexe
+ERP-Anbindung, &gt;500 Orders/Mo</td>
+</tr>
+<tr class="even">
+<td><strong>Daten-Quellen</strong></td>
+<td>Bis 4 (Shop + Payment + Fulfillment + Helpdesk)</td>
+<td>Bis 8 (+ ERP, PIM, Marktplätze, Lieferanten-API)</td>
+</tr>
+<tr class="odd">
+<td><strong>Reporting</strong></td>
+<td>Standard-KPI-Board</td>
+<td>Custom-Dashboard + automatische Anomalie-Alerts</td>
+</tr>
+<tr class="even">
+<td><strong>Support</strong></td>
+<td>Async Retainer (Tickets, Monitoring, Optimierungen)</td>
+<td>Dedicated CS + monatlicher Strategy-Call</td>
+</tr>
+<tr class="odd">
+<td><strong>Implementation</strong></td>
+<td>6–8 Wochen</td>
+<td>10–14 Wochen</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Setup-to-Retainer-Ratio ca. 3:1. Retainer deckt: Monitoring,
+Bug-Fixing, Flow-Optimierungen, monatliche KPI-Review.</p>
+</blockquote>
+<hr />
+<h2 id="timeline">Timeline</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th>Woche</th>
+<th>Inhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Discovery &amp; Architecture</strong></td>
+<td>W1–2</td>
+<td>Tech-Stack-Audit, API-Prüfung, Flow-Mapping, Datenmodell-Design</td>
+</tr>
+<tr class="even">
+<td><strong>Core-Build</strong></td>
+<td>W3–5</td>
+<td>Shop-Connector, Order-Flow, Inventory-Sync, Grundstruktur
+Customer-Hub</td>
+</tr>
+<tr class="odd">
+<td><strong>Support &amp; Returns</strong></td>
+<td>W5–6</td>
+<td>Helpdesk-Integration, Ticket-Triage, RMA-Workflow</td>
+</tr>
+<tr class="even">
+<td><strong>Reporting &amp; Exports</strong></td>
+<td>W6–7</td>
+<td>Dashboard-Build, Buchhaltungs-Export, Alert-Konfiguration</td>
+</tr>
+<tr class="odd">
+<td><strong>Testing &amp; Hardening</strong></td>
+<td>W7–8</td>
+<td>End-to-End-Tests mit echten Orders, Edge-Case-Handling,
+Fehler-Logs</td>
+</tr>
+<tr class="even">
+<td><strong>Handover &amp; Go-Live</strong></td>
+<td>W8 (M / W12–14 L)</td>
+<td>Docs-Übergabe, Training, Monitoring-Setup, Go-Live-Freigabe</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer">Voraussetzungen Customer</h2>
+<ul>
+<li>Admin-Zugriff auf Shop-System (Shopify / WooCommerce /
+Shopware)</li>
+<li>API-Keys für Payment-Provider (Stripe / PayPal / etc.)</li>
+<li>Zugriff auf oder Entscheidung für Helpdesk-Tool</li>
+<li>Lager-/Inventory-Daten in strukturierter Form (Sheet, ERP-Export,
+o.ä.)</li>
+<li>Fulfillment-Partner-Kontakt mit API-Dokumentation oder EDI-Spec</li>
+<li>Benennung eines internen Ansprechpartners (mind. 2–3 Std./Woche
+Verfügbarkeit in Phase 1–2)</li>
+<li>Klare Entscheidung über Kernsortiment-Struktur (Varianten, Bundles,
+digitale vs. physische Produkte)</li>
+</ul>
+<hr />
+<h2 id="nicht-ziele-out-of-scope">Nicht-Ziele (Out-of-Scope)</h2>
+<ol type="1">
+<li><strong>Shop-Design / Frontend-Entwicklung</strong> — Kein
+Theme-Bau, kein UX-Redesign, keine Produktseiten-Optimierung</li>
+<li><strong>SEO / Performance-Marketing</strong> — Keine Ads, kein
+SEO-Setup, kein Google Shopping Feed</li>
+<li><strong>Produktdaten-Migration</strong> — Wir übernehmen keine
+manuelle Datenpflege oder Massenimport von Produktkatalogen (&gt;500 SKU
+ohne strukturierten Export)</li>
+<li><strong>Steuerberatung / Buchhaltungslogik</strong> — Wir liefern
+Export-Automation, keine Steuerberatung oder USt-Konfiguration</li>
+<li><strong>Custom ERP-Entwicklung</strong> — Keine proprietären
+ERP-Schnittstellen ohne vorhandene API-Dokumentation</li>
+<li><strong>Content / Produkttexte / Bilder</strong> — Kein
+Content-Asset-Management, keine Bild-Bearbeitung</li>
+<li><strong>Marktplatz-Listing-Management</strong> — Kein Amazon Seller
+Central, kein eBay-Listing-Tool — nur Daten-Sync wenn API vorhanden</li>
+<li><strong>Dauerbetrieb ohne Retainer</strong> — Nach Handover ohne
+laufenden Retainer kein AEVUM-Monitoring</li>
+</ol>
+<hr />
+<h2 id="upsell-pfade">Upsell-Pfade</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Trigger</th>
+<th>Next Service</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Customer will Ads schalten und Kampagnen-Performance sehen</td>
+<td><code>command-center-dashboard</code> — Cross-Tool KPI-Sicht inkl.
+Ad-Spend vs. GMV</td>
+</tr>
+<tr class="even">
+<td>Support-Volumen bleibt hoch, komplexere Anfragen häufen sich</td>
+<td><code>ai-lead-engine</code> (falls B2B) oder dedizierter
+AI-Chatbot-Build als Add-On</td>
+</tr>
+<tr class="odd">
+<td>Reporting-Wunsch geht über Shop-KPIs hinaus (Finance, HR,
+ops-übergreifend)</td>
+<td><code>business-os</code> oder <code>database-system</code></td>
+</tr>
+<tr class="even">
+<td>Customer will Inhalte rund um Shop-Produkte automatisieren</td>
+<td><code>content-engine</code></td>
+</tr>
+<tr class="odd">
+<td>Ad-Scripts für Shop-Produkte gebraucht</td>
+<td><code>script-factory-dfy</code></td>
+</tr>
+<tr class="even">
+<td>Customer will Live-KPI-Board im Büro / für Team</td>
+<td><code>hud-command-center</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conversion-story">Conversion-Story</h2>
+<p>Die meisten E-Commerce-Operatoren, die zu uns kommen, haben das
+gleiche Problem: Der Shop läuft — irgendwie. Orders kommen rein, werden
+manuell bearbeitet, Kunden schreiben Mails die irgendwer irgendwann
+beantwortet, und am Monatsende sitzt jemand zwei Stunden und zieht
+Zahlen aus drei verschiedenen Tabs zusammen. Das System funktioniert —
+solange der Umsatz klein bleibt. Sobald Volumen kommt, bricht es.</p>
+<p>Das AEVUM E-Commerce-OS ist nicht ein weiteres Tool, das du lernst
+und dann vergisst. Es ist ein operatives Rückgrat, das wir für dich
+bauen — auf deinen Stack, auf deine Produkte, auf deine Prozesse. Wir
+verbinden was schon da ist, automatisieren was täglich Stunden kostet,
+und geben dir ein Dashboard das dir morgens in 90 Sekunden zeigt, wo
+dein Business steht. Kein Raten. Keine blinden Flecken.</p>
+<p>Was nach dem Go-Live passiert ist der eigentliche ROI: Dein Team
+bearbeitet keine Standard-Support-Tickets mehr. Deine Inventory-Fehler
+verschwinden. Deine Buchhalterin bekommt einmal wöchentlich einen
+sauberen Export statt monatliche Klärungsanrufe. Und du siehst zum
+ersten Mal wirklich, welche Kunden dein Business tragen — und kannst
+anfangen, gezielt in sie zu investieren. Das ist kein Luxus für große
+Shops. Das ist der Unterschied zwischen einem Business das dich besitzt,
+und einem das du besitzt. </p>
+<h1 id="scope-checklist">2. Scope-Checklist</h1>
+<hr />
+<h2 id="in-scope">In-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Item</th>
+<th>Aufwand-Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Tech-Stack-Interview, API-Verfügbarkeits-Check, bestehende
+Flow-Dokumentation</td>
+<td>6–10 Std.</td>
+</tr>
+<tr class="even">
+<td><strong>Discovery</strong></td>
+<td>Datenmodell-Design (Produkte, Orders, Kunden, Inventory)</td>
+<td>4–8 Std.</td>
+</tr>
+<tr class="odd">
+<td><strong>Shop-Connector</strong></td>
+<td>Shopify / WooCommerce / Shopware API-Integration (read + write)</td>
+<td>8–16 Std.</td>
+</tr>
+<tr class="even">
+<td><strong>Shop-Connector</strong></td>
+<td>Webhook-Setup für Order-Events (created, paid, fulfilled, cancelled,
+refunded)</td>
+<td>4–6 Std.</td>
+</tr>
+<tr class="odd">
+<td><strong>Order-Management</strong></td>
+<td>Order-Routing-Logik (Zahlungseingang → Fulfillment-Trigger)</td>
+<td>6–10 Std.</td>
+</tr>
+<tr class="even">
+<td><strong>Order-Management</strong></td>
+<td>Automatische Kunden-Benachrichtigungen (Bestätigung, Versand,
+Delay)</td>
+<td>4–6 Std.</td>
+</tr>
+<tr class="odd">
+<td><strong>Order-Management</strong></td>
+<td>Storno-Flow (automatische Stornierung + Refund-Trigger bei
+definierten Bedingungen)</td>
+<td>4–6 Std.</td>
+</tr>
+<tr class="even">
+<td><strong>Inventory-Sync</strong></td>
+<td>Bidirektionaler Sync Shop ↔︎ Lager-Tool (1 Lager-System)</td>
+<td>8–14 Std.</td>
+</tr>
+<tr class="odd">
+<td><strong>Inventory-Sync</strong></td>
+<td>Low-Stock-Alert-Automation (definierte Schwellwerte,
+Benachrichtigungs-Route)</td>
+<td>3–5 Std.</td>
+</tr>
+<tr class="even">
+<td><strong>Inventory-Sync</strong></td>
+<td>Überverkaufs-Schutz (Auto-Deaktivierung bei Null-Bestand)</td>
+<td>2–4 Std.</td>
+</tr>
+<tr class="odd">
+<td><strong>Customer-Support</strong></td>
+<td>Helpdesk-Integration (1 Tool: Gorgias / Freshdesk / Zendesk)</td>
+<td>6–10 Std.</td>
+</tr>
+<tr class="even">
+<td><strong>Customer-Support</strong></td>
+<td>Ticket-Triage-Logik (Kategorisierung nach Tags: WISMO, Retoure,
+Beschwerde, Sonstiges)</td>
+<td>4–6 Std.</td>
+</tr>
+<tr class="odd">
+<td><strong>Customer-Support</strong></td>
+<td>Auto-Antworten Top-5-FAQ-Kategorien (Templates + dynamische Daten
+aus Order-API)</td>
+<td>6–10 Std.</td>
+</tr>
+<tr class="even">
+<td><strong>Customer-Support</strong></td>
+<td>Eskalations-Routing (ungelöste Tickets nach X Stunden an
+Human-Agent)</td>
+<td>2–4 Std.</td>
+</tr>
+<tr class="odd">
+<td><strong>Returns &amp; Refunds</strong></td>
+<td>RMA-Formular / Antragsstrecke (eingebettet oder per Link)</td>
+<td>4–8 Std.</td>
+</tr>
+<tr class="even">
+<td><strong>Returns &amp; Refunds</strong></td>
+<td>Approval/Rejection-Workflow + Kundenbenachrichtigung</td>
+<td>3–5 Std.</td>
+</tr>
+<tr class="odd">
+<td><strong>Returns &amp; Refunds</strong></td>
+<td>Inventory-Rückbuchung nach Retouren-Eingang</td>
+<td>3–5 Std.</td>
+</tr>
+<tr class="even">
+<td><strong>Customer-Hub</strong></td>
+<td>Zentrales Kundenprofil-Datenmodell (Kaufhistorie, LTV,
+Segment-Tag)</td>
+<td>6–10 Std.</td>
+</tr>
+<tr class="odd">
+<td><strong>Customer-Hub</strong></td>
+<td>Sync mit E-Mail-Tool (1 Tool: Klaviyo / Mailchimp / ActiveCampaign —
+Segment-Tags pushen)</td>
+<td>4–6 Std.</td>
+</tr>
+<tr class="even">
+<td><strong>Fulfillment</strong></td>
+<td>1 Fulfillment-Partner-Integration (API oder EDI — vorausgesetzt:
+vorhandene Doku)</td>
+<td>8–14 Std.</td>
+</tr>
+<tr class="odd">
+<td><strong>Fulfillment</strong></td>
+<td>Tracking-Link-Automation (Tracking-ID →
+Kunden-Benachrichtigung)</td>
+<td>3–5 Std.</td>
+</tr>
+<tr class="even">
+<td><strong>Reporting</strong></td>
+<td>KPI-Dashboard-Setup (GMV, AOV, Conversion, Return-Rate,
+Ticket-Volumen)</td>
+<td>8–12 Std.</td>
+</tr>
+<tr class="odd">
+<td><strong>Reporting</strong></td>
+<td>Täglicher Auto-Report (E-Mail oder Slack-Nachricht an Operator)</td>
+<td>2–4 Std.</td>
+</tr>
+<tr class="even">
+<td><strong>Buchhaltungs-Export</strong></td>
+<td>Strukturierter CSV/DATEV-Export (Rechnungen, Stornos, Gutschriften)
+— wöchentlich automatisiert</td>
+<td>4–6 Std.</td>
+</tr>
+<tr class="odd">
+<td><strong>Dokumentation</strong></td>
+<td>SOP für alle Haupt-Flows (schriftlich)</td>
+<td>6–10 Std.</td>
+</tr>
+<tr class="even">
+<td><strong>Dokumentation</strong></td>
+<td>Video-Walkthroughs (3–5 Loom-Videos für Operator-Eingriffe)</td>
+<td>4–6 Std.</td>
+</tr>
+<tr class="odd">
+<td><strong>Testing</strong></td>
+<td>End-to-End-Tests mit echten oder Testdaten (je 3 Durchläufe pro
+Kern-Flow)</td>
+<td>8–12 Std.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gesamt-Aufwand-Range Tier M:</strong> 120–180 Std. |
+<strong>Tier L:</strong> 200–320 Std.</p>
+<hr />
+<h2 id="out-of-scope">Out-of-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Bereich</th>
+<th>Was Customer NICHT bekommt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Frontend / Design</td>
+<td>Kein Shop-Design, kein Theme, keine Produktseiten-Arbeit</td>
+</tr>
+<tr class="even">
+<td>SEO / Marketing</td>
+<td>Kein Ads-Setup, kein SEO, kein Google Shopping Feed</td>
+</tr>
+<tr class="odd">
+<td>Produktdaten</td>
+<td>Kein manueller Produktimport, keine Katalog-Pflege, keine
+Massenübersetzungen</td>
+</tr>
+<tr class="even">
+<td>Steuer / Compliance</td>
+<td>Keine USt-Konfiguration, keine steuerliche Prüfung der
+Export-Daten</td>
+</tr>
+<tr class="odd">
+<td>ERP-Custom-Dev</td>
+<td>Keine proprietären Schnittstellen ohne vorhandene API-Docs</td>
+</tr>
+<tr class="even">
+<td>Mehrere Shop-Systeme (Tier M)</td>
+<td>Bei Tier M: nur 1 Shop-Plattform konfiguriert</td>
+</tr>
+<tr class="odd">
+<td>Marktplatz-Management</td>
+<td>Kein Amazon/eBay-Listing-Tool — Sync nur wenn stabile API
+vorhanden</td>
+</tr>
+<tr class="even">
+<td>KI-Chatbot-Development</td>
+<td>Ticket-Automation ≠ Custom-AI-Chatbot — Templates und Rules, kein
+LLM-Training</td>
+</tr>
+<tr class="odd">
+<td>Mehrsprachigkeit</td>
+<td>Kein Multi-Language-Support für Kunden-Benachrichtigungen (außer als
+Add-On)</td>
+</tr>
+<tr class="even">
+<td>Backup / Hosting</td>
+<td>Keine Infrastruktur-Verantwortung für Shop-Hosting oder
+Datenbankserver</td>
+</tr>
+<tr class="odd">
+<td>On-Site-Präsenz</td>
+<td>Kein physischer Vor-Ort-Einsatz beim Customer</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer-side">Voraussetzungen
+Customer-Side</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Bereich</th>
+<th>Konkrete Anforderung</th>
+<th>Risiko wenn nicht vorhanden</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Access</strong></td>
+<td>Admin-API-Zugang: Shop-System, Payment-Provider, Helpdesk</td>
+<td>Verzögerung Phase 1, ggf. +1–2 Wochen</td>
+</tr>
+<tr class="even">
+<td><strong>Access</strong></td>
+<td>Fulfillment-Partner API-Key + Doku</td>
+<td>Ohne: Fulfillment-Modul manuell fallback — kein vollautomatischer
+Flow</td>
+</tr>
+<tr class="odd">
+<td><strong>Daten</strong></td>
+<td>Lager-Daten in strukturiertem Format (Export aus ERP / Sheet /
+WMS)</td>
+<td>Ohne: Inventory-Sync nicht möglich in Woche 3–4</td>
+</tr>
+<tr class="even">
+<td><strong>Daten</strong></td>
+<td>Kundendaten DSGVO-konform (Consent für Marketing-Sync
+dokumentiert)</td>
+<td>Rechtliches Risiko auf Customer-Seite — AEVUM baut nur was Customer
+freigibt</td>
+</tr>
+<tr class="odd">
+<td><strong>Tool-Entscheidung</strong></td>
+<td>Verbindliche Entscheidung Helpdesk-Tool vor Woche 3</td>
+<td>Spätere Tool-Wechsel = Change Request</td>
+</tr>
+<tr class="even">
+<td><strong>Ansprechpartner</strong></td>
+<td>Fester interner POC, 2–3 Std./Woche in Phase 1–2</td>
+<td>Discovery-Qualität leidet direkt</td>
+</tr>
+<tr class="odd">
+<td><strong>Sortiment</strong></td>
+<td>Klares Produktmodell (Varianten-Logik, Bundles, digital vs. physisch
+entschieden)</td>
+<td>Fehlentscheidungen in Datenmodell kosten 10–20 Std. Nacharbeit</td>
+</tr>
+<tr class="even">
+<td><strong>Zeit-Commitment</strong></td>
+<td>Feedback-Loops: Antwort innerhalb 48h auf Review-Anfragen</td>
+<td>Verzögerungen verschieben Go-Live — AEVUM nicht verantwortlich</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-standards">Quality-Standards</h2>
+<p>AEVUM erklärt einen Scope-Bereich als “Done” wenn:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Standard</th>
+<th>Kriterium</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Order-Flow</strong></td>
+<td>3 erfolgreiche End-to-End-Durchläufe (paid → fulfilled → notified)
+in Produktionsumgebung oder Staging mit echten Webhooks</td>
+</tr>
+<tr class="even">
+<td><strong>Inventory-Sync</strong></td>
+<td>Bestandsänderung im Lager-Tool schlägt innerhalb von 5 Minuten auf
+Shop-Frontend durch; Überverkaufs-Schutz aktiv getestet</td>
+</tr>
+<tr class="odd">
+<td><strong>Support-Automation</strong></td>
+<td>Ticket-Triage kategorisiert &gt;90% der Testtickets korrekt;
+Auto-Antworten triggern fehlerfrei auf definierten Kategorien</td>
+</tr>
+<tr class="even">
+<td><strong>RMA-Flow</strong></td>
+<td>Retouren-Antrag → Approval → Inventory-Rückbuchung läuft ohne
+manuelle Eingriffe durch in Test-Szenario</td>
+</tr>
+<tr class="odd">
+<td><strong>Reporting</strong></td>
+<td>Dashboard zeigt korrekte Werte (Abweichung &lt;2% zu Roh-Daten),
+täglicher Report landet zuverlässig in Ziel-Kanal</td>
+</tr>
+<tr class="even">
+<td><strong>Export</strong></td>
+<td>Buchhaltungs-CSV enthält alle Pflichtfelder, kein NULL in
+Pflichtfeldern, Export läuft wöchentlich autonom</td>
+</tr>
+<tr class="odd">
+<td><strong>Dokumentation</strong></td>
+<td>Alle SOP-Dokumente von Customer-POC geprüft und abgezeichnet; Videos
+vollständig hochgeladen und verlinkt</td>
+</tr>
+<tr class="even">
+<td><strong>Fehlerbehandlung</strong></td>
+<td>Alle Haupt-Flows haben definierte Fallback-Pfade und
+Error-Notification (kein Silent-Fail)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="change-request-policy">Change-Request-Policy</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Regelung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Scope-Erweiterung im Retainer (klar kleines Item &lt;4 Std.)</td>
+<td>Wird im Retainer absorbiert wenn Kapazität vorhanden — dokumentiert
+im Monthly-Log</td>
+</tr>
+<tr class="even">
+<td>Scope-Erweiterung Setup-Phase (&gt;4 Std., neues Modul)</td>
+<td>Formeller Change Request: schriftliche Beschreibung,
+Aufwand-Estimate, Freigabe durch Customer vor Start. +€800–2.500 je nach
+Komplexität</td>
+</tr>
+<tr class="odd">
+<td>Tool-Wechsel nach Start (z.B. Helpdesk-Wechsel in W4)</td>
+<td>Immer Change Request, da Rebuild. Minimum +€1.500 +
+Zeitplan-Verschiebung</td>
+</tr>
+<tr class="even">
+<td>Anforderungs-Änderung am Datenmodell nach W2</td>
+<td>CR erforderlich — Datenmodell-Änderungen späte Phase = hoher
+Rebuild-Aufwand</td>
+</tr>
+<tr class="odd">
+<td>Bugs innerhalb definiertem Scope nach Go-Live</td>
+<td>Im Retainer abgedeckt (30 Tage Bug-Fixing-Window nach Go-Live ohne
+CR)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pricing-variations">Pricing-Variations</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Add-On / Variation</th>
+<th>Preis-Impact Setup</th>
+<th>Impact Retainer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2. Shop-Plattform (Shopify + WooCommerce parallel)</td>
+<td>+€3.000 – €5.000</td>
+<td>+€500/Mo</td>
+</tr>
+<tr class="even">
+<td>1 zusätzlicher Marktplatz-Sync (Amazon / eBay mit API)</td>
+<td>+€2.000 – €3.500</td>
+<td>+€300/Mo</td>
+</tr>
+<tr class="odd">
+<td>Multi-Language-Kunden-Benachrichtigungen (je Sprache)</td>
+<td>+€500 – €800/Sprache</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>2. Fulfillment-Partner</td>
+<td>+€1.500 – €2.500</td>
+<td>+€200/Mo</td>
+</tr>
+<tr class="odd">
+<td>Komplexe ERP-Integration (SAP, NAVISION — vorhandene API)</td>
+<td>+€5.000 – €12.000</td>
+<td>+€500–800/Mo</td>
+</tr>
+<tr class="even">
+<td>Custom AI-Ticket-Antworten (LLM-basiert, kein Template)</td>
+<td>+€3.000 – €6.000</td>
+<td>+€400/Mo</td>
+</tr>
+<tr class="odd">
+<td>Subscription/Abo-Commerce-Logik (Recurring Orders)</td>
+<td>+€2.500 – €4.000</td>
+<td>+€300/Mo</td>
+</tr>
+<tr class="even">
+<td>POS-Integration (Stationäres Geschäft + Online-Sync)</td>
+<td>+€2.000 – €3.500</td>
+<td>+€300/Mo</td>
+</tr>
+<tr class="odd">
+<td>Dedizierter Monthly Strategy-Call + Quarterly Review</td>
+<td>—</td>
+<td>+€500/Mo</td>
+</tr>
+</tbody>
+</table>
+<h1 id="delivery-plan">3. Delivery-Plan</h1>
+<hr />
+<h2 id="phasen">Phasen</h2>
+<h3 id="phase-1-discovery-architecture-w1w2">Phase 1: Discovery &amp;
+Architecture — W1–W2</h3>
+<p><strong>Ziel:</strong> Vollständiges Verständnis des bestehenden
+Tech-Stacks, Datenmodell finalisiert, Architektur abgenommen.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Customer-Input benötigt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tech-Stack-Audit-Dokument (API-Check für alle Tools)</td>
+<td>Engineering</td>
+<td>API-Keys, Tool-Zugänge</td>
+</tr>
+<tr class="even">
+<td>Flow-Map: Ist-Zustand (Order-Journey, Support-Journey,
+Inventory-Journey)</td>
+<td>Founder / Engineering</td>
+<td>Interview mit Customer-POC</td>
+</tr>
+<tr class="odd">
+<td>Datenmodell-Entwurf (Produkte, Orders, Kunden, Inventory)</td>
+<td>Engineering</td>
+<td>Sortimentsstruktur-Info</td>
+</tr>
+<tr class="even">
+<td>Architektur-Skizze (Toolstack + Verbindungen + Datenfluss)</td>
+<td>Engineering</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Onboarding-Dokument: Customer-Zugang-Checkliste abgehakt</td>
+<td>Customer Success</td>
+<td>Alle Zugänge liefern</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Kick-off Call (90 Min.) +
+Discovery-Interview (60 Min., W2)</p>
+<hr />
+<h3 id="phase-2-core-build-w3w5">Phase 2: Core-Build — W3–W5</h3>
+<p><strong>Ziel:</strong> Shop-Connector, Order-Management,
+Inventory-Sync laufen stabil in Staging.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Customer-Input benötigt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Shop-API-Integration (bidirektional, Webhook-Setup)</td>
+<td>Engineering</td>
+<td>API-Keys freigegeben</td>
+</tr>
+<tr class="even">
+<td>Order-Routing-Flow (Zahlungseingang → Fulfillment →
+Notification)</td>
+<td>Engineering</td>
+<td>Fulfillment-Partner-Zugang</td>
+</tr>
+<tr class="odd">
+<td>Storno- und Verzögerungs-Flow</td>
+<td>Engineering</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Inventory-Sync (Shop ↔︎ Lager-Tool, Schwellwerte konfiguriert)</td>
+<td>Engineering</td>
+<td>Lager-Daten im Ziel-Format</td>
+</tr>
+<tr class="odd">
+<td>Überverkaufs-Schutz aktiv</td>
+<td>Engineering</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Fulfillment-Partner-Integration + Tracking-Automation</td>
+<td>Engineering</td>
+<td>Partner-API-Doku</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Weekly Sync W3 (30 Min.) +
+Milestone-Review W5 (45 Min.) — Demo des Order-Flows live</p>
+<p><strong>Quality-Gate intern:</strong> Engineering-Sign-Off:
+Order-Flow 3x End-to-End getestet in Staging. Inventory-Sync delta &lt;5
+Min. verifiziert.</p>
+<hr />
+<h3 id="phase-3-support-returns-w5w6">Phase 3: Support &amp; Returns —
+W5–W6</h3>
+<p><strong>Ziel:</strong> Helpdesk-Integration läuft, Triage
+funktioniert, RMA-Flow komplett.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Customer-Input benötigt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Helpdesk-Tool-Integration (Webhooks + API)</td>
+<td>Engineering</td>
+<td>Helpdesk-Admin-Zugang</td>
+</tr>
+<tr class="even">
+<td>Ticket-Triage-Logik (Tags, Kategorien, Routing-Regeln)</td>
+<td>Engineering</td>
+<td>Top-5-FAQ definiert von Customer</td>
+</tr>
+<tr class="odd">
+<td>Auto-Antwort-Templates (5 Kategorien, dynamische Order-Daten)</td>
+<td>Engineering + CS</td>
+<td>Template-Texte vom Customer oder Freigabe für AEVUM-Entwürfe</td>
+</tr>
+<tr class="even">
+<td>Eskalations-Routing (Timeouts konfiguriert)</td>
+<td>Engineering</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>RMA-Formular / Antragsstrecke live</td>
+<td>Engineering</td>
+<td>Retouren-Policy-Dokument vom Customer</td>
+</tr>
+<tr class="even">
+<td>Approval/Rejection-Flow + Inventory-Rückbuchung</td>
+<td>Engineering</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Weekly Sync W6 (30 Min.) — Demo
+Support-Triage + RMA-Flow</p>
+<p><strong>Quality-Gate intern:</strong> CS prüft: Triage-Trefferquote
+&gt;90% auf 20 Test-Tickets. RMA-Flow 3x durchgetestet.</p>
+<hr />
+<h3 id="phase-4-reporting-exports-w6w7">Phase 4: Reporting &amp; Exports
+— W6–W7</h3>
+<p><strong>Ziel:</strong> Dashboard live, Auto-Reports konfiguriert,
+Buchhaltungs-Export läuft autonom.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Customer-Input benötigt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>KPI-Dashboard (GMV, AOV, Conversion, Return-Rate, Ticket-Volumen,
+Response-Time)</td>
+<td>Engineering</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Täglicher Auto-Report (E-Mail oder Slack)</td>
+<td>Engineering</td>
+<td>Ziel-Kanal und Empfänger</td>
+</tr>
+<tr class="odd">
+<td>Customer-Segment-Tags live (New / Repeat / VIP / At-Risk) mit
+E-Mail-Tool-Sync</td>
+<td>Engineering</td>
+<td>E-Mail-Tool-Zugang und Segment-Definitions</td>
+</tr>
+<tr class="even">
+<td>Buchhaltungs-CSV-Export (wöchentlich automatisch)</td>
+<td>Engineering</td>
+<td>Pflichtfelder-Definition (ggf. mit Steuerberater abgestimmt)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Weekly Sync W7 (30 Min.) —
+Dashboard-Walkthrough</p>
+<p><strong>Quality-Gate intern:</strong> Founder-Check: Dashboard-Werte
+mit Roh-Daten aus Shop-Backend abgeglichen (Abweichung &lt;2%).
+Export-CSV manuell auf Pflichtfelder geprüft.</p>
+<hr />
+<h3 id="phase-5-testing-hardening-w7w8">Phase 5: Testing &amp; Hardening
+— W7–W8</h3>
+<p><strong>Ziel:</strong> Alle Flows vollständig End-to-End getestet,
+Error-Handling aktiv, Silent-Fails eliminiert.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Customer-Input benötigt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>End-to-End-Test-Protokoll (alle Kern-Flows, 3 Durchläufe)</td>
+<td>Engineering + CS</td>
+<td>Zugriff auf echte Staging-Daten oder Testdaten</td>
+</tr>
+<tr class="even">
+<td>Fehler-Log-Analyse und Fixes</td>
+<td>Engineering</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Error-Notification-Setup (alle Flows haben Fallback + Alert)</td>
+<td>Engineering</td>
+<td>Benachrichtigungs-Kanal</td>
+</tr>
+<tr class="even">
+<td>Performance-Check (Latenz Shop-Sync, Webhook-Delivery-Rate)</td>
+<td>Engineering</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Dokumentation Review-Draft (SOP + Video-Script)</td>
+<td>CS</td>
+<td>Customer-POC für Review-Runde</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> UAT-Session (User Acceptance
+Testing) mit Customer-POC — W7/W8, 60 Min.</p>
+<p><strong>Quality-Gate intern:</strong> Engineering + CS Sign-Off
+gemeinsam: Kein Flow ohne Error-Handler. Test-Protokoll vollständig
+ausgefüllt. Customer-POC hat UAT-Freigabe gegeben.</p>
+<hr />
+<h3 id="phase-6-handover-go-live-w8-m-w1214-l">Phase 6: Handover &amp;
+Go-Live — W8 (M) / W12–14 (L)</h3>
+<p><strong>Ziel:</strong> Customer ist operativ eigenständig.
+Retainer-Monitoring aktiv.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Customer-Input benötigt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SOP-Dokumentation final (alle Flows schriftlich)</td>
+<td>CS</td>
+<td>Final-Freigabe</td>
+</tr>
+<tr class="even">
+<td>Video-Walkthroughs (3–5 Loom-Videos)</td>
+<td>CS</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Access-Übergabe (Zugänge dokumentiert, AEVUM-Test-Keys revoked)</td>
+<td>Engineering</td>
+<td>Customer bestätigt Zugänge</td>
+</tr>
+<tr class="even">
+<td>Monitoring-Setup (Uptime-Alerts, Flow-Fehler-Alerts, Weekly
+Health-Check)</td>
+<td>Engineering</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Retainer-Kickoff (Async-Ticket-System erklärt, SLA
+kommuniziert)</td>
+<td>CS</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Go-Live-Freigabe (schriftliche Bestätigung Customer)</td>
+<td>CS</td>
+<td>Schriftlich</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Handover-Call (60 Min.) +
+Go-Live-Bestätigung schriftlich</p>
+<hr />
+<h2 id="team-allocation">Team-Allocation</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rolle</th>
+<th>Phase 1</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+<th>Phase 4</th>
+<th>Phase 5</th>
+<th>Phase 6</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Founder</strong></td>
+<td>Kick-off, Architektur-Review</td>
+<td>Milestone-Gate</td>
+<td>—</td>
+<td>Dashboard-Check</td>
+<td>Final Sign-Off</td>
+<td>Go-Live-Freigabe</td>
+</tr>
+<tr class="even">
+<td><strong>Engineering</strong></td>
+<td>Tech-Audit, Datenmodell</td>
+<td>Core-Build (Vollzeit)</td>
+<td>Support/RMA-Build</td>
+<td>Reporting-Build</td>
+<td>Testing, Fixes</td>
+<td>Monitoring-Setup</td>
+</tr>
+<tr class="odd">
+<td><strong>Customer Success</strong></td>
+<td>Onboarding-Dok, Discovery</td>
+<td>Weekly Syncs</td>
+<td>Template-Koordination, Triage-Test</td>
+<td>Dashboard-Walkthrough</td>
+<td>UAT-Begleitung, Doku-Draft</td>
+<td>Handover-Call, Retainer-Kickoff</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2
+id="customer-onboarding-touchpoints">Customer-Onboarding-Touchpoints</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Touchpoint</th>
+<th>Timing</th>
+<th>Format</th>
+<th>Dauer</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Kick-off Call</strong></td>
+<td>W1, Tag 2–3</td>
+<td>Video-Call</td>
+<td>90 Min.</td>
+<td>Founder + CS</td>
+</tr>
+<tr class="even">
+<td><strong>Discovery-Interview</strong></td>
+<td>W2</td>
+<td>Video-Call</td>
+<td>60 Min.</td>
+<td>Engineering + CS</td>
+</tr>
+<tr class="odd">
+<td><strong>Weekly Sync</strong></td>
+<td>Jede Woche (W3–W7)</td>
+<td>Video-Call oder Async-Loom</td>
+<td>30 Min.</td>
+<td>CS</td>
+</tr>
+<tr class="even">
+<td><strong>Milestone-Review: Core-Build</strong></td>
+<td>W5</td>
+<td>Video-Call mit Live-Demo</td>
+<td>45 Min.</td>
+<td>Engineering + CS</td>
+</tr>
+<tr class="odd">
+<td><strong>Milestone-Review: Support/RMA</strong></td>
+<td>W6</td>
+<td>Video-Call mit Live-Demo</td>
+<td>30 Min.</td>
+<td>Engineering</td>
+</tr>
+<tr class="even">
+<td><strong>UAT-Session</strong></td>
+<td>W7–W8</td>
+<td>Video-Call, Customer testet live</td>
+<td>60 Min.</td>
+<td>CS + Customer-POC</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover-Call</strong></td>
+<td>W8 (M) / W12–14 (L)</td>
+<td>Video-Call</td>
+<td>60 Min.</td>
+<td>CS + Founder</td>
+</tr>
+<tr class="even">
+<td><strong>Retainer-Monatliches Update</strong></td>
+<td>Laufend</td>
+<td>Async Report + optionaler Call</td>
+<td>30 Min.</td>
+<td>CS</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="risk-register">Risk-Register</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Risiko</th>
+<th>Wahrscheinlichkeit</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>R1</strong></td>
+<td>Fulfillment-Partner hat keine stabile API oder inkonsistente
+Doku</td>
+<td>Mittel</td>
+<td>Hoch</td>
+<td>API-Check in W1 als Blocker-Gate. Wenn keine API: EDI-Fallback
+evaluieren oder manuelle Übergabe-Workflow als Interim. Scope-Anpassung
+in CR kommunizieren.</td>
+</tr>
+<tr class="even">
+<td><strong>R2</strong></td>
+<td>Customer-POC nicht verfügbar oder Feedback-Loops &gt;48h</td>
+<td>Mittel</td>
+<td>Mittel</td>
+<td>Klare Verfügbarkeits-Vereinbarung im Kick-off. Bei 2x Delay:
+formelle Warnung, Zeitplan-Verschiebung auf Customer-Konto
+kommuniziert.</td>
+</tr>
+<tr class="odd">
+<td><strong>R3</strong></td>
+<td>Lager-Daten nicht strukturiert oder in proprietärem Format</td>
+<td>Mittel</td>
+<td>Hoch</td>
+<td>Früh in W1 prüfen. Wenn nicht strukturiert: Interim-Sheet-Lösung als
+Connector, aber Mehraufwand als CR. Clean-Data als Voraussetzung
+explizit kommuniziert.</td>
+</tr>
+<tr class="even">
+<td><strong>R4</strong></td>
+<td>Tool-Entscheidung (Helpdesk) ändert sich nach W3</td>
+<td>Niedrig</td>
+<td>Hoch</td>
+<td>Tool-Festlegung als hartes Gate vor Phase 3. Jeder Wechsel danach =
+CR + Zeitverschiebung, schriftlich bestätigt.</td>
+</tr>
+<tr class="odd">
+<td><strong>R5</strong></td>
+<td>Webhooks / API-Limits des Shop-Systems (Rate-Limiting) bei hohem
+Volumen</td>
+<td>Niedrig (Tier M) / Mittel (Tier L)</td>
+<td>Mittel</td>
+<td>In Architecture-Phase Rate-Limits dokumentieren. Queue-Mechanismus
+einbauen wenn &gt;500 Orders/Mo erwartet. In Tier-L standard.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-gates">Quality-Gates</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Gate</th>
+<th>Zeitpunkt</th>
+<th>Prüfer</th>
+<th>Kriterium</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Gate 1: Architecture Sign-Off</strong></td>
+<td>Ende W2</td>
+<td>Founder</td>
+<td>Datenmodell vollständig, alle APIs erreichbar und dokumentiert,
+Architektur-Skizze genehmigt</td>
+</tr>
+<tr class="even">
+<td><strong>Gate 2: Core-Build Sign-Off</strong></td>
+<td>Ende W5</td>
+<td>Engineering</td>
+<td>Order-Flow 3x End-to-End erfolgreich, Inventory-Sync-Delta &lt;5
+Min., Fehler-Log leer</td>
+</tr>
+<tr class="odd">
+<td><strong>Gate 3: Support &amp; RMA Sign-Off</strong></td>
+<td>Ende W6</td>
+<td>CS</td>
+<td>Triage-Trefferquote &gt;90%, RMA 3x durchgetestet, keine
+Silent-Fails</td>
+</tr>
+<tr class="even">
+<td><strong>Gate 4: Reporting Sign-Off</strong></td>
+<td>Ende W7</td>
+<td>Founder</td>
+<td>Dashboard-Werte verifiziert (&lt;2% Abweichung), Export-CSV geprüft,
+Auto-Report live</td>
+</tr>
+<tr class="odd">
+<td><strong>Gate 5: UAT Sign-Off</strong></td>
+<td>W7–W8</td>
+<td>Customer-POC</td>
+<td>Customer hat alle Kern-Flows selbst durchgeklickt und schriftlich
+freigegeben</td>
+</tr>
+<tr class="even">
+<td><strong>Gate 6: Go-Live Sign-Off</strong></td>
+<td>W8 (M) / W14 (L)</td>
+<td>Founder + CS</td>
+<td>Handover-Package vollständig, Monitoring aktiv, schriftliche
+Go-Live-Bestätigung Customer vorhanden</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="handover-package">Handover-Package</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Format</th>
+<th>Ablage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SOP-Dokumentation alle Haupt-Flows</td>
+<td>Notion / PDF</td>
+<td>Customer-Notion-Workspace oder Google Drive</td>
+</tr>
+<tr class="even">
+<td>Video-Walkthroughs (3–5 Loom-Videos)</td>
+<td>Loom-Links + MP4-Download</td>
+<td>Shared Drive</td>
+</tr>
+<tr class="odd">
+<td>Architektur-Übersicht (Tool-Map + Datenfluss)</td>
+<td>Miro / PDF</td>
+<td>Shared Drive</td>
+</tr>
+<tr class="even">
+<td>API-Keys &amp; Zugänge-Dokumentation</td>
+<td>Passwort-Manager-Export (1Password / Bitwarden)</td>
+<td>Sicher an Customer übergeben</td>
+</tr>
+<tr class="odd">
+<td>Test-Protokoll (abgenommene Flows)</td>
+<td>PDF</td>
+<td>Shared Drive</td>
+</tr>
+<tr class="even">
+<td>Change-Request-Log (falls CRs während Setup)</td>
+<td>Notion / PDF</td>
+<td>Shared Drive</td>
+</tr>
+<tr class="odd">
+<td>Monitoring-Anleitung (wie Alerts lesen, wie eskalieren)</td>
+<td>Notion-Seite</td>
+<td>Customer-Notion-Workspace</td>
+</tr>
+<tr class="even">
+<td>Retainer-SLA-Dokument</td>
+<td>PDF</td>
+<td>E-Mail + Shared Drive</td>
+</tr>
+<tr class="odd">
+<td>Buchhaltungs-Export-Konfiguration</td>
+<td>Inline in SOP</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Kontakt- und Eskalations-Pfad AEVUM</td>
+<td>Notion-Seite</td>
+<td>Customer-Notion-Workspace</td>
+</tr>
+</tbody>
+</table>
+<h1 id="quality-gate">4. Quality-Gate</h1>
+<p><strong>Projekt-Slug:</strong> <code>ecommerce-os</code>
+<strong>Typ:</strong> DFY <strong>Status zum Zeitpunkt dieses
+Dokuments:</strong> [ ] In Progress / [ ] Ready for Sign-Off / [ ]
+Signed Off</p>
+<hr />
+<h2 id="asset-inventar">Asset-Inventar</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Asset</th>
+<th>Typ</th>
+<th>Status</th>
+<th>Ablage-Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Shop-API-Connector (bidirektional)</td>
+<td>Integration</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Order-Routing-Flow (Paid → Fulfilled → Notified)</td>
+<td>Automation</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Storno- und Verzögerungs-Flow</td>
+<td>Automation</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Inventory-Sync (Shop ↔︎ Lager, Schwellwerte)</td>
+<td>Integration + Automation</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Überverkaufs-Schutz</td>
+<td>Automation</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Fulfillment-Partner-Integration + Tracking-Automation</td>
+<td>Integration</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Helpdesk-Integration + Triage-Logik</td>
+<td>Integration + Automation</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Auto-Antwort-Templates (5 Kategorien)</td>
+<td>Automation</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Eskalations-Routing</td>
+<td>Automation</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>RMA-Formular + Approval/Rejection-Flow</td>
+<td>Form + Automation</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Inventory-Rückbuchung nach Retoure</td>
+<td>Automation</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Customer-Hub (Kundenprofil, LTV, Segment-Tags)</td>
+<td>Datenmodell + Integration</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td>E-Mail-Marketing-Tool-Sync (Segment-Tags)</td>
+<td>Integration</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td>KPI-Dashboard</td>
+<td>Reporting</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td>Täglicher Auto-Report</td>
+<td>Automation</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td>Buchhaltungs-CSV-Export (wöchentlich)</td>
+<td>Automation</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>17</td>
+<td>SOP-Dokumentation (alle Haupt-Flows)</td>
+<td>Doku</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>18</td>
+<td>Video-Walkthroughs (3–5 Loom-Videos)</td>
+<td>Doku</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>19</td>
+<td>Architektur-Übersicht (Tool-Map + Datenfluss)</td>
+<td>Doku</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td>Test-Protokoll (abgenommene Flows)</td>
+<td>Doku</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>21</td>
+<td>Monitoring-Setup (Alerts, Health-Check)</td>
+<td>Infra</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>22</td>
+<td>Zugänge-Dokumentation (übergeben an Customer)</td>
+<td>Doku</td>
+<td>[ ]</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien">Sign-Off-Kriterien</h2>
+<p>Alle 10 Punkte müssen ✅ sein bevor Go-Live-Freigabe erteilt
+wird.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Kriterium</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Order-Flow (Paid → Fulfilled → Customer-Notification) hat 3
+erfolgreiche End-to-End-Durchläufe in Produktionsumgebung ohne manuelle
+Eingriffe absolviert</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Inventory-Sync: Bestandsänderung im Lager schlägt innerhalb von 5
+Minuten im Shop-Frontend durch; Überverkaufs-Schutz aktiv getestet und
+bestätigt</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Support-Triage kategorisiert &gt;90% der Testtickets (20 Testfälle)
+korrekt; Auto-Antworten triggern fehlerfrei auf allen 5 konfigurierten
+Kategorien</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>RMA-Flow (Antrag → Approval → Inventory-Rückbuchung) hat 3
+Test-Retouren vollständig durchlaufen ohne manuelle Eingriffe</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>KPI-Dashboard zeigt korrekte Werte mit max. 2% Abweichung von
+Shop-Backend-Rohdaten; täglicher Auto-Report ist im Ziel-Kanal
+angekommen (mind. 2 Test-Sends)</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Buchhaltungs-CSV-Export enthält alle Pflichtfelder ohne NULL-Werte
+und hat mindestens 1 automatischen Testlauf absolviert</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Kein Haupt-Flow hat einen Silent-Fail: alle Flows haben definierten
+Error-Handler + Alert-Notification bei Fehler</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Customer-POC hat UAT-Session abgeschlossen und alle Kern-Flows
+selbst durchgeklickt; schriftliche UAT-Freigabe liegt vor</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>SOP-Dokumentation von Customer-POC geprüft und freigegeben; alle
+Video-Walkthroughs hochgeladen und verlinkt; Test-Protokoll vollständig
+ausgefüllt</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Monitoring aktiv (Uptime-Alerts, Flow-Fehler-Alerts, Weekly
+Health-Check konfiguriert); schriftliche Go-Live-Bestätigung des
+Customers liegt vor</td>
+<td>[ ] ✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2
+id="known-limitations-phase-2-items-explizit-nicht-in-diesem-scope">Known-Limitations
+(Phase-2-Items / Explizit nicht in diesem Scope)</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Limitation</th>
+<th>Begründung / Kontext</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>L1</td>
+<td>Ticket-Automation basiert auf Rules und Templates — kein
+LLM-basiertes dynamisches Antworten</td>
+<td>LLM-Integration ist separates Add-On (CR / eigenes Angebot).
+Customer-Erwartung muss explizit gesetzt sein.</td>
+</tr>
+<tr class="even">
+<td>L2</td>
+<td>Inventory-Sync deckt 1 Lager-Standort ab (Tier M)</td>
+<td>Multi-Warehouse-Sync erfordert Datenmodell-Erweiterung — nicht in
+Standard-Scope</td>
+</tr>
+<tr class="odd">
+<td>L3</td>
+<td>Buchhaltungs-Export ist CSV/DATEV-Format — keine direkte
+Buchhalter-Software-Integration (Lexoffice-API etc.)</td>
+<td>Direkte Buchhalter-Tool-API-Integration ist Add-On</td>
+</tr>
+<tr class="even">
+<td>L4</td>
+<td>Customer-Segment-Logik (VIP/At-Risk) basiert auf definierten
+statischen Schwellwerten — kein ML-basiertes Scoring</td>
+<td>Predictive LTV-Scoring ist Phase-2-Feature, erfordert Datenhistorie
+von mind. 6 Monaten</td>
+</tr>
+<tr class="odd">
+<td>L5</td>
+<td>Kein A/B-Testing der Auto-Antwort-Templates im Scope</td>
+<td>Kann in Retainer-Phase als Optimierungs-Item aufgenommen werden</td>
+</tr>
+<tr class="even">
+<td>L6</td>
+<td>Fulfillment: nur 1 Partner. Zweiter Partner = CR</td>
+<td>Im Pricing-Variations-Dokument kommuniziert</td>
+</tr>
+<tr class="odd">
+<td>L7</td>
+<td>Dashboard ohne Anomalie-Detection / automatische Alerts auf
+Ausreißer (Tier M)</td>
+<td>Anomalie-Detection in Tier L enthalten oder als
+Retainer-Optimierung</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="db-update-befehl">DB-Update-Befehl</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- AEVUM Service-Item Sign-Off: ecommerce-os</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> aevum_service_items</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  status                <span class="op">=</span> <span class="st">&#39;signed_off&#39;</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  delivery_phase        <span class="op">=</span> <span class="st">&#39;handover&#39;</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  sign_off_date         <span class="op">=</span> <span class="fu">CURRENT_DATE</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  sign_off_by           <span class="op">=</span> <span class="st">&#39;AEVUM_FOUNDER&#39;</span>, <span class="co">-- ggf. ersetzen mit tatsächlichem User-ID</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  quality_gate_passed   <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  known_limitations_doc <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  handover_package_sent <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  retainer_active       <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  updated_at            <span class="op">=</span> NOW()</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  item_slug <span class="op">=</span> <span class="st">&#39;ecommerce-os&#39;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">AND</span> customer_id <span class="op">=</span> <span class="ch">:customer_id</span>; <span class="co">-- Platzhalter ersetzen</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">-- Delivery-Log-Eintrag</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> aevum_delivery_log (</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  item_slug,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  customer_id,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  event_type,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  event_note,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  event_date,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  logged_by</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>) <span class="kw">VALUES</span> (</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;ecommerce-os&#39;</span>,</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="ch">:customer_id</span>,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;SIGN_OFF&#39;</span>,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;All 10 quality gates passed. Handover package delivered. Retainer activated.&#39;</span>,</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">CURRENT_DATE</span>,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;AEVUM_FOUNDER&#39;</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+<hr />
+<h2 id="pattern-notes-für-dfy-builder-pattern">Pattern-Notes für
+DFY-Builder-Pattern</h2>
+<pre><code>PATTERN: ecommerce-os
+Typ: Multi-Module DFY mit Integrations-Kernstück
+
+Wichtigste Differenzierungen vs. andere DFY-Items:
+- Höchste Anzahl externer API-Abhängigkeiten aller DFY-Items (Shop + Payment + Helpdesk + Fulfillment + Email + Lager)
+  → API-Check muss härtestes Gate in Phase 1 sein. Kein Weiterreden ohne bestätigte API-Verfügbarkeit.
+
+- Datenmodell-Entscheidung in W1–W2 ist irreversibel ohne CR
+  → Founder muss Architecture Sign-Off aktiv abnehmen, nicht delegieren.
+
+- Customer-POC-Verfügbarkeit ist kritischer als bei anderen Items
+  → Ohne 2–3 Std./Woche POC in Phase 1: Scope-Qualität leidet. Klare Commitment-Vereinbarung im Kick-off.
+
+- Inventory-Datenqualität ist häufigster praktischer Blocker
+  → Lager-Daten in W1 anfordern und Struktur prüfen. Wenn unklar: 1 Woche Buffer einplanen.
+
+- Fulfillment-Partner-API ist Wildcard
+  → Immer Worst-Case-Scenario (kein stabiles API) als Fallback vorbereiten.
+
+Retainer-Muster post-Handover:
+- Monat 1: Bug-Fixing-Window — kein CR für Scope-Items. Fokus Stabilisierung.
+- Monat 2+: Optimierungs-Items aus Known-Limitations adressieren. Upsell-Trigger: Reporting-Wünsche → database-system / hud-command-center.
+
+Preispositionierung:
+- Tier M eignet sich für PB und kleinere AG-Clients mit klarem 1-Shop-Setup.
+- Tier L für FI mit ERP-Touch oder Multi-Channel.
+- Setup-to-Retainer-Ratio 3:1 hält. Bei ERP-Add-On steigt Retainer überproportional (Monitoring-Aufwand).
+
+Nächste Pattern-Verbesserung:
+- Checkliste für Fulfillment-Partner-API-Readiness als separates Mini-Dokument sinnvoll (häufigster Blocker).
+- Muster für DSGVO-Compliance-Check Customer-Daten als Onboarding-Schritt formalisieren.</code></pre>
+</body>
+</html>

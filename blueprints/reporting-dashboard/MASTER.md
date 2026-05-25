@@ -6,7 +6,7 @@ generated_by: blueprint-master-doc-script
 
 # AEVUM Blueprint — reporting-dashboard
 
-> Generated 2026-05-25 16:31 Berlin-TZ. Combines alle Quality-Gate-Docs zu einem druckbaren Master-Dokument.
+> Generated 2026-05-25 20:29 Berlin-TZ. Combines alle Quality-Gate-Docs zu einem druckbaren Master-Dokument.
 
 ---
 

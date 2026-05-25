@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM DFY: script-factory-dfy</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM DFY: script-factory-dfy</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-done-for-you-script-factory-dfy">AEVUM Done-for-You —
+script-factory-dfy</h1>
+<blockquote>
+<p>Generated 2026-05-25. Combined Master-Doc.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<h2 id="in-einem-satz">In einem Satz</h2>
+<p>AEVUM baut dir eine vollautomatisierte, KI-gestützte
+Ad-Script-Pipeline, die aus Produktdaten, Zielgruppen-Input und
+Performance-Feedback kontinuierlich conversion-optimierte
+Video-Ad-Scripts produziert — ohne dass dein Team jeden Brief manuell
+schreibt.</p>
+<hr />
+<h2 id="wer-das-braucht">Wer das braucht</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Konkreter Use-Case</th>
+<th>Fit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AG</strong> (Agenturen 3–50 MA)</td>
+<td>Performance-Agentur betreut 5–15 E-Com-Clients, schreibt Briefs und
+Scripts manuell, Bottleneck beim Creative-Strategist</td>
+<td>★★★★★</td>
+</tr>
+<tr class="even">
+<td><strong>AG</strong></td>
+<td>Social-Media-Agentur will Creative-Output skalieren ohne
+Headcount-Aufbau</td>
+<td>★★★★☆</td>
+</tr>
+<tr class="odd">
+<td><strong>PB</strong></td>
+<td>D2C-Founder mit eigenem Brand, schaltet selbst Ads, braucht
+konstanten Script-Output für UGC-Creators</td>
+<td>★★★★☆</td>
+</tr>
+<tr class="even">
+<td><strong>FI</strong></td>
+<td>B2B-Mittelstand mit E-Com-Kanal (z. B. Ersatzteile,
+Produkt-Konfiguratoren), baut Performance-Marketing intern auf</td>
+<td>★★★☆☆</td>
+</tr>
+<tr class="odd">
+<td><strong>FI</strong></td>
+<td>Retailer mit 50+ SKUs, will systematisch Product-Launch-Ads
+produzieren</td>
+<td>★★★★☆</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="was-customer-bekommt">Was Customer bekommt</h2>
+<ol type="1">
+<li><strong>Produktdaten-Ingestion-Layer</strong> — Anbindung an
+Produktkatalog (Shopify/WooCommerce/CSV/Feed), automatische Extraktion
+von USPs, Features, Preisinformationen</li>
+<li><strong>Zielgruppen-Persona-Datenbank</strong> — Strukturierte
+Persona-Library (angelegt durch AEVUM, pflegbar durch Customer), inkl.
+Pain-Points, Buying-Motivations, Tonality-Flags</li>
+<li><strong>Hook-Generator-Engine</strong> — Regelbasierte +
+LLM-gestützte Produktion von Hook-Varianten (Pattern-Typen: Problem,
+Curiosity, Social Proof, Contrarian, Direct Offer)</li>
+<li><strong>Script-Assembly-Pipeline</strong> — Automatische Komposition
+vollständiger Ad-Scripts (Hook → Bridge → Body → CTA) pro Persona ×
+Produkt × Format (15s / 30s / 60s)</li>
+<li><strong>Brief-Output-Format</strong> — Strukturierte Briefs für
+UGC-Creators/Editors inkl. Szenen-Beschreibung, B-Roll-Hints,
+On-Screen-Text-Vorschläge</li>
+<li><strong>Feedback-Loop-Integration</strong> — Mechanismus zum
+Einspielen von Ad-Performance-Daten (CTR, Hook-Rate, Spend) zurück in
+die Pipeline für Script-Priorisierung</li>
+<li><strong>Review-Workflow</strong> — Interner Freigabe-Workflow (Draft
+→ Review → Approved → Briefed) mit Status-Tracking</li>
+<li><strong>Batch-Produktion</strong> — Konfigurierbare Batch-Runs (z.
+B. wöchentlich 20 neue Scripts) mit Output in strukturiertem Format
+(Notion/Airtable/Google Docs)</li>
+<li><strong>Script-Archiv &amp; Tagging</strong> — Searchable Library
+aller produzierten Scripts mit Tags (Produkt, Persona, Format, Status,
+Performance-Score)</li>
+<li><strong>Custom-Style-Guide-Integration</strong> — Brand-Voice-Regeln
+und verbotene Formulierungen als harte Filter in der Pipeline</li>
+</ol>
+<hr />
+<h2 id="mehrwert-konkret">Mehrwert (konkret)</h2>
+<h3 id="vorher-nachher">Vorher / Nachher</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Vorher</th>
+<th>Nachher</th>
+<th>Schätzwert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Zeit pro Script</td>
+<td>45–90 min (manuell)</td>
+<td>3–8 min (Review only)</td>
+<td><strong>−85% Zeitaufwand</strong></td>
+</tr>
+<tr class="even">
+<td>Scripts/Woche (1 Stratege)</td>
+<td>5–10</td>
+<td>40–80</td>
+<td><strong>8× Output</strong></td>
+</tr>
+<tr class="odd">
+<td>Onboarding neuer Produkte</td>
+<td>2–3 Tage bis erster Brief</td>
+<td>2–4 Stunden</td>
+<td><strong>−70% Time-to-Brief</strong></td>
+</tr>
+<tr class="even">
+<td>Creative-Testing-Velocity</td>
+<td>2–3 neue Konzepte/Monat</td>
+<td>15–30 Konzepte/Monat</td>
+<td><strong>10× Testing-Speed</strong></td>
+</tr>
+<tr class="odd">
+<td>Wissenssilos</td>
+<td>Im Kopf des Creative-Strategists</td>
+<td>Dokumentiert, skalierbar</td>
+<td>Struktureller Wert</td>
+</tr>
+<tr class="even">
+<td>Revenue-Impact (Agentur)</td>
+<td>Bottleneck limitiert Client-Kapazität</td>
+<td>+3–5 Clients ohne Headcount</td>
+<td><strong>+€30–80k ARR möglich</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Schätzwerte basieren auf Benchmarks aus vergleichbaren Setups.
+Tatsächliche Ergebnisse hängen von Produktkomplexität, Datenlage und
+Nutzungsintensität ab.</p>
+</blockquote>
+<hr />
+<h2 id="pricing-logic">Pricing-Logic</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Tier M</strong></th>
+<th><strong>Tier L</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Setup</strong></td>
+<td>€9.000 – €14.000</td>
+<td>€20.000 – €35.000</td>
+</tr>
+<tr class="even">
+<td><strong>Monthly Retainer</strong></td>
+<td>€2.200 – €3.000</td>
+<td>€3.200 – €5.000</td>
+</tr>
+<tr class="odd">
+<td><strong>Deliverables-Scope</strong></td>
+<td>1 Brand / bis 50 SKUs / 3 Personas / 3 Formate /
+Standard-Feedback-Loop</td>
+<td>Multi-Brand oder 150+ SKUs / unbegrenzte Personas / 6+ Formate /
+Performance-Daten-Integration (Meta/TikTok API) / Custom
+Scoring-Modell</td>
+</tr>
+<tr class="even">
+<td><strong>Implementation</strong></td>
+<td>5–7 Wochen</td>
+<td>8–12 Wochen</td>
+</tr>
+<tr class="odd">
+<td><strong>Scripts/Monat (Batch)</strong></td>
+<td>bis 80</td>
+<td>bis 300+</td>
+</tr>
+<tr class="even">
+<td><strong>Retainer-Inhalt</strong></td>
+<td>Wartung, monatliche Batch-Runs, 1 Persona-Update, Support</td>
+<td>Wartung, Batch-Runs, Reporting, Persona-Optimierung,
+Performance-Feedback-Automatisierung, Quarterly Review</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="timeline">Timeline</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th>Woche(n)</th>
+<th>Inhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Discovery &amp; Setup</td>
+<td>W1</td>
+<td>Kick-off, Datenzugang, Persona-Workshop, Style-Guide-Erfassung</td>
+</tr>
+<tr class="even">
+<td>Daten-Pipeline &amp; Ingestion</td>
+<td>W2</td>
+<td>Produktkatalog-Anbindung, Daten-Normalisierung, Persona-Library</td>
+</tr>
+<tr class="odd">
+<td>Script-Engine Build</td>
+<td>W3–4</td>
+<td>Hook-Generator, Assembly-Pipeline, Format-Templates</td>
+</tr>
+<tr class="even">
+<td>Review-Workflow &amp; Output-Format</td>
+<td>W5</td>
+<td>Freigabe-Workflow, Archiv, Batch-Run-Konfiguration</td>
+</tr>
+<tr class="odd">
+<td>Feedback-Loop (Tier L: W6–8)</td>
+<td>W5–6</td>
+<td>Performance-Daten-Anbindung, Scoring-Logik</td>
+</tr>
+<tr class="even">
+<td>QA &amp; Handover</td>
+<td>W6–7 (M) / W10–12 (L)</td>
+<td>Testing, Dokumentation, Training, Go-Live</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer">Voraussetzungen Customer</h2>
+<ul>
+<li>Zugang zum Produktkatalog (Shopify-Admin / WooCommerce-API /
+strukturierter Produktfeed)</li>
+<li>Vorhandene oder erstellbare Brand-Voice-Richtlinien (mind.
+grundlegende Tonality-Aussagen)</li>
+<li>Ansprechpartner auf Customer-Seite mit Entscheidungsbefugnis für
+Persona-Definition (2–3 Calls à 60 min)</li>
+<li>Bereitschaft, 20–30 Beispiel-Scripts (Bestand oder Wunsch-Stil) als
+Training-Input bereitzustellen</li>
+<li>Ad-Account-Zugang für Feedback-Loop-Integration (Tier L,
+lesend)</li>
+<li>Output-Tool vorhanden oder gewählt (Notion, Airtable, Google Drive —
+AEVUM empfiehlt, Customer entscheidet)</li>
+</ul>
+<hr />
+<h2 id="nicht-ziele-explizit-out-of-scope">Nicht-Ziele (explizit
+Out-of-Scope)</h2>
+<ol type="1">
+<li><strong>Video-Produktion</strong> — kein Schnitt, kein Filming, kein
+Editing</li>
+<li><strong>UGC-Creator-Sourcing</strong> — AEVUM brieft, findet aber
+keine Creator</li>
+<li><strong>Media-Buying / Ad-Management</strong> — keine
+Kampagnen-Steuerung, kein Budget-Management</li>
+<li><strong>Performance-Analyse / Reporting-Dashboard</strong> —
+Feedback-Loop speist die Pipeline, ist aber kein vollständiges
+Analytics-System (→ Command Center DFY)</li>
+<li><strong>Mehrsprachigkeit</strong> (außer explizit gebucht als
+Add-On) — Standard-Setup ist DE oder EN, nicht beides</li>
+<li><strong>SEO-Content oder Blogartikel</strong> — Pipeline ist
+ausschließlich für Ad-Scripts optimiert</li>
+<li><strong>Brand-Strategy oder Positioning</strong> — AEVUM nutzt
+vorhandene Inputs, entwickelt keine neue Brand-Strategie</li>
+<li><strong>Automatisches Posting / Ad-Upload</strong> — Scripts werden
+produziert, nicht automatisch deployed</li>
+</ol>
+<hr />
+<h2 id="upsell-pfade">Upsell-Pfade</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Trigger</th>
+<th>Next Service</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Customer will Ad-Performance visualisieren und Entscheidungen
+datenbasiert treffen</td>
+<td><code>command-center-dashboard</code> oder
+<code>hud-command-center</code></td>
+</tr>
+<tr class="even">
+<td>Creative-Output soll in Content-Kalender und organic Posts
+integriert werden</td>
+<td><code>content-engine</code></td>
+</tr>
+<tr class="odd">
+<td>Agentur will den gesamten Client-Pipeline-Prozess (Leads,
+Onboarding, Reporting) abbilden</td>
+<td><code>business-os</code> oder <code>sales-os</code></td>
+</tr>
+<tr class="even">
+<td>Feedback-Loop soll auf Basis echter Verkaufsdaten (nicht nur
+Ad-Metriken) optimieren</td>
+<td><code>database-system</code></td>
+</tr>
+<tr class="odd">
+<td>Customer will auch Landing-Pages und E-Mail-Flows aus Produktdaten
+generieren</td>
+<td>Custom Scope (neues DFY)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conversion-story">Conversion-Story</h2>
+<p>Stell dir vor, dein bester Creative-Strategist verlässt die Agentur.
+Von einem Tag auf den anderen ist das institutionelle Wissen weg —
+welche Hooks für welche Zielgruppe funktionieren, welche Formulierungen
+konvertieren, welche Produkte welche Story brauchen. Du fängst von vorne
+an. Dieser Moment passiert früher oder später in jeder Agentur, die
+Script-Writing im Kopf einer Person trägt statt in einem System.</p>
+<p>Die Script Factory DFY macht aus diesem Kopf-Wissen eine Maschine.
+Nicht indem sie kreative Entscheidungen wegautomatisiert, sondern indem
+sie den 80%-Anteil, der reproduzierbar ist — Struktur, Personas, Hooks,
+Format — in einen systematischen Output-Prozess überführt. Dein Team
+reviewed und verfeinert statt zu produzieren. Die Qualität steigt, weil
+Feedback aus echten Kampagnen direkt zurück in die Produktion fließt.
+Und du kannst skalieren, ohne den nächsten Creative-Strategist
+einzustellen.</p>
+<p>Für D2C-Brands bedeutet das konkret: du bestellst eine Batch von 20
+Scripts für den nächsten Product-Launch, bekommst sie nach einem
+Batch-Run strukturiert in Notion — inkl. Creator-Briefs — und kannst am
+gleichen Tag UGC-Creator briefen. Keine Engpässe. Kein Leerstand
+zwischen Produkt-Go-Live und ersten Ad-Tests. Die Velocity, die du für
+profitables Performance-Marketing brauchst, ist keine Frage von
+Headcount mehr. Sie ist eine Frage von System-Design. </p>
+<h1 id="scope-checklist">2. Scope-Checklist</h1>
+<h2 id="in-scope">In-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Item</th>
+<th>Aufwand-Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Persona-Workshop (1–2 Sessions, strukturierte Abfrage)</td>
+<td>4–6h</td>
+</tr>
+<tr class="even">
+<td><strong>Discovery</strong></td>
+<td>Style-Guide-Extraktion aus Bestandsmaterial</td>
+<td>2–4h</td>
+</tr>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Produktkatalog-Analyse und Datenfeld-Mapping</td>
+<td>3–5h</td>
+</tr>
+<tr class="even">
+<td><strong>Daten-Pipeline</strong></td>
+<td>Shopify/WooCommerce/CSV-Anbindung und Normalisierung</td>
+<td>6–12h</td>
+</tr>
+<tr class="odd">
+<td><strong>Daten-Pipeline</strong></td>
+<td>Persona-Library-Aufbau (bis 3 Personas Tier M / bis 8 Tier L)</td>
+<td>4–8h</td>
+</tr>
+<tr class="even">
+<td><strong>Daten-Pipeline</strong></td>
+<td>Brand-Voice-Regelwerk als Filterschicht</td>
+<td>3–5h</td>
+</tr>
+<tr class="odd">
+<td><strong>Script-Engine</strong></td>
+<td>Hook-Generator (5 Pattern-Typen, LLM-Prompting + Regellogik)</td>
+<td>12–20h</td>
+</tr>
+<tr class="even">
+<td><strong>Script-Engine</strong></td>
+<td>Script-Assembly (Hook→Bridge→Body→CTA, 3 Formate Tier M)</td>
+<td>10–18h</td>
+</tr>
+<tr class="odd">
+<td><strong>Script-Engine</strong></td>
+<td>Brief-Output-Template (UGC-Creator-Ready)</td>
+<td>4–6h</td>
+</tr>
+<tr class="even">
+<td><strong>Script-Engine</strong></td>
+<td>Batch-Run-Konfiguration (Scheduling, Volume-Settings)</td>
+<td>3–5h</td>
+</tr>
+<tr class="odd">
+<td><strong>Workflow</strong></td>
+<td>Review-Status-Tracking (Draft/Review/Approved/Briefed)</td>
+<td>4–8h</td>
+</tr>
+<tr class="even">
+<td><strong>Workflow</strong></td>
+<td>Output-Integration in gewähltes Tool (Notion/Airtable/GDocs)</td>
+<td>4–8h</td>
+</tr>
+<tr class="odd">
+<td><strong>Archiv</strong></td>
+<td>Script-Library mit Tagging-System</td>
+<td>3–6h</td>
+</tr>
+<tr class="even">
+<td><strong>Feedback-Loop</strong></td>
+<td>Manueller Feedback-Einspiel-Mechanismus (Tier M)</td>
+<td>3–5h</td>
+</tr>
+<tr class="odd">
+<td><strong>Feedback-Loop</strong></td>
+<td>API-Anbindung Meta/TikTok Ads + Scoring-Logik (Tier L only)</td>
+<td>15–25h</td>
+</tr>
+<tr class="even">
+<td><strong>QA</strong></td>
+<td>Test-Batch (20–30 Scripts), Review, Kalibrierung</td>
+<td>6–10h</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover</strong></td>
+<td>Dokumentation + Loom-Walkthrough-Videos</td>
+<td>4–6h</td>
+</tr>
+<tr class="even">
+<td><strong>Handover</strong></td>
+<td>Training-Session Customer-Team (1 × 90 min)</td>
+<td>1.5h</td>
+</tr>
+<tr class="odd">
+<td><strong>Retainer</strong></td>
+<td>Monatliche Batch-Runs, Wartung, 1 Persona-Update/Monat</td>
+<td>laufend</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="out-of-scope">Out-of-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Was Customer NICHT bekommt</th>
+<th>Begründung / Verweis</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Video- oder Audio-Produktion</td>
+<td>Anderes Gewerk — weder Equipment noch Post-Production</td>
+</tr>
+<tr class="even">
+<td>Creator-Sourcing oder -Management</td>
+<td>Marktplatz-Logik außerhalb AEVUM-Scope</td>
+</tr>
+<tr class="odd">
+<td>Media-Buying, Kampagnen-Setup, Budget-Allokation</td>
+<td>Ad-Management ist eigener Service</td>
+</tr>
+<tr class="even">
+<td>Vollständiges Performance-Reporting-Dashboard</td>
+<td>→ <code>command-center-dashboard</code> DFY</td>
+</tr>
+<tr class="odd">
+<td>Mehrsprachige Pipelines (ohne Add-On)</td>
+<td>Separater Aufwand, eigenes Pricing</td>
+</tr>
+<tr class="even">
+<td>Organische Content-Formate (Blogartikel, Newsletter,
+Reels-Skripte)</td>
+<td>Script Factory ist Ad-spezifisch</td>
+</tr>
+<tr class="odd">
+<td>Brand-Positioning oder Messaging-Strategie</td>
+<td>Nur Nutzung vorhandener Inputs</td>
+</tr>
+<tr class="even">
+<td>Automatisches Ad-Deployment in Plattformen</td>
+<td>Kein Schreib-Zugang auf Ad-Accounts nötig/gewollt</td>
+</tr>
+<tr class="odd">
+<td>A/B-Test-Automatisierung innerhalb der Plattformen</td>
+<td>Plattform-seitig, nicht Pipeline-seitig</td>
+</tr>
+<tr class="even">
+<td>Unbegrenzte Personas ohne Change Request</td>
+<td>Tier M: 3, Tier L: 8 — darüber: CR-pflichtig</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer-side">Voraussetzungen
+Customer-Side</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Requirement</th>
+<th>Kritikalität</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Datenzugang</strong></td>
+<td>Shopify-Admin-API-Key ODER WooCommerce-API ODER strukturierter
+Produktfeed (CSV/XML)</td>
+<td>⚠ Blocker</td>
+</tr>
+<tr class="even">
+<td><strong>Datenzugang</strong></td>
+<td>Leser-Zugang Ad-Account (Meta/TikTok) für Tier-L-Feedback-Loop</td>
+<td>⚠ Tier L Blocker</td>
+</tr>
+<tr class="odd">
+<td><strong>Content</strong></td>
+<td>Min. 20 Beispiel-Scripts oder Referenz-Ads (eigene oder
+Inspiration)</td>
+<td>Hoch</td>
+</tr>
+<tr class="even">
+<td><strong>Content</strong></td>
+<td>Brand-Voice-Dokument ODER Bereitschaft 2h in
+Style-Guide-Workshop</td>
+<td>Hoch</td>
+</tr>
+<tr class="odd">
+<td><strong>Personas</strong></td>
+<td>Grundlegende Zielgruppen-Beschreibung (Customer kann roh sein —
+AEVUM strukturiert)</td>
+<td>Hoch</td>
+</tr>
+<tr class="even">
+<td><strong>Tools</strong></td>
+<td>Entscheidung für Output-Tool vor Kick-off
+(Notion/Airtable/GDocs)</td>
+<td>Mittel</td>
+</tr>
+<tr class="odd">
+<td><strong>Team</strong></td>
+<td>1 Ansprechpartner mit ~3h/Woche Verfügbarkeit in Weeks 1–3</td>
+<td>Mittel</td>
+</tr>
+<tr class="even">
+<td><strong>Team</strong></td>
+<td>Freigabe-Person definiert (wer approved Scripts?)</td>
+<td>Mittel</td>
+</tr>
+<tr class="odd">
+<td><strong>Rechtlich</strong></td>
+<td>Klärung ob LLM-generierte Scripts IP-rechtlich für Customer ok
+(Eigenverantwortung)</td>
+<td>Hinweis</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-standards">Quality-Standards</h2>
+<p>AEVUM erklärt den Service als “Done” wenn folgende Kriterien erfüllt
+sind:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Kriterium</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Produktkatalog-Anbindung läuft stabil, Updates werden erkannt</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Persona-Library enthält alle vereinbarten Personas vollständig
+ausgefüllt</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Hook-Generator produziert mind. 5 Hook-Varianten pro Produkt ×
+Persona</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Vollständige Scripts werden in allen vereinbarten Formaten
+(15s/30s/60s) ausgegeben</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Brand-Voice-Filter blockiert definierte verbotene Formulierungen
+nachweislich</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Test-Batch von 30 Scripts wurde reviewt, Qualitätsscore ≥ 7/10 durch
+Customer-Feedback</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Review-Workflow funktioniert in gewähltem Output-Tool</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Batch-Run läuft einmalig vollständig durch ohne manuellen
+Eingriff</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Dokumentation vollständig, Training-Session durchgeführt</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Feedback-Loop-Mechanismus ist eingerichtet und einmalig erfolgreich
+getestet</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="change-request-policy">Change-Request-Policy</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Szenario</th>
+<th>Handling</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Zusätzliche Persona (über vereinbarte Anzahl)</td>
+<td>CR: €400–800 Setup + ggf. Retainer-Anpassung</td>
+</tr>
+<tr class="even">
+<td>Neues Output-Format (z. B. Podcast-Ad, E-Mail-Script)</td>
+<td>CR: €600–1.500 je nach Komplexität</td>
+</tr>
+<tr class="odd">
+<td>Zweite Sprache / Lokalisierung</td>
+<td>CR: ab €2.500 Setup</td>
+</tr>
+<tr class="even">
+<td>Plattform-Wechsel (z. B. Shopify → neues System)</td>
+<td>CR: €800–2.000 Migration</td>
+</tr>
+<tr class="odd">
+<td>Zusätzliche Brand / Sub-Brand in gleiche Pipeline</td>
+<td>CR: ab €3.000 Setup</td>
+</tr>
+<tr class="even">
+<td>Scope-Creep &lt; 2h Aufwand</td>
+<td>Kulanz, intern dokumentiert</td>
+</tr>
+<tr class="odd">
+<td>Scope-Creep &gt; 2h Aufwand</td>
+<td>Formaler CR, schriftlich, vor Umsetzung</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Grundsatz:</strong> Jeder CR wird schriftlich bestätigt
+(E-Mail reicht), bevor AEVUM umsetzt. Keine mündlichen
+Erweiterungen.</p>
+<hr />
+<h2 id="pricing-variations">Pricing-Variations</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Add-On / Variation</th>
+<th>Setup-Delta</th>
+<th>Monatlich-Delta</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Zweite Sprache (z. B. EN + DE)</td>
+<td>+€2.500–4.000</td>
+<td>+€500–800</td>
+</tr>
+<tr class="even">
+<td>Zweite Brand / zweiter Mandant (Agentur-Setup)</td>
+<td>+€3.000–5.000</td>
+<td>+€700–1.200</td>
+</tr>
+<tr class="odd">
+<td>Performance-Feedback via API (Meta oder TikTok, Tier M → L
+Upgrade)</td>
+<td>+€5.000–8.000</td>
+<td>+€800–1.500</td>
+</tr>
+<tr class="even">
+<td>Zusätzliche Personas (je 3er-Block)</td>
+<td>+€1.200–2.000</td>
+<td>+€200–400</td>
+</tr>
+<tr class="odd">
+<td>Erweiterte Formate (+3 Formate über Standard)</td>
+<td>+€1.500–2.500</td>
+<td>+€300–600</td>
+</tr>
+<tr class="even">
+<td>Slack/Teams-Benachrichtigungen bei Batch-Completion</td>
+<td>+€500–800</td>
+<td>inklusive</td>
+</tr>
+<tr class="odd">
+<td>White-Label-Output für Agentur (Custom-Branding der Docs)</td>
+<td>+€800–1.500</td>
+<td>+€150–300</td>
+</tr>
+<tr class="even">
+<td>Quarterly Performance-Review-Call (1h, AEVUM-Analyst)</td>
+<td>—</td>
+<td>+€400/Quartal</td>
+</tr>
+</tbody>
+</table>
+<h1 id="delivery-plan">3. Delivery-Plan</h1>
+<h2 id="phasen">Phasen</h2>
+<h3 id="phase-1-discovery-alignment-w1">Phase 1: Discovery &amp;
+Alignment (W1)</h3>
+<p><strong>Ziel:</strong> Vollständiges Verständnis von Produktwelt,
+Zielgruppen, Brand-Voice, Output-Erwartungen</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Status-Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kick-off-Call-Protokoll (Ziele, Risiken, Erwartungen)</td>
+<td>CS-Lead</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Produktkatalog-Analyse: Felder, Datenqualität, Lücken</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="odd">
+<td>Persona-Workshop-Ergebnis (strukturierte Personas 1–N)</td>
+<td>CS-Lead + Eng</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Style-Guide-Dokument (extrahiert + dokumentiert)</td>
+<td>CS-Lead</td>
+<td>○</td>
+</tr>
+<tr class="odd">
+<td>Beispiel-Script-Analyse (Muster, Stärken, Schwächen)</td>
+<td>CS-Lead</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Tech-Stack-Entscheidung (Output-Tool, API-Zugänge bestätigt)</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Kick-off-Call (90 min) +
+Persona-Workshop (60 min, kann kombiniert werden)</p>
+<hr />
+<h3 id="phase-2-daten-pipeline-persona-library-w2">Phase 2:
+Daten-Pipeline &amp; Persona-Library (W2)</h3>
+<p><strong>Ziel:</strong> Stabile Datengrundlage, aus der die Engine
+produzieren kann</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Status-Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Produktkatalog-Anbindung live (API/CSV-Import, Normalisierung)</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Datenfeld-Mapping dokumentiert (Produkt → Script-Variable)</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="odd">
+<td>Persona-Library im System angelegt (alle vereinbarten Personas)</td>
+<td>Eng + CS</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Brand-Voice-Regelwerk als Filterschicht implementiert</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="odd">
+<td>Interner QA-Test: 5 Produkte × 1 Persona durchgespielt</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Weekly-Sync (30 min) —
+Datenqualität-Feedback, offene Fragen zu Produktdaten</p>
+<hr />
+<h3 id="phase-3-script-engine-build-w34">Phase 3: Script-Engine Build
+(W3–4)</h3>
+<p><strong>Ziel:</strong> Funktionsfähige Hook-Generator- und
+Assembly-Pipeline für alle vereinbarten Formate</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Status-Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Hook-Generator implementiert (5 Pattern-Typen, LLM-Prompting)</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Prompt-Engineering: Kalibrierung auf Style-Guide und
+Beispiel-Scripts</td>
+<td>Eng + CS</td>
+<td>○</td>
+</tr>
+<tr class="odd">
+<td>Script-Assembly-Logik (Hook→Bridge→Body→CTA, alle Formate)</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Brief-Output-Template fertiggestellt (UGC-Creator-Ready)</td>
+<td>CS-Lead</td>
+<td>○</td>
+</tr>
+<tr class="odd">
+<td>Batch-Run-Konfiguration (Scheduling, Volume-Parameter)</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Interner Test-Run: 10 Scripts, cross-reviewed</td>
+<td>Eng + CS</td>
+<td>○</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Mid-Build-Preview (30 min) — 5
+Sample-Scripts zeigen, Feedback einholen, Kalibrierung bevor
+Vollausbau</p>
+<blockquote>
+<p>⚠ Wichtig: Diesen Touchpoint nicht überspringen. Prompt-Kalibrierung
+nach Customer-Feedback spart in W5 erheblich Zeit.</p>
+</blockquote>
+<hr />
+<h3 id="phase-4-workflow-output-integration-archiv-w5">Phase 4:
+Workflow, Output-Integration &amp; Archiv (W5)</h3>
+<p><strong>Ziel:</strong> Vollständiger End-to-End-Flow von Batch-Run
+bis Customer-Hand</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Status-Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Review-Workflow in Output-Tool konfiguriert
+(Draft/Review/Approved/Briefed)</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Output-Integration live (Notion/Airtable/GDocs, je nach Entscheidung
+W1)</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="odd">
+<td>Script-Library mit Tagging-System aufgesetzt</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Feedback-Einspiel-Mechanismus eingerichtet (manuell Tier M / API
+Tier L)</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="odd">
+<td>Tier L only: Meta/TikTok API-Anbindung + Scoring-Modell</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Test-Batch: 30 Scripts produziert, strukturiert in Output-Tool</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Test-Batch-Review-Call (60 min)
+— Customer reviewed 30 Scripts, gibt Feedback, Scoring ≥ 7/10
+erforderlich</p>
+<hr />
+<h3 id="phase-5-qa-kalibrierung-dokumentation-w6-tier-l-w810">Phase 5:
+QA, Kalibrierung &amp; Dokumentation (W6 / Tier L: W8–10)</h3>
+<p><strong>Ziel:</strong> Produktionsreife bestätigt, alle Edges
+getestet, Customer-Team befähigt</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Status-Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Vollständiger QA-Run (alle Produktkategorien × alle Personas × alle
+Formate)</td>
+<td>Eng + CS</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Fehlerbehandlung getestet (fehlende Produktdaten, leere Felder)</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="odd">
+<td>Dokumentation: System-Architektur, Datenfluss,
+Konfigurationsanleitung</td>
+<td>Eng</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Loom-Walkthrough-Videos (3–5 Videos: Batch-Run starten / Personas
+pflegen / Feedback einspielen)</td>
+<td>CS-Lead</td>
+<td>○</td>
+</tr>
+<tr class="odd">
+<td>Customer-Training-Session (90 min, Walkthrough live)</td>
+<td>CS-Lead</td>
+<td>○</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Training-Session (90 min)</p>
+<hr />
+<h3 id="phase-6-handover-go-live-w7-tier-l-w1112">Phase 6: Handover
+&amp; Go-Live (W7 / Tier L: W11–12)</h3>
+<p><strong>Ziel:</strong> Sauberer Übergabepunkt, Customer ist
+selbstständig handlungsfähig</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Status-Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Handover-Package vollständig (siehe unten)</td>
+<td>CS-Lead</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Erster produktiver Batch-Run live und abgenommen</td>
+<td>Eng + Customer</td>
+<td>○</td>
+</tr>
+<tr class="odd">
+<td>Retainer-Modus aktiviert (Billing, Prozesse dokumentiert)</td>
+<td>CS-Lead</td>
+<td>○</td>
+</tr>
+<tr class="even">
+<td>Quality-Gate-Dokument sign-off</td>
+<td>Founder/Lead</td>
+<td>○</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Go-Live-Call (45 min) +
+schriftliche Handover-Bestätigung</p>
+<hr />
+<h2 id="team-allocation">Team-Allocation</h2>
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rolle</th>
+<th>Phase 1</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+<th>Phase 4</th>
+<th>Phase 5</th>
+<th>Phase 6</th>
+<th>Retainer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Founder / Lead</strong></td>
+<td>Review, Freigabe Discovery</td>
+<td>—</td>
+<td>Quality-Check Sample-Scripts</td>
+<td>—</td>
+<td>Final Sign-Off</td>
+<td>Go-Live-Freigabe</td>
+<td>Quarterly Review</td>
+</tr>
+<tr class="even">
+<td><strong>Eng (Senior)</strong></td>
+<td>Tech-Stack-Setup</td>
+<td>Pipeline-Build (Vollzeit)</td>
+<td>Engine-Build (Vollzeit)</td>
+<td>Workflow + Integration</td>
+<td>QA, Bugfixes</td>
+<td>Go-Live-Support</td>
+<td>Wartung, Updates</td>
+</tr>
+<tr class="odd">
+<td><strong>CS-Lead</strong></td>
+<td>Kick-off, Workshop, Persona</td>
+<td>Persona-Library Review</td>
+<td>Prompt-Engineering, Script-Review</td>
+<td>Test-Batch-Review</td>
+<td>Doku, Training</td>
+<td>Handover</td>
+<td>Monthly Check-in</td>
+</tr>
+<tr class="even">
+<td><strong>Customer</strong></td>
+<td>~3h/W (Workshops, Input)</td>
+<td>~1h/W (Datenfragen)</td>
+<td>~1h/W (Sample-Feedback)</td>
+<td>~2h (Batch-Review)</td>
+<td>~2h (Training)</td>
+<td>~1h (Go-Live)</td>
+<td>~1h/Mo</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2
+id="customer-onboarding-touchpoints">Customer-Onboarding-Touchpoints</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Touchpoint</th>
+<th>Wann</th>
+<th>Format</th>
+<th>Ziel</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kick-off-Call</td>
+<td>W1 Tag 1–2</td>
+<td>Video-Call 90 min</td>
+<td>Ziele, Erwartungen, Daten, Rollout-Plan klären</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="even">
+<td>Persona-Workshop</td>
+<td>W1 (ggf. Kick-off kombiniert)</td>
+<td>Video-Call 60 min</td>
+<td>Personas strukturiert aufnehmen</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="odd">
+<td>Weekly Sync</td>
+<td>W2, W3, W4</td>
+<td>Video-Call 30 min</td>
+<td>Offene Fragen, Blocker, Feedback</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="even">
+<td>Mid-Build-Preview</td>
+<td>W3 Ende</td>
+<td>Video-Call 30 min</td>
+<td>5 Sample-Scripts reviewen, Kalibrierung</td>
+<td>CS-Lead + Eng</td>
+</tr>
+<tr class="odd">
+<td>Test-Batch-Review</td>
+<td>W5</td>
+<td>Video-Call 60 min</td>
+<td>30 Scripts reviewen, Qualitätsfreigabe</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="even">
+<td>Training-Session</td>
+<td>W6</td>
+<td>Video-Call 90 min</td>
+<td>System-Walkthrough, Übergabe Bedienung</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="odd">
+<td>Go-Live-Call</td>
+<td>W7</td>
+<td>Video-Call 45 min</td>
+<td>Erster produktiver Batch-Run, offene Punkte</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="even">
+<td>Retainer-Monthly-Sync</td>
+<td>Monatlich</td>
+<td>Video-Call 30 min</td>
+<td>Batch-Status, Persona-Updates, Feedback-Loop</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="odd">
+<td>Quarterly Review</td>
+<td>Q1, Q2…</td>
+<td>Video-Call 60 min</td>
+<td>Performance-Analyse, Roadmap, Upsell-Prüfung</td>
+<td>CS-Lead + Founder</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="risk-register">Risk-Register</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Risiko</th>
+<th>Wahrscheinlichkeit</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>R1</td>
+<td><strong>Produktdaten-Qualität unzureichend</strong> (fehlende
+Beschreibungen, uneinheitliche Felder, veralteter Katalog)</td>
+<td>Hoch</td>
+<td>Hoch</td>
+<td>In W1 explizit prüfen, Datenqualitäts-Gate vor Phase-2-Start; bei
+kritischen Lücken: Customer-Action-Item mit Deadline</td>
+</tr>
+<tr class="even">
+<td>R2</td>
+<td><strong>Prompt-Output entspricht nicht Brand-Voice</strong> (LLM
+produziert generischen Content, Customer unzufrieden)</td>
+<td>Mittel</td>
+<td>Hoch</td>
+<td>Mid-Build-Preview in W3 ist Pflicht; 20 Beispiel-Scripts als
+Training-Input einfordern; iterative Kalibrierung einplanen (+3–5h
+Buffer)</td>
+</tr>
+<tr class="odd">
+<td>R3</td>
+<td><strong>Customer-Verfügbarkeit zu gering in W1–3</strong> (kein
+Feedback, Blocker nicht beseitigt)</td>
+<td>Mittel</td>
+<td>Mittel</td>
+<td>Erwartung in Kick-off explizit setzen: 3h/Woche Minimum;
+Eskalations-Pfad definieren (CS-Lead → Founder wenn 2× kein
+Feedback)</td>
+</tr>
+<tr class="even">
+<td>R4</td>
+<td><strong>API-Zugang (Shopify/Meta) wird nicht bereitgestellt oder
+entzogen</strong></td>
+<td>Niedrig</td>
+<td>Hoch</td>
+<td>Zugänge in W1 einfordern und testen; CSV-Fallback für Produktdaten
+immer vorbereiten; bei API-Entzug im Retainer: CR-Mechanismus</td>
+</tr>
+<tr class="odd">
+<td>R5</td>
+<td><strong>Scope-Creep durch Agentur-Kunden</strong> (Agentur will
+Pipeline für 5 ihrer Clients nutzen, nicht nur einen)</td>
+<td>Mittel</td>
+<td>Mittel</td>
+<td>In Scope-Checklist klar: 1 Brand/Mandant = Standard; Multi-Mandant =
+explizit geprüft und gepreist; früh im Sales-Prozess klären</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-gates">Quality-Gates</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Gate</th>
+<th>Zeitpunkt</th>
+<th>Abnahme durch</th>
+<th>Kriterium</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>QG-1: Discovery Complete</strong></td>
+<td>Ende W1</td>
+<td>CS-Lead</td>
+<td>Personas vollständig, Datenqualität bewertet, Tech-Entscheidungen
+gefallen</td>
+</tr>
+<tr class="even">
+<td><strong>QG-2: Pipeline Stable</strong></td>
+<td>Ende W2</td>
+<td>Eng</td>
+<td>Produktdaten fließen korrekt, keine kritischen Datenqualitäts-Issues
+offen</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-3: Engine Functional</strong></td>
+<td>Ende W4</td>
+<td>Eng + CS-Lead</td>
+<td>10 interne Test-Scripts reviewed, Hook-Generator produziert alle 5
+Pattern-Typen</td>
+</tr>
+<tr class="even">
+<td><strong>QG-4: Customer-Validation</strong></td>
+<td>Ende W5 (Test-Batch-Review)</td>
+<td>Customer + CS-Lead</td>
+<td>Customer-Qualitätsscore ≥ 7/10 auf Test-Batch-Sample (mind. 10
+Scripts bewertet)</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-5: Handover Ready</strong></td>
+<td>Ende W6</td>
+<td>Founder</td>
+<td>Dokumentation vollständig, Training durchgeführt, Retainer-Prozess
+dokumentiert</td>
+</tr>
+<tr class="even">
+<td><strong>QG-6: Go-Live</strong></td>
+<td>W7</td>
+<td>Founder + Customer</td>
+<td>Erster produktiver Batch-Run erfolgreich, Quality-Gate-Doc
+sign-off</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="handover-package">Handover-Package</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Format</th>
+<th>Beschreibung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>System-Dokumentation</td>
+<td>Notion-Seite oder PDF</td>
+<td>Architektur, Datenfluss, Konfigurationsübersicht</td>
+</tr>
+<tr class="even">
+<td>Loom: Batch-Run starten</td>
+<td>Video (10–15 min)</td>
+<td>Schritt-für-Schritt wie Customer einen Batch initiiert</td>
+</tr>
+<tr class="odd">
+<td>Loom: Personas pflegen</td>
+<td>Video (8–12 min)</td>
+<td>Neue Persona anlegen, bestehende updaten</td>
+</tr>
+<tr class="even">
+<td>Loom: Feedback einspielen</td>
+<td>Video (8–10 min)</td>
+<td>Manueller Feedback-Prozess (Tier M) oder API-Monitoring (Tier
+L)</td>
+</tr>
+<tr class="odd">
+<td>Persona-Library</td>
+<td>Strukturiert in Output-Tool</td>
+<td>Alle Personas vollständig ausgefüllt, kommentiert</td>
+</tr>
+<tr class="even">
+<td>Script-Archive</td>
+<td>Strukturiert in Output-Tool</td>
+<td>Alle Handover-Scripts getaggt, erster Batch archiviert</td>
+</tr>
+<tr class="odd">
+<td>Brand-Voice-Regelwerk</td>
+<td>Dokument (PDF + Live-Version)</td>
+<td>Alle aktiven Filter und Regeln dokumentiert</td>
+</tr>
+<tr class="even">
+<td>Change-Request-Vorlage</td>
+<td>Template (Doc/Notion)</td>
+<td>Für zukünftige Scope-Erweiterungen</td>
+</tr>
+<tr class="odd">
+<td>Retainer-Prozess-Doku</td>
+<td>Dokument</td>
+<td>Was passiert jeden Monat, wie Customer Input gibt</td>
+</tr>
+<tr class="even">
+<td>Support-Kontakt + Eskalationspfad</td>
+<td>Dokument</td>
+<td>Wen Customer bei welchen Issues kontaktiert</td>
+</tr>
+</tbody>
+</table>
+<h1 id="quality-gate">4. Quality-Gate</h1>
+<p><strong>Item-Slug:</strong> <code>script-factory-dfy</code>
+<strong>Customer:</strong> [CUSTOMER_NAME]
+<strong>Delivery-Lead:</strong> [CS_LEAD_NAME]
+<strong>Go-Live-Datum:</strong> [DATUM] <strong>Tier:</strong> [ ] M / [
+] L</p>
+<hr />
+<h2 id="asset-inventory">Asset-Inventory</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Asset</th>
+<th>Format/Ort</th>
+<th>Status</th>
+<th>Abgenommen von</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Produktkatalog-Anbindung</td>
+<td>Live-Integration / Log</td>
+<td>[ ]</td>
+<td>Eng</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Persona-Library</td>
+<td>[Tool-Link]</td>
+<td>[ ]</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Brand-Voice-Regelwerk</td>
+<td>[Doc-Link]</td>
+<td>[ ]</td>
+<td>CS-Lead + Customer</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Hook-Generator-Konfiguration</td>
+<td>[System-Doku]</td>
+<td>[ ]</td>
+<td>Eng</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Script-Assembly-Pipeline</td>
+<td>[System-Doku]</td>
+<td>[ ]</td>
+<td>Eng</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Brief-Output-Template (UGC)</td>
+<td>[Tool-Link]</td>
+<td>[ ]</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Review-Workflow im Output-Tool</td>
+<td>[Tool-Link]</td>
+<td>[ ]</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Script-Archive mit Tagging</td>
+<td>[Tool-Link]</td>
+<td>[ ]</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Feedback-Loop-Mechanismus</td>
+<td>[System-Doku / API-Log]</td>
+<td>[ ]</td>
+<td>Eng</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Test-Batch (30 Scripts)</td>
+<td>[Tool-Link]</td>
+<td>[ ]</td>
+<td>Customer</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>System-Dokumentation</td>
+<td>[Doc-Link]</td>
+<td>[ ]</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Loom: Batch-Run starten</td>
+<td>[Video-Link]</td>
+<td>[ ]</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td>Loom: Personas pflegen</td>
+<td>[Video-Link]</td>
+<td>[ ]</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td>Loom: Feedback einspielen</td>
+<td>[Video-Link]</td>
+<td>[ ]</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td>Training-Session durchgeführt</td>
+<td>Kalender-Bestätigung</td>
+<td>[ ]</td>
+<td>CS-Lead + Customer</td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td>Retainer-Prozess-Doku</td>
+<td>[Doc-Link]</td>
+<td>[ ]</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="odd">
+<td>17</td>
+<td>Change-Request-Vorlage</td>
+<td>[Template-Link]</td>
+<td>[ ]</td>
+<td>CS-Lead</td>
+</tr>
+<tr class="even">
+<td>18</td>
+<td>Erster produktiver Batch-Run</td>
+<td>Log / Output-Tool</td>
+<td>[ ]</td>
+<td>Customer + Eng</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien">Sign-Off-Kriterien</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Kriterium</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Produktkatalog-Anbindung läuft stabil und Updates werden korrekt
+erkannt</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Persona-Library enthält alle vertraglich vereinbarten Personas
+vollständig</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Hook-Generator produziert mind. 5 Hook-Varianten pro Produkt ×
+Persona (alle 5 Pattern-Typen)</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Script-Assembly produziert vollständige Scripts in allen
+vereinbarten Formaten (15s/30s/60s)</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Brand-Voice-Filter blockiert alle definierten verbotenen
+Formulierungen (Negativtest bestanden)</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Customer-Qualitätsscore auf Test-Batch ≥ 7/10 (mind. 10 Scripts
+bewertet, dokumentiert)</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Review-Workflow im Output-Tool funktioniert, alle Status-Stufen
+durchgespielt</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Ein vollständiger Batch-Run ohne manuellen Eingriff erfolgreich
+abgeschlossen</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Alle Handover-Dokumente und Loom-Videos vollständig und vom CS-Lead
+reviewed</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Feedback-Loop-Mechanismus eingerichtet und einmalig erfolgreich
+getestet (Tier M: manuell / Tier L: API-Log)</td>
+<td>[ ] ✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>→ Alle 10 Kriterien müssen ✅ sein. Kein partieller
+Sign-Off.</strong></p>
+<p>Freigabe Founder/Lead: _________________________ Datum: _____________
+Freigabe Customer: _________________________ Datum: _____________</p>
+<hr />
+<h2 id="known-limitations-phase-2-items">Known Limitations
+(Phase-2-Items)</h2>
+<p>Diese Punkte sind bewusst nicht im aktuellen Scope und werden im
+Retainer oder als separates Offering adressiert:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Limitation</th>
+<th>Empfohlener nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>L1</td>
+<td>Kein automatisches Ad-Deployment — Scripts müssen manuell in
+Ad-Accounts eingespielt werden</td>
+<td>Scope-Erweiterung bei Bedarf (CR)</td>
+</tr>
+<tr class="even">
+<td>L2</td>
+<td>Feedback-Loop (Tier M) ist manuell — keine automatische Korrelation
+zwischen Script-ID und Ad-Performance</td>
+<td>Upgrade auf Tier L oder → <code>hud-command-center</code></td>
+</tr>
+<tr class="odd">
+<td>L3</td>
+<td>Pipeline ist auf 1 Brand kalibriert — Multi-Mandant-Nutzung
+(Agentur) erfordert Re-Architektur</td>
+<td>Explizit als Add-On gepreist</td>
+</tr>
+<tr class="even">
+<td>L4</td>
+<td>LLM-Qualität ist abhängig von Datenlage — bei dünnen
+Produktbeschreibungen sinkt Output-Qualität messbar</td>
+<td>Datenqualitäts-Wartung ist Customer-Verantwortung</td>
+</tr>
+<tr class="odd">
+<td>L5</td>
+<td>Kein integriertes Creator-Briefing-Tool — Briefs werden produziert,
+aber Übergabe an Creator ist manuell</td>
+<td>→ Zukünftiges Feature oder Prozess-Integration per CR</td>
+</tr>
+<tr class="even">
+<td>L6</td>
+<td>Style-Guide-Filter ist regelbasiert, kein lernender Filter — muss
+bei Brand-Evolution manuell aktualisiert werden</td>
+<td>Retainer-Service: monatliche Pflege inklusive</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="db-update-befehl">DB-Update-Befehl</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Script Factory DFY: Delivery Sign-Off</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> aevum_dfy_items</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  status                <span class="op">=</span> <span class="st">&#39;delivered&#39;</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  go_live_date          <span class="op">=</span> <span class="fu">CURRENT_DATE</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  tier                  <span class="op">=</span> <span class="st">&#39;M&#39;</span>, <span class="co">-- oder &#39;L&#39;, anpassen</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  setup_revenue         <span class="op">=</span> <span class="dv">11000</span>, <span class="co">-- tatsächlichen Wert einsetzen</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  monthly_retainer      <span class="op">=</span> <span class="dv">2500</span>,  <span class="co">-- tatsächlichen Wert einsetzen</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  customer_score        <span class="op">=</span> <span class="fl">7.8</span>,   <span class="co">-- aus Test-Batch-Review</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  quality_gate_passed   <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  known_limitations     <span class="op">=</span> <span class="st">&#39;[&quot;no-auto-deploy&quot;,&quot;manual-feedback-loop-tierM&quot;,&quot;single-brand&quot;,&quot;data-quality-dependency&quot;,&quot;no-creator-tool&quot;,&quot;static-style-filter&quot;]&#39;</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  handover_package_url  <span class="op">=</span> <span class="st">&#39;https://notion.so/[LINK]&#39;</span>, <span class="co">-- ersetzen</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  updated_at            <span class="op">=</span> NOW()</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  item_slug             <span class="op">=</span> <span class="st">&#39;script-factory-dfy&#39;</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">AND</span> customer_id       <span class="op">=</span> <span class="st">&#39;[CUSTOMER_ID]&#39;</span>; <span class="co">-- ersetzen</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">-- Retainer aktivieren</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> aevum_retainer_schedule (</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  item_slug,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  customer_id,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  monthly_amount,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  next_billing_date,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  retainer_scope,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  created_at</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>) <span class="kw">VALUES</span> (</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;script-factory-dfy&#39;</span>,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;[CUSTOMER_ID]&#39;</span>,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2500</span>, <span class="co">-- anpassen</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  DATE_TRUNC(<span class="st">&#39;month&#39;</span>, <span class="fu">CURRENT_DATE</span>) <span class="op">+</span> <span class="dt">INTERVAL</span> <span class="st">&#39;1 month&#39;</span>,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;batch-runs,maintenance,1-persona-update-per-month,monthly-sync&#39;</span>,</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  NOW()</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+<hr />
+<h2 id="pattern-notes-für-dfy-builder-pattern">Pattern-Notes für
+DFY-Builder-Pattern</h2>
+<p><strong>Pattern-Typ:</strong> Content-Production-Pipeline mit
+strukturiertem Output-Layer</p>
+<p><strong>Differenzierung zu ähnlichen Items:</strong> -
+<code>content-engine</code> → organischer Content (Planung +
+Publishing); Script Factory → bezahlte Werbung, kein Publishing -
+<code>hud-command-center</code> → Visualisierung; Script Factory →
+Produktion - <code>database-system</code> → Data-Engineering; Script
+Factory nutzt Data-Engineering nur als Input-Layer</p>
+<p><strong>Kritische Design-Entscheidungen dieses Patterns:</strong> 1.
+Prompt-Engineering-Kalibrierung ist der eigentliche Wert-Hebel — mehr
+Zeit hier = bessere Output-Qualität 2. Mid-Build-Preview (W3) ist nicht
+optional — früher Feedback-Einbau spart 20–30% Korrekturaufwand 3.
+Datenqualität ist Customer-Verantwortung — explizit in Scope-Checklist
+und Kick-off kommunizieren 4. Test-Batch-Score als objektives
+Abnahme-Kriterium ist Schutz für beide Seiten</p>
+<p><strong>Skalierbarkeit:</strong> - Von Tier M → L: primär
+Feedback-Loop-Automatisierung und Volume-Erhöhung, keine
+Architektur-Änderung - Multi-Brand: Architektur-Änderung erforderlich
+(separate Persona-Libraries, Brand-Voice-Filter-Isolation)</p>
+<p><strong>Upsell-Signal im Retainer:</strong> Wenn Customer ≥ 3× nach
+Performance-Reporting fragt → <code>command-center-dashboard</code>
+pitchen</p>
+</body>
+</html>

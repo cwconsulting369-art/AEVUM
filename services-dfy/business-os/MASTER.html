@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM DFY: business-os</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM DFY: business-os</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-done-for-you-business-os">AEVUM Done-for-You —
+business-os</h1>
+<blockquote>
+<p>Generated 2026-05-25. Combined Master-Doc.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<p><strong>In einem Satz:</strong> Ein vollständig integriertes, auf
+dein Business zugeschnittenes Betriebssystem aus CRM, Projektmanagement,
+Live-Dashboard und AI-Agent — gebaut, konfiguriert und übergeben von
+AEVUM, damit du aufhörst, in Werkzeug-Chaos zu arbeiten.</p>
+<hr />
+<h2 id="wer-das-braucht">Wer das braucht</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Konkreter Use-Case</th>
+<th>Fit-Rating</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AG</strong> – Agentur 3–50 MA</td>
+<td>Kein einheitliches System für Projekte, Kunden und Billing. CRM in
+Notion, PM in Asana, Reporting per Hand, Onboarding im Kopf des
+Founders. Business-OS ersetzt 4–6 Tools durch ein kohärentes
+System.</td>
+<td>⬛⬛⬛⬛⬛ (sehr hoch)</td>
+</tr>
+<tr class="even">
+<td><strong>PB</strong> – Personal Brand</td>
+<td>Creator oder Berater mit wachsendem Angebot: Leads tracken,
+Content-Pipeline managen, Umsatz sichtbar machen, ohne Vollzeit-Ops zu
+brauchen. Business-OS gibt operative Infrastruktur ohne Hiring.</td>
+<td>⬛⬛⬛⬜⬜ (mittel-hoch)</td>
+</tr>
+<tr class="odd">
+<td><strong>FI</strong> – Mittelstand B2B 10–100 MA</td>
+<td>Vertriebs-, Projekt- und Reporting-Daten in 3 verschiedenen
+Systemen, keine gemeinsame Wahrheit. Business-OS schafft eine
+integrierte Datenbasis für Geschäftsleitung + Teams.</td>
+<td>⬛⬛⬛⬛⬜ (hoch)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="was-der-customer-bekommt">Was der Customer bekommt</h2>
+<ol type="1">
+<li><strong>Custom CRM-Modul</strong> — Kontakt-, Deal- und
+Pipeline-Management, zugeschnitten auf den spezifischen Sales-Prozess
+des Customers (kein generisches Template)</li>
+<li><strong>Projektmanagement-Modul</strong> — vollständige
+PM-Infrastruktur inkl. Projekttypen, Phasen, Aufgaben-Templates,
+Ressourcen-Zuweisung und Status-Tracking</li>
+<li><strong>Live-Reporting-Dashboard</strong> — aggregiertes KPI-Board
+(Umsatz, Pipeline-Wert, Auslastung, Projekt-Status) mit automatischen
+Daten-Feeds aus CRM und PM</li>
+<li><strong>AI-Operationsagent</strong> — kontextbewusster Agent für
+wiederkehrende Ops-Tasks (z.B. Deal-Status-Updates,
+Meeting-Zusammenfassungen → CRM-Eintrag,
+Projekt-Briefing-Generierung)</li>
+<li><strong>Datenbank-Architektur</strong> — strukturierte relationale
+Datenbasis als Fundament aller Module (kein spaghetti-Notion oder
+Airtable-Fleckerlteppich)</li>
+<li><strong>Automations-Layer</strong> — 10–20 kritische
+Workflow-Automationen (z.B. Lead-zu-Deal-Conversion,
+Projekt-Kick-off-Trigger, Retainer-Reminder, Inaktivitäts-Alerts)</li>
+<li><strong>Onboarding-Flows</strong> — standardisierte Prozesse für
+Neukunden oder neue Projekte, die das System automatisch anstößt</li>
+<li><strong>Benutzer-Rollen und Zugriffsstruktur</strong> — dedizierte
+Views und Berechtigungen für verschiedene Team-Rollen (Founder / PM /
+Sales / Freelancer)</li>
+<li><strong>Dokumentation und SOPs</strong> — systembegleitende
+Prozessdokumentation, damit das Team selbstständig arbeiten kann</li>
+<li><strong>4-Wochen-Post-Launch-Support</strong> — dedizierter
+Support-Kanal für Nachschärfungen und Fehlerbereinigung nach
+Go-Live</li>
+</ol>
+<hr />
+<h2 id="mehrwert-konkret">Mehrwert (konkret)</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Vorher</th>
+<th>Nachher</th>
+<th>Schätzwert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Reporting</strong></td>
+<td>3–6h/Woche manuelle Zusammenstellung aus mehreren Tools</td>
+<td>Automatisches Dashboard, täglich aktualisiert</td>
+<td>-4h/Woche → ~€800–2.000/Mo (bei €50/h)</td>
+</tr>
+<tr class="even">
+<td><strong>Lead-/Projekt-Durchfall</strong></td>
+<td>Deals und Projekte fallen durchs Raster wegen fehlendem System</td>
+<td>Lückenlose Pipeline + Projekt-Tracking</td>
+<td>-15–30% verlorene Deals/Projekte</td>
+</tr>
+<tr class="odd">
+<td><strong>Onboarding-Zeit</strong></td>
+<td>Neues Projekt/Neukunde: 2–4h Koordinations-Overhead</td>
+<td>Standardisierter Onboarding-Flow: &lt;30 min</td>
+<td>-80% Onboarding-Aufwand</td>
+</tr>
+<tr class="even">
+<td><strong>Tool-Kosten</strong></td>
+<td>4–8 SaaS-Tools parallel (€300–1.200/Mo Stack-Kosten)</td>
+<td>1–2 Kern-Systeme</td>
+<td>Potenziell -€200–800/Mo</td>
+</tr>
+<tr class="odd">
+<td><strong>Entscheidungsqualität</strong></td>
+<td>Entscheidungen aus dem Bauch oder mit veralteten Daten</td>
+<td>Echtzeit-Datenbasis für alle operativen Entscheidungen</td>
+<td>Qualitativ: weniger Fehlallokation, frühere Kurs-Korrekturen</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pricing-logik">Pricing-Logik</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Tier M</strong></th>
+<th><strong>Tier L</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Zielgruppe</strong></td>
+<td>AG/PB bis ~15 MA, klar umrissene Prozesse</td>
+<td>FI/AG mit komplexen Multi-Team-Workflows, Integrationen in
+bestehende Systeme</td>
+</tr>
+<tr class="even">
+<td><strong>Setup-Range</strong></td>
+<td>€12.000 – €20.000</td>
+<td>€30.000 – €60.000</td>
+</tr>
+<tr class="odd">
+<td><strong>Monthly Retainer</strong></td>
+<td>€2.500 – €3.500</td>
+<td>€3.500 – €5.000</td>
+</tr>
+<tr class="even">
+<td><strong>Deliverables-Scope</strong></td>
+<td>CRM + PM + Dashboard + 1 AI-Agent + bis 15 Automationen + 1
+Datenquelle</td>
+<td>CRM + PM + Dashboard + 2–3 AI-Agenten + 25–40 Automationen + 3–5
+Datenquellen + Custom Integrations</td>
+</tr>
+<tr class="odd">
+<td><strong>Implementation</strong></td>
+<td>6–8 Wochen</td>
+<td>10–14 Wochen</td>
+</tr>
+<tr class="even">
+<td><strong>Nutzer</strong></td>
+<td>bis 15 User</td>
+<td>bis 75 User</td>
+</tr>
+<tr class="odd">
+<td><strong>Post-Launch-Support</strong></td>
+<td>4 Wochen inkl.</td>
+<td>8 Wochen inkl.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Setup-to-Retainer-Ratio: ~4:1 (M) / ~8:1 (L). Retainer deckt:
+Wartung, Iteration, Agent-Updates, monatliches Strategy-Review.</p>
+</blockquote>
+<hr />
+<h2 id="timeline">Timeline</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th>Wochen</th>
+<th>Inhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Discovery &amp; Architecture</strong></td>
+<td>W1–2</td>
+<td>Prozess-Aufnahme, System-Design, Datenbankstruktur,
+Modul-Priorisierung</td>
+</tr>
+<tr class="even">
+<td><strong>Core-Build: Datenbank + CRM</strong></td>
+<td>W3–4</td>
+<td>Datenbankschema, CRM-Modul vollständig, erste Automationen</td>
+</tr>
+<tr class="odd">
+<td><strong>PM-Modul + Dashboard</strong></td>
+<td>W5–6</td>
+<td>Projektmanagement-Modul, Reporting-Views, Dashboard-Integration</td>
+</tr>
+<tr class="even">
+<td><strong>AI-Agent + Automations-Layer</strong></td>
+<td>W7–8</td>
+<td>Agent-Konfiguration, alle Automationen live, End-to-End-Tests</td>
+</tr>
+<tr class="odd">
+<td><strong>UAT + Refinement</strong></td>
+<td>W9</td>
+<td>Customer-Testing, Feedback-Runde, Bugfixes</td>
+</tr>
+<tr class="even">
+<td><strong>Go-Live + Handover</strong></td>
+<td>W10</td>
+<td>Launch, Dokumentation, Team-Training, Support-Start</td>
+</tr>
+</tbody>
+</table>
+<p><em>(Tier M: W1–W8 + W9–10 komprimiert. Tier L: W1–12 mit extended
+UAT)</em></p>
+<hr />
+<h2 id="voraussetzungen-customer">Voraussetzungen Customer</h2>
+<ul>
+<li>Klares Bild der eigenen Kernprozesse (Sales, Projektabwicklung,
+Reporting) — oder Bereitschaft, das in Discovery zu erarbeiten</li>
+<li>Zugänge zu bestehenden Tools die integriert werden sollen (CRM, PM,
+Kommunikations-Tools)</li>
+<li>Einen internen Ansprechpartner (nicht zwingend technisch) mit
+2–4h/Woche Verfügbarkeit während der Build-Phase</li>
+<li>Entscheidungsbefugnis für Tool-Auswahl und Prozess-Design (kein
+6-Wochen-Approval-Loop)</li>
+<li>Definierter “Source of Truth” für Kundendaten (auch wenn aktuell
+chaotisch)</li>
+<li>Bereitschaft des Teams, das System tatsächlich zu nutzen
+(Change-Management liegt beim Customer)</li>
+</ul>
+<hr />
+<h2 id="nicht-ziele-explizites-out-of-scope">Nicht-Ziele (explizites
+Out-of-Scope)</h2>
+<ol type="1">
+<li><strong>ERP-Funktionalität</strong> — Business-OS ist kein
+Buchhaltungs- oder Finanz-System. Steuer, Lohn, Debitoren/Kreditoren:
+nicht enthalten.</li>
+<li><strong>Custom-Software-Entwicklung</strong> — kein eigenständiger
+Code-Stack, keine Mobile App, keine APIs die gebaut (nicht konfiguriert)
+werden müssen.</li>
+<li><strong>Marketing-Automation</strong> — Email-Sequenzen,
+Ad-Kampagnen, Social-Scheduling: separates Offering (→ Content-Engine,
+AI-Lead-Engine).</li>
+<li><strong>Daten-Migration aus Altsystemen</strong> — wir
+strukturieren, Customer migriert (oder separat beauftragen).</li>
+<li><strong>HR-Management</strong> — kein Recruiting-Workflow, keine
+Mitarbeiter-Akte, kein Performance-Management.</li>
+<li><strong>Legal/Compliance-Prozesse</strong> — Vertrags-Management,
+DSGVO-Workflows: nicht Bestandteil dieses Build.</li>
+<li><strong>Hosting und Infrastruktur-Betrieb</strong> — wir bauen auf
+bestehenden SaaS-Plattformen (Notion, Airtable, Make, etc.), kein
+Server-Betrieb durch AEVUM.</li>
+<li><strong>Unbegrenzte Iterations-Runden</strong> — Scope ist auf 2
+Feedback-Runden begrenzt. Darüber hinaus: Change-Request-Prozess.</li>
+</ol>
+<hr />
+<h2 id="upsell-pfade">Upsell-Pfade</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Trigger</th>
+<th>Next Service</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Business-OS live, aber Leads kommen noch manuell rein</td>
+<td>→ <strong>AI-Lead-Engine</strong> (Full-Stack Lead-Gen direkt ins
+CRM-Modul)</td>
+</tr>
+<tr class="even">
+<td>Dashboard zeigt Daten, aber Customer will tiefer in Analytics</td>
+<td>→ <strong>Command-Center-Dashboard</strong> (Erweiterung auf externe
+Datenquellen, Real-Time-HUD)</td>
+</tr>
+<tr class="odd">
+<td>CRM läuft, aber Sales-Team nutzt es nicht konsequent</td>
+<td>→ <strong>Sales-OS</strong> (Sales-spezifische Layer mit AI-Scoring,
+Coaching-Flows)</td>
+</tr>
+<tr class="even">
+<td>Content-Produktion noch nicht ins System integriert</td>
+<td>→ <strong>Content-Engine</strong> (Idee→Post→Analytics direkt aus
+Business-OS heraus)</td>
+</tr>
+<tr class="odd">
+<td>Nach 3–6 Monaten: System braucht strategische Weiterentwicklung</td>
+<td>→ <strong>Automation-Audit</strong> (Review des bestehenden OS,
+90-Tage-Next-Level-Roadmap)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conversion-story">Conversion-Story</h2>
+<p>Die meisten Agenturen und B2B-Unternehmen, die zu uns kommen, sind
+nicht schlecht geführt. Sie sind gut geführt — aber auf Zuruf. Der
+Founder weiß, welcher Deal heiß ist, weil er es im Kopf hat. Das Team
+weiß, welches Projekt brennt, weil jemand einen Slack-Kanal erstellt
+hat. Das Reporting existiert als monatliche Excel-Routine, die drei
+Stunden kostet und trotzdem die falschen Fragen beantwortet. Das System
+läuft auf dem Betriebssystem “ein paar Kluge Leute die viel
+kommunizieren”. Das skaliert nicht.</p>
+<p>Business-OS ist keine Software-Empfehlung und kein Notion-Template.
+Es ist die Entscheidung, das Unternehmen einmal konsequent zu
+strukturieren — Daten, Prozesse und Sichtbarkeit in ein kohärentes
+System zu gießen, das wächst wenn du wächst. Wir bauen es für dich.
+Nicht mit dir in einem 3-Tages-Workshop den du danach alleine zu Ende
+bauen musst. Wir übernehmen Architecture, Build, Testing, Iteration und
+Übergabe. Du testest und gibst Feedback. Am Ende hast du ein System,
+nicht ein Projekt.</p>
+<p>Was das konkret bedeutet: Dein nächster Montag beginnt damit, dass du
+dein Dashboard öffnest und in 90 Sekunden weißt, wie die Woche vor dir
+aussieht. Welche Deals Attention brauchen. Welche Projekte Verzug haben.
+Wieviel Umsatz diesen Monat gesichert ist. Das klingt simpel. Es ist es
+nach dem Build auch. Aber es ist alles andere als einfach dorthin zu
+kommen — deswegen gibt es uns. </p>
+<h1 id="scope-checklist">2. Scope-Checklist</h1>
+<hr />
+<h2 id="in-scope">In-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Item</th>
+<th>Aufwand-Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Architecture</strong></td>
+<td>Discovery-Workshops (2x 90 min), Prozess-Mapping,
+Systemarchitektur-Dokument</td>
+<td>8–12h</td>
+</tr>
+<tr class="even">
+<td><strong>Datenbank</strong></td>
+<td>Design und Aufbau des relationalen Datenbankschemas (Entitäten:
+Contacts, Companies, Deals, Projects, Tasks, Users)</td>
+<td>10–16h</td>
+</tr>
+<tr class="odd">
+<td><strong>CRM-Modul</strong></td>
+<td>Kontakt-Verwaltung, Deal-Pipeline (customized Stages), Activity-Log,
+Kommunikationshistorie, Tags/Filter</td>
+<td>12–20h</td>
+</tr>
+<tr class="even">
+<td><strong>PM-Modul</strong></td>
+<td>Projekttypen-Templates, Phasen/Meilensteine, Aufgaben-Zuweisung,
+Status-Tracking, Ressourcen-Übersicht</td>
+<td>12–18h</td>
+</tr>
+<tr class="odd">
+<td><strong>Dashboard</strong></td>
+<td>Aggregiertes KPI-Board (Revenue, Pipeline, Auslastung,
+Projekt-Status), automatische Daten-Feeds, mind. 2 Views (Founder /
+Operations)</td>
+<td>10–15h</td>
+</tr>
+<tr class="even">
+<td><strong>AI-Agent (Tier M: 1, Tier L: 2–3)</strong></td>
+<td>Prompt-Design, Kontext-Anbindung an Datenbank, Testing, Deployment —
+Use-Cases in Discovery definiert</td>
+<td>15–25h pro Agent</td>
+</tr>
+<tr class="odd">
+<td><strong>Automations-Layer</strong></td>
+<td>Tier M: bis 15 Automationen / Tier L: bis 40 Automationen —
+konfiguriert in Make/Zapier/n8n, dokumentiert</td>
+<td>20–40h</td>
+</tr>
+<tr class="even">
+<td><strong>Onboarding-Flows</strong></td>
+<td>Standardisierter Neukunden- oder Neuprojekt-Onboarding-Flow (1–2
+Flows je nach Tier)</td>
+<td>6–10h</td>
+</tr>
+<tr class="odd">
+<td><strong>Benutzer-Rollen</strong></td>
+<td>Rollen-Design (max. 4 Rollen), Views und Berechtigungen pro
+Rolle</td>
+<td>4–8h</td>
+</tr>
+<tr class="even">
+<td><strong>Dokumentation</strong></td>
+<td>System-Dokumentation (Datenbankstruktur, Automationen,
+Agent-Prompts), SOP-Templates für Kernprozesse</td>
+<td>8–12h</td>
+</tr>
+<tr class="odd">
+<td><strong>Testing &amp; QA</strong></td>
+<td>End-to-End-Tests aller Module, Automations-Tests, UAT-Runde mit
+Customer (1 Feedback-Zyklus)</td>
+<td>8–15h</td>
+</tr>
+<tr class="even">
+<td><strong>Handover</strong></td>
+<td>Übergabe-Session (90 min), Screen-Recording-Walkthroughs, 4-8 Wochen
+Post-Launch-Support-Kanal</td>
+<td>6–10h</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gesamtschätzung Tier M:</strong> 120–180h | <strong>Tier
+L:</strong> 200–320h</p>
+<hr />
+<h2 id="out-of-scope">Out-of-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Was NICHT enthalten ist</th>
+<th>Warum explizit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Buchhaltung, Invoicing, Steuer-Funktionen</td>
+<td>Separate Tool-Kategorie (DATEV, Lexware, Stripe-native) — andere
+Compliance-Logik</td>
+</tr>
+<tr class="even">
+<td>Daten-Migration aus Altsystemen</td>
+<td>Datenqualität ist Customer-Verantwortung; wir können als Add-On
+beraten, nicht übernehmen</td>
+</tr>
+<tr class="odd">
+<td>Custom API-Entwicklung (Code, nicht Konfiguration)</td>
+<td>Geht über No-Code/Low-Code-Scope hinaus — separates
+Engineering-Angebot</td>
+</tr>
+<tr class="even">
+<td>Marketing-Automation, Email-Sequences, Ad-Management</td>
+<td>Eigenes Service-Angebot (Content-Engine, AI-Lead-Engine)</td>
+</tr>
+<tr class="odd">
+<td>HR, Recruiting, Mitarbeiter-Verwaltung</td>
+<td>Anderes Domänen-Wissen + Tool-Stack erforderlich</td>
+</tr>
+<tr class="even">
+<td>Mobile App oder native Desktop-Applikation</td>
+<td>Kein Software-Dev im DFY-Scope</td>
+</tr>
+<tr class="odd">
+<td>Mehr als 2 UAT-Feedback-Runden</td>
+<td>Jede weitere Runde = Change-Request</td>
+</tr>
+<tr class="even">
+<td>Unbegrenzte Nutzer-Onboardings</td>
+<td>Wir trainieren max. 2 Key-User; weiteres Team-Onboarding liegt beim
+Customer</td>
+</tr>
+<tr class="odd">
+<td>Laufende Content-Erstellung im System</td>
+<td>Wir bauen die Infrastruktur, Customer füllt sie</td>
+</tr>
+<tr class="even">
+<td>SLA für Uptime der genutzten SaaS-Plattformen</td>
+<td>Plattform-Risiko liegt beim Customer (Notion/Airtable/Make)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer-side">Voraussetzungen
+Customer-Side</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Anforderung</th>
+<th>Kritikalität</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Ansprechpartner</strong></td>
+<td>1 dedizierter interner Ansprechpartner mit Entscheidungsbefugnis,
+2–4h/Woche verfügbar</td>
+<td>KRITISCH</td>
+</tr>
+<tr class="even">
+<td><strong>Prozessdokumentation</strong></td>
+<td>Grobe Beschreibung der Kernprozesse (Sales, Projektabwicklung) —
+muss nicht perfekt sein</td>
+<td>HOCH</td>
+</tr>
+<tr class="odd">
+<td><strong>Tool-Zugänge</strong></td>
+<td>Admin-Zugang zu allen zu integrierenden Tools vor Kick-off</td>
+<td>KRITISCH</td>
+</tr>
+<tr class="even">
+<td><strong>Bestandsdaten</strong></td>
+<td>Liste der Datenquellen + Zugang (auch wenn unstrukturiert)</td>
+<td>HOCH</td>
+</tr>
+<tr class="odd">
+<td><strong>Team-Commitment</strong></td>
+<td>Klares Management-Commitment, dass das Team das System nutzen
+wird</td>
+<td>HOCH</td>
+</tr>
+<tr class="even">
+<td><strong>Feedback-Turnaround</strong></td>
+<td>Max. 72h Feedback-Turnaround in UAT-Phase — sonst
+Timeline-Verschiebung</td>
+<td>MITTEL</td>
+</tr>
+<tr class="odd">
+<td><strong>Tool-Budget</strong></td>
+<td>Customer trägt SaaS-Kosten der genutzten Plattformen selbst</td>
+<td>KRITISCH</td>
+</tr>
+<tr class="even">
+<td><strong>Discovery-Zeit</strong></td>
+<td>2 x 90-min-Discovery-Calls in W1 garantiert eingeplant</td>
+<td>KRITISCH</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-standards">Quality-Standards</h2>
+<p>AEVUM erklärt ein Business-OS als <strong>“Done”</strong> wenn
+folgende Kriterien erfüllt sind:</p>
+<ul class="task-list">
+<li><label><input type="checkbox" />Alle Module (CRM, PM, Dashboard,
+Agent) laufen in Produktion ohne kritische Fehler</label></li>
+<li><label><input type="checkbox" />Alle vereinbarten Automationen (Tier
+M: 15 / Tier L: 40) sind dokumentiert und getestet</label></li>
+<li><label><input type="checkbox" />Dashboard zeigt korrekte Live-Daten
+aus allen Quellen (Abweichung &lt;2% in Stichproben)</label></li>
+<li><label><input type="checkbox" />AI-Agent beantwortet die definierten
+Use-Cases korrekt in &gt;90% der Testfälle</label></li>
+<li><label><input type="checkbox" />Benutzer-Rollen sind korrekt
+konfiguriert (Zugriffstests für alle Rollen bestanden)</label></li>
+<li><label><input type="checkbox" />Systemdokumentation ist vollständig
+und von Nicht-Technikern lesbar</label></li>
+<li><label><input type="checkbox" />Onboarding-Flow läuft erfolgreich
+durch einen End-to-End-Test mit echten Daten</label></li>
+<li><label><input type="checkbox" />Customer-Ansprechpartner hat
+Übergabe-Session abgenommen und schriftlich bestätigt</label></li>
+<li><label><input type="checkbox" />Kein offener Bug der Kategorie P1
+(systemkritisch) oder P2 (funktional beeinträchtigend)</label></li>
+<li><label><input type="checkbox" />Support-Kanal eingerichtet und
+Customer weiß, wie er ihn nutzt</label></li>
+</ul>
+<hr />
+<h2 id="change-request-policy">Change-Request-Policy</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Szenario</th>
+<th>Handling</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kleiner Scope-Creep (&lt;4h, innerhalb Modulrahmen)</td>
+<td>Intern absorbiert — max. 1x pro Projekt ohne Berechnung</td>
+</tr>
+<tr class="even">
+<td>Neues Feature / neue Automation innerhalb des vereinbarten
+Modul-Rahmens</td>
+<td>Einschätzung: wenn &lt;8h → Kulanz, wenn &gt;8h → CR mit €200/h
+Rate</td>
+</tr>
+<tr class="odd">
+<td>Neues Modul oder zusätzliche Integration</td>
+<td>Immer Change-Request. Schriftliches Angebot, Customer-Sign-Off vor
+Umsetzung</td>
+</tr>
+<tr class="even">
+<td>Prozessänderung durch Customer während Build-Phase</td>
+<td>Stop-und-Reassess: Timeline-Impact kommunizieren, ggf. Phase-Reset
+mit CR</td>
+</tr>
+<tr class="odd">
+<td>Zusätzliche UAT-Runde (&gt;2 Runden)</td>
+<td>€1.500 pauschal pro zusätzlicher Feedback-Runde +
+Timeline-Extension</td>
+</tr>
+<tr class="even">
+<td>Scope-Reduktion durch Customer</td>
+<td>Kein Preis-Reduction-Anspruch nach Kick-off (Architektur-Aufwand
+bereits entstanden)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pricing-variations">Pricing-Variations</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Add-On / Variation</th>
+<th>Aufpreis Setup</th>
+<th>Aufpreis Retainer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Zusätzliche Datenquelle (pro Quelle, Tier M)</td>
+<td>+€1.500 – €3.000</td>
+<td>+€200–400/Mo</td>
+</tr>
+<tr class="even">
+<td>Zusätzlicher AI-Agent (konfiguriert + deployed)</td>
+<td>+€3.000 – €6.000</td>
+<td>+€300–600/Mo</td>
+</tr>
+<tr class="odd">
+<td>Daten-Migrations-Support (Begleitung, kein Full-Service)</td>
+<td>+€2.000 – €5.000</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Erweiterte Nutzer-Kapazität (&gt;15 User Tier M)</td>
+<td>+€1.500 pro 10 User</td>
+<td>+€150/Mo</td>
+</tr>
+<tr class="odd">
+<td>Custom API-Integration (Drittanbieter mit API-Docs)</td>
+<td>+€2.500 – €8.000 je nach Komplexität</td>
+<td>+€300–500/Mo Wartung</td>
+</tr>
+<tr class="even">
+<td>Erweiterte Dokumentation / Prozesshandbuch</td>
+<td>+€1.500</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Verlängerter Post-Launch-Support (je Monat zusätzlich)</td>
+<td>—</td>
+<td>+€800/Mo</td>
+</tr>
+<tr class="even">
+<td>Zweisprachige Systemkonfiguration (DE + EN)</td>
+<td>+€2.000</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Tier-Upgrade M → L mid-project</td>
+<td>Delta-Berechnung auf Aufwandsbasis</td>
+<td>Retainer-Anpassung</td>
+</tr>
+</tbody>
+</table>
+<h1 id="delivery-plan">3. Delivery-Plan</h1>
+<hr />
+<h2 id="phasen">Phasen</h2>
+<h3 id="phase-1-discovery-architecture-w1w2">Phase 1: Discovery &amp;
+Architecture — W1–W2</h3>
+<p><strong>Ziel:</strong> Vollständiges Verständnis der Kunden-Prozesse,
+Tool-Landschaft und Prioritäten. System-Design abgeschlossen vor erstem
+Build-Commit.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Status-Check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Discovery-Call 1: Sales/CRM-Prozess-Mapping</td>
+<td>Founder + Customer</td>
+<td>Ende W1</td>
+</tr>
+<tr class="even">
+<td>Discovery-Call 2: PM-Prozess + Reporting-Anforderungen</td>
+<td>Founder + Customer</td>
+<td>Ende W1</td>
+</tr>
+<tr class="odd">
+<td>Prozess-Dokumentation (intern)</td>
+<td>Eng</td>
+<td>Anfang W2</td>
+</tr>
+<tr class="even">
+<td>Datenbankschema-Entwurf</td>
+<td>Eng</td>
+<td>Mitte W2</td>
+</tr>
+<tr class="odd">
+<td>Modul-Priorisierungs-Dokument (mit Customer abgestimmt)</td>
+<td>Founder</td>
+<td>Ende W2</td>
+</tr>
+<tr class="even">
+<td>Architecture-Sign-Off durch Customer</td>
+<td>Customer</td>
+<td>Ende W2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Kick-off Call (W1, 90 min) +
+Architecture-Review Call (W2, 60 min)</p>
+<hr />
+<h3 id="phase-2-core-build-datenbank-crm-w3w4">Phase 2: Core-Build —
+Datenbank + CRM — W3–W4</h3>
+<p><strong>Ziel:</strong> Funktionales CRM-Modul auf solider
+Datenbankbasis. Erste Automationen live.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Status-Check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Datenbank vollständig aufgebaut (alle Entitäten, Relationen)</td>
+<td>Eng</td>
+<td>Ende W3</td>
+</tr>
+<tr class="even">
+<td>CRM-Modul: Kontakte, Companies, Deals, Pipeline live</td>
+<td>Eng</td>
+<td>Ende W3</td>
+</tr>
+<tr class="odd">
+<td>Benutzer-Rollen konfiguriert (alle 4 Rollen)</td>
+<td>Eng</td>
+<td>Mitte W4</td>
+</tr>
+<tr class="even">
+<td>Erste Automationen live (Lead-Capture, Deal-Stage-Updates)</td>
+<td>Eng</td>
+<td>Ende W4</td>
+</tr>
+<tr class="odd">
+<td>Interner QA-Test CRM-Modul</td>
+<td>Eng + CS</td>
+<td>Ende W4</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Weekly Sync W3 (30 min
+Status-Update) + Milestone-Review W4 (45 min Demo CRM)</p>
+<hr />
+<h3 id="phase-3-pm-modul-dashboard-w5w6">Phase 3: PM-Modul + Dashboard —
+W5–W6</h3>
+<p><strong>Ziel:</strong> Projektmanagement-Modul einsatzbereit.
+Dashboard aggregiert Daten aus CRM und PM.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Status-Check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>PM-Modul: Projekttypen, Phasen, Aufgaben, Ressourcen live</td>
+<td>Eng</td>
+<td>Ende W5</td>
+</tr>
+<tr class="even">
+<td>Onboarding-Flows (1–2) konfiguriert und getestet</td>
+<td>Eng</td>
+<td>Ende W5</td>
+</tr>
+<tr class="odd">
+<td>Dashboard: CRM-Feeds live (Deal-Wert, Pipeline-Stage)</td>
+<td>Eng</td>
+<td>Mitte W6</td>
+</tr>
+<tr class="even">
+<td>Dashboard: PM-Feeds live (Projekt-Status, Auslastung)</td>
+<td>Eng</td>
+<td>Ende W6</td>
+</tr>
+<tr class="odd">
+<td>Dashboard-Views für alle Rollen konfiguriert</td>
+<td>Eng</td>
+<td>Ende W6</td>
+</tr>
+<tr class="even">
+<td>Interner QA-Test PM + Dashboard</td>
+<td>Eng + CS</td>
+<td>Ende W6</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Weekly Sync W5 +
+Milestone-Review W6 (60 min Demo PM + Dashboard)</p>
+<hr />
+<h3 id="phase-4-ai-agent-automations-layer-w7w8">Phase 4: AI-Agent +
+Automations-Layer — W7–W8</h3>
+<p><strong>Ziel:</strong> Alle Automationen live. AI-Agent(en) deployed
+und getestet. System technisch vollständig.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Status-Check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>AI-Agent(en) konfiguriert (Prompts, Kontext,
+Datenbank-Anbindung)</td>
+<td>Eng + Founder</td>
+<td>Ende W7</td>
+</tr>
+<tr class="even">
+<td>Alle verbleibenden Automationen live</td>
+<td>Eng</td>
+<td>Ende W7</td>
+</tr>
+<tr class="odd">
+<td>End-to-End-Test aller Module + Automationen</td>
+<td>Eng</td>
+<td>Mitte W8</td>
+</tr>
+<tr class="even">
+<td>Automations-Dokumentation vollständig</td>
+<td>Eng</td>
+<td>Ende W8</td>
+</tr>
+<tr class="odd">
+<td>Agent-Use-Case-Tests (alle definierten Szenarien)</td>
+<td>Eng + CS</td>
+<td>Ende W8</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Weekly Sync W7 + Agent-Demo W8
+(45 min)</p>
+<hr />
+<h3 id="phase-5-uat-refinement-w9">Phase 5: UAT + Refinement — W9</h3>
+<p><strong>Ziel:</strong> Customer testet vollständiges System. Feedback
+wird eingearbeitet (max. 2 Runden).</p>
+<table>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Status-Check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>UAT-Zugang für Customer eingerichtet</td>
+<td>CS</td>
+<td>Anfang W9</td>
+</tr>
+<tr class="even">
+<td>UAT-Feedback-Template an Customer übergeben</td>
+<td>CS</td>
+<td>Anfang W9</td>
+</tr>
+<tr class="odd">
+<td>Feedback-Runde 1: Sammlung + Priorisierung</td>
+<td>CS + Eng</td>
+<td>Mitte W9</td>
+</tr>
+<tr class="even">
+<td>Fixes und Anpassungen implementiert</td>
+<td>Eng</td>
+<td>Ende W9</td>
+</tr>
+<tr class="odd">
+<td>Finale Sign-Off durch Customer</td>
+<td>Customer</td>
+<td>Ende W9</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> UAT-Briefing-Call (W9 Anfang,
+30 min) + Feedback-Review-Call (W9 Mitte, 45 min)</p>
+<hr />
+<h3 id="phase-6-go-live-handover-w10">Phase 6: Go-Live + Handover —
+W10</h3>
+<p><strong>Ziel:</strong> System in Produktion. Customer und Key-User
+sind ongeboardet. Support-Phase beginnt.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Status-Check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Produktions-Deployment aller Module</td>
+<td>Eng</td>
+<td>Anfang W10</td>
+</tr>
+<tr class="even">
+<td>Systemdokumentation finalisiert</td>
+<td>Eng + CS</td>
+<td>Mitte W10</td>
+</tr>
+<tr class="odd">
+<td>Übergabe-Session (90 min, Customer + Key-User)</td>
+<td>Founder + CS</td>
+<td>Mitte W10</td>
+</tr>
+<tr class="even">
+<td>Screen-Recording-Walkthroughs für alle Module</td>
+<td>CS</td>
+<td>Ende W10</td>
+</tr>
+<tr class="odd">
+<td>Support-Kanal eingerichtet und kommuniziert</td>
+<td>CS</td>
+<td>Ende W10</td>
+</tr>
+<tr class="even">
+<td>Go-Live-Bestätigung (intern + Customer)</td>
+<td>CS</td>
+<td>Ende W10</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Handover-Session (W10, 90 min)
++ 1-Wochen-Check-in (W11)</p>
+<hr />
+<h2 id="team-allocation">Team-Allocation</h2>
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rolle</th>
+<th>Phase 1</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+<th>Phase 4</th>
+<th>Phase 5</th>
+<th>Phase 6</th>
+<th>Retainer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Founder</strong></td>
+<td>Lead (Calls, Architecture-Sign-Off)</td>
+<td>Review</td>
+<td>Review</td>
+<td>AI-Agent-Konzept</td>
+<td>Eskalation</td>
+<td>Handover</td>
+<td>Monatliches Strategy-Review</td>
+</tr>
+<tr class="even">
+<td><strong>Engineering</strong></td>
+<td>Datenbankschema</td>
+<td>Full Build</td>
+<td>Full Build</td>
+<td>Full Build</td>
+<td>Fixes</td>
+<td>Deployment + Docs</td>
+<td>Wartung, Updates, Bugfixes</td>
+</tr>
+<tr class="odd">
+<td><strong>Customer Success</strong></td>
+<td>Koordination</td>
+<td>Syncs</td>
+<td>Syncs</td>
+<td>Syncs</td>
+<td>UAT-Management</td>
+<td>Training, Handover</td>
+<td>Monatliche Check-ins, Support-Kanal</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2
+id="customer-onboarding-touchpoints">Customer-Onboarding-Touchpoints</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Touchpoint</th>
+<th>Zeitpunkt</th>
+<th>Format</th>
+<th>Dauer</th>
+<th>Ziel</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Kick-off Call</strong></td>
+<td>W1</td>
+<td>Video-Call</td>
+<td>90 min</td>
+<td>Prozess-Discovery, Erwartungen alignment, Timeline bestätigen</td>
+</tr>
+<tr class="even">
+<td><strong>Architecture-Review</strong></td>
+<td>W2</td>
+<td>Video-Call</td>
+<td>60 min</td>
+<td>Datenbankschema + Modul-Plan abnehmen</td>
+</tr>
+<tr class="odd">
+<td><strong>Weekly Syncs</strong></td>
+<td>W3–W8</td>
+<td>Video-Call</td>
+<td>30 min</td>
+<td>Status, Blocker, nächste Schritte</td>
+</tr>
+<tr class="even">
+<td><strong>Milestone-Reviews</strong></td>
+<td>W4, W6, W8</td>
+<td>Video-Call + Demo</td>
+<td>45–60 min</td>
+<td>Module live demonstrieren, Feedback einholen</td>
+</tr>
+<tr class="odd">
+<td><strong>UAT-Briefing</strong></td>
+<td>W9</td>
+<td>Video-Call</td>
+<td>30 min</td>
+<td>Testing-Scope erklären, Feedback-Template übergeben</td>
+</tr>
+<tr class="even">
+<td><strong>Feedback-Review</strong></td>
+<td>W9 Mitte</td>
+<td>Video-Call</td>
+<td>45 min</td>
+<td>Feedback besprechen, Priorisierung</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover-Session</strong></td>
+<td>W10</td>
+<td>Video-Call (aufgezeichnet)</td>
+<td>90 min</td>
+<td>System-Walkthrough, Key-User-Training</td>
+</tr>
+<tr class="even">
+<td><strong>1-Wochen-Check-in</strong></td>
+<td>W11</td>
+<td>Video-Call oder Async</td>
+<td>30 min</td>
+<td>Erste Praxis-Erfahrungen, offene Fragen</td>
+</tr>
+<tr class="odd">
+<td><strong>Monthly Business-Review</strong></td>
+<td>Monatlich (Retainer)</td>
+<td>Video-Call</td>
+<td>45 min</td>
+<td>KPI-Review, Iterations-Planung</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="risk-register">Risk-Register</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Risiko</th>
+<th>Wahrscheinlichkeit</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>R1</td>
+<td><strong>Scope-Creep durch unklare Prozesse</strong> — Customer
+entdeckt in der Build-Phase, dass die eigenen Prozesse komplexer sind
+als initial kommuniziert</td>
+<td>Hoch</td>
+<td>Hoch</td>
+<td>Detailliertes Architecture-Sign-Off in W2 als Fundament.
+Change-Request-Policy kommunizieren. Discovery-Phase nicht
+überspringen.</td>
+</tr>
+<tr class="even">
+<td>R2</td>
+<td><strong>Fehlende Customer-Verfügbarkeit</strong> — Ansprechpartner
+fällt aus oder ist zu wenig verfügbar für Feedback-Runden</td>
+<td>Mittel</td>
+<td>Hoch</td>
+<td>Commitment-Brief vor Projekt-Start. Backup-Ansprechpartner
+identifizieren. Deadline-Eskalation an Founder wenn 48h kein
+Feedback.</td>
+</tr>
+<tr class="odd">
+<td>R3</td>
+<td><strong>Datenqualität der Bestandsdaten</strong> — Kundendaten aus
+Altsystemen sind so unstrukturiert, dass Import oder Referenzierung
+scheitert</td>
+<td>Mittel</td>
+<td>Mittel</td>
+<td>In Discovery klären was tatsächlich integriert werden muss vs. was
+Customer selbst migriert. Klare OOS-Kommunikation zu Migration.</td>
+</tr>
+<tr class="even">
+<td>R4</td>
+<td><strong>SaaS-Plattform-Limitierungen</strong> — gewählte Plattform
+(Notion/Airtable/Make) kann bestimmte Anforderungen nicht abbilden</td>
+<td>Niedrig</td>
+<td>Hoch</td>
+<td>Architecture-Phase prüft Plattform-Fitness vor Build-Start.
+Fallback-Optionen vordenken. Plattform-Wechsel = neue Kalkulation.</td>
+</tr>
+<tr class="odd">
+<td>R5</td>
+<td><strong>AI-Agent-Performance unter Erwartung</strong> — Agent
+liefert in Praxis-Tests nicht die gewünschte Qualität für definierte
+Use-Cases</td>
+<td>Mittel</td>
+<td>Mittel</td>
+<td>Use-Cases in Discovery realistisch kalibrieren. Prompt-Iteration als
+festen Bestandteil der Agent-Phase. 90%-Korrektheit als Quality-Gate,
+nicht 100%.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-gates">Quality-Gates</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Gate</th>
+<th>Zeitpunkt</th>
+<th>Was wird geprüft</th>
+<th>Verantwortlich</th>
+<th>Muss bestehen vor</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>QG-1: Architecture-Sign-Off</strong></td>
+<td>Ende W2</td>
+<td>Datenbankschema vollständig, Modul-Plan mit Customer abgestimmt</td>
+<td>Founder</td>
+<td>Phase 2 Start</td>
+</tr>
+<tr class="even">
+<td><strong>QG-2: CRM-Abnahme</strong></td>
+<td>Ende W4</td>
+<td>CRM funktional, Rollen korrekt, erste Automationen ohne Fehler</td>
+<td>Eng + CS</td>
+<td>Phase 3 Start</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-3: Dashboard-Abnahme</strong></td>
+<td>Ende W6</td>
+<td>Dashboard zeigt korrekte Daten aus CRM + PM, alle Views
+funktional</td>
+<td>Eng + CS</td>
+<td>Phase 4 Start</td>
+</tr>
+<tr class="even">
+<td><strong>QG-4: Full-System-Test</strong></td>
+<td>Ende W8</td>
+<td>Alle Module + Automationen + Agent End-to-End fehlerfrei</td>
+<td>Eng</td>
+<td>UAT-Freigabe</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-5: UAT-Sign-Off</strong></td>
+<td>Ende W9</td>
+<td>Customer-Abnahme schriftlich, keine offenen P1/P2 Bugs</td>
+<td>CS</td>
+<td>Go-Live</td>
+</tr>
+<tr class="even">
+<td><strong>QG-6: Handover-Vollständigkeit</strong></td>
+<td>Ende W10</td>
+<td>Docs, Videos, Zugänge, Support-Kanal alles vorhanden</td>
+<td>CS</td>
+<td>Retainer-Start</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="handover-package">Handover-Package</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Format</th>
+<th>Verantwortlich</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Systemdokumentation</strong></td>
+<td>Notion/PDF — Datenbankstruktur, Module, Automations-Map</td>
+<td>Eng</td>
+</tr>
+<tr class="even">
+<td><strong>Automations-Inventar</strong></td>
+<td>Tabelle: Name / Trigger / Action / Status / Wartungshinweis</td>
+<td>Eng</td>
+</tr>
+<tr class="odd">
+<td><strong>AI-Agent-Dokumentation</strong></td>
+<td>Prompt-Texte, Use-Cases, Kontext-Setup, Update-Anleitung</td>
+<td>Eng</td>
+</tr>
+<tr class="even">
+<td><strong>SOP-Templates</strong></td>
+<td>3–5 Kern-Prozesse als schriftliche SOPs</td>
+<td>CS</td>
+</tr>
+<tr class="odd">
+<td><strong>Screen-Recording-Walkthroughs</strong></td>
+<td>Loom-Videos pro Modul (CRM / PM / Dashboard / Agent)</td>
+<td>CS</td>
+</tr>
+<tr class="even">
+<td><strong>Benutzer-Zugänge</strong></td>
+<td>Übergabe aller Admin-Zugänge + Passwort-Safe-Eintrag</td>
+<td>CS</td>
+</tr>
+<tr class="odd">
+<td><strong>Change-Request-Formular</strong></td>
+<td>Template für zukünftige Erweiterungsanfragen</td>
+<td>CS</td>
+</tr>
+<tr class="even">
+<td><strong>Support-Kanal-Info</strong></td>
+<td>Slack-Channel oder Email + SLA-Beschreibung (Retainer)</td>
+<td>CS</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover-Call-Aufzeichnung</strong></td>
+<td>Video-Aufzeichnung der 90-min-Übergabe-Session</td>
+<td>CS</td>
+</tr>
+</tbody>
+</table>
+<h1 id="quality-gate">4. Quality-Gate</h1>
+<p><strong>Item-Slug:</strong> <code>business-os</code>
+<strong>Item-Type:</strong> DFY <strong>Tier:</strong> ☐ M / ☐ L
+<em>(bei Abnahme ausfüllen)</em> <strong>Customer:</strong>
+_______________ <strong>Delivery-Abschluss-Datum:</strong>
+_______________ <strong>Sign-Off durch (AEVUM):</strong> _______________
+<strong>Sign-Off durch (Customer):</strong> _______________</p>
+<hr />
+<h2 id="asset-inventar">Asset-Inventar</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Asset</th>
+<th>Format</th>
+<th>Speicherort</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>01</td>
+<td>Datenbankschema (finalisiert)</td>
+<td>Notion-Page / PDF</td>
+<td>/projects/[customer]/docs</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>02</td>
+<td>CRM-Modul (Produktion)</td>
+<td>Live in Zielplattform</td>
+<td>[Plattform-Link]</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>03</td>
+<td>PM-Modul (Produktion)</td>
+<td>Live in Zielplattform</td>
+<td>[Plattform-Link]</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>04</td>
+<td>Reporting-Dashboard (Produktion)</td>
+<td>Live in Zielplattform</td>
+<td>[Plattform-Link]</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>05</td>
+<td>AI-Agent(en) (deployed)</td>
+<td>Live in Zielplattform + Docs</td>
+<td>[Plattform-Link + /docs]</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>06</td>
+<td>Automations-Inventar</td>
+<td>Notion-Tabelle / PDF</td>
+<td>/projects/[customer]/docs</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>07</td>
+<td>Systemdokumentation</td>
+<td>Notion-Page / PDF</td>
+<td>/projects/[customer]/docs</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>08</td>
+<td>SOP-Templates (3–5 Stück)</td>
+<td>Notion-Page</td>
+<td>/projects/[customer]/sops</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>09</td>
+<td>Screen-Recording-Walkthroughs (4 Videos)</td>
+<td>Loom</td>
+<td>/projects/[customer]/videos</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Handover-Call-Aufzeichnung</td>
+<td>Loom / MP4</td>
+<td>/projects/[customer]/videos</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Benutzer-Zugänge übergeben</td>
+<td>Passwort-Safe-Eintrag</td>
+<td>1Password / Bitwarden</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Support-Kanal eingerichtet</td>
+<td>Slack / Email</td>
+<td>[Channel-Link]</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td>Customer-Sign-Off (schriftlich)</td>
+<td>Email / Notion-Kommentar</td>
+<td>/projects/[customer]/sign-off</td>
+<td>☐</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien">Sign-Off-Kriterien</h2>
+<p>Alle 10 Punkte müssen ✅ sein vor Übergabe in Retainer-Phase:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Kriterium</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>01</td>
+<td>Alle Module (CRM, PM, Dashboard, Agent) laufen in Produktion ohne
+P1/P2-Fehler</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>02</td>
+<td>Dashboard zeigt korrekte Live-Daten aus allen Quellen
+(Stichproben-Test: &lt;2% Abweichung)</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>03</td>
+<td>Alle vereinbarten Automationen sind live, dokumentiert und in
+Test-Runs fehlerfrei durchgelaufen</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>04</td>
+<td>AI-Agent beantwortet alle definierten Use-Cases korrekt in &gt;90%
+der Testfälle (Test-Protokoll vorhanden)</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>05</td>
+<td>Benutzer-Rollen korrekt konfiguriert — Zugriffstest für jede Rolle
+bestanden und dokumentiert</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>06</td>
+<td>Systemdokumentation vollständig — Nicht-Techniker kann
+Kern-Funktionen ohne AEVUM-Hilfe nachvollziehen</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>07</td>
+<td>Onboarding-Flow(s) erfolgreich durch End-to-End-Test mit realen
+Testdaten</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>08</td>
+<td>Handover-Package vollständig (alle 13 Assets im Inventar
+vorhanden)</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>09</td>
+<td>Customer-Ansprechpartner hat Handover-Session abgenommen —
+schriftliche Bestätigung vorliegt</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Retainer-Bedingungen kommuniziert, Support-Kanal aktiv, erster
+Monthly-Review-Termin gebucht</td>
+<td>☐</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="known-limitations-phase-2-items">Known Limitations /
+Phase-2-Items</h2>
+<p>Folgende Items sind bewusst nicht in Phase 1 enthalten und müssen bei
+Bedarf separat beauftragt werden:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Item</th>
+<th>Empfohlener Zeitpunkt</th>
+<th>Zugehöriger Service</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>L1</td>
+<td>Daten-Migration aus Altsystemen (vollständige Übernahme historischer
+Daten)</td>
+<td>Nach 4–8 Wochen Betrieb wenn Datenstruktur stabil</td>
+<td>Add-On: Migrations-Sprint</td>
+</tr>
+<tr class="even">
+<td>L2</td>
+<td>Erweiterung auf zusätzliche Datenquellen (z.B. Accounting, Ads,
+Support-Tools)</td>
+<td>Nach 3 Monaten wenn Kern-System stabil genutzt wird</td>
+<td>Command-Center-Dashboard Erweiterung</td>
+</tr>
+<tr class="odd">
+<td>L3</td>
+<td>Erweiterte AI-Agenten (Sales-Coaching, Deep-Research,
+Meeting-Intelligence)</td>
+<td>Nach 6 Monaten Business-OS-Nutzung</td>
+<td>Sales-OS oder separater Agent-Sprint</td>
+</tr>
+<tr class="even">
+<td>L4</td>
+<td>Full-Stack Lead-Generierung (Scraping, Outreach,
+Qualifizierung)</td>
+<td>Wenn CRM-Nutzung etabliert ist</td>
+<td>AI-Lead-Engine</td>
+</tr>
+<tr class="odd">
+<td>L5</td>
+<td>Marketing-Automation und Content-Pipeline-Integration</td>
+<td>Nach stabilem Ops-System</td>
+<td>Content-Engine</td>
+</tr>
+<tr class="even">
+<td>L6</td>
+<td>Mobile-optimierte Views oder native App-Experience</td>
+<td>Auf Anfrage, custom Scope</td>
+<td>Custom Engineering Angebot</td>
+</tr>
+<tr class="odd">
+<td>L7</td>
+<td>Automatisches Reporting an externe Stakeholder (Investoren,
+Board)</td>
+<td>Nach 6+ Monaten</td>
+<td>Dashboard-Erweiterung</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="db-update-befehl">DB-Update-Befehl</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Business-OS DFY Item: Status auf DELIVERED setzen</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> aevum_service_items</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  status              <span class="op">=</span> <span class="st">&#39;delivered&#39;</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  delivery_date       <span class="op">=</span> <span class="fu">CURRENT_DATE</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  sign_off_customer   <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  sign_off_internal   <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  retainer_active     <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  post_launch_support <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  phase_2_items       <span class="op">=</span> JSON_ARRAY(</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                          <span class="st">&#39;data-migration&#39;</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                          <span class="st">&#39;additional-data-sources&#39;</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                          <span class="st">&#39;extended-ai-agents&#39;</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                          <span class="st">&#39;lead-generation-integration&#39;</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                          <span class="st">&#39;marketing-automation&#39;</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>                          <span class="st">&#39;mobile-views&#39;</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>                          <span class="st">&#39;external-stakeholder-reporting&#39;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>                        ),</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  updated_at          <span class="op">=</span> NOW()</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  item_slug           <span class="op">=</span> <span class="st">&#39;business-os&#39;</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="kw">AND</span> customer_id     <span class="op">=</span> <span class="ch">:customer_id</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="kw">AND</span> project_id      <span class="op">=</span> <span class="ch">:project_id</span>;</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co">-- Upsell-Tracking: offene Pfade loggen</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> aevum_upsell_pipeline</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  (customer_id, source_item_slug, target_item_slug, trigger_condition, status, created_at)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  (<span class="ch">:customer_id</span>, <span class="st">&#39;business-os&#39;</span>, <span class="st">&#39;ai-lead-engine&#39;</span>,              <span class="st">&#39;leads-incoming-manual&#39;</span>,          <span class="st">&#39;open&#39;</span>, NOW()),</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  (<span class="ch">:customer_id</span>, <span class="st">&#39;business-os&#39;</span>, <span class="st">&#39;command-center-dashboard&#39;</span>,    <span class="st">&#39;analytics-depth-request&#39;</span>,         <span class="st">&#39;open&#39;</span>, NOW()),</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  (<span class="ch">:customer_id</span>, <span class="st">&#39;business-os&#39;</span>, <span class="st">&#39;sales-os&#39;</span>,                    <span class="st">&#39;crm-underutilized-by-sales-team&#39;</span>, <span class="st">&#39;open&#39;</span>, NOW()),</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  (<span class="ch">:customer_id</span>, <span class="st">&#39;business-os&#39;</span>, <span class="st">&#39;content-engine&#39;</span>,              <span class="st">&#39;content-not-integrated&#39;</span>,          <span class="st">&#39;open&#39;</span>, NOW()),</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  (<span class="ch">:customer_id</span>, <span class="st">&#39;business-os&#39;</span>, <span class="st">&#39;automation-audit&#39;</span>,            <span class="st">&#39;90-days-post-launch&#39;</span>,             <span class="st">&#39;scheduled&#39;</span>, NOW());</span></code></pre></div>
+<hr />
+<h2 id="pattern-notes-für-dfy-builder-pattern">Pattern-Notes für
+DFY-Builder-Pattern</h2>
+<pre><code>ITEM: business-os
+PATTERN-TYPE: multi-module-system-build
+CORE-COMPLEXITY: hoch (4 Module, AI-Layer, Automations-Layer, Rollen-System)
+DIFFERENTIATOR vs. andere DFY-Items:
+  - Breite statt Tiefe: 4 Module vs. 1 Deep-Module (z.B. sales-os, ai-lead-engine)
+  - Fundament-Item: Business-OS ist häufig Prerequisite für andere DFY-Services
+  - Change-Risk: hoch — Customer-Prozesse oft unklar zu Beginn, Discovery ist kritischer als bei Single-Module-Items
+  - AI-Agent hier: Ops-focused (nicht Lead-Gen, nicht Content) → andere Prompt-Patterns als ai-lead-engine oder content-engine
+
+PRICING-ANCHOR: Setup €12k–€60k (breiteste Range aller DFY-Items)
+DELIVERY-COMPLEXITY: höchste im DFY-Portfolio (Tier L: bis 320h)
+UPSELL-POTENZIAL: höchstes im Portfolio (Fundament für alle anderen Services)
+CHURN-RISIKO: niedrig wenn System tatsächlich genutzt wird (high switching cost)
+
+WARNUNG-PATTERN:
+  - Kein Architecture-Sign-Off → Scope-Creep guaranteed → niemals Phase 2 starten ohne QG-1 ✅
+  - Customer mit Entscheidungs-Silos (Approval durch mehrere Parteien) → Timeline +30%
+  - &quot;Wir wollen erst mal schauen&quot; Mindset → kein guter Fit → Pre-Qualifying in Sales-Call
+
+TEMPLATE-VARIATION-HINTS:
+  - Für AG: PM-Modul-Gewichtung erhöhen (Projektabwicklung = Kernprozess)
+  - Für PB: CRM + Dashboard priorisieren, PM reduziert, Agent stärker auf Content-Ops
+  - Für FI: Mehr Rollen, mehr Datenquellen, längere Discovery, Tier L als Default</code></pre>
+</body>
+</html>

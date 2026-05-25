@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM DFY: website-crm</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM DFY: website-crm</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-done-for-you-website-crm">AEVUM Done-for-You —
+website-crm</h1>
+<blockquote>
+<p>Generated 2026-05-25. Combined Master-Doc.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<h2 id="in-einem-satz">In einem Satz</h2>
+<p>Ein vollständig auf dein Business zugeschnittenes CRM-System — gebaut
+direkt in deiner bestehenden Infrastruktur, mit automatisierten
+Workflows, die dein Team entlasten, statt es zu verwalten.</p>
+<hr />
+<h2 id="wer-das-braucht">Wer das braucht</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Konkreter Use-Case</th>
+<th>Fit-Rating</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AG</strong> (Agenturen 3-50 MA)</td>
+<td>Kein generisches HubSpot mehr: Agentur braucht Deal-Tracking pro
+Kunde, Retainer-Status, automatische Follow-Up-Chains und
+Briefing-Templates direkt im CRM-Flow</td>
+<td>★★★★★</td>
+</tr>
+<tr class="even">
+<td><strong>PB</strong> (Personal Brands)</td>
+<td>Coaching-Anfragen, Wartelisten, Launch-Sequenzen und
+Community-Mitglieder in einem System verwalten statt 4 Tools zu
+jonglieren</td>
+<td>★★★★☆</td>
+</tr>
+<tr class="odd">
+<td><strong>FI</strong> (Mittelstand B2B 10-100 MA)</td>
+<td>Sales-Team nutzt Excel und Outlook — Übergang zu strukturiertem
+Pipeline-Management mit automatischen Übergaben zwischen Vertrieb und
+Projektteam</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="was-customer-bekommt">Was Customer bekommt</h2>
+<ol type="1">
+<li><strong>Custom CRM-Datenmodell</strong> — Felder, Entitäten und
+Beziehungen exakt nach Business-Logik (keine Standard-Objekte, die nicht
+passen)</li>
+<li><strong>Frontend-Interface</strong> — Web-basiertes UI für
+Deal/Kontakt/Kunden-Verwaltung, rollenbasiert (Sales, PM,
+Management)</li>
+<li><strong>Workflow-Engine mit min. 5 Automatisierungen</strong> — z.
+B. Status-Trigger, Reminder-Chains, interne Benachrichtigungen,
+Task-Erstellung bei Stage-Wechsel</li>
+<li><strong>Formular-Integration</strong> — Eingehende Leads aus
+Website/Typeform/Tally landen direkt strukturiert im CRM</li>
+<li><strong>Pipeline-Views</strong> — Kanban + Listenansicht pro
+Team/Rolle, filterbar und sortierbar</li>
+<li><strong>E-Mail-Templates + Sequenz-Logik</strong> — Vorgefertigte
+Templates mit Variablen, semi-automatische Outreach-Sequenzen</li>
+<li><strong>Aktivitäts-Log</strong> — Vollständige Timeline pro
+Kontakt/Deal (Calls, Mails, Stage-Wechsel, Notizen)</li>
+<li><strong>Rollen &amp; Permissions</strong> — Min. 3 definierte Rollen
+mit differenzierten Zugriffsrechten</li>
+<li><strong>Reporting-Dashboard</strong> — Live-Übersicht:
+Pipeline-Volumen, Conversion-Rates, Aktivitäts-KPIs</li>
+<li><strong>Migrations-Support</strong> — Import bestehender
+Kontakte/Deals aus CSV, Excel oder altem Tool (bis 10k Records)</li>
+<li><strong>Dokumentation + Video-Walkthroughs</strong> — System-Doku,
+SOPs für häufige Workflows, Onboarding-Video für neue Mitarbeiter</li>
+<li><strong>4-Wochen Post-Launch-Support</strong> — Bug-Fixes und
+kleinere Anpassungen nach Go-Live</li>
+</ol>
+<hr />
+<h2 id="mehrwert-konkret">Mehrwert (konkret)</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Vorher</th>
+<th>Nachher</th>
+<th>Schätzwert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Zeit für Lead-Follow-Up</strong></td>
+<td>Manuell, unstrukturiert, geht unter</td>
+<td>Automatisiert + getriggert</td>
+<td>-70% manueller Follow-Up-Aufwand</td>
+</tr>
+<tr class="even">
+<td><strong>Deal-Übersicht</strong></td>
+<td>Excel, Slack-Nachrichten, Notizen</td>
+<td>Single Source of Truth</td>
+<td>0 verlorene Deals durch fehlende Sichtbarkeit</td>
+</tr>
+<tr class="odd">
+<td><strong>Onboarding neuer Vertriebler</strong></td>
+<td>Wochen, Wissenstransfer informal</td>
+<td>System + SOPs vorhanden</td>
+<td>-60% Onboarding-Zeit</td>
+</tr>
+<tr class="even">
+<td><strong>Reporting</strong></td>
+<td>Manuell zusammengebaut, monatlich</td>
+<td>Live, on-demand</td>
+<td>4-6h/Monat gespart pro Manager</td>
+</tr>
+<tr class="odd">
+<td><strong>Tool-Kosten</strong></td>
+<td>Mehrfach-Subscriptions (HubSpot, Pipedrive etc.)</td>
+<td>Eigenes System, kein Per-Seat-Pricing</td>
+<td>€200-€1.500/Mo gespart je nach Tool</td>
+</tr>
+<tr class="even">
+<td><strong>Revenue-Impact</strong></td>
+<td>~20-30% Leads ohne Follow-Up verloren</td>
+<td>Automatische Wiedervorlage</td>
+<td>Konservativ +10-15% Close-Rate</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pricing-logic">Pricing-Logic</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Tier M</strong></th>
+<th><strong>Tier L</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Setup</strong></td>
+<td>€8.000 – €14.000</td>
+<td>€18.000 – €35.000</td>
+</tr>
+<tr class="even">
+<td><strong>Monthly Retainer</strong></td>
+<td>€1.800 – €2.800</td>
+<td>€3.000 – €4.500</td>
+</tr>
+<tr class="odd">
+<td><strong>Scope</strong></td>
+<td>1 Pipeline, bis 5 Workflows, 1 Team (bis 10 User),
+Standard-Reporting, 1 Formular-Integration</td>
+<td>2-4 Pipelines, 10-20 Workflows, Multi-Team, Custom Reporting,
+mehrere Integrationen, komplexe Rollen-Logik</td>
+</tr>
+<tr class="even">
+<td><strong>Datenmigration</strong></td>
+<td>Bis 10k Records, 1 Source</td>
+<td>Bis 50k Records, Multi-Source</td>
+</tr>
+<tr class="odd">
+<td><strong>Implementierung</strong></td>
+<td>6-8 Wochen</td>
+<td>10-14 Wochen</td>
+</tr>
+<tr class="even">
+<td><strong>Typischer Customer</strong></td>
+<td>Agentur 5-15 MA, PB mit aktivem Sales</td>
+<td>Mittelstand 20-100 MA, Agentur mit mehreren Teams</td>
+</tr>
+</tbody>
+</table>
+<p>Setup-to-Retainer-Ratio: ~4:1 (Tier M) / ~6:1 (Tier L)</p>
+<hr />
+<h2 id="timeline">Timeline</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th>Dauer</th>
+<th>Inhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Phase 1: Discovery &amp; Architecture</strong></td>
+<td>Woche 1-2</td>
+<td>Anforderungsworkshop, Datenmodell-Design, Tech-Stack-Entscheidung,
+Workflow-Mapping</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 2: Core Build</strong></td>
+<td>Woche 3-5</td>
+<td>Datenbank + CRM-Struktur, Frontend-UI, Basis-Pipeline-Views</td>
+</tr>
+<tr class="odd">
+<td><strong>Phase 3: Workflow-Engine</strong></td>
+<td>Woche 5-7</td>
+<td>Automatisierungen, Formular-Integration, E-Mail-Templates,
+Notification-Logic</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 4: Migration &amp; Testing</strong></td>
+<td>Woche 7-8</td>
+<td>Daten-Import, UAT mit Customer-Team, Bug-Fixing</td>
+</tr>
+<tr class="odd">
+<td><strong>Phase 5: Launch &amp; Handover</strong></td>
+<td>Woche 8-9</td>
+<td>Go-Live, Training, Dokumentation, Video-Walkthroughs</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 6: Post-Launch-Support</strong></td>
+<td>Woche 9-13</td>
+<td>4-Wochen aktiver Support-Window, Retainer-Start</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer">Voraussetzungen Customer</h2>
+<ul>
+<li>Klare Vorstellung der Sales-/Deal-Stages (oder Bereitschaft, diese
+in Workshop zu definieren)</li>
+<li>Bestehende Kontakt-/Deal-Daten exportierbar (CSV, Excel, API)</li>
+<li>Min. 1 interner Ansprechpartner mit Entscheidungskompetenz
+(2-4h/Woche Verfügbarkeit während Build)</li>
+<li>Domain + Hosting-Zugang (falls Self-Hosted-Option gewählt)</li>
+<li>E-Mail-Provider-Zugangsdaten (für Sequenz-Integration: GSuite,
+Outlook, SMTP)</li>
+<li>Klare User-Liste mit Rollen vor Kick-off</li>
+</ul>
+<hr />
+<h2 id="nicht-ziele-explizite-out-of-scope-liste">Nicht-Ziele (explizite
+Out-of-Scope-Liste)</h2>
+<ul>
+<li><strong>Kein ERP-System</strong> — Buchhaltung, Rechnungsstellung,
+Lohnbuchhaltung sind nicht Teil dieses Services</li>
+<li><strong>Kein Marketing-Automation-Stack</strong> — Kein Aufbau von
+Newsletter-Systemen, Broadcast-Campaigns oder Ad-Tracking</li>
+<li><strong>Keine Custom Mobile App</strong> — Das System ist
+Web-responsive, aber keine native iOS/Android-App</li>
+<li><strong>Kein Outbound-Scraping/Lead-Generation</strong> — Kontakte
+werden nicht beschafft, nur verwaltet (→ ai-lead-engine)</li>
+<li><strong>Kein laufendes Content-/Copywriting</strong> —
+E-Mail-Templates werden strukturiert, nicht dauerhaft getextet</li>
+<li><strong>Keine IT-Infrastruktur-Verwaltung</strong> — Server-Setup
+ist einmalig, kein DevOps-Retainer inbegriffen</li>
+<li><strong>Kein Change-Management</strong> — AEVUM baut und übergibt;
+Team-Adoption liegt beim Customer</li>
+</ul>
+<hr />
+<h2 id="upsell-pfade">Upsell-Pfade</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Trigger</th>
+<th>Next Service</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CRM läuft, aber Sales-Team hat kein strukturiertes Scoring</td>
+<td><strong>sales-os</strong> — AI-Scoring-Layer on top des CRM</td>
+</tr>
+<tr class="even">
+<td>Customer will Leads automatisch ins CRM befüllen</td>
+<td><strong>ai-lead-engine</strong> — Full-Stack Lead-Gen mit direkter
+CRM-Anbindung</td>
+</tr>
+<tr class="odd">
+<td>Management will übergreifende KPI-Sichtbarkeit</td>
+<td><strong>command-center-dashboard</strong> — Cross-Tool-Dashboard
+über CRM + andere Systeme</td>
+</tr>
+<tr class="even">
+<td>CRM ist Kern, aber auch PM, Finanzen, HR nötig</td>
+<td><strong>business-os</strong> — Erweiterung zum vollständigen
+Business-OS</td>
+</tr>
+<tr class="odd">
+<td>Customer will wissen, was sonst noch automatisierbar ist</td>
+<td><strong>automation-audit</strong> — 90-Tage-Roadmap auf Basis des
+bestehenden Systems</td>
+</tr>
+<tr class="even">
+<td>CRM läuft, aber Reporting ist noch manuell</td>
+<td><strong>database-system</strong> — Multi-Source Data-Pipeline +
+Reporting-Layer</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conversion-story">Conversion-Story</h2>
+<p>Die meisten Unternehmen wissen genau, was ihnen fehlt: Sie verlieren
+Deals nicht weil ihr Angebot schlecht ist, sondern weil die
+Follow-Up-Mail drei Tage zu spät kommt. Weil der neue Vertriebler nicht
+weiß, was mit dem Kontakt letztes Quartal besprochen wurde. Weil der
+Status eines Deals in Slack, in der Notiz-App und im Kopf von drei
+verschiedenen Personen existiert — aber nirgendwo in einem System, das
+automatisch erinnert, priorisiert und eskaliert. Das ist kein
+Disziplin-Problem. Das ist ein Infrastruktur-Problem.</p>
+<p>Generische CRMs lösen das nicht — sie verschieben es. HubSpot,
+Pipedrive, Salesforce: Alle wurden für den Durchschnitt gebaut. Dein
+Business ist nicht durchschnittlich. Deine Deal-Stages heißen anders.
+Dein Übergabeprozess zwischen Sales und Delivery ist spezifisch. Deine
+Kunden haben unterschiedliche Vertragstypen. Ein Standard-Tool zwingt
+dich, dich an das Tool anzupassen. Ein Custom CRM passt sich an dich an
+— und hört nicht auf zu funktionieren, wenn dein Prozess sich
+weiterentwickelt.</p>
+<p>Was AEVUM baut ist kein weiteres Tool in deinem Stack. Es ist das
+Zentralsystem, das alle losen Enden zusammenzieht. Nach dem Launch läuft
+dein Team in einem System, nicht in fünf. Follow-Ups passieren
+automatisch. Manager sehen den Pipeline-Status in Echtzeit. Neue
+Mitarbeiter werden durch das System geführt, nicht durch den Gründer.
+Das ist der Unterschied zwischen einem Business, das von seinen Tools
+abhängt, und einem, das sie kontrolliert. </p>
+<h1 id="scope-checklist">2. Scope-Checklist</h1>
+<h2 id="in-scope">In-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Item</th>
+<th>Aufwand-Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Anforderungsworkshop (2x 90 Min Sessions)</td>
+<td>3h</td>
+</tr>
+<tr class="even">
+<td><strong>Discovery</strong></td>
+<td>Datenmodell-Design (Entitäten, Felder, Beziehungen)</td>
+<td>4-6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Workflow-Mapping aller gewünschten Automatisierungen</td>
+<td>3-4h</td>
+</tr>
+<tr class="even">
+<td><strong>Architecture</strong></td>
+<td>Tech-Stack-Entscheidung + Infrastruktur-Plan</td>
+<td>2h</td>
+</tr>
+<tr class="odd">
+<td><strong>Architecture</strong></td>
+<td>Datenbankschema-Erstellung</td>
+<td>4-8h</td>
+</tr>
+<tr class="even">
+<td><strong>Frontend</strong></td>
+<td>CRM-Interface (Kontakte, Deals, Companies)</td>
+<td>15-25h</td>
+</tr>
+<tr class="odd">
+<td><strong>Frontend</strong></td>
+<td>Pipeline-Views (Kanban + Liste)</td>
+<td>8-12h</td>
+</tr>
+<tr class="even">
+<td><strong>Frontend</strong></td>
+<td>Rollenbasierte Zugriffslogik (min. 3 Rollen)</td>
+<td>6-10h</td>
+</tr>
+<tr class="odd">
+<td><strong>Frontend</strong></td>
+<td>Aktivitäts-Log + Timeline pro Record</td>
+<td>5-8h</td>
+</tr>
+<tr class="even">
+<td><strong>Frontend</strong></td>
+<td>Suchfunktion + Filterlogik</td>
+<td>4-6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Workflow-Engine</strong></td>
+<td>Bis 5 Automatisierungen (Tier M) / Bis 15 (Tier L)</td>
+<td>10-30h</td>
+</tr>
+<tr class="even">
+<td><strong>Workflow-Engine</strong></td>
+<td>Status-Trigger + Stage-Wechsel-Logik</td>
+<td>4-6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Workflow-Engine</strong></td>
+<td>Reminder + Wiedervorlage-Chains</td>
+<td>4-6h</td>
+</tr>
+<tr class="even">
+<td><strong>Workflow-Engine</strong></td>
+<td>Interne Benachrichtigungen (E-Mail/Slack)</td>
+<td>3-5h</td>
+</tr>
+<tr class="odd">
+<td><strong>Integration</strong></td>
+<td>Formular-Integration (1x Typeform/Tally/Website-Form)</td>
+<td>4-6h</td>
+</tr>
+<tr class="even">
+<td><strong>Integration</strong></td>
+<td>E-Mail-Provider-Anbindung (GSuite/Outlook/SMTP)</td>
+<td>4-8h</td>
+</tr>
+<tr class="odd">
+<td><strong>Integration</strong></td>
+<td>Webhook-Empfang für externe Trigger</td>
+<td>3-5h</td>
+</tr>
+<tr class="even">
+<td><strong>E-Mail</strong></td>
+<td>Bis 5 E-Mail-Templates mit Variablen-Logik</td>
+<td>4-6h</td>
+</tr>
+<tr class="odd">
+<td><strong>E-Mail</strong></td>
+<td>Semi-automatische Sequenz-Logik (1-3 Steps)</td>
+<td>4-8h</td>
+</tr>
+<tr class="even">
+<td><strong>Reporting</strong></td>
+<td>Pipeline-Dashboard (Volumen, Conversion, Aktivität)</td>
+<td>6-10h</td>
+</tr>
+<tr class="odd">
+<td><strong>Migration</strong></td>
+<td>CSV/Excel-Import bis 10k Records (Tier M)</td>
+<td>4-8h</td>
+</tr>
+<tr class="even">
+<td><strong>Migration</strong></td>
+<td>Daten-Mapping + Bereinigung</td>
+<td>3-6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Testing</strong></td>
+<td>UAT-Vorbereitung + Bug-Tracking</td>
+<td>4-6h</td>
+</tr>
+<tr class="even">
+<td><strong>Testing</strong></td>
+<td>Internes QA vor UAT-Übergabe</td>
+<td>3-4h</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover</strong></td>
+<td>System-Dokumentation (schriftlich)</td>
+<td>4-6h</td>
+</tr>
+<tr class="even">
+<td><strong>Handover</strong></td>
+<td>Video-Walkthroughs (3-5 Loom-Videos, ~5 Min/Stück)</td>
+<td>3-5h</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover</strong></td>
+<td>Go-Live-Support-Call</td>
+<td>1h</td>
+</tr>
+<tr class="even">
+<td><strong>Post-Launch</strong></td>
+<td>4-Wochen Bug-Fix + Minor-Adjustments-Window</td>
+<td>8-12h</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="out-of-scope">Out-of-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Was Customer NICHT bekommt</th>
+<th>Warum explizit ausgeschlossen</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Rechnungsstellung / Buchhaltungs-Integration</td>
+<td>ERP-Logik ist eigener Service-Track</td>
+</tr>
+<tr class="even">
+<td>Automatisierter Outbound-Scraping/Lead-Beschaffung</td>
+<td>→ ai-lead-engine</td>
+</tr>
+<tr class="odd">
+<td>Native Mobile App (iOS/Android)</td>
+<td>Separater Build-Aufwand, anderer Tech-Stack</td>
+</tr>
+<tr class="even">
+<td>Newsletter / Broadcast-Marketing</td>
+<td>→ content-engine oder separater Marketing-Stack</td>
+</tr>
+<tr class="odd">
+<td>Laufendes Copywriting für E-Mail-Templates</td>
+<td>Templates werden strukturiert, nicht dauerhaft befüllt</td>
+</tr>
+<tr class="even">
+<td>DevOps / Server-Wartung im Retainer (über Standard hinaus)</td>
+<td>Infrastruktur-Incidents außerhalb Retainer-Scope = CR</td>
+</tr>
+<tr class="odd">
+<td>AI-basiertes Deal-Scoring</td>
+<td>→ sales-os Add-on</td>
+</tr>
+<tr class="even">
+<td>Custom API-Entwicklung für Drittanbieter (über 1
+Standard-Integration hinaus)</td>
+<td>Jede weitere API-Integration = Change Request</td>
+</tr>
+<tr class="odd">
+<td>Unbegrenzte Workflow-Erstellung im Retainer</td>
+<td>Retainer deckt 2 neue Workflows/Mo — darüber CR</td>
+</tr>
+<tr class="even">
+<td>Schulung des gesamten Teams (Training &gt; 2h)</td>
+<td>1x Onboarding-Session inbegriffen, weitere = separat</td>
+</tr>
+<tr class="odd">
+<td>Datenschutz-/DSGVO-Beratung</td>
+<td>Customer ist verantwortlich für Compliance-Setup</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer-side">Voraussetzungen
+Customer-Side</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Requirement</th>
+<th>Konsequenz wenn fehlt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Access</strong></td>
+<td>Domain + Hosting-Credentials (bei Self-Hosted)</td>
+<td>Verzögerung Woche 2-3</td>
+</tr>
+<tr class="even">
+<td><strong>Access</strong></td>
+<td>E-Mail-Provider-Zugang (OAuth oder SMTP-Credentials)</td>
+<td>E-Mail-Feature verzögert</td>
+</tr>
+<tr class="odd">
+<td><strong>Access</strong></td>
+<td>Admin-Zugang zum bestehenden Tool (für Migration)</td>
+<td>Migration-Phase verschiebt sich</td>
+</tr>
+<tr class="even">
+<td><strong>Daten</strong></td>
+<td>Exportierbarer Kontakt-/Deal-Datensatz (CSV/Excel/JSON)</td>
+<td>Manuelle Bereinigung = CR</td>
+</tr>
+<tr class="odd">
+<td><strong>Daten</strong></td>
+<td>Definierte Felder-Liste + Deal-Stages vor Kick-off</td>
+<td>Discovery-Phase verlängert sich</td>
+</tr>
+<tr class="even">
+<td><strong>Daten</strong></td>
+<td>User-Liste mit Rollen (Name, E-Mail, Rolle)</td>
+<td>Rollout verzögert sich</td>
+</tr>
+<tr class="odd">
+<td><strong>Zeit</strong></td>
+<td>1 interner POC mit 2-4h/Woche Verfügbarkeit</td>
+<td>UAT kann nicht stattfinden → Verzögerung</td>
+</tr>
+<tr class="even">
+<td><strong>Zeit</strong></td>
+<td>Review-Turnaround für Deliverables max. 48h</td>
+<td>Phasen-Verschiebung wenn länger</td>
+</tr>
+<tr class="odd">
+<td><strong>Entscheidung</strong></td>
+<td>Klare Priorisierung der Top-5-Workflows vor Build-Start</td>
+<td>Scope-Creep-Risiko steigt</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-standards">Quality-Standards</h2>
+<p>Was muss erfüllt sein, damit AEVUM “Done” sagt:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Standard</th>
+<th>Kriterium</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Funktionalität</strong></td>
+<td>Alle vereinbarten Features in Acceptance-Criteria-Liste bestätigt
+und getestet</td>
+</tr>
+<tr class="even">
+<td><strong>Performance</strong></td>
+<td>Seiten-Ladezeit &lt; 2s bei 1.000 Records; API-Response &lt;
+500ms</td>
+</tr>
+<tr class="odd">
+<td><strong>Datenintegrität</strong></td>
+<td>Migration-Prüfung: 100% Record-Count stimmt, Pflichtfelder befüllt,
+keine Duplikate &gt; 2%</td>
+</tr>
+<tr class="even">
+<td><strong>Workflows</strong></td>
+<td>Jede Automatisierung mit min. 3 Test-Durchläufen validiert (inkl.
+Edge-Cases)</td>
+</tr>
+<tr class="odd">
+<td><strong>Rollen &amp; Permissions</strong></td>
+<td>Jede Rolle: separater Test-User, Zugriffsrechte manuell
+verifiziert</td>
+</tr>
+<tr class="even">
+<td><strong>Formular-Integration</strong></td>
+<td>End-to-End-Test: Submission → CRM-Record sichtbar &lt; 60s</td>
+</tr>
+<tr class="odd">
+<td><strong>E-Mail</strong></td>
+<td>Templates mit Variablen in min. 3 verschiedenen Szenarien
+getestet</td>
+</tr>
+<tr class="even">
+<td><strong>Reporting</strong></td>
+<td>Dashboard-Daten stimmen mit rohem Datenbestand überein (Stichprobe
+20 Records)</td>
+</tr>
+<tr class="odd">
+<td><strong>Dokumentation</strong></td>
+<td>Alle Workflows, Felder und Rollen schriftlich dokumentiert;
+Video-Walkthroughs aufgezeichnet</td>
+</tr>
+<tr class="even">
+<td><strong>Customer-Sign-Off</strong></td>
+<td>Schriftliche UAT-Bestätigung vom Customer-POC vor Go-Live</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="change-request-policy">Change-Request-Policy</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Prozess</th>
+<th>Pricing</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Neues Feature nach Discovery-Sign-Off</td>
+<td>Schriftlicher CR-Request → Aufwands-Estimate → Customer-Approval →
+Umsetzung</td>
+<td>€120-180/h nach Aufwand</td>
+</tr>
+<tr class="even">
+<td>Zusätzliche Workflow (über vereinbarte Anzahl)</td>
+<td>CR-Assessment: &lt; 2h = Kulanz im Support-Window; &gt; 2h = CR</td>
+<td>€120-180/h</td>
+</tr>
+<tr class="odd">
+<td>Neue Drittanbieter-Integration (über 1 Standard)</td>
+<td>Immer CR, kein Kulanz-Spielraum</td>
+<td>Ab €500 pauschal, je nach Komplexität</td>
+</tr>
+<tr class="even">
+<td>Scope-Erweiterung (neue Pipeline, neue Entität)</td>
+<td>Separates Angebot, ggf. Phase-2-Projekt</td>
+<td>Eigenes Angebot</td>
+</tr>
+<tr class="odd">
+<td>Bug-Fix innerhalb Post-Launch-Window</td>
+<td>Inbegriffen, keine CR</td>
+<td>Kostenfrei</td>
+</tr>
+<tr class="even">
+<td>Bug-Fix nach Post-Launch-Window</td>
+<td>Retainer-Stunden oder CR</td>
+<td>Im Retainer oder €120-180/h</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regel:</strong> Jeder CR braucht schriftliche Bestätigung
+bevor Arbeit beginnt. Keine Ausnahmen.</p>
+<hr />
+<h2 id="pricing-variations">Pricing-Variations</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Add-On / Variation</th>
+<th>Preis-Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Jede zusätzliche Integration (über 1 Standard-Integration)</td>
+<td>+€800 – €2.500 Setup je nach Komplexität</td>
+</tr>
+<tr class="even">
+<td>Migration &gt; 10k Records (bis 50k)</td>
+<td>+€1.500 – €3.000 Setup</td>
+</tr>
+<tr class="odd">
+<td>Multi-Source-Migration (&gt; 1 Herkunftssystem)</td>
+<td>+€1.000 – €2.000 Setup</td>
+</tr>
+<tr class="even">
+<td>AI-Deal-Scoring-Layer (→ sales-os Modul)</td>
+<td>+€4.000 – €8.000 Setup</td>
+</tr>
+<tr class="odd">
+<td>Zweite Pipeline (separates Produkt/Team)</td>
+<td>+€2.500 – €5.000 Setup</td>
+</tr>
+<tr class="even">
+<td>Erweiterte Workflow-Engine (&gt; 10 Workflows)</td>
+<td>+€1.500 – €3.000 Setup</td>
+</tr>
+<tr class="odd">
+<td>Dediziertes Onboarding-Training (&gt; 2h)</td>
+<td>+€500/halber Tag</td>
+</tr>
+<tr class="even">
+<td>Laufende Workflow-Erstellung im Retainer (&gt; 2/Mo)</td>
+<td>+€400 – €800/Mo</td>
+</tr>
+<tr class="odd">
+<td>Custom Reporting-Layer (über Standard-Dashboard)</td>
+<td>+€2.000 – €5.000 Setup (→ database-system Modul)</td>
+</tr>
+<tr class="even">
+<td>Self-Hosted-Infrastruktur-Setup (VPS, eigene Domain)</td>
+<td>+€500 – €1.500 Setup einmalig</td>
+</tr>
+</tbody>
+</table>
+<h1 id="delivery-plan">3. Delivery-Plan</h1>
+<h2 id="phasen">Phasen</h2>
+<h3 id="phase-1-discovery-architecture-woche-1-2">Phase 1 — Discovery
+&amp; Architecture (Woche 1-2)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Customer-Touchpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kick-off Call (90 Min, Anforderungen + Erwartungen)</td>
+<td>Founder + Customer-Success</td>
+<td>✅ Kick-off Call</td>
+</tr>
+<tr class="even">
+<td>Requirements-Doc (Felder, Entitäten, Rollen, Stages)</td>
+<td>Founder</td>
+<td>Review durch POC — 48h Feedback-Fenster</td>
+</tr>
+<tr class="odd">
+<td>Workflow-Mapping-Doc (alle Automatisierungen priorisiert)</td>
+<td>Founder + Engineering</td>
+<td>Async Review via Notion/Loom</td>
+</tr>
+<tr class="even">
+<td>Tech-Stack-Entscheidung + Infrastruktur-Plan</td>
+<td>Engineering</td>
+<td>Schriftliche Bestätigung vor Build-Start</td>
+</tr>
+<tr class="odd">
+<td>Datenbankschema v1</td>
+<td>Engineering</td>
+<td>Keine Customer-Review (intern)</td>
+</tr>
+<tr class="even">
+<td>Discovery-Sign-Off (schriftlich)</td>
+<td>Customer-POC</td>
+<td>✅ Sign-Off-Call oder schriftlich</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Quality-Gate Ende Phase 1:</strong> Requirements-Doc +
+Workflow-Map unterschrieben. Kein Build ohne dieses Gate.</p>
+<hr />
+<h3 id="phase-2-core-build-woche-3-5">Phase 2 — Core Build (Woche
+3-5)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Customer-Touchpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Datenbankschema final + deployed</td>
+<td>Engineering</td>
+<td>Keine</td>
+</tr>
+<tr class="even">
+<td>CRM-Interface v1 (Kontakte, Deals, Companies)</td>
+<td>Engineering</td>
+<td>Interner Review</td>
+</tr>
+<tr class="odd">
+<td>Pipeline-Views (Kanban + Liste)</td>
+<td>Engineering</td>
+<td>Interner Review</td>
+</tr>
+<tr class="even">
+<td>Rollenbasierte Zugriffslogik (min. 3 Rollen)</td>
+<td>Engineering</td>
+<td>Keine</td>
+</tr>
+<tr class="odd">
+<td>Aktivitäts-Log + Timeline</td>
+<td>Engineering</td>
+<td>Keine</td>
+</tr>
+<tr class="even">
+<td>Suchfunktion + Filterlogik</td>
+<td>Engineering</td>
+<td>Keine</td>
+</tr>
+<tr class="odd">
+<td>Wöchentlicher Status-Update (async, Loom oder Notion)</td>
+<td>Customer-Success</td>
+<td>✅ Weekly Async-Update</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Quality-Gate Ende Phase 2:</strong> Interner QA-Durchlauf —
+Core-Features funktional ohne Crashs. Demo-Ready für
+Customer-Preview.</p>
+<hr />
+<h3 id="phase-3-workflow-engine-integrationen-woche-5-7">Phase 3 —
+Workflow-Engine &amp; Integrationen (Woche 5-7)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Customer-Touchpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Workflow-Engine-Setup (Trigger-Logik)</td>
+<td>Engineering</td>
+<td>Keine</td>
+</tr>
+<tr class="even">
+<td>Automatisierungen 1-5 (Tier M) / 1-15 (Tier L) gebaut und intern
+getestet</td>
+<td>Engineering</td>
+<td>Keine</td>
+</tr>
+<tr class="odd">
+<td>Formular-Integration (Typeform/Tally/Website)</td>
+<td>Engineering</td>
+<td>Customer liefert Form-Credentials</td>
+</tr>
+<tr class="even">
+<td>E-Mail-Provider-Anbindung</td>
+<td>Engineering</td>
+<td>Customer liefert OAuth/SMTP</td>
+</tr>
+<tr class="odd">
+<td>E-Mail-Templates + Variablen-Logik</td>
+<td>Engineering + Customer-Success</td>
+<td>✅ Template-Review mit Customer-POC</td>
+</tr>
+<tr class="even">
+<td>Notification-Logic (Slack/E-Mail intern)</td>
+<td>Engineering</td>
+<td>Keine</td>
+</tr>
+<tr class="odd">
+<td>Milestone-Review Call (Demo der Workflows live)</td>
+<td>Founder + Engineering</td>
+<td>✅ Milestone-Review Call</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Quality-Gate Ende Phase 3:</strong> Jeder Workflow mit min. 3
+Test-Durchläufen durch Engineering — inkl. Edge-Cases. Formular-to-CRM
+End-to-End getestet.</p>
+<hr />
+<h3 id="phase-4-migration-uat-woche-7-8">Phase 4 — Migration &amp; UAT
+(Woche 7-8)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Customer-Touchpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Daten-Mapping-Sheet (Customer befüllt Spalten-Zuordnung)</td>
+<td>Customer-Success (Template) + Customer-POC</td>
+<td>Customer-Action required</td>
+</tr>
+<tr class="even">
+<td>Daten-Import + Bereinigung</td>
+<td>Engineering</td>
+<td>Keine</td>
+</tr>
+<tr class="odd">
+<td>Duplikats-Check + Record-Count-Validation</td>
+<td>Engineering</td>
+<td>Keine</td>
+</tr>
+<tr class="even">
+<td>UAT-Testplan-Erstellung</td>
+<td>Customer-Success</td>
+<td>✅ UAT-Briefing-Call</td>
+</tr>
+<tr class="odd">
+<td>UAT durch Customer-Team (5-7 Werktage)</td>
+<td>Customer-POC + Team</td>
+<td>Customer-Action required</td>
+</tr>
+<tr class="even">
+<td>Bug-Liste consolidiert + priorisiert</td>
+<td>Customer-Success</td>
+<td>Async</td>
+</tr>
+<tr class="odd">
+<td>Bug-Fixes aus UAT</td>
+<td>Engineering</td>
+<td>Keine</td>
+</tr>
+<tr class="even">
+<td>UAT-Sign-Off</td>
+<td>Customer-POC</td>
+<td>✅ Schriftlicher Sign-Off</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Quality-Gate Ende Phase 4:</strong> UAT-Sign-Off liegt vor.
+Migration-Validation-Report erstellt. Keine offenen P0/P1-Bugs.</p>
+<hr />
+<h3 id="phase-5-launch-handover-woche-8-9">Phase 5 — Launch &amp;
+Handover (Woche 8-9)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Customer-Touchpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Go-Live-Deployment</td>
+<td>Engineering</td>
+<td>Keine</td>
+</tr>
+<tr class="even">
+<td>Onboarding-Session (max. 2h, User-Training)</td>
+<td>Customer-Success</td>
+<td>✅ Onboarding-Call</td>
+</tr>
+<tr class="odd">
+<td>System-Dokumentation (schriftlich, Notion/PDF)</td>
+<td>Customer-Success</td>
+<td>Übergabe</td>
+</tr>
+<tr class="even">
+<td>Video-Walkthroughs (3-5 Loom-Videos)</td>
+<td>Customer-Success</td>
+<td>Übergabe</td>
+</tr>
+<tr class="odd">
+<td>Access-Übergabe (Admin-Credentials, alle Zugänge)</td>
+<td>Engineering + Customer-Success</td>
+<td>✅ Handover-Call</td>
+</tr>
+<tr class="even">
+<td>Retainer-Start-Briefing (was ist im Retainer, was nicht)</td>
+<td>Founder</td>
+<td>✅ Retainer-Kick-off</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Quality-Gate Ende Phase 5:</strong> Alle Zugänge übergeben.
+Doku vollständig. Onboarding durchgeführt. Retainer gestartet.</p>
+<hr />
+<h3 id="phase-6-post-launch-support-woche-9-13">Phase 6 —
+Post-Launch-Support (Woche 9-13)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aktivität</th>
+<th>Verantwortlich</th>
+<th>Touchpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>4-Wochen aktives Bug-Monitoring</td>
+<td>Engineering</td>
+<td>Keine (reaktiv)</td>
+</tr>
+<tr class="even">
+<td>Wöchentlicher kurzer Check-In (15 Min)</td>
+<td>Customer-Success</td>
+<td>✅ Weekly Check-In</td>
+</tr>
+<tr class="odd">
+<td>Bug-Fix-Requests bearbeitet &lt; 48h</td>
+<td>Engineering</td>
+<td>Async Ticket-System</td>
+</tr>
+<tr class="even">
+<td>Minor-Adjustment-Requests (&lt; 2h) im Rahmen bearbeitet</td>
+<td>Engineering</td>
+<td>Nach Absprache</td>
+</tr>
+<tr class="odd">
+<td>Retainer-Review nach 4 Wochen (was kommt als nächstes)</td>
+<td>Founder</td>
+<td>✅ Retainer-Review-Call</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="team-allocation">Team-Allocation</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rolle</th>
+<th>Phase 1</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+<th>Phase 4</th>
+<th>Phase 5</th>
+<th>Phase 6</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Founder</strong></td>
+<td>Lead (Discovery, Architektur)</td>
+<td>Review</td>
+<td>Milestone-Review</td>
+<td>Eskalation</td>
+<td>Retainer-Briefing</td>
+<td>Retainer-Review</td>
+</tr>
+<tr class="even">
+<td><strong>Engineering</strong></td>
+<td>Datenbankschema</td>
+<td>Core Build (Hauptlast)</td>
+<td>Workflow + Integration (Hauptlast)</td>
+<td>Migration + Bugs</td>
+<td>Deployment</td>
+<td>Bug-Fixes (reaktiv)</td>
+</tr>
+<tr class="odd">
+<td><strong>Customer-Success</strong></td>
+<td>Kick-off, Doku</td>
+<td>Weekly Updates</td>
+<td>Template-Review</td>
+<td>UAT-Begleitung, Bug-Liste</td>
+<td>Onboarding, Doku, Handover</td>
+<td>Weekly Check-Ins</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hinweis:</strong> Bei Tier L empfehlen sich 2
+Engineering-Ressourcen ab Phase 2 (Core + Workflow parallel).</p>
+<hr />
+<h2
+id="customer-onboarding-touchpoints">Customer-Onboarding-Touchpoints</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Touchpoint</th>
+<th>Wann</th>
+<th>Format</th>
+<th>Ziel</th>
+<th>Dauer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Kick-off Call</strong></td>
+<td>Woche 1</td>
+<td>Video-Call</td>
+<td>Anforderungen klären, Erwartungen alignen, Prozess erklären</td>
+<td>90 Min</td>
+</tr>
+<tr class="even">
+<td><strong>Discovery-Sign-Off</strong></td>
+<td>Ende Woche 2</td>
+<td>Call oder async schriftlich</td>
+<td>Requirements-Doc + Workflow-Map bestätigen</td>
+<td>30 Min</td>
+</tr>
+<tr class="odd">
+<td><strong>Weekly Async-Updates</strong></td>
+<td>Woche 3-7</td>
+<td>Loom-Video oder Notion-Update</td>
+<td>Fortschritt transparent halten, Blocker früh identifizieren</td>
+<td>5-10 Min/Woche</td>
+</tr>
+<tr class="even">
+<td><strong>Template-Review</strong></td>
+<td>Woche 6</td>
+<td>Async oder kurzer Call</td>
+<td>E-Mail-Templates, Workflow-Texte reviewen</td>
+<td>30 Min</td>
+</tr>
+<tr class="odd">
+<td><strong>Milestone-Review Call</strong></td>
+<td>Ende Woche 7</td>
+<td>Video-Call, Live-Demo</td>
+<td>Workflows live demonstrieren, Feedback einholen</td>
+<td>60 Min</td>
+</tr>
+<tr class="even">
+<td><strong>UAT-Briefing</strong></td>
+<td>Start Woche 7-8</td>
+<td>Video-Call</td>
+<td>Testplan erklären, UAT-Prozess walkthrough</td>
+<td>30 Min</td>
+</tr>
+<tr class="odd">
+<td><strong>UAT-Sign-Off</strong></td>
+<td>Ende Woche 8</td>
+<td>Schriftlich</td>
+<td>Formale Abnahme vor Go-Live</td>
+<td>Async</td>
+</tr>
+<tr class="even">
+<td><strong>Onboarding-Call</strong></td>
+<td>Woche 9</td>
+<td>Video-Call</td>
+<td>User-Training, Fragen klären</td>
+<td>90-120 Min</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover-Call</strong></td>
+<td>Woche 9</td>
+<td>Video-Call</td>
+<td>Access, Doku, nächste Schritte</td>
+<td>30 Min</td>
+</tr>
+<tr class="even">
+<td><strong>Retainer-Kick-off</strong></td>
+<td>Woche 9</td>
+<td>Video-Call</td>
+<td>Retainer-Scope, Kommunikationskanäle, SLAs</td>
+<td>30 Min</td>
+</tr>
+<tr class="odd">
+<td><strong>Post-Launch Check-Ins</strong></td>
+<td>Woche 10-13</td>
+<td>kurzer Call oder async</td>
+<td>Offene Punkte, Bugs, Optimierungen</td>
+<td>15 Min/Woche</td>
+</tr>
+<tr class="even">
+<td><strong>Retainer-Review</strong></td>
+<td>Ende Woche 13</td>
+<td>Video-Call</td>
+<td>Nächste Entwicklungsschritte, Upsell-Opportunitäten</td>
+<td>45 Min</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="risk-register">Risk-Register</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Risk</th>
+<th>Wahrscheinlichkeit</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>R1</strong></td>
+<td>Customer-POC nicht verfügbar für UAT → Verzögerung Go-Live</td>
+<td>Hoch</td>
+<td>Hoch</td>
+<td>UAT-Zeitfenster vertraglich festlegen; UAT-Start-Date 2 Wochen vorab
+bestätigen; Eskalationspfad zu Entscheider definieren</td>
+</tr>
+<tr class="even">
+<td><strong>R2</strong></td>
+<td>Daten-Export aus altem Tool unmöglich/inkonsistent</td>
+<td>Mittel</td>
+<td>Mittel</td>
+<td>Pre-Migration-Assessment in Woche 1; Customer liefert Test-Export
+vor Phase 4; Bereinigungsaufwand als möglichen CR kommunizieren</td>
+</tr>
+<tr class="odd">
+<td><strong>R3</strong></td>
+<td>Scope-Creep durch “ach, eigentlich wollte ich noch…” nach
+Discovery-Sign-Off</td>
+<td>Hoch</td>
+<td>Hoch</td>
+<td>Schriftlicher Discovery-Sign-Off als harter Gate; CR-Policy
+transparent kommuniziert vor Kick-off; Requirements-Doc versioniert</td>
+</tr>
+<tr class="even">
+<td><strong>R4</strong></td>
+<td>E-Mail-Provider-Integration blockiert durch IT-/Security-Policies
+des Customers</td>
+<td>Mittel</td>
+<td>Mittel</td>
+<td>Credentials-/Access-Anfrage in Woche 1 anstoßen; Fallback (SMTP
+statt OAuth) in Architecture-Plan vorsehen</td>
+</tr>
+<tr class="odd">
+<td><strong>R5</strong></td>
+<td>Workflows funktionieren in Test, versagen bei realen
+Daten-Variationen</td>
+<td>Mittel</td>
+<td>Hoch</td>
+<td>Edge-Case-Testing mit realen (anonymisierten) Customer-Daten in
+Phase 3; UAT explizit auf Rand-Szenarien ausgelegt</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-gates">Quality-Gates</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Gate</th>
+<th>Wann</th>
+<th>Wer nimmt ab</th>
+<th>Kriterium</th>
+<th>Konsequenz bei Fail</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>QG-1: Discovery-Sign-Off</strong></td>
+<td>Ende Woche 2</td>
+<td>Founder + Customer-POC</td>
+<td>Requirements-Doc + Workflow-Map unterschrieben</td>
+<td>Build startet nicht</td>
+</tr>
+<tr class="even">
+<td><strong>QG-2: Core-Build-Ready</strong></td>
+<td>Ende Woche 5</td>
+<td>Engineering Lead</td>
+<td>Core-Features ohne Crash, Demo-Ready</td>
+<td>Keine Phase-3-Start</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-3: Workflow-Validation</strong></td>
+<td>Ende Woche 7</td>
+<td>Engineering + Customer-Success</td>
+<td>Alle Workflows 3x getestet, Formular-to-CRM end-to-end ok</td>
+<td>Milestone-Review verschoben</td>
+</tr>
+<tr class="even">
+<td><strong>QG-4: UAT-Sign-Off</strong></td>
+<td>Ende Woche 8</td>
+<td>Customer-POC schriftlich</td>
+<td>Kein offener P0/P1-Bug, Migration validiert</td>
+<td>Go-Live blockiert</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-5: Handover-Complete</strong></td>
+<td>Ende Woche 9</td>
+<td>Customer-Success</td>
+<td>Alle Zugänge übergeben, Doku fertig, Onboarding durchgeführt</td>
+<td>Retainer startet nicht</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="handover-package">Handover-Package</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Format</th>
+<th>Wo übergeben</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>System-Dokumentation (Felder, Workflows, Rollen, Integrationen)</td>
+<td>Notion oder PDF</td>
+<td>Shared Notion Space oder Google Drive</td>
+</tr>
+<tr class="even">
+<td>Video-Walkthrough: CRM-Grundfunktionen (Kontakte, Deals,
+Pipeline)</td>
+<td>Loom, ~5 Min</td>
+<td>Notion oder Google Drive</td>
+</tr>
+<tr class="odd">
+<td>Video-Walkthrough: Workflow-Engine-Übersicht (was läuft
+automatisch)</td>
+<td>Loom, ~5 Min</td>
+<td>Notion oder Google Drive</td>
+</tr>
+<tr class="even">
+<td>Video-Walkthrough: Reporting-Dashboard</td>
+<td>Loom, ~3 Min</td>
+<td>Notion oder Google Drive</td>
+</tr>
+<tr class="odd">
+<td>Video-Walkthrough: Admin-Bereich (User-Management, Rollen)</td>
+<td>Loom, ~3 Min</td>
+<td>Notion oder Google Drive</td>
+</tr>
+<tr class="even">
+<td>Workflow-Map (visuelle Übersicht aller Automatisierungen)</td>
+<td>Miro/Figma/PDF</td>
+<td>Shared Notion Space</td>
+</tr>
+<tr class="odd">
+<td>Migration-Validation-Report (Record-Count, Duplikats-Check)</td>
+<td>PDF</td>
+<td>Google Drive</td>
+</tr>
+<tr class="even">
+<td>Admin-Credentials + Access-Übersicht</td>
+<td>1Password Shared Vault oder schriftlich gesichert</td>
+<td>Direktübergabe</td>
+</tr>
+<tr class="odd">
+<td>Change-Request-Prozess-Erklärer (was tun wenn mehr gebraucht
+wird)</td>
+<td>Notion-Page, 1 Seite</td>
+<td>Shared Notion Space</td>
+</tr>
+<tr class="even">
+<td>Retainer-Scope-Übersicht (was ist included, was ist CR)</td>
+<td>Notion-Page, 1 Seite</td>
+<td>Shared Notion Space</td>
+</tr>
+</tbody>
+</table>
+<h1 id="quality-gate">4. Quality-Gate</h1>
+<h2 id="asset-inventory">Asset-Inventory</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Asset</th>
+<th>Typ</th>
+<th>Status</th>
+<th>Wo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>CRM-Frontend (deployed, produktiv)</td>
+<td>Software</td>
+<td>☐</td>
+<td>Produktiv-URL</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Workflow-Engine (alle vereinbarten Automatisierungen aktiv)</td>
+<td>Software</td>
+<td>☐</td>
+<td>Backend/Automations-Layer</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Formular-Integration (end-to-end aktiv)</td>
+<td>Integration</td>
+<td>☐</td>
+<td>CRM + Formular-Tool</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>E-Mail-Provider-Anbindung (aktiv)</td>
+<td>Integration</td>
+<td>☐</td>
+<td>CRM + E-Mail-Provider</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>E-Mail-Templates (deployed im System)</td>
+<td>Content/Config</td>
+<td>☐</td>
+<td>CRM-Template-Library</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Rollenbasierte Zugriffslogik (min. 3 Rollen aktiv)</td>
+<td>Config</td>
+<td>☐</td>
+<td>User-Management</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Reporting-Dashboard (live Daten)</td>
+<td>Software</td>
+<td>☐</td>
+<td>CRM-Dashboard</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Datenmigration (validierter Import)</td>
+<td>Daten</td>
+<td>☐</td>
+<td>CRM-Datenbank</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>System-Dokumentation (schriftlich)</td>
+<td>Dokument</td>
+<td>☐</td>
+<td>Notion/PDF</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Video-Walkthroughs (3-5 Videos)</td>
+<td>Media</td>
+<td>☐</td>
+<td>Notion/Drive</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Workflow-Map (visuell)</td>
+<td>Dokument</td>
+<td>☐</td>
+<td>Miro/Figma/PDF</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Migration-Validation-Report</td>
+<td>Dokument</td>
+<td>☐</td>
+<td>Google Drive/PDF</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td>Admin-Credentials übergeben</td>
+<td>Access</td>
+<td>☐</td>
+<td>1Password/Direktübergabe</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td>UAT-Sign-Off (schriftlich, Customer-POC)</td>
+<td>Dokument</td>
+<td>☐</td>
+<td>E-Mail/Notion</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td>Retainer-Scope-Dokument übergeben</td>
+<td>Dokument</td>
+<td>☐</td>
+<td>Shared Notion Space</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien">Sign-Off-Kriterien</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Kriterium</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Alle im Requirements-Doc vereinbarten Features sind deployed und
+funktional getestet</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Alle vereinbarten Workflows mit min. 3 Test-Durchläufen validiert,
+inkl. Edge-Cases</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Formular-to-CRM End-to-End &lt; 60s Latenz getestet und
+bestätigt</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Rollenbasierte Zugriffsrechte: Jede Rolle mit separatem Test-User
+manuell verifiziert</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Datenmigration: Record-Count 100% korrekt, Duplikate &lt; 2%,
+Pflichtfelder befüllt</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Reporting-Dashboard-Daten mit Rohdaten abgestimmt (Stichprobe min.
+20 Records)</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Performance: Seitenladezeit &lt; 2s bei 1.000 Records; API-Response
+&lt; 500ms (getestet)</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Alle Zugänge (Admin, Integrationen, Datenbank) an Customer übergeben
+und bestätigt</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Komplettes Handover-Package (Doku, Videos, Workflow-Map,
+Validation-Report) übergeben</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Schriftlicher UAT-Sign-Off von Customer-POC vor Go-Live liegt
+vor</td>
+<td>☐</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Delivery gilt erst dann als abgeschlossen, wenn alle 10
+Punkte auf ✅ stehen. Kein Retainer-Start ohne vollständigen
+Sign-Off.</strong></p>
+<hr />
+<h2 id="known-limitations-phase-2-items">Known-Limitations
+(Phase-2-Items)</h2>
+<p>Diese Items sind bewusst aus dem aktuellen Scope ausgeschlossen und
+als potenzielle Phase-2-Erweiterungen dokumentiert:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Warum nicht jetzt</th>
+<th>Empfohlener Next-Step</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>AI-Deal-Scoring / Lead-Qualifizierung</td>
+<td>Erfordert Trainings-Datensatz + ML-Layer — separater Aufbau</td>
+<td>→ sales-os Modul</td>
+</tr>
+<tr class="even">
+<td>Automatisierter Outbound (Sequences ohne manuellen Trigger)</td>
+<td>Deliverability-Risiko ohne separates Warming-Setup</td>
+<td>→ ai-lead-engine</td>
+</tr>
+<tr class="odd">
+<td>Native Mobile App</td>
+<td>Anderer Tech-Stack, separates Projekt</td>
+<td>Separates Angebot auf Anfrage</td>
+</tr>
+<tr class="even">
+<td>Erweiterte Multi-Source-Reporting-Pipeline</td>
+<td>Datenbankarchitektur müsste erweitert werden</td>
+<td>→ database-system Modul</td>
+</tr>
+<tr class="odd">
+<td>Mehrsprachiges Interface</td>
+<td>Lokalisierungs-Layer nicht im aktuellen Build</td>
+<td>Phase-2-CR bei Bedarf</td>
+</tr>
+<tr class="even">
+<td>Vollautomatisierte Rechnungsstellung</td>
+<td>ERP-Logik außerhalb CRM-Scope</td>
+<td>Separater ERP-Track</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="db-update-befehl">DB-Update-Befehl</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- AEVUM Service-Delivery-Tracking</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> service_deliveries</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  status                <span class="op">=</span> <span class="st">&#39;completed&#39;</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  sign_off_date         <span class="op">=</span> <span class="fu">CURRENT_DATE</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  handover_complete     <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  retainer_active       <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  phase2_items_logged   <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  notes                 <span class="op">=</span> <span class="st">&#39;website-crm DFY delivery complete. All 10 sign-off criteria met. Phase-2 items documented: AI-scoring, outbound-sequences, mobile-app, multi-source-reporting. Retainer started post-handover.&#39;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  item_slug             <span class="op">=</span> <span class="st">&#39;website-crm&#39;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">AND</span> customer_id       <span class="op">=</span> <span class="ch">:customer_id</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">AND</span> delivery_phase    <span class="op">=</span> <span class="st">&#39;phase-5-handover&#39;</span>;</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">-- Upsell-Tracking eintragen</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> upsell_pipeline (customer_id, source_item_slug, target_item_slug, trigger_condition, status, created_at)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  (<span class="ch">:customer_id</span>, <span class="st">&#39;website-crm&#39;</span>, <span class="st">&#39;sales-os&#39;</span>,                <span class="st">&#39;deal-scoring-request&#39;</span>,           <span class="st">&#39;open&#39;</span>, NOW()),</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  (<span class="ch">:customer_id</span>, <span class="st">&#39;website-crm&#39;</span>, <span class="st">&#39;ai-lead-engine&#39;</span>,           <span class="st">&#39;outbound-automation-request&#39;</span>,    <span class="st">&#39;open&#39;</span>, NOW()),</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  (<span class="ch">:customer_id</span>, <span class="st">&#39;website-crm&#39;</span>, <span class="st">&#39;command-center-dashboard&#39;</span>, <span class="st">&#39;cross-tool-visibility-request&#39;</span>,  <span class="st">&#39;open&#39;</span>, NOW()),</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  (<span class="ch">:customer_id</span>, <span class="st">&#39;website-crm&#39;</span>, <span class="st">&#39;database-system&#39;</span>,          <span class="st">&#39;advanced-reporting-request&#39;</span>,     <span class="st">&#39;open&#39;</span>, NOW());</span></code></pre></div>
+<hr />
+<h2 id="pattern-notes-für-dfy-builder-pattern">Pattern-Notes für
+DFY-Builder-Pattern</h2>
+<p><strong>Service-Kern:</strong> <code>website-crm</code> ist der
+Interface-Layer-Service. Das Differenzierungsmerkmal gegenüber
+generischen CRM-Tools ist die vollständige Anpassung an die Kunden-Logik
+— kein Mapping des Kunden auf ein Standard-Datenmodell, sondern Bau des
+Datenmodells nach Kunden-Prozess.</p>
+<p><strong>Kritische Design-Entscheidungen:</strong> -
+Discovery-Sign-Off als hartes Gate ist nicht verhandelbar — Scope-Creep
+bei CRMs ist der häufigste Delivery-Killer - Workflow-Anzahl muss im
+Vertrag fixiert sein (nicht “alle die wir brauchen”) — klare Zahl, klare
+CR-Policy - Migration ist immer ein Risikopunkt — Pre-Assessment in
+Woche 1 ist Pflicht, nicht optional - UAT muss vom Customer-Team
+durchgeführt werden, nicht nur vom POC — echter User-Acceptance-Test</p>
+<p><strong>Upsell-Logik:</strong> Das CRM ist naturgemäß der
+Einstiegspunkt für weitere Systeme. Nach 2-3 Monaten entstehen typisch
+zwei Bedürfnisse: (a) Daten rein bekommen (→ ai-lead-engine) und (b)
+Daten auswerten (→ database-system / command-center-dashboard). Diese
+Trigger aktiv im Retainer-Review beobachten.</p>
+<p><strong>Pricing-Anker:</strong> Setup-Kosten sind bei CRMs höher
+gerechtfertigt als bei anderen Services, weil der Wechselkosten-Effekt
+nach Go-Live hoch ist. Customer verlässt selten ein gut gebautes
+Custom-CRM — Retainer-Churn ist niedrig wenn Delivery sauber.</p>
+<p><strong>Anti-Pattern vermeiden:</strong> Kein Feature-Bau ohne
+schriftliche Anforderung. Mündliche Absprachen in CRM-Projekten erzeugen
+garantiert Konflikte in Phase 4. Jedes Feature muss im Requirements-Doc
+stehen.</p>
+</body>
+</html>

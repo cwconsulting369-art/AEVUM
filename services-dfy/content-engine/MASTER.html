@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM DFY: content-engine</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM DFY: content-engine</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-done-for-you-content-engine">AEVUM Done-for-You —
+content-engine</h1>
+<blockquote>
+<p>Generated 2026-05-25. Combined Master-Doc.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<h2 id="in-einem-satz">In einem Satz</h2>
+<p>Wir bauen dir eine vollautomatisierte Content-Produktion, die rohe
+Ideen in fertige Posts, Artikel und Analytics-Reports verwandelt — ohne
+dass dein Team täglich Hand anlegen muss.</p>
+<hr />
+<h2 id="wer-das-braucht">Wer das braucht</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Konkreter Use-Case</th>
+<th>Fit-Rating</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AG</strong> (Agenturen 3–50 MA)</td>
+<td>Agentur produziert monatlich Content für 8–20 Kunden. Heute: jeder
+Account-Manager bastelt manuell. Morgen: ein zentrales System liefert
+Drafts, Repurposing und Performance-Loop automatisiert.</td>
+<td>★★★★★</td>
+</tr>
+<tr class="even">
+<td><strong>PB</strong> (Personal Brands)</td>
+<td>Creator/Coach/Berater will auf 3–5 Plattformen präsent sein, hat
+aber keine Zeit für tägliche Content-Arbeit. System zieht Input aus
+Voice-Memos, Transcripts oder Notion-Notizen und produziert
+publikationsfertige Inhalte.</td>
+<td>★★★★☆</td>
+</tr>
+<tr class="odd">
+<td><strong>FI</strong> (Mittelstand B2B, 10–100 MA)</td>
+<td>Mittelständler betreibt LinkedIn/Newsletter für Lead-Nurturing, hat
+aber kein Vollzeit-Content-Team. System verarbeitet interne Expertise
+(Sales-Calls, FAQs, Produkt-Updates) zu konsistentem B2B-Content.</td>
+<td>★★★★☆</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="was-customer-bekommt">Was Customer bekommt</h2>
+<ol type="1">
+<li><strong>Content-Intake-Pipeline</strong> — strukturierter
+Input-Layer (Formular / Voice-Memo-Transkription / URL-Import /
+RSS-Feed) der Rohideen in ein zentrales Ideen-Backlog schreibt</li>
+<li><strong>AI-Drafting-Engine</strong> — Prompt-Chain auf Basis des
+definierten Brand-Voice-Profils; produziert Erst-Drafts für bis zu 4
+definierten Content-Typen (z. B. LinkedIn-Post, Newsletter-Section,
+Short-Form-Thread, Blog-Outline)</li>
+<li><strong>Review-Workflow</strong> — strukturierter Approval-Layer mit
+Status-Tracking (Draft → Review → Approved → Scheduled)</li>
+<li><strong>Publishing-Connector</strong> — direkte Übergabe an bis zu 2
+Publishing-Destinations (z. B. Buffer/Taplio für Social,
+Beehiiv/Substack für Newsletter, Webflow via CMS-API)</li>
+<li><strong>Brand-Voice-Profil</strong> — dokumentiertes, versioniertes
+Tone-of-Voice-Dokument das als Prompt-Grundlage dient; 1× initialer
+Workshop zur Erstellung</li>
+<li><strong>Repurposing-Modul</strong> — ein bestehenden Content-Typ
+wird automatisch in 2 weitere Formate transformiert (z. B. Blog →
+LinkedIn-Post + Newsletter-Snippet)</li>
+<li><strong>Content-Kalender-View</strong> — Übersicht aller geplanten
+und produzierten Assets in zentralem Board (Notion oder Airtable je nach
+Stack)</li>
+<li><strong>Analytics-Reporting-Layer</strong> — automatisierter
+wöchentlicher Performance-Report (Reach, Engagement, Top-Posts) aus
+verbundenen Plattformen; kein manuelles Daten-Zusammensuchen</li>
+<li><strong>Team-Dokumentation</strong> — SOPs für Intake, Review und
+Publishing; Video-Walkthroughs für alle kritischen Flows</li>
+<li><strong>30-Tage-Post-Launch-Support</strong> — Bug-Fixes und
+Prompt-Adjustments nach Go-Live</li>
+</ol>
+<hr />
+<h2 id="mehrwert-konkret">Mehrwert (konkret)</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Vorher</th>
+<th>Nachher</th>
+<th>Schätzwert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Content-Produktion pro Woche</td>
+<td>3–5h manuelles Schreiben, Formatieren, Posten</td>
+<td>Intake + Review ≤ 45 Min/Woche</td>
+<td><strong>-80% Zeitaufwand</strong></td>
+</tr>
+<tr class="even">
+<td>Output-Volumen</td>
+<td>4–8 Posts/Monat (wenn Zeit da)</td>
+<td>16–40 Posts/Monat systematisch</td>
+<td><strong>3–5× Output-Steigerung</strong></td>
+</tr>
+<tr class="odd">
+<td>Konsistenz</td>
+<td>Abhängig von Tages-Laune und Auslastung</td>
+<td>Marken-konformer Output durch Brand-Voice-Profil</td>
+<td><strong>Qualitäts-Konsistenz messbar</strong></td>
+</tr>
+<tr class="even">
+<td>Analytics</td>
+<td>Manuelle Plattform-by-Plattform-Abfrage</td>
+<td>Wöchentlicher konsolidierter Report</td>
+<td><strong>-3h/Monat Reporting-Aufwand</strong></td>
+</tr>
+<tr class="odd">
+<td>Für Agenturen: Skalierung</td>
+<td>Jeder neue Kunde = linearer Aufwand</td>
+<td>Neuer Kunde = neues Workspace-Template</td>
+<td><strong>Neue Marge pro Account</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Zahlen sind Schätzwerte basierend auf typischen ICP-Setups. Reale
+Ergebnisse hängen von Input-Qualität, Review-Disziplin und
+Publishing-Frequenz ab.</p>
+</blockquote>
+<hr />
+<h2 id="pricing-logic">Pricing-Logic</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Tier M</strong></th>
+<th><strong>Tier L</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Setup-Range</strong></td>
+<td>€8.000 – €14.000</td>
+<td>€18.000 – €28.000</td>
+</tr>
+<tr class="even">
+<td><strong>Monthly Retainer</strong></td>
+<td>€2.000 – €2.800</td>
+<td>€3.000 – €4.500</td>
+</tr>
+<tr class="odd">
+<td><strong>Deliverables-Scope</strong></td>
+<td>1 Marke/Brand, 2 Content-Typen, 2 Publishing-Destinations,
+Standard-Analytics</td>
+<td>Bis zu 4 Marken/Clients, 4 Content-Typen, 4 Destinations,
+erweitertes Analytics-Dashboard, Custom-Reporting</td>
+</tr>
+<tr class="even">
+<td><strong>Implementation</strong></td>
+<td>6–8 Wochen</td>
+<td>10–14 Wochen</td>
+</tr>
+<tr class="odd">
+<td><strong>Typische Käufer</strong></td>
+<td>PB, FI mit 1 Brand</td>
+<td>AG mit Multi-Client-Setup</td>
+</tr>
+<tr class="even">
+<td><strong>Retainer-Inhalt</strong></td>
+<td>Prompt-Maintenance, Analytics-Updates, 2h/Mo Support</td>
+<td>Prompt-Maintenance, Analytics-Updates, neue Client-Onboardings (bis
+2/Mo), 4h/Mo Support</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="timeline">Timeline</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th>Wochen</th>
+<th>Inhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Phase 1: Discovery &amp; Voice</strong></td>
+<td>W1–W2</td>
+<td>Brand-Voice-Workshop, Input-Source-Audit, Stack-Entscheidung,
+Content-Typen definieren</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 2: Intake &amp; Drafting</strong></td>
+<td>W3–W4</td>
+<td>Intake-Pipeline bauen, Prompt-Chain entwickeln, erste Test-Drafts
+reviewen</td>
+</tr>
+<tr class="odd">
+<td><strong>Phase 3: Workflow &amp; Publishing</strong></td>
+<td>W5–W6</td>
+<td>Review-Workflow einrichten, Publishing-Connectors anschließen,
+Repurposing-Modul</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 4: Analytics &amp; Hardening</strong></td>
+<td>W7–W8</td>
+<td>Analytics-Layer, SOPs dokumentieren, User-Acceptance-Test,
+Go-Live</td>
+</tr>
+<tr class="odd">
+<td><strong>Post-Launch</strong></td>
+<td>W9–W12</td>
+<td>30-Tage-Support, Prompt-Finetuning, Retainer-Kickoff</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer">Voraussetzungen Customer</h2>
+<ul>
+<li>Zugang zu bestehenden Publishing-Accounts (Social, Newsletter, CMS)
+mit Admin-Rechten</li>
+<li>Mindestens eine definierbare Content-Persona / Zielgruppe
+vorhanden</li>
+<li>Bereitschaft für 2–3h Brand-Voice-Workshop in Woche 1</li>
+<li>Entscheidungsträger für Content-Review verfügbar (≥ 2h/Woche während
+Implementation)</li>
+<li>Existing-Content-Samples (mind. 10 Stück) als Trainingsgrundlage für
+Brand Voice</li>
+<li>Klare Vorstellung über Publishing-Frequenz und Plattformen</li>
+</ul>
+<hr />
+<h2 id="nicht-ziele-explizit-out-of-scope">Nicht-Ziele (explizit Out of
+Scope)</h2>
+<ol type="1">
+<li><strong>Content-Strategie-Beratung</strong> — wir setzen eine
+definierte Strategie um, entwickeln sie nicht von Grund auf</li>
+<li><strong>Foto-/Video-Produktion</strong> — System produziert
+Text-Content; Creative-Assets (Bilder, Reels, Videos) sind nicht
+enthalten</li>
+<li><strong>SEO-Optimierung &amp; Keyword-Research</strong> — kein
+SEO-Tool-Stack, keine SERP-Analyse</li>
+<li><strong>Community-Management &amp; Kommentar-Handling</strong> —
+kein Social-Listening, kein Response-Management</li>
+<li><strong>Paid-Media / Ad-Copy</strong> — organischer Content only;
+Ad-Skripte sind separates Offering</li>
+<li><strong>CRM-Integration / Lead-Attribution</strong> — kein Tracking
+welcher Content-Piece zu welchem Lead geführt hat</li>
+<li><strong>Mehr als 2 Publishing-Destinations (Tier M) / 4 (Tier
+L)</strong> ohne Change-Request</li>
+<li><strong>Kontinuierliche AI-Modell-Upgrades</strong> — Prompt-Chain
+ist auf Basis-Modell zum Launch-Zeitpunkt gebaut; Major-Model-Upgrades
+sind separater Aufwand</li>
+</ol>
+<hr />
+<h2 id="upsell-pfade">Upsell-Pfade</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Trigger</th>
+<th>Next Service</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>System läuft stabil, Customer fragt nach Lead-Attribution aus
+Content</td>
+<td><code>ai-lead-engine</code></td>
+</tr>
+<tr class="even">
+<td>Agentur will Content-Performance mit CRM-Daten verknüpfen</td>
+<td><code>sales-os</code></td>
+</tr>
+<tr class="odd">
+<td>Customer will Content-KPIs in ein zentrales Business-Dashboard</td>
+<td><code>command-center-dashboard</code></td>
+</tr>
+<tr class="even">
+<td>Ad-Content soll aus Content-Engine gespeist werden</td>
+<td><code>script-factory-dfy</code></td>
+</tr>
+<tr class="odd">
+<td>Customer will vollständiges Business-OS mit Content als einem
+Modul</td>
+<td><code>business-os</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conversion-story">Conversion-Story</h2>
+<p>Du hast wahrscheinlich schon mehrfach versucht, Content
+“systematischer” zu machen. Ein Redaktionsplan hier, ein Notion-Template
+dort, vielleicht sogar ein VA. Und trotzdem sitzt du jeden Montag wieder
+vor dem leeren Dokument und fragst dich, worüber du diese Woche
+eigentlich schreiben sollst. Das Problem ist nicht Disziplin — das
+Problem ist, dass du ein manuelles System in einen automatisierten
+Workflow verwandeln willst, ohne die Infrastruktur dafür gebaut zu
+haben.</p>
+<p>Die Content Engine löst genau das. Nicht mit einem weiteren Tool, das
+du bedienen musst, sondern mit einer Maschine, die deine Inputsignale —
+eine Voice-Memo auf dem Weg zur Arbeit, ein Sales-Call-Transcript, ein
+Reddit-Thread in deiner Nische — in publikationsfertige Drafts
+übersetzt. Deine Stimme, dein Format, deine Plattformen. Du reviewst. Du
+gibst frei. Das war’s.</p>
+<p>Für Agenturen ist die Rechnung noch direkter: Jeder Client, den du
+heute onboardest, braucht Content. Heute bedeutet das linearen Aufwand —
+mehr Clients, mehr Stunden. Mit einer Content-Engine wird der zweite,
+dritte, fünfte Client ein Klon des ersten Setups. Neue Marge, kein neuer
+Headcount. Das ist kein Effizienz-Gewinn. Das ist ein
+Geschäftsmodell-Shift. </p>
+<h1 id="scope-checklist">2. Scope-Checklist</h1>
+<h2 id="in-scope">In-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Item</th>
+<th>Aufwand-Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Brand-Voice-Workshop (1× 90-Min-Call + Dokumentation)</td>
+<td>4h</td>
+</tr>
+<tr class="even">
+<td><strong>Discovery</strong></td>
+<td>Content-Typen-Definition (max. 4 Typen, je Briefing-Dokument)</td>
+<td>3h</td>
+</tr>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Publishing-Stack-Audit (Zugang, API-Verfügbarkeit, Limits
+prüfen)</td>
+<td>2h</td>
+</tr>
+<tr class="even">
+<td><strong>Intake-Layer</strong></td>
+<td>Input-Form oder Webhook für strukturierten Ideen-Intake</td>
+<td>6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Intake-Layer</strong></td>
+<td>Voice-Memo-Transkriptions-Flow (Whisper-API oder nativ)</td>
+<td>4h</td>
+</tr>
+<tr class="even">
+<td><strong>Intake-Layer</strong></td>
+<td>URL/RSS-Import-Flow für externe Content-Quellen</td>
+<td>4h</td>
+</tr>
+<tr class="odd">
+<td><strong>AI-Drafting</strong></td>
+<td>Prompt-Chain Entwicklung pro Content-Typ (je 2–4h)</td>
+<td>8–16h</td>
+</tr>
+<tr class="even">
+<td><strong>AI-Drafting</strong></td>
+<td>Brand-Voice-Profil in Prompt-System integrieren</td>
+<td>3h</td>
+</tr>
+<tr class="odd">
+<td><strong>AI-Drafting</strong></td>
+<td>Test-Drafts produzieren + mit Customer reviewen (2 Runden)</td>
+<td>4h</td>
+</tr>
+<tr class="even">
+<td><strong>Review-Workflow</strong></td>
+<td>Status-Tracking (Draft/Review/Approved/Scheduled) im Board</td>
+<td>4h</td>
+</tr>
+<tr class="odd">
+<td><strong>Review-Workflow</strong></td>
+<td>Notification-System (Slack oder E-Mail bei neuem Draft)</td>
+<td>2h</td>
+</tr>
+<tr class="even">
+<td><strong>Publishing</strong></td>
+<td>Connector zu 2 (M) / 4 (L) Publishing-Destinations</td>
+<td>6–12h</td>
+</tr>
+<tr class="odd">
+<td><strong>Publishing</strong></td>
+<td>Scheduled-Post-Handling + Error-Notification</td>
+<td>3h</td>
+</tr>
+<tr class="even">
+<td><strong>Repurposing</strong></td>
+<td>1 Repurposing-Flow (z. B. Blog → LinkedIn + Newsletter-Snippet)</td>
+<td>6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Content-Kalender</strong></td>
+<td>Board-Setup in Notion oder Airtable mit Filter-Views</td>
+<td>4h</td>
+</tr>
+<tr class="even">
+<td><strong>Analytics</strong></td>
+<td>Daten-Pull aus verbundenen Plattformen (max. 4 Sources)</td>
+<td>8h</td>
+</tr>
+<tr class="odd">
+<td><strong>Analytics</strong></td>
+<td>Wöchentlicher automatisierter Performance-Report</td>
+<td>5h</td>
+</tr>
+<tr class="even">
+<td><strong>Dokumentation</strong></td>
+<td>SOPs für Intake, Review, Publishing (Schriftform + Video)</td>
+<td>6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Post-Launch</strong></td>
+<td>30-Tage-Bug-Fix + Prompt-Adjustment-Support</td>
+<td>8h Budget</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total-Estimate Tier M:</strong> 90–110h<br />
+<strong>Total-Estimate Tier L:</strong> 140–180h</p>
+<hr />
+<h2 id="out-of-scope">Out-of-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Was NICHT enthalten ist</th>
+<th>Warum explizit erwähnenswert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Content-Strategie-Entwicklung (Themen, Positionierung,
+Zielgruppen-Definition)</td>
+<td>Customers erwarten das oft implizit — muss im Sales-Call geklärt
+werden</td>
+</tr>
+<tr class="even">
+<td>Foto-/Video-/Grafik-Produktion oder Design-Templates</td>
+<td>“Content-Engine” klingt für manche nach
+Full-Service-Content-Agentur</td>
+</tr>
+<tr class="odd">
+<td>SEO-Keyword-Research, On-Page-Optimierung, SERP-Tracking</td>
+<td>Technisch separates Feld, anderer Tool-Stack</td>
+</tr>
+<tr class="even">
+<td>Social-Listening, Community-Management, Kommentar-Antworten</td>
+<td>Automatisiertes Community-Management ist eigener Scope</td>
+</tr>
+<tr class="odd">
+<td>Paid-Ad-Copy oder Performance-Creative-Produktion</td>
+<td>Separates Offering: script-factory-dfy</td>
+</tr>
+<tr class="even">
+<td>CRM-Integration / Lead-Attribution von Content-Pieces</td>
+<td>Braucht sales-os oder ai-lead-engine als Basis</td>
+</tr>
+<tr class="odd">
+<td>Mehr Content-Typen als vereinbart ohne Change-Request</td>
+<td>Jeder zusätzliche Typ = 2–4h Prompt-Chain-Aufwand</td>
+</tr>
+<tr class="even">
+<td>Mehr als vereinbarte Publishing-Destinations</td>
+<td>API-Limits, Auth-Handling, Error-Handling = messbarer
+Zusatz-Aufwand</td>
+</tr>
+<tr class="odd">
+<td>Laufendes Content-Ghostwriting durch AEVUM-Team</td>
+<td>Wir bauen die Maschine, wir sind nicht die Autoren im Retainer</td>
+</tr>
+<tr class="even">
+<td>Training neuer Mitarbeiter beim Customer</td>
+<td>Dokumentation ja, Onboarding-Schulungen über Handover hinaus
+nein</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer-side">Voraussetzungen
+Customer-Side</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Anforderung</th>
+<th>Format</th>
+<th>Wer</th>
+<th>Wann benötigt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Admin-Zugang zu Publishing-Accounts</td>
+<td>Login-Credentials oder API-Keys</td>
+<td>Customer-Admin</td>
+<td>Woche 1</td>
+</tr>
+<tr class="even">
+<td>Mind. 10 Content-Samples (bestehende Texte)</td>
+<td>Google-Doc-Folder, Notion-Seite oder PDF</td>
+<td>Customer</td>
+<td>Vor Brand-Voice-Workshop</td>
+</tr>
+<tr class="odd">
+<td>Brand-Voice-Workshop Teilnahme</td>
+<td>90-Min-Video-Call</td>
+<td>Entscheidungsträger</td>
+<td>Woche 1</td>
+</tr>
+<tr class="even">
+<td>Klare Content-Typen-Briefings</td>
+<td>Ausgefülltes AEVUM-Briefing-Template</td>
+<td>Customer</td>
+<td>Nach Workshop, vor Woche 3</td>
+</tr>
+<tr class="odd">
+<td>Review-Person festgelegt + verfügbar</td>
+<td>Min. 2h/Woche für Draft-Approval</td>
+<td>Customer intern</td>
+<td>Während gesamter Implementation</td>
+</tr>
+<tr class="even">
+<td>Tool-Entscheidung Notion vs. Airtable</td>
+<td>Schriftliche Bestätigung</td>
+<td>Customer</td>
+<td>Woche 1</td>
+</tr>
+<tr class="odd">
+<td>Publishing-Frequenz-Ziel definiert</td>
+<td>Schriftlich dokumentiert</td>
+<td>Customer</td>
+<td>Woche 1</td>
+</tr>
+<tr class="even">
+<td>Access für Analytics-Quellen (Plattform-APIs)</td>
+<td>API-Keys oder oAuth-Zugang</td>
+<td>Customer-Admin</td>
+<td>Woche 6 spätestens</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-standards">Quality-Standards</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Bereich</th>
+<th>Standard für “Done”</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Brand Voice</strong></td>
+<td>3 unabhängige Test-Drafts werden vom Customer ohne wesentliche
+Nachbearbeitung als “authentisch” eingestuft</td>
+</tr>
+<tr class="even">
+<td><strong>Intake-Flow</strong></td>
+<td>Jede Input-Methode (Formular, Voice, URL) erzeugt zuverlässig einen
+strukturierten Backlog-Eintrag ohne manuelle Korrektur</td>
+</tr>
+<tr class="odd">
+<td><strong>Drafting-Engine</strong></td>
+<td>Drafts entsprechen definiertem Content-Typ-Format; max. 20%
+strukturelle Nachbearbeitung notwendig laut Customer-Feedback</td>
+</tr>
+<tr class="even">
+<td><strong>Review-Workflow</strong></td>
+<td>Status-Transitions funktionieren fehlerfrei; Notifications kommen
+innerhalb 5 Min an</td>
+</tr>
+<tr class="odd">
+<td><strong>Publishing-Connector</strong></td>
+<td>Testposts landen korrekt auf Ziel-Plattformen; Fehler werden
+notifiziert; kein Silent-Fail</td>
+</tr>
+<tr class="even">
+<td><strong>Repurposing-Modul</strong></td>
+<td>Output aus Repurposing entspricht Zielformat-Anforderungen ohne
+manuelles Reformatieren</td>
+</tr>
+<tr class="odd">
+<td><strong>Analytics-Report</strong></td>
+<td>Report enthält Daten aus allen verbundenen Quellen; ist wöchentlich
+automatisch verfügbar; keine manuellen Schritte nötig</td>
+</tr>
+<tr class="even">
+<td><strong>Dokumentation</strong></td>
+<td>SOPs decken alle 3 Kernflows ab; Video-Walkthroughs vollständig
+aufgezeichnet</td>
+</tr>
+<tr class="odd">
+<td><strong>Stabilität</strong></td>
+<td>System läuft 7 Tage ohne kritische Fehler in UAT-Phase bevor
+Go-Live</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="change-request-policy">Change-Request-Policy</h2>
+<p><strong>Was als Change-Request gilt:</strong> - Jeder neue
+Content-Typ über vereinbarte Anzahl hinaus - Jede neue
+Publishing-Destination über vereinbarte Anzahl hinaus - Grundlegende
+Änderung der Brand-Voice-Definition nach Abschluss Phase 2 - Integration
+neuer Input-Quellen die nicht in Discovery definiert wurden - Neue
+Analytics-Quellen oder Reporting-Dimensionen</p>
+<p><strong>Prozess:</strong> 1. Customer stellt Anfrage schriftlich
+(Slack / E-Mail) 2. AEVUM schätzt Aufwand innerhalb 48h 3. Schriftliche
+Freigabe durch Customer vor Umsetzung 4. Abrechnung: €150/h oder als
+Paket wenn Aufwand &gt;8h</p>
+<p><strong>Was KEIN Change-Request ist:</strong> - Bug-Fixes innerhalb
+des definierten Scopes - Prompt-Adjustments innerhalb des bestehenden
+Content-Typs - Kleinere UI/Formatting-Änderungen im Board (&lt;1h)</p>
+<hr />
+<h2 id="pricing-variations">Pricing-Variations</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Add-On / Variation</th>
+<th>Auswirkung auf Setup</th>
+<th>Auswirkung auf Retainer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>+1 zusätzlicher Content-Typ</td>
+<td>+€1.200 – €1.800</td>
+<td>+€200/Mo (Prompt-Maintenance)</td>
+</tr>
+<tr class="even">
+<td>+1 zusätzliche Publishing-Destination</td>
+<td>+€800 – €1.500</td>
+<td>+€100/Mo</td>
+</tr>
+<tr class="odd">
+<td>+1 zusätzliche Marke/Brand (Agentur)</td>
+<td>+€3.000 – €5.000</td>
+<td>+€500–€800/Mo</td>
+</tr>
+<tr class="even">
+<td>Voice-Memo-Flow (falls nicht in Base)</td>
+<td>+€600</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Custom Analytics-Dashboard (statt Standard-Report)</td>
+<td>+€2.500 – €4.000</td>
+<td>+€300/Mo</td>
+</tr>
+<tr class="even">
+<td>SEO-Layer (Keyword-Mapping auf Content-Typen)</td>
+<td>+€2.000</td>
+<td>+€400/Mo</td>
+</tr>
+<tr class="odd">
+<td>White-Label für Agentur-Clients</td>
+<td>+€1.500 Setup</td>
+<td>+€300/Mo Lizenz-Handling</td>
+</tr>
+<tr class="even">
+<td>Onboarding neuer Agentur-Client in bestehendem System</td>
+<td>Nicht im Setup</td>
+<td>€800/Client (Retainer-Add-On)</td>
+</tr>
+</tbody>
+</table>
+<h1 id="delivery-plan">3. Delivery-Plan</h1>
+<h2 id="phasen">Phasen</h2>
+<h3 id="phase-1-discovery-foundation-w1w2">Phase 1: Discovery &amp;
+Foundation (W1–W2)</h3>
+<p><strong>Deliverables:</strong> - Brand-Voice-Workshop durchgeführt +
+Dokumentation abgeschlossen - Brand-Voice-Profil v1 (Dokument:
+Tonalität, Sprach-Muster, Tabus, Beispiele) - Content-Typen-Briefings
+(je 1 Seite pro Typ: Format, Länge, CTA, Zielgruppe) -
+Stack-Entscheidung dokumentiert (Notion vs. Airtable, Publishing-Tools
+bestätigt) - API-Verfügbarkeit der Publishing-Destinations bestätigt -
+Publishing-Frequenz + Ziel-Plattformen dokumentiert</p>
+<p><strong>Customer-Touchpoints:</strong> - Kick-off Call (60 Min):
+Ziele, Timelines, Voraussetzungen - Brand-Voice-Workshop (90 Min): Tone,
+Beispiele, Anti-Patterns - Discovery-Summary per E-Mail nach W2</p>
+<hr />
+<h3 id="phase-2-intake-layer-drafting-engine-w3w4">Phase 2: Intake-Layer
+&amp; Drafting-Engine (W3–W4)</h3>
+<p><strong>Deliverables:</strong> - Intake-Pipeline live (Formular +
+mind. eine weitere Input-Methode je nach Setup) - Ideen-Backlog im Board
+eingerichtet - Prompt-Chain v1 für alle vereinbarten Content-Typen -
+5–10 Test-Drafts produziert und mit Customer reviewt -
+Prompt-Adjustments auf Basis Feedback (max. 2 Feedback-Runden) -
+Repurposing-Prompt-Chain v1</p>
+<p><strong>Customer-Touchpoints:</strong> - Weekly Sync W3 (30 Min):
+Intake-Demo, offene Fragen - Draft-Review-Session W4 (45 Min): Customer
+reviewed Test-Drafts live, gibt strukturiertes Feedback - Schriftliches
+Feedback-Formular nach Draft-Review</p>
+<hr />
+<h3 id="phase-3-workflow-publishing-repurposing-w5w6">Phase 3: Workflow,
+Publishing &amp; Repurposing (W5–W6)</h3>
+<p><strong>Deliverables:</strong> - Review-Workflow live
+(Status-Tracking, Notifications) - Publishing-Connectors zu allen
+vereinbarten Destinations - Test-Posts erfolgreich gepublisht auf allen
+Destinations - Repurposing-Modul live und getestet -
+Content-Kalender-View eingerichtet mit Filter-Views - Error-Handling und
+Notification-System aktiv</p>
+<p><strong>Customer-Touchpoints:</strong> - Weekly Sync W5 (30 Min):
+Workflow-Demo, Publishing-Test-Walk - Milestone-Review W6 (60 Min):
+Live-Demo gesamtes System bis Publishing; Customer-Freigabe für Phase
+4</p>
+<hr />
+<h3 id="phase-4-analytics-hardening-documentation-w7w8">Phase 4:
+Analytics, Hardening &amp; Documentation (W7–W8)</h3>
+<p><strong>Deliverables:</strong> - Analytics-Daten-Pull aus allen
+vereinbarten Quellen live - Wöchentlicher automatisierter
+Performance-Report konfiguriert - Erster automatischer Report manuell
+verifiziert - SOPs für Intake, Review, Publishing (Schriftform) -
+Video-Walkthroughs für alle 3 Kernflows (Loom oder gleichwertig) -
+UAT-Phase: System läuft 5 Werktage ohne kritischen Fehler -
+Go-Live-Freigabe</p>
+<p><strong>Customer-Touchpoints:</strong> - Weekly Sync W7 (30 Min):
+Analytics-Demo - UAT-Review W8 (45 Min): Customer testet selbst, gibt
+formales Go-Live-Feedback - Go-Live-Bestätigung schriftlich</p>
+<hr />
+<h3 id="phase-5-go-live-30-tage-support-w9w12">Phase 5: Go-Live &amp;
+30-Tage-Support (W9–W12)</h3>
+<p><strong>Deliverables:</strong> - Offizieller Go-Live -
+Retainer-Onboarding-Dokument übergeben - Handover-Package vollständig
+(siehe unten) - Prompt-Finetuning auf Basis erster
+Live-Produktions-Daten - Bug-Fixes innerhalb 48h (kritisch) / 5 Werktage
+(minor) - Retainer-Scope und SLAs schriftlich bestätigt</p>
+<p><strong>Customer-Touchpoints:</strong> - Go-Live-Call (30 Min):
+Gratulation, Handover-Walk, Retainer-Erklärung - Check-in W10 (20 Min):
+Erste Woche Live — wie läuft’s? - 30-Tage-Retro W12 (45 Min):
+Performance-Review, offene Punkte, Retainer-Start-Bestätigung</p>
+<hr />
+<h2 id="team-allocation">Team-Allocation</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rolle</th>
+<th>Phase 1</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+<th>Phase 4</th>
+<th>Phase 5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Founder / Lead Stratege</strong></td>
+<td>60% — Brand-Voice-Workshop, Content-Strategie-Input,
+Customer-Alignment</td>
+<td>20% — Prompt-Strategy-Review</td>
+<td>10% — Milestone-Freigabe</td>
+<td>10% — Final-Sign-Off</td>
+<td>10% — Retainer-Übergabe</td>
+</tr>
+<tr class="even">
+<td><strong>Senior Automation Engineer</strong></td>
+<td>20% — Stack-Audit, Tech-Entscheidungen</td>
+<td>70% — Intake-Pipeline, Prompt-Chain-Build</td>
+<td>80% — Workflow, Connectors, Repurposing</td>
+<td>60% — Analytics-Layer, Hardening</td>
+<td>40% — Bug-Fixing, Prompt-Finetuning</td>
+</tr>
+<tr class="odd">
+<td><strong>Junior Automation Engineer</strong></td>
+<td>—</td>
+<td>30% — Intake-Formular, Board-Setup</td>
+<td>20% — Test-Posts, Error-Handling</td>
+<td>30% — SOP-Dokumentation-Support, UAT-Tests</td>
+<td>20% — Support-Tickets</td>
+</tr>
+<tr class="even">
+<td><strong>Customer Success</strong></td>
+<td>20% — Kick-off Call, Onboarding-Koordination</td>
+<td>10% — Weekly Syncs</td>
+<td>10% — Weekly Syncs, Milestone-Review</td>
+<td>20% — UAT-Koordination, Docs-Review</td>
+<td>30% — Go-Live, 30-Tage-Support, Retainer-Übergabe</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2
+id="customer-onboarding-touchpoints-übersicht">Customer-Onboarding-Touchpoints
+(Übersicht)</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Touchpoint</th>
+<th>Zeitpunkt</th>
+<th>Format</th>
+<th>Dauer</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kick-off Call</td>
+<td>W1 Tag 1–2</td>
+<td>Video-Call</td>
+<td>60 Min</td>
+<td>Founder + CS</td>
+</tr>
+<tr class="even">
+<td>Brand-Voice-Workshop</td>
+<td>W1–W2</td>
+<td>Video-Call</td>
+<td>90 Min</td>
+<td>Founder</td>
+</tr>
+<tr class="odd">
+<td>Discovery-Summary</td>
+<td>W2 Ende</td>
+<td>E-Mail + Dokument</td>
+<td>—</td>
+<td>CS</td>
+</tr>
+<tr class="even">
+<td>Weekly Sync</td>
+<td>W3, W5, W7</td>
+<td>Video-Call</td>
+<td>30 Min</td>
+<td>CS + Eng</td>
+</tr>
+<tr class="odd">
+<td>Draft-Review-Session</td>
+<td>W4</td>
+<td>Video-Call</td>
+<td>45 Min</td>
+<td>Eng + CS</td>
+</tr>
+<tr class="even">
+<td>Milestone-Review (Phase 3 Abschluss)</td>
+<td>W6</td>
+<td>Video-Call</td>
+<td>60 Min</td>
+<td>Founder + Eng + CS</td>
+</tr>
+<tr class="odd">
+<td>UAT-Review</td>
+<td>W8</td>
+<td>Video-Call</td>
+<td>45 Min</td>
+<td>CS + Eng</td>
+</tr>
+<tr class="even">
+<td>Go-Live-Call</td>
+<td>W9</td>
+<td>Video-Call</td>
+<td>30 Min</td>
+<td>CS</td>
+</tr>
+<tr class="odd">
+<td>W10-Check-in</td>
+<td>W10</td>
+<td>Video-Call oder Async</td>
+<td>20 Min</td>
+<td>CS</td>
+</tr>
+<tr class="even">
+<td>30-Tage-Retro</td>
+<td>W12</td>
+<td>Video-Call</td>
+<td>45 Min</td>
+<td>Founder + CS</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="risk-register">Risk-Register</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Risiko</th>
+<th>Wahrscheinlichkeit</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Brand-Voice-Profil unscharf</strong> — Customer kann nicht
+klar artikulieren was “seine Stimme” ist; Drafts passen nicht,
+Feedback-Loops eskalieren</td>
+<td>Hoch (60%)</td>
+<td>Hoch — verzögert Phase 2 und 3 erheblich</td>
+<td>Vor Workshop: Customer bekommt Voice-Profil-Template zum Ausfüllen +
+muss 10 “Best-of”-Texte einreichen. Workshop mit konkrete
+Beispiel-Drafts live reviewen statt abstrakt diskutieren.</td>
+</tr>
+<tr class="even">
+<td><strong>API-Probleme bei Publishing-Destinations</strong> —
+Plattform-APIs ändern sich, limitieren Zugang oder erfordern
+Verifizierungen (z. B. LinkedIn API Restrictions, Meta
+Business-Verifizierung)</td>
+<td>Mittel (40%)</td>
+<td>Mittel — einzelne Destinations können nicht automatisch angebunden
+werden</td>
+<td>Stack-Audit in W1 explizit als Go/No-Go Gate. Fallback:
+Buffer/Taplio als Middleware. Customer-Kommunikation sofort wenn Blocker
+identifiziert.</td>
+</tr>
+<tr class="odd">
+<td><strong>Review-Disziplin beim Customer bricht ein</strong> —
+Draft-Backlog akkumuliert, Customer reviewed nicht rechtzeitig, System
+“hängt”</td>
+<td>Hoch (50%)</td>
+<td>Mittel — kein direkter Build-Blocker, aber Retainer-Wert sinkt</td>
+<td>Wöchentliche Reminder-Automation im Board. In Retainer-Onboarding
+klare Erwartung: Review-Backlog &gt;7 Tage = CS-Eskalation.</td>
+</tr>
+<tr class="even">
+<td><strong>Prompt-Chain-Output qualitativ nicht ausreichend</strong> —
+AI-Output entspricht nicht Brand-Voice, Nachbearbeitungsaufwand höher
+als 20%</td>
+<td>Mittel (35%)</td>
+<td>Hoch — Customer-Zufriedenheit und Retainer-Risk</td>
+<td>Max. 2 Feedback-Runden in Phase 2 geplant + budgetiert. Nach Runde
+2: explizites Alignment ob Erwartung realistisch ist. Notfall-Option:
+Manual-Assist-Flow einbauen (AI-Entwurf + kurze Human-Veredelung).</td>
+</tr>
+<tr class="odd">
+<td><strong>Scope-Creep durch “noch eine Plattform”</strong> — Customer
+sieht das System laufen und will sofort 3 weitere Destinations und 2
+neue Content-Typen</td>
+<td>Sehr hoch (70%)</td>
+<td>Mittel — Margin-Erosion, Team-Überlastung</td>
+<td>Change-Request-Policy in W1-Kick-off explizit erklären. Schriftlich
+bestätigen lassen. CS-Rolle: freundlich aber konsequent blockieren ohne
+schriftliche Freigabe + Budget.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-gates">Quality-Gates</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Gate</th>
+<th>Zeitpunkt</th>
+<th>Kriterium</th>
+<th>Wer nimmt ab</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>QG-1: Discovery-Abschluss</strong></td>
+<td>Ende W2</td>
+<td>Brand-Voice-Profil vom Customer als “korrekt” bestätigt;
+Stack-Entscheidung dokumentiert; alle Zugänge vorhanden</td>
+<td>Founder</td>
+</tr>
+<tr class="even">
+<td><strong>QG-2: Draft-Quality</strong></td>
+<td>Ende W4</td>
+<td>Customer bewertet min. 3 Test-Drafts pro Content-Typ als “verwendbar
+ohne wesentliche Überarbeitung”</td>
+<td>Senior Eng + Founder</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-3: Publishing-Live</strong></td>
+<td>Ende W6</td>
+<td>Test-Posts auf allen Destinations erfolgreich; Milestone-Review vom
+Customer freigegeben</td>
+<td>Senior Eng + CS</td>
+</tr>
+<tr class="even">
+<td><strong>QG-4: Analytics-Verifizierung</strong></td>
+<td>W7</td>
+<td>Erster automatischer Report manuell gegen Plattform-Zahlen
+gegengeprüft; keine Diskrepanz &gt;5%</td>
+<td>Senior Eng</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-5: UAT-Clearance</strong></td>
+<td>Ende W8</td>
+<td>5 Werktage stabiler Betrieb; Customer hat UAT-Feedback gegeben; alle
+kritischen Issues geschlossen</td>
+<td>CS + Founder</td>
+</tr>
+<tr class="even">
+<td><strong>QG-6: Handover-Complete</strong></td>
+<td>W9</td>
+<td>Alle Handover-Package-Items übergeben und vom Customer
+bestätigt</td>
+<td>CS</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="handover-package">Handover-Package</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Format</th>
+<th>Inhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>System-Dokumentation</strong></td>
+<td>Notion-Seite oder PDF</td>
+<td>Vollständige Architektur-Übersicht: alle Flows, Tools, Verbindungen,
+API-Keys-Ablage-Hinweise</td>
+</tr>
+<tr class="even">
+<td><strong>Brand-Voice-Profil v1.0</strong></td>
+<td>Google-Doc / Notion</td>
+<td>Finales Profil inkl. Beispiel-Prompts, Anti-Patterns,
+Revision-History</td>
+</tr>
+<tr class="odd">
+<td><strong>SOP: Content-Intake</strong></td>
+<td>Schrift + Loom-Video</td>
+<td>Schritt-für-Schritt wie Ideen ins System kommen</td>
+</tr>
+<tr class="even">
+<td><strong>SOP: Draft-Review &amp; Approval</strong></td>
+<td>Schrift + Loom-Video</td>
+<td>Review-Flow, Status-Transitions, wo Feedback hinterlegt wird</td>
+</tr>
+<tr class="odd">
+<td><strong>SOP: Publishing &amp; Monitoring</strong></td>
+<td>Schrift + Loom-Video</td>
+<td>Publishing-Check, Fehler-Erkennung, was bei Fehler zu tun ist</td>
+</tr>
+<tr class="even">
+<td><strong>Prompt-Library</strong></td>
+<td>Notion-Tabelle oder Google-Doc</td>
+<td>Alle Prompts mit Version, Datum, Änderungshistorie</td>
+</tr>
+<tr class="odd">
+<td><strong>Analytics-Report-Vorlage</strong></td>
+<td>Automatisiert / Link</td>
+<td>Wöchentlicher Report — Link + Erklärung wie zu lesen</td>
+</tr>
+<tr class="even">
+<td><strong>Retainer-Scope-Dokument</strong></td>
+<td>PDF</td>
+<td>Was der Retainer abdeckt, SLAs, Eskalationswege,
+Ansprechpartner</td>
+</tr>
+<tr class="odd">
+<td><strong>Emergency-Runbook</strong></td>
+<td>Einfaches Dokument</td>
+<td>Was tun wenn: Publishing-Fehler / API-Key abgelaufen / Report kommt
+nicht an</td>
+</tr>
+<tr class="even">
+<td><strong>Access-Inventory</strong></td>
+<td>Tabelle</td>
+<td>Alle Tools + Zugangswege + wer beim Customer Admin ist</td>
+</tr>
+</tbody>
+</table>
+<h1 id="quality-gate">4. Quality-Gate</h1>
+<p><strong>Item-Slug:</strong> <code>content-engine</code><br />
+<strong>Item-Type:</strong> DFY<br />
+<strong>Status:</strong> [ ] IN-PROGRESS / [ ] READY-FOR-SIGN-OFF / [ ]
+SIGNED-OFF</p>
+<hr />
+<h2 id="asset-inventory">Asset-Inventory</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Format</th>
+<th>Status</th>
+<th>Location</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Brand-Voice-Profil v1.0</td>
+<td>Notion/Google-Doc</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Content-Typen-Briefings (alle vereinbarten)</td>
+<td>Notion/PDF</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Intake-Pipeline (Formular + Zusatz-Input)</td>
+<td>Live System</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Ideen-Backlog im Board</td>
+<td>Notion/Airtable</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Prompt-Chain: Content-Typ 1</td>
+<td>Prompt-Library</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Prompt-Chain: Content-Typ 2</td>
+<td>Prompt-Library</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Prompt-Chain: weitere Typen (je nach Scope)</td>
+<td>Prompt-Library</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Repurposing-Flow</td>
+<td>Live System</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Review-Workflow mit Status-Tracking</td>
+<td>Live System</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Notification-System (Slack/E-Mail)</td>
+<td>Live System</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Publishing-Connector: Destination 1</td>
+<td>Live System</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Publishing-Connector: Destination 2</td>
+<td>Live System</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Publishing-Connector: weitere (je nach Scope)</td>
+<td>Live System</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Content-Kalender-View</td>
+<td>Notion/Airtable</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Analytics-Daten-Pull (alle vereinbarten Quellen)</td>
+<td>Live System</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Wöchentlicher automatisierter Report</td>
+<td>Live System</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>SOP: Intake (Schrift + Video)</td>
+<td>Notion + Loom</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>SOP: Review/Approval (Schrift + Video)</td>
+<td>Notion + Loom</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>SOP: Publishing/Monitoring (Schrift + Video)</td>
+<td>Notion + Loom</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Prompt-Library (vollständig versioniert)</td>
+<td>Notion/Google-Doc</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Emergency-Runbook</td>
+<td>Dokument</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Access-Inventory</td>
+<td>Tabelle</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Retainer-Scope-Dokument</td>
+<td>PDF</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>System-Architektur-Übersicht</td>
+<td>Notion/PDF</td>
+<td>[ ] Done</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien">Sign-Off-Kriterien</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Kriterium</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Brand-Voice-Profil vom Customer schriftlich als “final”
+bestätigt</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Alle vereinbarten Content-Typen haben funktionierende Prompt-Chains;
+Customer hat min. 3 Drafts pro Typ als “verwendbar” eingestuft</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Intake-Pipeline: alle vereinbarten Input-Methoden funktionieren ohne
+manuelle Korrektur</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Review-Workflow: Status-Transitions und Notifications fehlerfrei
+über min. 5 Werktage UAT</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Alle vereinbarten Publishing-Destinations: Test-Posts erfolgreich
+gepublisht; Fehler werden korrekt notifiziert</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Repurposing-Modul: Output entspricht Zielformat; kein manuelles
+Reformatieren nötig</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Analytics-Report: erscheint automatisch wöchentlich; Daten gegen
+Plattform-Zahlen verifiziert; Abweichung &lt;5%</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Alle 3 SOPs vollständig (Schrift + Video); vom CS-Lead reviewed</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Handover-Package vollständig übergeben; Customer hat schriftlich
+bestätigt alle Assets erhalten zu haben</td>
+<td>[ ] ✅</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>30-Tage-Retro durchgeführt; offene Issues dokumentiert und
+priorisiert; Retainer-Scope schriftlich bestätigt</td>
+<td>[ ] ✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="known-limitations-phase-2-items">Known Limitations
+(Phase-2-Items)</h2>
+<p>Die folgenden Punkte sind bekannte Einschränkungen oder geplante
+Erweiterungen, die explizit <strong>nicht</strong> im aktuellen Delivery
+enthalten sind und im Retainer oder als separate Projekte behandelt
+werden:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Limitation</th>
+<th>Typ</th>
+<th>Empfohlene Behandlung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kein Lead-Attribution-Tracking (welcher Post → welcher Lead)</td>
+<td>Feature-Gap</td>
+<td>Upsell: <code>ai-lead-engine</code> oder <code>sales-os</code></td>
+</tr>
+<tr class="even">
+<td>Kein SEO-Layer (Keyword-Mapping, SERP-Tracking)</td>
+<td>Out-of-Scope</td>
+<td>Separates Projekt-Offering</td>
+</tr>
+<tr class="odd">
+<td>Prompt-Chain basiert auf Modell-Version zum Launch-Zeitpunkt;
+Major-Model-Upgrades nicht automatisch enthalten</td>
+<td>Tech-Limitation</td>
+<td>Change-Request bei signifikanten Modell-Wechseln</td>
+</tr>
+<tr class="even">
+<td>Analytics deckt nur direkte Plattform-Metriken ab; kein
+Attribution-Modeling, kein Multi-Touch</td>
+<td>Feature-Gap</td>
+<td>Upsell: <code>command-center-dashboard</code> für erweitertes
+Reporting</td>
+</tr>
+<tr class="odd">
+<td>Mehr als vereinbarte Marken/Brands erfordern separates Pricing</td>
+<td>Scope-Limitation</td>
+<td>Retainer-Add-On: €800/Client (Agentur)</td>
+</tr>
+<tr class="even">
+<td>Video-/Bild-Content-Produktion nicht enthalten</td>
+<td>Grundsätzlich Out-of-Scope</td>
+<td>Externes Creative-Studio oder separates Offering</td>
+</tr>
+<tr class="odd">
+<td>Community-Management und Comment-Responses nicht automatisiert</td>
+<td>Out-of-Scope</td>
+<td>Separates Social-Management-Offering</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="db-update-befehl">DB-Update-Befehl</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Status-Update bei Sign-Off</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> aevum_service_items</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  status                <span class="op">=</span> <span class="st">&#39;signed-off&#39;</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  signed_off_at         <span class="op">=</span> NOW(),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  signed_off_by         <span class="op">=</span> <span class="st">&#39;REPLACE_WITH_RESPONSIBLE_PERSON&#39;</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  handover_confirmed    <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  retainer_active       <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  phase_2_items         <span class="op">=</span> <span class="st">&#39;[&quot;lead-attribution&quot;,&quot;seo-layer&quot;,&quot;model-upgrade-handling&quot;,&quot;extended-analytics&quot;,&quot;additional-brands&quot;,&quot;video-content&quot;,&quot;community-management&quot;]&#39;</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  delivery_weeks_actual <span class="op">=</span> REPLACE_WITH_ACTUAL_WEEKS,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  tier                  <span class="op">=</span> <span class="st">&#39;REPLACE_WITH_M_OR_L&#39;</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  upsell_flags          <span class="op">=</span> <span class="st">&#39;[&quot;ai-lead-engine&quot;,&quot;command-center-dashboard&quot;,&quot;sales-os&quot;,&quot;script-factory-dfy&quot;,&quot;business-os&quot;]&#39;</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  notes                 <span class="op">=</span> <span class="st">&#39;REPLACE_WITH_FREE_TEXT_NOTES&#39;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> slug <span class="op">=</span> <span class="st">&#39;content-engine&#39;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">AND</span> customer_id <span class="op">=</span> REPLACE_WITH_CUSTOMER_ID;</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">-- Retainer-Record anlegen</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> aevum_retainer_contracts (</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  customer_id,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  service_slug,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  retainer_start_date,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  monthly_rate,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  scope_ref,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  next_review_date</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>) <span class="kw">VALUES</span> (</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  REPLACE_WITH_CUSTOMER_ID,</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;content-engine&#39;</span>,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  NOW(),</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  REPLACE_WITH_MONTHLY_RATE,</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;retainer-scope-v1&#39;</span>,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  NOW() <span class="op">+</span> <span class="dt">INTERVAL</span> <span class="st">&#39;90 days&#39;</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+<hr />
+<h2 id="pattern-notes-für-dfy-builder-pattern">Pattern-Notes für
+DFY-Builder-Pattern</h2>
+<p><strong>Was bei diesem Item anders ist als bei anderen
+DFY-Services:</strong></p>
+<ol type="1">
+<li><p><strong>Brand-Voice als kritischer Blocking-Dependency</strong> —
+anders als bei tech-first Services (z. B. <code>ai-lead-engine</code>)
+ist die qualitativ schwer messbare “Brand Voice” der häufigste
+Failure-Point. Das Brand-Voice-Profil muss als formales Dokument
+behandelt werden, nicht als informelles Gespräch. Quality-Gate-1 ist
+deshalb ungewöhnlich “weich” — bewusstes Design.</p></li>
+<li><p><strong>Zwei-Schichten-Output: Infrastruktur + Content</strong> —
+Customer erwartet beides. Die Maschine UND dass die Maschine guten
+Output produziert. Scope muss im Sales-Call explizit trennen: wir bauen
+die Infrastruktur und trainieren die Prompts; Content-Qualität hängt
+dauerhaft von Customer-Input-Qualität ab. Garbage-in-Garbage-out muss
+kommuniziert werden.</p></li>
+<li><p><strong>Retainer-Value ist höher als Setup-Value für
+Customer</strong> — die eigentliche Wertentscheidung passiert in Monat
+2–4 wenn Prompt-Maintenance und Analytics-Updates den System-Zerfall
+verhindern. Sales-Brief sollte Retainer aktiver verkaufen als
+Setup.</p></li>
+<li><p><strong>Agenturen als Highest-Value-Segment</strong> —
+Multi-Brand-Setup (Tier L) hat deutlich überproportionale Marge
+gegenüber Tier M. Bei Agenturen immer nach Anzahl aktiver Clients fragen
+und direkt Tier-L-Pricing pitchen.</p></li>
+<li><p><strong>Review-Disziplin als Retainer-Killer</strong> — wenn
+Customer den Review-Workflow nicht lebt, verfällt das System.
+Customer-Success muss in Monat 1–2 aktiv auf Review-Backlog achten.
+Frühzeitige Eskalation ist wichtiger als bei anderen DFY-Items.</p></li>
+</ol>
+</body>
+</html>

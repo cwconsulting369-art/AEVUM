@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM DFY: dsgvo-factory</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM DFY: dsgvo-factory</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-done-for-you-dsgvo-factory">AEVUM Done-for-You —
+dsgvo-factory</h1>
+<blockquote>
+<p>Generated 2026-05-25. Combined Master-Doc.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<p><strong>In einem Satz:</strong> AEVUM baut dir eine vollständige,
+automatisierte DSGVO-Compliance-Maschine — von Consent-Management über
+Betroffenenrechte-Workflows bis zum Löschfristenregister — sodass du nie
+wieder manuell auf eine Aufsichtsbehörde oder einen Anwalt wartest.</p>
+<hr />
+<h2 id="wer-das-braucht">Wer das braucht</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Konkreter Use-Case</th>
+<th>Fit-Rating</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AG</strong> (Agenturen 3-50 MA)</td>
+<td>Verarbeitet Kundendaten in Projekten, betreibt eigene Tools (CRM,
+E-Mail-Marketing, Cloud-Ablage), hat kein dediziertes DSGVO-Budget aber
+volles Haftungsrisiko</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr class="even">
+<td><strong>PB</strong> (Personal Brands)</td>
+<td>Betreibt Newsletter, Membership-Sites, Kurs-Plattformen — sammelt
+E-Mails und Kaufdaten, braucht saubere Opt-in-Logik und Löschprozesse
+ohne Rechtsabteilung</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr class="odd">
+<td><strong>FI</strong> (Mittelstand B2B 10-100 MA)</td>
+<td>Kundenstamm mit personenbezogenen Daten, Mitarbeiterdaten, externe
+Dienstleister ohne AVV, keine systematische Verarbeitungsübersicht —
+Audit-Risiko hoch</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="was-customer-bekommt">Was Customer bekommt</h2>
+<ol type="1">
+<li><strong>Verarbeitungsverzeichnis (VVT)</strong> — strukturierte
+Datenbank aller Verarbeitungstätigkeiten nach Art. 30 DSGVO, gepflegt in
+Notion/Airtable mit Owner-Mapping</li>
+<li><strong>Consent-Management-System</strong> — automatisiertes
+Opt-in/Opt-out-Tracking über alle relevanten Kanäle (Web-Forms,
+E-Mail-Listen, CRM-Einträge) mit Audit-Trail</li>
+<li><strong>AV-Vertragsregister</strong> — vollständige Liste aller
+Auftragsverarbeiter mit Status (AVV vorhanden / fehlend / in Klärung) +
+automatische Reminder-Flows für ablaufende/fehlende Verträge</li>
+<li><strong>Betroffenenrechte-Workflow</strong> — automatisiertes
+Ticketing-System für Auskunft (Art. 15), Löschung (Art. 17),
+Berichtigung (Art. 16), Datenübertragbarkeit (Art. 20) mit
+gesetzeskonformen Response-Fristen (30-Tage-SLA-Tracking)</li>
+<li><strong>Löschfristenregister</strong> — regelbasierte Lösch- und
+Archivierungslogik pro Datenkategorie (Leads, Kunden, Mitarbeiter,
+Bewerberdaten) mit Automatisierungs-Hooks in bestehende Tools</li>
+<li><strong>Datenpannen-Response-Playbook</strong> — dokumentierter
+Incident-Response-Prozess nach Art. 33/34 DSGVO inkl. Melde-Checkliste
+und vorbereitete Templates für Aufsichtsbehörden</li>
+<li><strong>TOM-Dokumentation</strong> — Technisch-Organisatorische
+Maßnahmen nach Art. 32 DSGVO, dokumentiert und mit
+Ist-Zustand-Gap-Analyse</li>
+<li><strong>DSGVO-Dashboard</strong> — Echtzeit-Übersicht: offene
+Betroffenenanfragen, fehlende AVVs, überfällige Löschungen,
+Consent-Statistiken — ein Blick, volle Kontrolle</li>
+<li><strong>Mitarbeiter-Awareness-Paket</strong> — strukturierter
+Onboarding-Flow für neue MA (kurze Video-Einheiten + Quiz +
+Bestätigungs-Protokoll, intern gehostet)</li>
+<li><strong>Quarterly-Review-Trigger</strong> — automatisierter Prozess,
+der alle 90 Tage eine Compliance-Selbstprüfung anstößt (Checkliste +
+Owner-Notification)</li>
+</ol>
+<hr />
+<h2 id="mehrwert-konkret">Mehrwert (konkret)</h2>
+<h3 id="vorher-nachher">Vorher / Nachher</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Vorher</th>
+<th>Nachher</th>
+<th>Schätzwert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Zeitaufwand DSGVO-Admin</td>
+<td>4-8h/Monat manuell (Anfragen, AVV-Suche, Löschroutinen)</td>
+<td>&lt;30 Min/Monat Monitoring</td>
+<td><strong>-85% Zeitaufwand</strong></td>
+</tr>
+<tr class="even">
+<td>Reaktionszeit Betroffenenanfrage</td>
+<td>5-15 Werktage (manuell, mit Stress)</td>
+<td>&lt;3 Werktage (automatisches Ticket + Template)</td>
+<td><strong>-80% Reaktionszeit</strong></td>
+</tr>
+<tr class="odd">
+<td>Bußgeld-Risiko</td>
+<td>Hoch (fehlende Dokumentation = Haftung)</td>
+<td>Systematisch reduziert durch vollständige Nachweiskette</td>
+<td><strong>Risikoreduktion ~70%</strong></td>
+</tr>
+<tr class="even">
+<td>Anwaltskosten DSGVO</td>
+<td>€500-2.000/Jahr für Ad-hoc-Fragen</td>
+<td>Prozesse intern gelöst, Anwalt nur noch für Sonderfälle</td>
+<td><strong>-60% externe Rechtskosten</strong></td>
+</tr>
+<tr class="odd">
+<td>Audit-Bereitschaft</td>
+<td>0% (müsste 2-3 Wochen vorbereiten)</td>
+<td>Jederzeit abrufbar (VVT + TOM + AVV-Register sofort parat)</td>
+<td><strong>Audit-ready in &lt;1h</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pricing-logic">Pricing-Logic</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Tier M</strong></th>
+<th><strong>Tier L</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Zielgröße</strong></td>
+<td>Agenturen / PB bis 20 MA, bis ~5 Tools</td>
+<td>Mittelstand 20-100 MA, komplexe Tool-Landschaft, mehrere
+Standorte</td>
+</tr>
+<tr class="even">
+<td><strong>Setup (einmalig)</strong></td>
+<td>€9.000 – €14.000</td>
+<td>€22.000 – €45.000</td>
+</tr>
+<tr class="odd">
+<td><strong>Monthly Retainer</strong></td>
+<td>€1.800 – €2.800</td>
+<td>€3.200 – €5.000</td>
+</tr>
+<tr class="even">
+<td><strong>Scope Setup</strong></td>
+<td>VVT bis 20 Verarbeitungstätigkeiten, bis 15 AV-Verträge geprüft, 1
+Consent-Kanal, alle Workflows</td>
+<td>VVT bis 60 Verarbeitungstätigkeiten, unbegrenzte AV-Verträge, bis 4
+Consent-Kanäle, Multi-Entity</td>
+</tr>
+<tr class="odd">
+<td><strong>Scope Retainer</strong></td>
+<td>Quarterly-Reviews, laufende AVV-Überwachung,
+Betroffenenanfragen-Support, Systemupdates</td>
+<td>Monatliche Reviews, dedizierter Compliance-Touchpoint,
+Priority-Incident-Response, MA-Trainings-Updates</td>
+</tr>
+<tr class="even">
+<td><strong>Implementation</strong></td>
+<td>5-7 Wochen</td>
+<td>9-12 Wochen</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Hinweis:</strong> Kein Rechtsberatungssubstitut. AEVUM
+liefert Prozesse, Dokumentation und Automatisierung — keine anwaltliche
+Beratung. Juristischen Review empfehlen wir parallel.</p>
+</blockquote>
+<hr />
+<h2 id="timeline">Timeline</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th>Wochen</th>
+<th>Inhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Phase 1: Discovery &amp; Bestandsaufnahme</strong></td>
+<td>W1-2</td>
+<td>Tool-Inventar, Datenfluss-Mapping, bestehende Dokumente sichten,
+Gap-Analyse</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 2: VVT + AV-Register aufbauen</strong></td>
+<td>W2-4</td>
+<td>Verarbeitungsverzeichnis in Datenbank aufbauen, alle
+Auftragsverarbeiter erfassen und AVV-Status klären</td>
+</tr>
+<tr class="odd">
+<td><strong>Phase 3: Workflows + Automatisierungen</strong></td>
+<td>W3-6</td>
+<td>Consent-Management, Betroffenenrechte-Ticketing,
+Löschfristenautomatisierung, Pannen-Playbook</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 4: Dashboard + Dokumentation</strong></td>
+<td>W5-7</td>
+<td>DSGVO-Dashboard live, TOM-Dokumentation fertig, Mitarbeiter-Paket
+eingespielt</td>
+</tr>
+<tr class="odd">
+<td><strong>Phase 5: Testing + Handover</strong></td>
+<td>W7-8</td>
+<td>Durchlauf aller Workflows mit Customer, Korrekturen,
+Übergabe-Session, Retainer-Start</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer">Voraussetzungen Customer</h2>
+<ul>
+<li>Zugang zu allen relevanten Tools (CRM, E-Mail-Tool, Cloud-Storage,
+HR-System) — AEVUM braucht Read-Zugriff für Discovery</li>
+<li>Ansprechpartner mit Entscheidungsbefugnis für DSGVO-Fragen (nicht
+zwingend Jurist, aber informiert)</li>
+<li>Liste aller aktiven Software-Dienstleister (grob — wir
+verfeinern)</li>
+<li>Zeitfenster für Kick-off (3h) + wöchentliche 30-Min-Syncs</li>
+<li>Bereitschaft, intern Ownership zu benennen (wer pflegt das VVT nach
+Übergabe)</li>
+</ul>
+<hr />
+<h2 id="nicht-ziele-expliziter-out-of-scope">Nicht-Ziele (expliziter
+Out-of-Scope)</h2>
+<ol type="1">
+<li><strong>Keine Rechtsberatung</strong> — AEVUM ist kein Anwalt,
+erstellt keine Rechtsgutachten, haftbar für juristische Einschätzungen
+ist Customer selbst oder beauftragte Anwälte</li>
+<li><strong>Kein externer Datenschutzbeauftragter (DSB)</strong> — wir
+bauen Prozesse, stellen aber keine bestellbare DSB-Person (nach Art. 37
+DSGVO) zur Verfügung</li>
+<li><strong>Keine Datenschutz-Folgenabschätzung (DSFA)</strong> für neue
+Verarbeitungstätigkeiten nach Übergabe — DSFA-Templates werden
+geliefert, Durchführung liegt beim Customer</li>
+<li><strong>Kein Webseiten-Cookie-Banner-Redesign</strong> —
+Consent-Management bezieht sich auf interne Datenflüsse; technische
+Cookie-Implementierung (Cookiebot, Usercentrics-Setup) ist separater
+Scope</li>
+<li><strong>Keine physischen Dokumente / Archiv-Management</strong> —
+Papierakten, physische Zugangssicherung etc. werden nicht auditiert oder
+umstrukturiert</li>
+<li><strong>Keine Mitarbeiter-Einzelschulungen</strong> —
+Awareness-Paket ist self-service; Live-Schulungen / Workshops mit
+MA-Teams sind Add-on</li>
+<li><strong>Kein laufendes Incident-Management</strong> — bei
+tatsächlichen Datenpannen liefert AEVUM das Playbook, ist aber kein
+Notfall-Krisendienstleister rund um die Uhr</li>
+</ol>
+<hr />
+<h2 id="upsell-pfade">Upsell-Pfade</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Trigger</th>
+<th>Next Service</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>VVT zeigt viele Tool-Integrationen → Datenflüsse unklar</td>
+<td><code>database-system</code> — Multi-Source Data-Pipeline
+aufräumen</td>
+</tr>
+<tr class="even">
+<td>Consent-Daten liegen verstreut in CRM, E-Mail-Tool, Website</td>
+<td><code>website-crm</code> — zentrales CRM mit DSGVO-konformem
+Consent-Layer</td>
+</tr>
+<tr class="odd">
+<td>MA-Onboarding-Prozesse chaotisch, nicht dokumentierbar</td>
+<td><code>business-os</code> — vollständiges Business-OS mit
+Onboarding-Modulen</td>
+</tr>
+<tr class="even">
+<td>Reporting für Geschäftsführung / Aufsichtsrat nötig</td>
+<td><code>command-center-dashboard</code> — Custom Dashboard inkl.
+Compliance-KPIs</td>
+</tr>
+<tr class="odd">
+<td>Customer erkennt, dass gesamter Prozess-Stack unstrukturiert
+ist</td>
+<td><code>automation-audit</code> — strategischer Audit als Basis für
+Gesamt-Optimierung</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conversion-story">Conversion-Story</h2>
+<p>Stell dir vor, du bekommst heute eine E-Mail: “Wir haben eine
+Beschwerde bei der Datenschutzbehörde eingereicht.” Kein Vorlauf. Kein
+Puffer. Dein erster Gedanke: Wo ist das Verarbeitungsverzeichnis? Hast
+du den AV-Vertrag mit diesem Tool-Anbieter? Kannst du nachweisen, dass
+du die Consent-Anforderungen erfüllt hast? Für die meisten Agenturen und
+Mittelständler endet dieser Gedankengang in Panik — gefolgt von teuren
+Anwaltstunden und dem schmerzhaften Eingeständnis, dass man “eigentlich
+schon immer” eine saubere Compliance-Struktur aufbauen wollte.</p>
+<p>DSGVO-Verstöße sind kein Randproblem. Die Aufsichtsbehörden verhängen
+zunehmend Bußgelder auch gegen KMU — nicht immer sechsstellig, aber oft
+genug empfindlich. Und das eigentliche Problem ist nicht das Bußgeld: Es
+ist der Reputationsschaden gegenüber B2B-Kunden, die im Zuge eigener
+Compliance-Audits fragen, ob ihre Daten bei dir sicher sind. Wer keine
+Antwort hat, verliert Aufträge — still und ohne große Ankündigung.</p>
+<p>AEVUM baut die DSGVO-Factory so, dass Compliance kein Event mehr ist,
+sondern ein laufender, unsichtbarer Hintergrundprozess. Du loggst dich
+einmal im Quartal ins Dashboard ein, siehst den Status auf einen Blick,
+und weißt: Alles läuft. Kein Chaos, keine Lücken, keine schlafenden
+Risiken. Das ist kein Nice-to-have — das ist operative Hygiene für
+jeden, der personenbezogene Daten verarbeitet und das ernst nimmt. </p>
+<h1 id="scope-checklist">2. Scope-Checklist</h1>
+<h2 id="in-scope">In-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Item</th>
+<th>Aufwand-Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Tool-Inventar (alle SW-Dienstleister des Customers erfassen)</td>
+<td>4-6h</td>
+</tr>
+<tr class="even">
+<td><strong>Discovery</strong></td>
+<td>Datenfluss-Mapping (welche Daten fließen wohin, von wem zu wem)</td>
+<td>6-10h</td>
+</tr>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Gap-Analyse gegen DSGVO-Mindestanforderungen</td>
+<td>3-5h</td>
+</tr>
+<tr class="even">
+<td><strong>VVT</strong></td>
+<td>Aufbau Verarbeitungsverzeichnis in Notion/Airtable (bis 20 Einträge
+Tier M, bis 60 Tier L)</td>
+<td>8-16h</td>
+</tr>
+<tr class="odd">
+<td><strong>VVT</strong></td>
+<td>Owner-Mapping pro Verarbeitungstätigkeit</td>
+<td>2-3h</td>
+</tr>
+<tr class="even">
+<td><strong>AV-Register</strong></td>
+<td>Erfassung aller Auftragsverarbeiter inkl. AVV-Status</td>
+<td>6-10h</td>
+</tr>
+<tr class="odd">
+<td><strong>AV-Register</strong></td>
+<td>Automatische Reminder-Flows für fehlende/ablaufende AVVs</td>
+<td>4-6h</td>
+</tr>
+<tr class="even">
+<td><strong>Consent-Management</strong></td>
+<td>Technische Implementierung Consent-Tracking (1 Kanal Tier M, bis 4
+Kanäle Tier L)</td>
+<td>8-14h</td>
+</tr>
+<tr class="odd">
+<td><strong>Consent-Management</strong></td>
+<td>Audit-Trail-Datenbank (Wer hat wann was consent-et)</td>
+<td>4-8h</td>
+</tr>
+<tr class="even">
+<td><strong>Betroffenenrechte</strong></td>
+<td>Ticket-System für Art. 15/16/17/20-Anfragen</td>
+<td>8-12h</td>
+</tr>
+<tr class="odd">
+<td><strong>Betroffenenrechte</strong></td>
+<td>Response-Templates (Auskunft, Löschung, Berichtigung,
+Portabilität)</td>
+<td>4-6h</td>
+</tr>
+<tr class="even">
+<td><strong>Betroffenenrechte</strong></td>
+<td>30-Tage-SLA-Tracking + Eskalations-Automation</td>
+<td>4-6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Löschfristen</strong></td>
+<td>Regelbasiertes Löschfristenregister pro Datenkategorie</td>
+<td>6-10h</td>
+</tr>
+<tr class="even">
+<td><strong>Löschfristen</strong></td>
+<td>Automatisierungs-Hooks in bestehende Tools (wo technisch
+möglich)</td>
+<td>4-8h</td>
+</tr>
+<tr class="odd">
+<td><strong>TOM</strong></td>
+<td>Dokumentation Technisch-Organisatorische Maßnahmen</td>
+<td>4-6h</td>
+</tr>
+<tr class="even">
+<td><strong>Datenpannen</strong></td>
+<td>Incident-Response-Playbook nach Art. 33/34</td>
+<td>4-6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Datenpannen</strong></td>
+<td>Melde-Templates für Aufsichtsbehörden + Betroffene</td>
+<td>2-3h</td>
+</tr>
+<tr class="even">
+<td><strong>Dashboard</strong></td>
+<td>DSGVO-Compliance-Dashboard (Notion/Airtable/Softr)</td>
+<td>8-14h</td>
+</tr>
+<tr class="odd">
+<td><strong>Awareness</strong></td>
+<td>Mitarbeiter-Onboarding-Flow (Video-Einheiten + Quiz +
+Bestätigungsprotokoll)</td>
+<td>6-10h</td>
+</tr>
+<tr class="even">
+<td><strong>Review-Trigger</strong></td>
+<td>Quarterly-Compliance-Selbstprüfung (Auto-Notification +
+Checkliste)</td>
+<td>3-5h</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover</strong></td>
+<td>Dokumentation, Loom-Walkthroughs, Übergabe-Session</td>
+<td>4-6h</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gesamt-Estimate Tier M:</strong> ~95-140h<br />
+<strong>Gesamt-Estimate Tier L:</strong> ~160-220h</p>
+<hr />
+<h2 id="out-of-scope">Out-of-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Was Customer NICHT bekommt</th>
+<th>Warum explizit raus</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Rechtsgutachten / anwaltliche Beratung</td>
+<td>AEVUM = kein Rechtsdienstleister; Customer trägt juristische
+Verantwortung</td>
+</tr>
+<tr class="even">
+<td>Bestellung/Funktion als externer DSB (Art. 37 DSGVO)</td>
+<td>Andere Haftungsklasse; nicht Teil des Service-Modells</td>
+</tr>
+<tr class="odd">
+<td>Durchführung von Datenschutz-Folgenabschätzungen (DSFA)</td>
+<td>Templates werden geliefert; Durchführung = Customer-Aufgabe mit ggf.
+Anwalt</td>
+</tr>
+<tr class="even">
+<td>Cookie-Banner / Consent-Management-Plattform (CMP) für Webseite</td>
+<td>Technisches Website-Layer ist separater Scope
+(Cookiebot/Usercentrics-Setup)</td>
+</tr>
+<tr class="odd">
+<td>Physische Sicherheitsmaßnahmen / Gebäudezugänge</td>
+<td>Außerhalb des digitalen Scope</td>
+</tr>
+<tr class="even">
+<td>Archivierung physischer Dokumente</td>
+<td>Papier-Compliance nicht Teil dieses DFY</td>
+</tr>
+<tr class="odd">
+<td>Laufendes Incident-Response-Management bei Datenpannen</td>
+<td>Playbook ja, 24/7-Notfall-Support nein</td>
+</tr>
+<tr class="even">
+<td>Live-Schulungen / Workshops mit MA-Teams</td>
+<td>Self-Service-Awareness-Paket ja; Live-Training ist Add-on</td>
+</tr>
+<tr class="odd">
+<td>Verhandlung von AVV-Inhalten mit Dienstleistern</td>
+<td>AEVUM trackt Status und eskaliert; Verhandlung = Customer</td>
+</tr>
+<tr class="even">
+<td>Multi-Jurisdiktion (UK-GDPR, CCPA, etc.)</td>
+<td>Scope ist DSGVO (EU); andere Jurisdiktionen auf Anfrage</td>
+</tr>
+<tr class="odd">
+<td>Neue Verarbeitungstätigkeiten nach Übergabe einpflegen</td>
+<td>Retainer deckt Monitoring; neue Einträge = Customer pflegt selbst
+oder Add-on</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer-side">Voraussetzungen
+Customer-Side</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Requirement</th>
+<th>Blocking?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Tool-Zugang</strong></td>
+<td>Read-Zugriff auf CRM, E-Mail-Tool, Cloud-Storage, HR-System</td>
+<td>✅ Ja — ohne geht Discovery nicht</td>
+</tr>
+<tr class="even">
+<td><strong>Tool-Zugang</strong></td>
+<td>API-Keys / Admin-Credentials wo Automatisierung gebaut wird</td>
+<td>✅ Ja</td>
+</tr>
+<tr class="odd">
+<td><strong>Dokumente</strong></td>
+<td>Bestehende DSGVO-Dokumente teilen (auch wenn lückenhaft)</td>
+<td>Nein, aber hilft</td>
+</tr>
+<tr class="even">
+<td><strong>Ansprechpartner</strong></td>
+<td>1 interner Owner mit ~2h/Woche Verfügbarkeit in Implementation</td>
+<td>✅ Ja</td>
+</tr>
+<tr class="odd">
+<td><strong>Entscheidung</strong></td>
+<td>Klärung: Wer pflegt VVT nach Übergabe? Muss benannt sein.</td>
+<td>✅ Ja — vor Kick-off</td>
+</tr>
+<tr class="even">
+<td><strong>Dienstleister-Liste</strong></td>
+<td>Grobe Liste aller SW-Dienstleister (Excel reicht)</td>
+<td>Nein, aber spart 4-6h Discovery</td>
+</tr>
+<tr class="odd">
+<td><strong>Zeit-Commitment</strong></td>
+<td>Kick-off 3h + wöchentlich 30 Min + Milestone-Reviews</td>
+<td>✅ Ja</td>
+</tr>
+<tr class="even">
+<td><strong>Rechtsberater</strong></td>
+<td>Eigenen Anwalt/DSB für parallelen juristischen Review beauftragen
+(Empfehlung)</td>
+<td>Nein, aber empfohlen</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-standards">Quality-Standards</h2>
+<p>AEVUM definiert “Done” wenn:</p>
+<ol type="1">
+<li>VVT vollständig ausgefüllt (alle bekannten Verarbeitungstätigkeiten
+dokumentiert, Owner zugewiesen)</li>
+<li>AV-Register: Alle identifizierten Auftragsverarbeiter erfasst,
+AVV-Status = 100% bekannt (nicht 100% abgeschlossen — aber 100%
+transparent)</li>
+<li>Consent-Tracking läuft technisch und produziert Audit-Trail
+(testbarer Nachweis: Opt-in erfasst → in DB gespeichert → abrufbar)</li>
+<li>Betroffenenrechte-Workflow: Testticker für alle 4 Anfrage-Typen
+durchgelaufen und korrekt geroutet</li>
+<li>Löschfristenregister: Alle Datenkategorien mit Frist hinterlegt,
+mindestens 1 automatischer Hook funktioniert</li>
+<li>TOM-Dokumentation: Vollständig ausgefüllt und von Customer-Owner
+freigegeben</li>
+<li>Datenpannen-Playbook: Customer-Owner hat den Prozess einmal
+vollständig durchgespielt (Tabletop-Test)</li>
+<li>Dashboard: Alle KPIs live und korrekt aggregiert (Daten stimmen mit
+manueller Prüfung überein)</li>
+<li>Awareness-Paket: Mindestens 1 Test-Mitarbeiter hat den kompletten
+Flow durchlaufen und Bestätigung ist protokolliert</li>
+<li>Quarterly-Review-Trigger: Nächster Review-Trigger ist gesetzt und
+Owner hat Benachrichtigung erhalten</li>
+</ol>
+<hr />
+<h2 id="change-request-policy">Change-Request-Policy</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Handling</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Scope-Erweiterung innerhalb Phase (z.B. +5
+Verarbeitungstätigkeiten)</td>
+<td>Schriftliche CR, Aufwand-Estimate innerhalb 48h, Umsetzung nach
+Freigabe — €150-200/h</td>
+</tr>
+<tr class="even">
+<td>Zusätzlicher Consent-Kanal über Tier-M-Limit hinaus</td>
+<td>Pauschal-Add-on: €1.200-2.500 je nach Komplexität</td>
+</tr>
+<tr class="odd">
+<td>Live-Schulungen / MA-Workshops gewünscht</td>
+<td>Add-on: €800-1.500/Workshop (bis 2h, bis 15 Teilnehmer)</td>
+</tr>
+<tr class="even">
+<td>Multi-Jurisdiktion (z.B. UK-GDPR zusätzlich)</td>
+<td>Separates Angebot, Minimum €3.500 Add-on</td>
+</tr>
+<tr class="odd">
+<td>Tool-Wechsel während Implementation</td>
+<td>Bis 2 Wochen vor Abschluss: CR + €500-1.500 Re-Integration; danach:
+neues Projekt-Scope</td>
+</tr>
+<tr class="even">
+<td>Customer liefert Informationen zu spät (&gt;1 Woche Verzug)</td>
+<td>Timeline-Extension ohne Aufpreis (einmalig); bei strukturellem
+Delay: €200/Woche Bereitschaftspauschale</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pricing-variations">Pricing-Variations</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variation / Add-on</th>
+<th>Preisauswirkung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Jede zusätzliche juristische Entität (Tier L, mehrere GmbHs)</td>
+<td>+€3.000-6.000 Setup je Entität</td>
+</tr>
+<tr class="even">
+<td>Jeder zusätzliche Consent-Kanal über Paket-Limit</td>
+<td>+€1.200-2.500</td>
+</tr>
+<tr class="odd">
+<td>Live MA-Workshop (bis 15 TN, 2h)</td>
+<td>+€800-1.500</td>
+</tr>
+<tr class="even">
+<td>DSFA-Begleitung (Template + Walk-through mit Customer)</td>
+<td>+€2.000-3.500</td>
+</tr>
+<tr class="odd">
+<td>Externe DSB-Vermittlung (Partnernetzwerk)</td>
+<td>Vermittlungspauschale €500</td>
+</tr>
+<tr class="even">
+<td>Priority-Incident-Response-Retainer (24h Reaktionszeit)</td>
+<td>+€800/Mo auf Retainer</td>
+</tr>
+<tr class="odd">
+<td>Multi-Jurisdiktion (UK-GDPR, CCPA)</td>
+<td>+€3.500-8.000 Setup</td>
+</tr>
+<tr class="even">
+<td>Cookie-Banner / CMP-Integration (Cookiebot/Usercentrics)</td>
+<td>+€2.000-4.000 Setup</td>
+</tr>
+<tr class="odd">
+<td>Beschleunigter Timeline (&lt;4 Wochen für Tier M)</td>
+<td>+20% auf Setup-Preis</td>
+</tr>
+</tbody>
+</table>
+<h1 id="delivery-plan">3. Delivery-Plan</h1>
+<h2 id="phasen">Phasen</h2>
+<h3 id="phase-1-discovery-gap-analyse">Phase 1: Discovery &amp;
+Gap-Analyse</h3>
+<p><strong>Wochen 1-2</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Customer-Input required</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tool-Inventar (vollständige Liste aller SW-Dienstleister mit
+Datenzugriff)</td>
+<td>Eng + CS</td>
+<td>Customer liefert initiale Liste, AEVUM vervollständigt</td>
+</tr>
+<tr class="even">
+<td>Datenfluss-Diagramm (visuell, Miro oder FigJam)</td>
+<td>Eng</td>
+<td>Kick-off-Call + Fragebogen-Response</td>
+</tr>
+<tr class="odd">
+<td>Gap-Analyse-Report (DSGVO-Mindestanforderungen vs. Ist-Zustand)</td>
+<td>CS</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Bestehende Dokumente gesichtet und klassifiziert</td>
+<td>CS</td>
+<td>Customer stellt Zugang zu bestehenden Docs bereit</td>
+</tr>
+<tr class="odd">
+<td>Priorisierungsliste: Was wird zuerst gebaut</td>
+<td>Founder/CS</td>
+<td>Gemeinsame Abstimmung</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoints:</strong> Kick-off-Call (3h, W1),
+Fragebogen-Deadline (W1 Ende), Gap-Analyse-Präsentation (30 Min, W2)</p>
+<hr />
+<h3 id="phase-2-vvt-av-register">Phase 2: VVT + AV-Register</h3>
+<p><strong>Wochen 2-4</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Customer-Input required</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Verarbeitungsverzeichnis in Notion/Airtable aufgebaut (Template +
+alle Einträge)</td>
+<td>Eng</td>
+<td>Customer reviewed und ergänzt Lücken (Owner-Zuweisung)</td>
+</tr>
+<tr class="even">
+<td>AV-Register aufgebaut, alle Dienstleister erfasst</td>
+<td>Eng</td>
+<td>Customer klärt AVV-Status ggf. direkt mit Dienstleistern</td>
+</tr>
+<tr class="odd">
+<td>Automatische AVV-Reminder-Flows live</td>
+<td>Eng</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Owner-Mapping: Wer verantwortet welche Verarbeitungstätigkeit</td>
+<td>CS</td>
+<td>Customer entscheidet intern</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoints:</strong> Weekly Sync (30 Min, W3),
+Owner-Mapping-Workshop (45 Min, W3-4)</p>
+<hr />
+<h3 id="phase-3-workflows-automatisierungen">Phase 3: Workflows +
+Automatisierungen</h3>
+<p><strong>Wochen 3-6</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Customer-Input required</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Consent-Management-System live (Tracking, Audit-Trail, DB)</td>
+<td>Eng</td>
+<td>Zugang zu E-Mail-Tool / Form-Builder / CRM</td>
+</tr>
+<tr class="even">
+<td>Betroffenenrechte-Ticketing (alle 4 Anfrage-Typen) live</td>
+<td>Eng</td>
+<td>Customer tested Flows mit echten Test-Accounts</td>
+</tr>
+<tr class="odd">
+<td>Response-Templates (Art. 15/16/17/20) in System eingespielt</td>
+<td>CS</td>
+<td>Customer reviewed Templates auf eigenen Ton/Stil</td>
+</tr>
+<tr class="even">
+<td>30-Tage-SLA-Tracking + Eskalations-Automation</td>
+<td>Eng</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Löschfristenregister + automatische Hooks</td>
+<td>Eng</td>
+<td>Customer definiert Kategorien + Fristen (CS-geführt)</td>
+</tr>
+<tr class="even">
+<td>Datenpannen-Playbook + Melde-Templates</td>
+<td>CS</td>
+<td>Customer reviewed, ggf. Anwalt parallel</td>
+</tr>
+<tr class="odd">
+<td>TOM-Dokumentation erste Version</td>
+<td>CS</td>
+<td>Customer liefert technische Details (Passwort-Policy, etc.)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoints:</strong> Weekly Syncs (W4, W5, W6),
+Workflow-Demo-Call (45 Min, W5)</p>
+<hr />
+<h3 id="phase-4-dashboard-awareness-paket">Phase 4: Dashboard +
+Awareness-Paket</h3>
+<p><strong>Wochen 5-7</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Customer-Input required</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>DSGVO-Dashboard live (alle KPIs aggregiert)</td>
+<td>Eng</td>
+<td>Customer reviewed Dashboard-Layout vor Finalisierung</td>
+</tr>
+<tr class="even">
+<td>Mitarbeiter-Awareness-Paket (Loom-Videos + Quiz +
+Bestätigungsprotokoll)</td>
+<td>CS</td>
+<td>Customer reviewed Inhalte auf Richtigkeit</td>
+</tr>
+<tr class="odd">
+<td>Quarterly-Review-Trigger konfiguriert (erste Benachrichtigung
+gesetzt)</td>
+<td>Eng</td>
+<td>Customer bestätigt Owner-E-Mail für Notifications</td>
+</tr>
+<tr class="even">
+<td>TOM-Dokumentation finalisiert und von Customer freigegeben</td>
+<td>CS</td>
+<td>Customer Sign-off</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoints:</strong> Weekly Sync (W6),
+Dashboard-Preview-Call (30 Min, W6-7)</p>
+<hr />
+<h3 id="phase-5-testing-qa-handover">Phase 5: Testing, QA &amp;
+Handover</h3>
+<p><strong>Wochen 7-8</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Customer-Input required</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Alle Workflows: kompletter End-to-End-Test durchgeführt</td>
+<td>Eng + CS</td>
+<td>Customer führt Tabletop-Test Datenpannen-Playbook durch</td>
+</tr>
+<tr class="even">
+<td>Korrekturen aus Testing eingearbeitet</td>
+<td>Eng</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Test-Mitarbeiter hat Awareness-Paket vollständig durchlaufen</td>
+<td>Customer (mit CS-Begleitung)</td>
+<td>Pflicht vor Handover</td>
+</tr>
+<tr class="even">
+<td>Handover-Package fertig (siehe unten)</td>
+<td>CS</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Handover-Session (2h, alle Systeme erklärt)</td>
+<td>Founder/CS</td>
+<td>Customer-Owner + ggf. 1-2 MA</td>
+</tr>
+<tr class="even">
+<td>Retainer-Modus aktiviert: Review-Rhythmus, Escalation-Path
+definiert</td>
+<td>CS</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoints:</strong> QA-Review-Call (45 Min, W7),
+Handover-Session (2h, W8), Retainer-Kick-off (30 Min, W8)</p>
+<hr />
+<h2 id="team-allocation">Team-Allocation</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rolle</th>
+<th>Phase 1</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+<th>Phase 4</th>
+<th>Phase 5</th>
+<th>Retainer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Founder</strong></td>
+<td>Discovery-Oversight, Kick-off</td>
+<td>Prüfung VVT-Struktur</td>
+<td>Qualitätsprüfung Workflows</td>
+<td>—</td>
+<td>Handover-Session</td>
+<td>Quartalsreview</td>
+</tr>
+<tr class="even">
+<td><strong>Engineer</strong></td>
+<td>Tool-Inventar, Datenfluss-Diagramm</td>
+<td>AV-Register-Aufbau, Reminder-Flows</td>
+<td>Alle Automatisierungen + Consent-System</td>
+<td>Dashboard + Review-Trigger</td>
+<td>Testing, Bugfixes</td>
+<td>Systemwartung, Updates</td>
+</tr>
+<tr class="odd">
+<td><strong>Customer Success</strong></td>
+<td>Fragebogen, Gap-Analyse-Report</td>
+<td>Owner-Mapping-Workshop</td>
+<td>Templates, Playbook, TOM</td>
+<td>Awareness-Paket</td>
+<td>QA, Handover-Package</td>
+<td>Monatliche Touchpoints, Eskalation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2
+id="customer-onboarding-touchpoints">Customer-Onboarding-Touchpoints</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Touchpoint</th>
+<th>Timing</th>
+<th>Format</th>
+<th>Owner (AEVUM)</th>
+<th>Ziel</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Kick-off-Call</strong></td>
+<td>W1, Tag 2-3</td>
+<td>Video-Call, 3h</td>
+<td>Founder + CS</td>
+<td>Scope finalisieren, Zugang einrichten, Fragebogen briefen</td>
+</tr>
+<tr class="even">
+<td><strong>Fragebogen-Deadline</strong></td>
+<td>W1, Ende</td>
+<td>Async (Notion-Form)</td>
+<td>CS</td>
+<td>Tool-Liste + bestehende Docs vollständig</td>
+</tr>
+<tr class="odd">
+<td><strong>Gap-Analyse-Präsentation</strong></td>
+<td>W2</td>
+<td>Video-Call, 30 Min</td>
+<td>CS</td>
+<td>Befunde und Priorisierung abstimmen</td>
+</tr>
+<tr class="even">
+<td><strong>Owner-Mapping-Workshop</strong></td>
+<td>W3-4</td>
+<td>Video-Call, 45 Min</td>
+<td>CS</td>
+<td>Interne Verantwortlichkeiten zuweisen</td>
+</tr>
+<tr class="odd">
+<td><strong>Weekly Syncs</strong></td>
+<td>W3, W4, W5, W6</td>
+<td>Video-Call, 30 Min</td>
+<td>CS</td>
+<td>Status, Blocker, offene Fragen</td>
+</tr>
+<tr class="even">
+<td><strong>Workflow-Demo</strong></td>
+<td>W5</td>
+<td>Video-Call, 45 Min</td>
+<td>Eng + CS</td>
+<td>Alle Automatisierungen live zeigen</td>
+</tr>
+<tr class="odd">
+<td><strong>Dashboard-Preview</strong></td>
+<td>W6-7</td>
+<td>Video-Call, 30 Min</td>
+<td>CS</td>
+<td>Feedback einholen, Korrekturen definieren</td>
+</tr>
+<tr class="even">
+<td><strong>QA-Review-Call</strong></td>
+<td>W7</td>
+<td>Video-Call, 45 Min</td>
+<td>Eng + CS</td>
+<td>Testergebnisse besprechen, letzte Korrekturen</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover-Session</strong></td>
+<td>W8</td>
+<td>Video-Call, 2h</td>
+<td>Founder + CS</td>
+<td>Vollständige Übergabe, alle Systeme walkthrough</td>
+</tr>
+<tr class="even">
+<td><strong>Retainer-Kick-off</strong></td>
+<td>W8, Ende</td>
+<td>Video-Call, 30 Min</td>
+<td>CS</td>
+<td>Retainer-Rhythmus, Escalation-Path, erste Quarterly-Review
+terminieren</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="risk-register">Risk-Register</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Risiko</th>
+<th>Wahrscheinlichkeit</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>R1</strong></td>
+<td>Customer liefert Zugang zu Tools zu spät / unvollständig</td>
+<td>Hoch</td>
+<td>Hoch — blockiert Phase 1 + 3</td>
+<td>Zugang-Checkliste in Onboarding-E-Mail; Kick-off erst nach 80%
+Zugang; klare Deadline mit Timeline-Konsequenz kommunizieren</td>
+</tr>
+<tr class="even">
+<td><strong>R2</strong></td>
+<td>Unbekannte Komplexität (z.B. 3x mehr Verarbeitungstätigkeiten als
+angegeben)</td>
+<td>Mittel</td>
+<td>Mittel — Scope-Creep-Risiko</td>
+<td>Discovery-Cap explizit kommuniziert; CR-Prozess aktivieren sobald
+&gt;10% Überschreitung erkennbar; Tier-Upgrade anbieten</td>
+</tr>
+<tr class="odd">
+<td><strong>R3</strong></td>
+<td>Customer-Owner wechselt während Implementation</td>
+<td>Mittel</td>
+<td>Hoch — Wissensverlust, Verzögerung</td>
+<td>Alle Entscheidungen schriftlich in Notion dokumentieren;
+Owner-Wechsel-Protokoll: 2h Onboarding neuer Owner durch CS</td>
+</tr>
+<tr class="even">
+<td><strong>R4</strong></td>
+<td>Technische Automatisierungs-Hooks funktionieren nicht mit altem
+Tool-Stack (z.B. kein API-Zugang)</td>
+<td>Mittel</td>
+<td>Mittel — Teilautomatisierung statt Vollautomatisierung</td>
+<td>Früh in Phase 1 API-Verfügbarkeit prüfen; Fallback: manuelle
+Prozesse mit Checklisten; Communication mit Customer proaktiv</td>
+</tr>
+<tr class="odd">
+<td><strong>R5</strong></td>
+<td>Customer erwartet juristisch geprüfte Dokumente
+(Rechtsberatungs-Erwartung)</td>
+<td>Mittel</td>
+<td>Hoch — Haftungsrisiko für AEVUM</td>
+<td>Scope explizit in Onboarding-E-Mail und Vertragsbestandteil: “AEVUM
+liefert keine Rechtsberatung”; bei Anzeichen früh eskalieren und
+Anwalt-Empfehlung aktiv wiederholen</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-gates">Quality-Gates</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Gate</th>
+<th>Zeitpunkt</th>
+<th>Prüfung durch</th>
+<th>Kriterium für Freigabe</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>QG-1: Discovery-Vollständigkeit</strong></td>
+<td>Ende W2</td>
+<td>CS + Founder</td>
+<td>Tool-Inventar vollständig, Gap-Analyse vom Customer abgenommen</td>
+</tr>
+<tr class="even">
+<td><strong>QG-2: VVT-Vollständigkeit</strong></td>
+<td>Ende W4</td>
+<td>CS</td>
+<td>Alle bekannten Verarbeitungstätigkeiten erfasst, Owner-Mapping
+100%</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-3: Workflow-Funktionalität</strong></td>
+<td>Mitte W6</td>
+<td>Eng</td>
+<td>Alle 4 Betroffenenrechte-Typen technisch getestet, Consent-Trail
+nachweisbar</td>
+</tr>
+<tr class="even">
+<td><strong>QG-4: Dashboard-Datenintegrität</strong></td>
+<td>Ende W7</td>
+<td>Eng + CS</td>
+<td>Dashboard-Werte stimmen mit manueller Prüfung überein (Stichprobe 5
+KPIs)</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-5: End-to-End-Abnahme</strong></td>
+<td>Ende W7</td>
+<td>Founder</td>
+<td>Alle 10 Quality-Standards aus Scope-Checklist erfüllt — internes
+Sign-off vor Handover</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="handover-package">Handover-Package</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Format</th>
+<th>Inhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>System-Dokumentation</strong></td>
+<td>Notion-Page (Customer-Zugang)</td>
+<td>Alle Systeme erklärt: VVT, AV-Register, Dashboard, Ticket-System,
+Löschfristen</td>
+</tr>
+<tr class="even">
+<td><strong>Loom-Walkthroughs</strong></td>
+<td>Video (5-8 Videos, je 5-15 Min)</td>
+<td>Jedes System einmal vollständig erklärt: Navigation, Pflege, häufige
+Tasks</td>
+</tr>
+<tr class="odd">
+<td><strong>Datenpannen-Playbook</strong></td>
+<td>PDF + Notion</td>
+<td>Schritt-für-Schritt mit Templates und Behörden-Kontaktliste</td>
+</tr>
+<tr class="even">
+<td><strong>TOM-Dokumentation</strong></td>
+<td>PDF (finale Version)</td>
+<td>Freigegeben und datiert — direkt verwendbar für Audits</td>
+</tr>
+<tr class="odd">
+<td><strong>AVV-Register</strong></td>
+<td>Airtable/Notion</td>
+<td>Alle Auftragsverarbeiter, Status, letzte Prüfung,
+Reminder-Konfiguration</td>
+</tr>
+<tr class="even">
+<td><strong>Response-Templates</strong></td>
+<td>Notion / Word-Export</td>
+<td>Alle 4 Anfrage-Typen (Auskunft, Löschung, Berichtigung,
+Portabilität)</td>
+</tr>
+<tr class="odd">
+<td><strong>Quarterly-Review-Checkliste</strong></td>
+<td>Notion-Template</td>
+<td>Selbst-ausfüllbar, mit Hinweisen zu jedem Punkt</td>
+</tr>
+<tr class="even">
+<td><strong>Mitarbeiter-Awareness-Paket</strong></td>
+<td>Notion + Loom-Videos</td>
+<td>Self-service onboardbar, Quiz + Bestätigungsprotokoll</td>
+</tr>
+<tr class="odd">
+<td><strong>Credentials &amp; Access-Doku</strong></td>
+<td>1Password-Shared-Vault oder Notion-verschlüsselt</td>
+<td>Alle relevanten Zugänge, klar strukturiert</td>
+</tr>
+<tr class="even">
+<td><strong>Eskalations-Kontakt</strong></td>
+<td>Retainer-Onboarding-Dokument</td>
+<td>Ansprechpartner AEVUM, SLAs im Retainer, wie CRs gestellt
+werden</td>
+</tr>
+</tbody>
+</table>
+<h1 id="quality-gate">4. Quality-Gate</h1>
+<h2 id="asset-inventory">Asset-Inventory</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Asset</th>
+<th>Format</th>
+<th>Status</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Verarbeitungsverzeichnis (VVT)</td>
+<td>Notion/Airtable Database</td>
+<td>☐</td>
+<td>Eng</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>AV-Register inkl. AVV-Status</td>
+<td>Notion/Airtable Database</td>
+<td>☐</td>
+<td>Eng</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>AVV-Reminder-Automation</td>
+<td>Make/n8n Flow</td>
+<td>☐</td>
+<td>Eng</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Consent-Management-System + Audit-Trail-DB</td>
+<td>Make Flow + Airtable</td>
+<td>☐</td>
+<td>Eng</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Betroffenenrechte-Ticketing (4 Typen)</td>
+<td>Ticketing-System (Notion/Linear) + Automation</td>
+<td>☐</td>
+<td>Eng</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Response-Templates (Art. 15/16/17/20)</td>
+<td>Notion / Word-Export</td>
+<td>☐</td>
+<td>CS</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>30-Tage-SLA-Tracking + Eskalations-Flow</td>
+<td>Make/n8n</td>
+<td>☐</td>
+<td>Eng</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Löschfristenregister + Automatisierungs-Hooks</td>
+<td>Airtable + Make/n8n</td>
+<td>☐</td>
+<td>Eng</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>TOM-Dokumentation (final, freigegeben)</td>
+<td>PDF</td>
+<td>☐</td>
+<td>CS</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Datenpannen-Playbook + Melde-Templates</td>
+<td>PDF + Notion</td>
+<td>☐</td>
+<td>CS</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>DSGVO-Compliance-Dashboard</td>
+<td>Softr/Notion</td>
+<td>☐</td>
+<td>Eng</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Mitarbeiter-Awareness-Paket (Videos + Quiz + Protokoll)</td>
+<td>Loom + Notion</td>
+<td>☐</td>
+<td>CS</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td>Quarterly-Review-Trigger-Automation</td>
+<td>Make/n8n + E-Mail</td>
+<td>☐</td>
+<td>Eng</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td>System-Dokumentation (Vollständig)</td>
+<td>Notion</td>
+<td>☐</td>
+<td>CS</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td>Loom-Walkthroughs (5-8 Videos)</td>
+<td>Loom + Notion-Embed</td>
+<td>☐</td>
+<td>CS</td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td>Credentials &amp; Access-Dokumentation</td>
+<td>1Password / Notion</td>
+<td>☐</td>
+<td>CS</td>
+</tr>
+<tr class="odd">
+<td>17</td>
+<td>Handover-Session-Recording</td>
+<td>Loom / Zoom-Recording</td>
+<td>☐</td>
+<td>CS</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien">Sign-Off-Kriterien</h2>
+<p>Alle 10 Punkte müssen ✅ sein, bevor Handover freigegeben wird:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Kriterium</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>VVT vollständig: Alle identifizierten Verarbeitungstätigkeiten
+dokumentiert, 100% Owner-Mapping abgeschlossen</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>AV-Register vollständig: Alle Auftragsverarbeiter erfasst,
+AVV-Status für jeden Eintrag bekannt (nicht leer)</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Consent-Tracking live: Opt-in → DB-Eintrag → Audit-Trail
+funktioniert nachweislich (Test-Protokoll vorhanden)</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Betroffenenrechte: Alle 4 Anfrage-Typen technisch getestet, korrekt
+geroutet, Response-Templates zugewiesen</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>SLA-Tracking: 30-Tage-Frist wird korrekt berechnet,
+Eskalations-Notification ausgelöst bei Überschreitung (Test-Durchlauf
+dokumentiert)</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Löschfristenregister: Alle Datenkategorien mit Frist hinterlegt,
+mindestens 1 automatischer Hook live und getestet</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>TOM-Dokumentation: Finale Version vom Customer-Owner schriftlich
+freigegeben (Datum + Name im Dokument)</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Datenpannen-Playbook: Customer-Owner hat Tabletop-Test vollständig
+durchlaufen, Ergebnis dokumentiert</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Awareness-Paket: Mindestens 1 Test-MA hat kompletten Flow
+durchlaufen, Bestätigungsprotokoll liegt vor</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Dashboard: Alle KPIs live, Datenkonsistenz via Stichprobe (5 KPIs
+manuell geprüft) bestätigt, Quarterly-Trigger gesetzt und erste
+Notification verifiziert</td>
+<td>☐</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="known-limitations-phase-2-items">Known Limitations
+(Phase-2-Items)</h2>
+<p>Folgende Items sind bewusst nicht in Phase 1 enthalten und werden
+ggf. als CR oder in Retainer-Phase adressiert:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Limitation</th>
+<th>Begründung</th>
+<th>Empfohlener Next-Step</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>L1</td>
+<td>Löschfristenautomatisierung ist nicht für alle Tools möglich
+(abhängig von API-Verfügbarkeit)</td>
+<td>Einige Tools haben keine API für automatisches Löschen — dort
+manuelle Prozesse mit Checkliste</td>
+<td>Tool-Evaluation im Retainer; ggf. Tool-Migration empfehlen</td>
+</tr>
+<tr class="even">
+<td>L2</td>
+<td>AVVs mit Dienstleistern sind nicht alle abgeschlossen — Status
+“fehlend” verbleibt nach Übergabe</td>
+<td>AEVUM kann nicht im Namen des Customers verhandeln</td>
+<td>Customer muss fehlende AVVs aktiv nachverfolgen; Reminder-System
+unterstützt</td>
+</tr>
+<tr class="odd">
+<td>L3</td>
+<td>Neues Datenschutzrecht / Gesetzesänderungen (z.B.
+ePrivacy-Verordnung, nationale Umsetzungen)</td>
+<td>Rechtliche Entwicklungen außerhalb AEVUM-Scope</td>
+<td>Retainer-Quarterly-Review als Frühwarnsystem; bei Bedarf CR</td>
+</tr>
+<tr class="even">
+<td>L4</td>
+<td>DSFA für neue Hochrisiko-Verarbeitungen nicht enthalten</td>
+<td>DSFA-Durchführung ist juristisch komplex — Templates geliefert,
+Durchführung = Customer</td>
+<td>DSFA-Begleitung als CR buchbar (€2.000-3.500)</td>
+</tr>
+<tr class="odd">
+<td>L5</td>
+<td>Multi-Jurisdiktion (UK-GDPR, CCPA, etc.) nicht abgedeckt</td>
+<td>Scope ist DSGVO-EU; andere Jurisdiktionen haben andere
+Anforderungen</td>
+<td>Separates Angebot bei Bedarf</td>
+</tr>
+<tr class="even">
+<td>L6</td>
+<td>Consent-Retroaktivierung bestehender Kontaktlisten</td>
+<td>Ob bestehende Kontakte rechtskonform sind — historisches Problem,
+nicht von AEVUM lösbar</td>
+<td>Anwalt für Bewertung der Legacy-Liste; ggf. Re-Consent-Kampagne als
+separater Scope</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="db-update-befehl">DB-Update-Befehl</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- AEVUM Service Catalog: Item Status Update nach Delivery</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> service_catalog</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  status                <span class="op">=</span> <span class="st">&#39;active&#39;</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  delivery_status       <span class="op">=</span> <span class="st">&#39;delivered&#39;</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  last_delivery_date    <span class="op">=</span> <span class="fu">CURRENT_DATE</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  tier_m_setup_min      <span class="op">=</span> <span class="dv">9000</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  tier_m_setup_max      <span class="op">=</span> <span class="dv">14000</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  tier_m_retainer_min   <span class="op">=</span> <span class="dv">1800</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  tier_m_retainer_max   <span class="op">=</span> <span class="dv">2800</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  tier_l_setup_min      <span class="op">=</span> <span class="dv">22000</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  tier_l_setup_max      <span class="op">=</span> <span class="dv">45000</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  tier_l_retainer_min   <span class="op">=</span> <span class="dv">3200</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  tier_l_retainer_max   <span class="op">=</span> <span class="dv">5000</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  implementation_weeks_m <span class="op">=</span> <span class="dv">7</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  implementation_weeks_l <span class="op">=</span> <span class="dv">11</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  icp_ag                <span class="op">=</span> <span class="kw">true</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  icp_pb                <span class="op">=</span> <span class="kw">true</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  icp_fi                <span class="op">=</span> <span class="kw">true</span>,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  primary_icp           <span class="op">=</span> <span class="st">&#39;AG,FI&#39;</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  upsell_targets        <span class="op">=</span> <span class="st">&#39;database-system,website-crm,business-os,command-center-dashboard,automation-audit&#39;</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  docs_complete         <span class="op">=</span> <span class="kw">true</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  updated_at            <span class="op">=</span> NOW()</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> slug <span class="op">=</span> <span class="st">&#39;dsgvo-factory&#39;</span>;</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co">-- Log Delivery Event</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> delivery_log (service_slug, event_type, event_date, notes)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span> (</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;dsgvo-factory&#39;</span>,</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;initial_docs_complete&#39;</span>,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  NOW(),</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;Sales-Brief, Scope-Checklist, Delivery-Plan, Quality-Gate erstellt. Tier M + L dokumentiert. Keine Rechtsberatung im Scope.&#39;</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+<hr />
+<h2 id="pattern-notes-für-dfy-builder-pattern">Pattern-Notes für
+DFY-Builder-Pattern</h2>
+<pre><code>PATTERN: dsgvo-factory
+CATEGORY: compliance-automation
+VERSION: 1.0
+
+KEY-DIFFERENTIATIONS:
+- Explicit legal-non-advice boundary: kritisch und muss in JEDEM Customer-Touch wiederholt werden
+  → In Vertrag, Kick-off, Handover schriftlich verankern
+- Hybrid-Output: Kombination aus Datenbank-Assets (VVT, AV-Register) + Automationen + Dokumentation
+  → Eng + CS müssen eng zusammenarbeiten; CS-lastig in frühen Phasen, Eng-lastig in Phase 3
+- Blocking-Risk: Tool-Zugang ist härtester Blocker — kein Fortschritt ohne Zugang
+  → Kick-off-Gate: erst nach 80% Zugang bestätigen
+- Expectation-Risk: Customers neigen dazu, &quot;DSGVO-konform&quot; mit &quot;rechtlich abgesichert&quot; gleichzusetzen
+  → Proaktive Enttäuschung besser als reaktive Haftung
+- Retainer-Value: Hoch, weil Compliance kontinuierlich gepflegt werden muss — Quarterly-Reviews + AVV-Monitoring
+  → In Sales-Gespräch Retainer als eigentliche Schutzebene positionieren, nicht Setup
+
+PRICING-NOTES:
+- Tier M passt gut für Agenturen &lt;20 MA mit standardem Tool-Stack
+- Tier L bei Mittelstand mit mehreren Entitäten oder komplexem HR-System schnell erreicht
+- Add-on Live-Schulung ist häufig requested — aktiv anbieten nach Handover
+
+REUSABLE-TEMPLATES:
+- VVT-Template: Notion-DB-Template wiederverwendbar
+- AVV-Register-Template: Airtable-Base wiederverwendbar
+- Response-Templates (Art. 15-20): Wiederverwendbar mit Customer-Branding-Swap
+- TOM-Template: Wiederverwendbar mit Ist-Zustand-Anpassung
+
+WATCH-OUT:
+- Customer stellt im Retainer &quot;kurze Fragen&quot; die faktisch Rechtsberatung sind
+  → CS muss frühzeitig umleiten: &quot;Das ist eine juristische Frage — hier ist unser Prozess-Support,
+    für die Rechtsfrage empfehlen wir [Anwalt/DSB]&quot;</code></pre>
+</body>
+</html>

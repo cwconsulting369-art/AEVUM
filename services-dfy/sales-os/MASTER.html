@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM DFY: sales-os</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM DFY: sales-os</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-done-for-you-sales-os">AEVUM Done-for-You — sales-os</h1>
+<blockquote>
+<p>Generated 2026-05-25. Combined Master-Doc.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<h2 id="in-einem-satz">In einem Satz</h2>
+<p>Wir bauen dein komplettes Sales-OS: eine strukturierte Pipeline mit
+AI-basiertem Lead-Scoring, CRM-Integration und automatisierten
+Follow-up-Flows — sodass dein Team nur noch mit Leads arbeitet, die
+wirklich kaufbereit sind.</p>
+<hr />
+<h2 id="wer-das-braucht">Wer das braucht</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Konkreter Use-Case</th>
+<th>Fit-Rating</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AG</strong> (Agenturen 3-50 MA)</td>
+<td>Pipeline-Chaos durch mehrere Account-Manager, kein einheitliches
+Scoring, Deals fallen durch den Rost weil Follow-ups manuell laufen</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr class="even">
+<td><strong>PB</strong> (Personal Brands)</td>
+<td>Coaching/Consulting-Anfragen kommen über 3 Kanäle, werden in Excel
+getracked, kein System wann und wie oft nachgefasst wird</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr class="odd">
+<td><strong>FI</strong> (Mittelstand B2B 10-100 MA)</td>
+<td>Sales-Team hat CRM (oft HubSpot/Pipedrive) aber kein Scoring, kein
+automatisiertes Nurturing, Reporting ist manuell und Wochen
+verzögert</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="was-customer-bekommt">Was Customer bekommt</h2>
+<ol type="1">
+<li><strong>Pipeline-Architektur</strong>: Sauber definierte Deal-Stages
+mit Eintritts- und Exit-Kriterien pro Stage, abgestimmt auf den
+tatsächlichen Sales-Prozess des Customers</li>
+<li><strong>AI-Lead-Scoring-Modell</strong>: Regelbasiertes +
+ML-gestütztes Scoring-System (0-100 Score) basierend auf Firmographics,
+Behavioral-Signals und historischen Deal-Daten</li>
+<li><strong>CRM-Integration</strong>: Vollständige technische
+Integration in bestehendes oder neu aufgesetztes CRM (HubSpot,
+Pipedrive, oder Notion-based je nach Tier)</li>
+<li><strong>Automatisierte Follow-up-Sequenzen</strong>:
+Trigger-basierte E-Mail-/Outreach-Flows wenn Lead-Status sich ändert
+oder Score einen Threshold überschreitet</li>
+<li><strong>Deal-Velocity-Tracking</strong>: Automatisches Messen wie
+lange Deals in jeder Stage verweilen mit Alert wenn Deals
+“einschlafen”</li>
+<li><strong>Sales-Dashboard</strong>: Übersichts-Dashboard mit
+Pipeline-Value, Conversion-Rates per Stage, Forecasting-View (30/60/90
+Tage)</li>
+<li><strong>Lead-Enrichment-Layer</strong>: Automatische Anreicherung
+eingehender Leads mit verfügbaren Firmendaten (LinkedIn, Clearbit oder
+Proxycurl-basiert je nach Scope)</li>
+<li><strong>Handover-Dokumentation</strong>: Vollständiges Playbook wie
+das System bedient wird, was die Score-Thresholds bedeuten und wie neues
+Personal eingearbeitet wird</li>
+<li><strong>CRM-Daten-Migration</strong>: Import bestehender
+Kontakte/Deals in die neue Struktur inkl. Stage-Mapping</li>
+<li><strong>Team-Training-Session</strong>: Live-Walkthrough mit dem
+Sales-Team (1x 90 Min, aufgezeichnet)</li>
+</ol>
+<hr />
+<h2 id="mehrwert-konkret">Mehrwert (konkret)</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Vorher</th>
+<th>Nachher</th>
+<th>Schätzwert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Zeit pro Lead-Qualifikation</strong></td>
+<td>25-40 Min manuales Recherchieren + Bewerten</td>
+<td>3-5 Min Review des AI-Scores + Signal-Summary</td>
+<td>~85% Time-Save</td>
+</tr>
+<tr class="even">
+<td><strong>Follow-up-Rate</strong></td>
+<td>~40% der Leads bekommen konsistente Follow-ups (abhängig von
+Bandbreite)</td>
+<td>100% Leads bekommen stage-gerechte Follow-up-Sequenz
+automatisch</td>
+<td>+60pp Coverage</td>
+</tr>
+<tr class="odd">
+<td><strong>Deal-Visibility</strong></td>
+<td>Pipeline-Status unklar, Forecasting “Bauchgefühl”</td>
+<td>Echtzeit-Dashboard, Forecast-Accuracy ±15%</td>
+<td>Reporting-Time -70%</td>
+</tr>
+<tr class="even">
+<td><strong>Revenue-Lift</strong></td>
+<td>Deals gehen verloren durch vergessene Follow-ups oder falsche
+Priorisierung</td>
+<td>High-Score-Leads werden bevorzugt bearbeitet, Abschlussrate
+steigt</td>
+<td>+15-30% Close-Rate (abhängig von Baseline)</td>
+</tr>
+<tr class="odd">
+<td><strong>Onboarding neuer Sales-Reps</strong></td>
+<td>4-8 Wochen bis Produktivität</td>
+<td>System gibt klare Prioritäten vor ab Tag 1</td>
+<td>Ramp-Zeit -50%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pricing-logic">Pricing-Logic</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Tier M</strong></th>
+<th><strong>Tier L</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Setup</strong></td>
+<td>€10.000 – €18.000</td>
+<td>€25.000 – €45.000</td>
+</tr>
+<tr class="even">
+<td><strong>Monthly Retainer</strong></td>
+<td>€2.000 – €3.000</td>
+<td>€3.500 – €5.000</td>
+</tr>
+<tr class="odd">
+<td><strong>Scope</strong></td>
+<td>1 CRM-System, bis zu 5 Pipeline-Stages, Scoring-Modell auf Basis von
+bis zu 15 Datenpunkten, 3 Automatisierungs-Flows,
+Standard-Dashboard</td>
+<td>Multi-CRM oder Custom-CRM-Aufbau, komplexe Scoring-Modelle
+(ML-Layer), unbegrenzte Flows, Multi-Team-Setup, Custom-Reporting,
+Lead-Enrichment-API-Integration</td>
+</tr>
+<tr class="even">
+<td><strong>Implementation</strong></td>
+<td>4-6 Wochen</td>
+<td>8-12 Wochen</td>
+</tr>
+<tr class="odd">
+<td><strong>Team-Size Customer</strong></td>
+<td>1-8 Sales-Reps</td>
+<td>8-40 Sales-Reps</td>
+</tr>
+<tr class="even">
+<td><strong>CRM-Plattform</strong></td>
+<td>HubSpot Starter/Pro oder Pipedrive</td>
+<td>HubSpot Pro/Enterprise, Custom-Stack, oder Salesforce-Adjacent</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Setup-to-Retainer-Ratio</strong>: ~4:1 (Tier M) / ~7:1 (Tier
+L)</p>
+<p>Retainer deckt: System-Wartung, Score-Modell-Tuning monatlich, Neue
+Automations-Requests (bis 2 pro Monat), proaktives Monitoring +
+Reporting.</p>
+<hr />
+<h2 id="timeline">Timeline</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th>Wochen</th>
+<th>Inhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Phase 1: Discovery &amp; Architektur</strong></td>
+<td>Wo 1-2</td>
+<td>Sales-Prozess-Mapping, CRM-Audit, Score-Kriterien definieren,
+Tech-Stack-Entscheidung</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 2: CRM-Setup &amp; Pipeline-Architektur</strong></td>
+<td>Wo 2-3</td>
+<td>Stage-Konfiguration, Custom-Fields, Deal-Struktur,
+User-Permissions</td>
+</tr>
+<tr class="odd">
+<td><strong>Phase 3: Scoring-Modell + Enrichment</strong></td>
+<td>Wo 3-4</td>
+<td>Scoring-Logik implementieren, Enrichment-Layer anschließen,
+Daten-Migration</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 4: Automation-Flows + Dashboard</strong></td>
+<td>Wo 4-5</td>
+<td>Follow-up-Sequenzen, Deal-Velocity-Alerts, Dashboard-Build</td>
+</tr>
+<tr class="odd">
+<td><strong>Phase 5: Testing + Team-Onboarding</strong></td>
+<td>Wo 5-6</td>
+<td>QA über 2 Wochen, Team-Training, Playbook-Erstellung, Go-Live</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer">Voraussetzungen Customer</h2>
+<ul>
+<li>Klares Bild des eigenen Sales-Prozesses (auch wenn noch nicht
+dokumentiert — muss aber in 1-2 Calls erarbeitet werden können)</li>
+<li>Zugang zu bestehendem CRM (Admin-Rechte) oder Bereitschaft, ein
+neues CRM aufzusetzen</li>
+<li>Min. 6 Monate historische Deal-Daten für Scoring-Kalibrierung (sonst
+regelbasiertes Modell ohne ML-Layer)</li>
+<li>Entscheidungsträger verfügbar für 2-3 Input-Sessions in Woche
+1-2</li>
+<li>Sales-Team muss das System aktiv nutzen — kein “wir testen mal” —
+sonst wird Scoring-Modell nicht besser</li>
+<li>E-Mail-Domain mit ordentlicher Zustellbarkeit (SPF/DKIM gesetzt)
+wenn E-Mail-Flows genutzt werden</li>
+<li>Budget-Commitment für mindestens 3 Monate Retainer nach Go-Live
+(Scoring-Modell braucht Laufzeit)</li>
+</ul>
+<hr />
+<h2 id="nicht-ziele-out-of-scope">Nicht-Ziele (Out-of-Scope)</h2>
+<ol type="1">
+<li><strong>Kein Lead-Generation</strong>: Das Sales-OS verarbeitet
+Leads — es beschafft keine. Wenn Leads fehlen, ist
+<code>ai-lead-engine</code> der richtige Folge-Service.</li>
+<li><strong>Kein Ad-Management oder Marketing-Automation</strong>:
+E-Mail-Sequences sind Sales-seitig — keine Marketing-Kampagnen, kein
+Broadcast-Newsletter-Setup.</li>
+<li><strong>Keine rechtliche Prüfung der Outreach-Texte</strong>: AEVUM
+schreibt technisch korrekte Flows, aber DSGVO-Prüfung und Texte liegen
+beim Customer.</li>
+<li><strong>Kein ERP- oder Buchhaltungs-Anschluss</strong>: Deals werden
+im CRM getracked — kein Anschluss an DATEV, SAP, Lexoffice etc.</li>
+<li><strong>Kein Scoring aus externen Quellen die Lizenz-Kosten
+verursachen ohne Customer-Account</strong>: Clearbit, Apollo etc.
+brauchen eigene Accounts des Customers — AEVUM integriert, kauft keine
+API-Zugänge.</li>
+<li><strong>Kein Custom-ML-Modell (Tier M)</strong>: Tier M nutzt
+regelbasiertes Scoring. Echtes ML-Modell ist Tier-L-Feature.</li>
+<li><strong>Kein laufendes Content-Writing für
+Follow-up-E-Mails</strong>: AEVUM baut die Flows und gibt
+Template-Struktur — finale Texte schreibt Customer oder bucht
+<code>content-engine</code> als Add-on.</li>
+</ol>
+<hr />
+<h2 id="upsell-pfade">Upsell-Pfade</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Trigger</th>
+<th>Next-Service</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Pipeline läuft, aber zu wenig Leads reinkommen</td>
+<td><code>ai-lead-engine</code></td>
+<td>Das OS ist bereit — jetzt muss Top-of-Funnel gefüllt werden</td>
+</tr>
+<tr class="even">
+<td>Customer will KPI-Sichtbarkeit über Sales hinaus</td>
+<td><code>command-center-dashboard</code></td>
+<td>Sales-Dashboard als Modul in ein größeres Ops-Dashboard
+integrieren</td>
+</tr>
+<tr class="odd">
+<td>Sales-Team wächst, Business-Prozesse werden komplexer</td>
+<td><code>business-os</code></td>
+<td>Sales-OS wird Modul im größeren Business-OS</td>
+</tr>
+<tr class="even">
+<td>Lead-Daten kommen aus mehreren Quellen und sind unstrukturiert</td>
+<td><code>database-system</code></td>
+<td>Multi-Source-Pipeline um saubere Datenbasis für Scoring zu
+schaffen</td>
+</tr>
+<tr class="odd">
+<td>Retainer läuft 3 Monate, Score-Modell ist stabil, Customer will
+Audit</td>
+<td><code>automation-audit</code></td>
+<td>Strategische Erweiterung bestehender Automations dokumentieren und
+priorisieren</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conversion-story">Conversion-Story</h2>
+<p>Die meisten B2B-Teams wissen irgendwo tief drin: Sie verlieren Deals
+nicht weil das Produkt schlecht ist. Sie verlieren Deals weil niemand
+rechtzeitig nachgefasst hat. Weil der falsche Lead zu viel
+Aufmerksamkeit bekommen hat. Weil das CRM seit Monaten aussieht wie ein
+digitales Aktenlager — befüllt, aber nie wirklich genutzt. Das ist kein
+Disziplinproblem. Das ist ein Systemproblem.</p>
+<p>Das Sales-OS löst genau das — nicht mit Ratschlägen oder Workshops,
+sondern mit einem System das still im Hintergrund arbeitet. Jeder Lead
+bekommt einen Score. Jede Stage hat klare Kriterien. Jeder Deal der
+einschläft triggert automatisch eine Reaktion. Das Team arbeitet morgens
+rein und sieht sofort: das sind meine fünf Leads für heute, geordnet
+nach Abschlusswahrscheinlichkeit. Kein Raten. Kein Vergessen.</p>
+<p>Nach 60-90 Tagen passiert etwas das Kunden immer wieder überrascht:
+Das Scoring-Modell wird besser weil es lernt, welche Signale bei euch
+tatsächlich zu Deals führen. Das ist keine Magie — das sind Daten die
+ihr schon hattet, nur nie systematisch genutzt habt. Das Sales-OS macht
+euer bestehendes Wissen skalierbar. Und das ist der eigentliche Wert.
+</p>
+<h1 id="scope-checklist">2. Scope-Checklist</h1>
+<blockquote>
+<p>Dieses Dokument ist für AEVUM-interne Sales-Gespräche. Vor jedem
+Deal-Close durcharbeiten und Customer-Erwartungen explizit
+abgleichen.</p>
+</blockquote>
+<hr />
+<h2 id="in-scope">In-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Item</th>
+<th>Aufwand-Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Sales-Prozess-Interview (1-2 Calls à 60 Min)</td>
+<td>2-4h</td>
+</tr>
+<tr class="even">
+<td><strong>Discovery</strong></td>
+<td>Bestehende CRM-Struktur auditieren + dokumentieren</td>
+<td>3-6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>Scoring-Kriterien-Workshop mit Customer</td>
+<td>2-3h</td>
+</tr>
+<tr class="even">
+<td><strong>CRM-Setup</strong></td>
+<td>Pipeline-Stage-Konfiguration (max. 7 Stages)</td>
+<td>4-6h</td>
+</tr>
+<tr class="odd">
+<td><strong>CRM-Setup</strong></td>
+<td>Custom-Fields + Deal-Properties definieren und anlegen</td>
+<td>3-5h</td>
+</tr>
+<tr class="even">
+<td><strong>CRM-Setup</strong></td>
+<td>User-Rollen + Permissions konfigurieren</td>
+<td>1-2h</td>
+</tr>
+<tr class="odd">
+<td><strong>CRM-Setup</strong></td>
+<td>Daten-Migration bestehender Kontakte/Deals (bis 5.000 Records)</td>
+<td>4-8h</td>
+</tr>
+<tr class="even">
+<td><strong>Scoring-Modell</strong></td>
+<td>Regelbasiertes Scoring-Framework (bis 15 Datenpunkte, Tier M)</td>
+<td>6-10h</td>
+</tr>
+<tr class="odd">
+<td><strong>Scoring-Modell</strong></td>
+<td>ML-gestütztes Scoring-Modell (Tier L, ab 500 historischen
+Deals)</td>
+<td>15-25h</td>
+</tr>
+<tr class="even">
+<td><strong>Scoring-Modell</strong></td>
+<td>Score-Thresholds definieren (Cold/Warm/Hot)</td>
+<td>2-3h</td>
+</tr>
+<tr class="odd">
+<td><strong>Enrichment</strong></td>
+<td>Lead-Enrichment via API-Integration (Proxycurl oder Clearbit,
+Customer-API-Key)</td>
+<td>4-8h</td>
+</tr>
+<tr class="even">
+<td><strong>Automation</strong></td>
+<td>Follow-up-Sequenz pro Stage-Übergang (bis 3 Flows, Tier M / bis 8
+Flows, Tier L)</td>
+<td>3-5h pro Flow</td>
+</tr>
+<tr class="odd">
+<td><strong>Automation</strong></td>
+<td>Deal-Velocity-Alert wenn Deal X Tage keine Aktivität</td>
+<td>2-3h</td>
+</tr>
+<tr class="even">
+<td><strong>Automation</strong></td>
+<td>Score-Threshold-Trigger (Alert an Sales-Rep wenn Lead Hot wird)</td>
+<td>2-3h</td>
+</tr>
+<tr class="odd">
+<td><strong>Dashboard</strong></td>
+<td>Sales-Pipeline-Dashboard (Value, Conversion Rates, Velocity,
+Forecast)</td>
+<td>8-14h</td>
+</tr>
+<tr class="even">
+<td><strong>Dashboard</strong></td>
+<td>Team-Performance-View (Tier L)</td>
+<td>4-6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Testing</strong></td>
+<td>End-to-End QA aller Flows + Scoring-Logik</td>
+<td>6-10h</td>
+</tr>
+<tr class="even">
+<td><strong>Handover</strong></td>
+<td>Playbook-Erstellung (Schriftlich + Loom-Videos)</td>
+<td>4-6h</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover</strong></td>
+<td>Team-Training-Session (1x 90 Min, aufgezeichnet)</td>
+<td>2h inkl. Vor/Nachbereitung</td>
+</tr>
+<tr class="even">
+<td><strong>Retainer</strong></td>
+<td>Monatliches Score-Modell-Tuning</td>
+<td>2-3h/Monat</td>
+</tr>
+<tr class="odd">
+<td><strong>Retainer</strong></td>
+<td>Bis 2 neue Automation-Requests pro Monat</td>
+<td>2-4h/Monat</td>
+</tr>
+<tr class="even">
+<td><strong>Retainer</strong></td>
+<td>Proaktives Monitoring + Fehlerreporting</td>
+<td>1-2h/Monat</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="out-of-scope">Out-of-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Was Customer NICHT bekommt</th>
+<th>Warum explizit nennen</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Lead-Generierung / Prospecting</td>
+<td>Häufigste Verwechslung — klarer Boundary zu
+<code>ai-lead-engine</code></td>
+</tr>
+<tr class="even">
+<td>Texterstellung für Follow-up-E-Mails (mehr als
+Template-Struktur)</td>
+<td>Zeitaufwand unkontrollierbar, Content-Qualität liegt beim
+Customer</td>
+</tr>
+<tr class="odd">
+<td>DSGVO-/Rechtsberatung für Outreach-Sequenzen</td>
+<td>Haftungsrisiko — Customer muss eigenen Berater einschalten</td>
+</tr>
+<tr class="even">
+<td>ERP/Buchhaltungs-Integration (DATEV, SAP, Lexoffice etc.)</td>
+<td>Out-of-Scope dieses Service-Typs</td>
+</tr>
+<tr class="odd">
+<td>Marketing-Automation / Newsletter-Broadcasts</td>
+<td>Andere System-Logik, anderer Service</td>
+</tr>
+<tr class="even">
+<td>CRM-Plattform-Lizenzkosten</td>
+<td>Customer zahlt eigene SaaS-Kosten (HubSpot, Pipedrive etc.)</td>
+</tr>
+<tr class="odd">
+<td>API-Lizenzen für Enrichment-Tools</td>
+<td>Clearbit, Proxycurl etc. laufen auf Customer-Account</td>
+</tr>
+<tr class="even">
+<td>Mehr als 5.000 Records Migration (Tier M)</td>
+<td>Aufwand skaliert linear, Mehraufwand wird separat bepreist</td>
+</tr>
+<tr class="odd">
+<td>Custom-ML-Modell (Tier M)</td>
+<td>Nur regelbasiertes Scoring in Tier M</td>
+</tr>
+<tr class="even">
+<td>Sales-Coaching oder Prozess-Beratung</td>
+<td>AEVUM baut System, definiert keine Sales-Strategie</td>
+</tr>
+<tr class="odd">
+<td>Ongoing-Textupdates an Automations im Retainer</td>
+<td>Technische Changes ja, Content-Changes nein</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer-side">Voraussetzungen
+Customer-Side</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Requirement</th>
+<th>Konsequenz wenn fehlt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Zugang</strong></td>
+<td>Admin-Zugang zu bestehendem CRM</td>
+<td>Setup kann nicht beginnen — Blocker</td>
+</tr>
+<tr class="even">
+<td><strong>Zugang</strong></td>
+<td>DNS-Zugang (SPF/DKIM) wenn E-Mail-Flows genutzt werden</td>
+<td>Flows werden aufgebaut, aber nicht aktiviert bis Deliverability
+klar</td>
+</tr>
+<tr class="odd">
+<td><strong>Daten</strong></td>
+<td>Exportierte historische Deal-Daten (min. 6 Monate, CSV/Excel)</td>
+<td>Nur regelbasiertes Scoring möglich, kein ML-Layer</td>
+</tr>
+<tr class="even">
+<td><strong>Daten</strong></td>
+<td>Definition der eigenen ICP-Kriterien (zumindest grob)</td>
+<td>Discovery verlängert sich um 1 Woche</td>
+</tr>
+<tr class="odd">
+<td><strong>Zeit</strong></td>
+<td>Entscheidungsträger für 3 Input-Sessions in Wo 1-2 (je 60 Min)</td>
+<td>Architektur-Phase verzögert sich, Gesamtprojekt verlängert sich</td>
+</tr>
+<tr class="even">
+<td><strong>Zeit</strong></td>
+<td>Sales-Team für 90-Min Training-Session verfügbar</td>
+<td>Handover kann nicht abgeschlossen werden</td>
+</tr>
+<tr class="odd">
+<td><strong>Commitment</strong></td>
+<td>Aktive CRM-Nutzung durch Sales-Team nach Go-Live</td>
+<td>Scoring-Modell verbessert sich nicht, Retainer-Wert sinkt</td>
+</tr>
+<tr class="even">
+<td><strong>Budget</strong></td>
+<td>Min. 3 Monate Retainer-Commitment</td>
+<td>Ohne Laufzeit kein sinnvolles Modell-Tuning — kein Setup ohne diese
+Zusage</td>
+</tr>
+<tr class="odd">
+<td><strong>Tool-Entscheidung</strong></td>
+<td>Klare Entscheidung für CRM-Plattform vor Projektstart</td>
+<td>Kein Setup auf “mal sehen”</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-standards">Quality-Standards</h2>
+<p>AEVUM erklärt das Projekt erst als “Done” wenn alle folgenden Punkte
+erfüllt sind:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Standard</th>
+<th>Messkriterium</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Scoring-Modell läuft auf echten Live-Daten (kein Testmodus)</td>
+<td>20+ Leads haben Score erhalten, Werte verteilen sich sinnvoll über
+Cold/Warm/Hot</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Alle definierten Flows laufen fehlerfrei durch</td>
+<td>End-to-End-Test dokumentiert, 0 Error-Logs in 48h nach Go-Live</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Dashboard zeigt Echtzeit-Daten ohne manuelle Aktualisierung</td>
+<td>Refresh-Intervall max. 4h, alle KPIs plausibel</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Daten-Migration vollständig und validiert</td>
+<td>Record-Count stimmt mit Quelldaten überein, Spot-Check 50 Records
+manuell</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Customer-Team hat Training absolviert</td>
+<td>Aufzeichnung vorhanden, Team kann Basis-Operationen ohne
+AEVUM-Support</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Playbook übergeben</td>
+<td>Schriftliches Dokument + min. 3 Loom-Videos (Pipeline-Nutzung,
+Score-Interpretation, Flow-Management)</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Deal-Velocity-Alerts getestet</td>
+<td>Künstlicher Test-Deal durch alle Stages geführt, Alert
+ausgelöst</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Score-Threshold-Definition schriftlich bestätigt</td>
+<td>Customer hat Cold/Warm/Hot-Kriterien in Schriftform abgenommen</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="change-request-policy">Change-Request-Policy</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Szenario</th>
+<th>Behandlung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Änderungen an Stage-Struktur während Phase 1-2</td>
+<td>Kostenlos wenn noch kein Build begonnen hat</td>
+</tr>
+<tr class="even">
+<td>Zusätzliche Automation-Flows über vereinbarten Scope hinaus</td>
+<td>Change-Request: €350-600 pro Flow je nach Komplexität, Umsetzung
+nächster Sprint</td>
+</tr>
+<tr class="odd">
+<td>Scoring-Kriterien-Anpassung nach Go-Live</td>
+<td>Teil des Retainers (bis 2 monatliche Adjustments)</td>
+</tr>
+<tr class="even">
+<td>Wechsel der CRM-Plattform nach Setup-Beginn</td>
+<td>Neues Projekt / neues Angebot — nicht im bestehenden Scope
+abbildbar</td>
+</tr>
+<tr class="odd">
+<td>Migration von mehr als 5.000 Records (Tier M)</td>
+<td>€150 pro zusätzliche 1.000 Records</td>
+</tr>
+<tr class="even">
+<td>Zusätzliche Dashboard-Views über Standard-Scope</td>
+<td>€500-1.200 je nach Komplexität, Angebot vor Umsetzung</td>
+</tr>
+<tr class="odd">
+<td>Scope-Erweiterung auf Tier L während laufendem Tier-M-Projekt</td>
+<td>Aufpreis-Kalkulation auf Basis Delta-Aufwand, neues SOW</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pricing-variations">Pricing-Variations</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Preiseffekt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kein bestehendes CRM vorhanden → Neu-Setup Pipedrive/HubSpot
+inkl.</td>
+<td>+€800-1.500 Setup (Konfiguration, Workspace-Setup, erste
+Daten-Struktur)</td>
+</tr>
+<tr class="even">
+<td>Mehr als 5.000 Records Migration</td>
+<td>+€150 pro 1.000 Records</td>
+</tr>
+<tr class="odd">
+<td>ML-Layer Scoring (Tier M Add-on, min. 500 historische Deals
+nötig)</td>
+<td>+€3.000-5.000 Setup</td>
+</tr>
+<tr class="even">
+<td>Lead-Enrichment-Integration (Proxycurl/Clearbit)</td>
+<td>+€1.200-2.000 Setup (Customer stellt API-Key)</td>
+</tr>
+<tr class="odd">
+<td>Mehr als 3 Flows (Tier M)</td>
+<td>+€400-600 pro zusätzlichem Flow</td>
+</tr>
+<tr class="even">
+<td>Mehrsprachige Flows (DE + EN)</td>
+<td>+20% auf Flow-Aufwand</td>
+</tr>
+<tr class="odd">
+<td>Multi-Team-Setup (mehr als 1 Sales-Team/Region)</td>
+<td>Tier-L-Preislogik, kein Tier-M-Add-on</td>
+</tr>
+<tr class="even">
+<td>Rushed Timeline (&lt; 4 Wochen für Tier M)</td>
+<td>+25% Rush-Fee auf Setup-Preis</td>
+</tr>
+<tr class="odd">
+<td>Retainer-Pause nach Monat 1 (auf Customer-Wunsch)</td>
+<td>Möglich ab Monat 4, jedoch: Scoring-Modell degradiert ohne Pflege —
+dokumentiert und vom Customer bestätigt</td>
+</tr>
+</tbody>
+</table>
+<h1 id="delivery-plan">3. Delivery-Plan</h1>
+<blockquote>
+<p>Operatives Dokument für das Delivery-Team. Nicht für Customer
+bestimmt (außer Touchpoint-Übersicht).</p>
+</blockquote>
+<hr />
+<h2 id="phasen">Phasen</h2>
+<h3 id="phase-1-discovery-architektur-woche-1-2">Phase 1: Discovery
+&amp; Architektur (Woche 1-2)</h3>
+<p><strong>Ziel</strong>: Vollständiges Verständnis des Sales-Prozesses,
+technischer Stack entschieden, Scoring-Kriterien definiert.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Customer-Input nötig</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Sales-Prozess-Dokumentation (Stage-Map, Buyer-Journey-Overlay)</td>
+<td>Founder / CS</td>
+<td>2x 60-Min-Call</td>
+</tr>
+<tr class="even">
+<td>CRM-Audit-Report (falls bestehendes System vorhanden)</td>
+<td>Eng</td>
+<td>Admin-Zugang CRM</td>
+</tr>
+<tr class="odd">
+<td>Scoring-Kriterien-Dokument (15 Datenpunkte, priorisiert)</td>
+<td>Founder</td>
+<td>1x 60-Min-Workshop</td>
+</tr>
+<tr class="even">
+<td>Tech-Stack-Entscheidung (CRM-Plattform, Enrichment-Tool,
+Automation-Layer)</td>
+<td>Founder + Eng</td>
+<td>Schriftliche Bestätigung</td>
+</tr>
+<tr class="odd">
+<td>Daten-Export angefordert und validiert</td>
+<td>CS</td>
+<td>Customer liefert Export</td>
+</tr>
+<tr class="even">
+<td>Projekt-Kickoff-Protokoll verschickt</td>
+<td>CS</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint</strong>: Kick-off-Call (Wo 1),
+Architektur-Review-Call (Wo 2 Ende)</p>
+<hr />
+<h3 id="phase-2-crm-setup-pipeline-architektur-woche-2-3">Phase 2:
+CRM-Setup &amp; Pipeline-Architektur (Woche 2-3)</h3>
+<p><strong>Ziel</strong>: Technisch saubere CRM-Struktur steht,
+Pipeline-Stages konfiguriert, User ongeboardet.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Abhängigkeit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CRM-Workspace konfiguriert (oder bestehendes bereinigt)</td>
+<td>Eng</td>
+<td>Phase 1 abgeschlossen</td>
+</tr>
+<tr class="even">
+<td>Pipeline-Stages mit Eintritts-/Exit-Kriterien angelegt</td>
+<td>Eng</td>
+<td>Scoring-Kriterien-Dokument</td>
+</tr>
+<tr class="odd">
+<td>Custom-Fields + Deal-Properties implementiert</td>
+<td>Eng</td>
+<td>Stage-Map bestätigt</td>
+</tr>
+<tr class="even">
+<td>User-Accounts + Permissions gesetzt</td>
+<td>Eng</td>
+<td>User-Liste vom Customer</td>
+</tr>
+<tr class="odd">
+<td>Daten-Migration vorbereitet (Mapping-Tabelle erstellt)</td>
+<td>Eng</td>
+<td>Daten-Export vom Customer</td>
+</tr>
+<tr class="even">
+<td>Staging-Environment für Tests aufgesetzt</td>
+<td>Eng</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint</strong>: Weekly Sync (Wo 3, 30 Min) —
+Stage-Struktur zur Abnahme zeigen</p>
+<hr />
+<h3 id="phase-3-scoring-modell-enrichment-layer-woche-3-4">Phase 3:
+Scoring-Modell + Enrichment-Layer (Woche 3-4)</h3>
+<p><strong>Ziel</strong>: Scoring läuft auf Live- oder Staging-Daten,
+Enrichment-Pipeline angeschlossen.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Abhängigkeit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Scoring-Logik implementiert (regelbasiert, Tier M)</td>
+<td>Eng</td>
+<td>Scoring-Kriterien-Dokument, Phase 2 done</td>
+</tr>
+<tr class="even">
+<td>Score-Felder in CRM befüllt (Test-Batch 50 Leads)</td>
+<td>Eng</td>
+<td>CRM-Setup done</td>
+</tr>
+<tr class="odd">
+<td>Enrichment-API-Integration (falls im Scope)</td>
+<td>Eng</td>
+<td>Customer-API-Key vorhanden</td>
+</tr>
+<tr class="even">
+<td>Score-Thresholds kalibriert (Cold/Warm/Hot-Grenzen)</td>
+<td>Founder + Eng</td>
+<td>Test-Batch-Review</td>
+</tr>
+<tr class="odd">
+<td>Scoring-Logik-Dokumentation erstellt</td>
+<td>Eng</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>ML-Modell-Training initiiert (Tier L only)</td>
+<td>Eng</td>
+<td>Historische Daten validiert</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint</strong>: Milestone-Review-Call (Wo 4) —
+Scoring-Demo auf echten Leads</p>
+<hr />
+<h3 id="phase-4-automation-flows-dashboard-woche-4-5">Phase 4:
+Automation-Flows + Dashboard (Woche 4-5)</h3>
+<p><strong>Ziel</strong>: Alle Flows live, Dashboard zeigt
+Echtzeit-Daten.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Abhängigkeit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Follow-up-Sequenzen gebaut (je Stage-Übergang, Tier M: bis 3)</td>
+<td>Eng</td>
+<td>Flow-Templates vom Customer</td>
+</tr>
+<tr class="even">
+<td>Deal-Velocity-Alerts konfiguriert</td>
+<td>Eng</td>
+<td>Threshold-Definition bestätigt</td>
+</tr>
+<tr class="odd">
+<td>Score-Threshold-Trigger gebaut (Alert an Rep wenn Hot)</td>
+<td>Eng</td>
+<td>Scoring fertig</td>
+</tr>
+<tr class="even">
+<td>E-Mail-Domain-Check + Deliverability-Verification</td>
+<td>Eng</td>
+<td>DNS-Zugang Customer</td>
+</tr>
+<tr class="odd">
+<td>Sales-Dashboard gebaut (Pipeline-Value, Conversion, Velocity,
+Forecast)</td>
+<td>Eng</td>
+<td>CRM-Daten fließen</td>
+</tr>
+<tr class="even">
+<td>Dashboard-Review intern abgenommen</td>
+<td>Founder</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint</strong>: Flow-Preview-Call (Wo 5, 45
+Min) — Flows zeigen, Texte finalisieren</p>
+<hr />
+<h3
+id="phase-5-daten-migration-testing-go-live-vorbereitung-woche-5-6">Phase
+5: Daten-Migration, Testing &amp; Go-Live-Vorbereitung (Woche 5-6)</h3>
+<p><strong>Ziel</strong>: Alle echten Daten sind drin, System
+vollständig getestet, Customer bereit für Go-Live.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Owner</th>
+<th>Abhängigkeit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Vollständige Daten-Migration (bis 5.000 Records)</td>
+<td>Eng</td>
+<td>Migration-Mapping bestätigt</td>
+</tr>
+<tr class="even">
+<td>Spot-Check 50 Records manuell (Founder oder CS)</td>
+<td>CS</td>
+<td>Migration done</td>
+</tr>
+<tr class="odd">
+<td>End-to-End-QA: alle Flows, Score, Dashboard</td>
+<td>Eng + Founder</td>
+<td>Alle Builds abgeschlossen</td>
+</tr>
+<tr class="even">
+<td>Bug-Fix-Sprint (48h Puffer)</td>
+<td>Eng</td>
+<td>QA-Report</td>
+</tr>
+<tr class="odd">
+<td>Playbook geschrieben (schriftlich + 3 Loom-Videos)</td>
+<td>CS</td>
+<td>System stable</td>
+</tr>
+<tr class="even">
+<td>Team-Training-Session geplant und durchgeführt</td>
+<td>Founder / CS</td>
+<td>Customer-Team verfügbar</td>
+</tr>
+<tr class="odd">
+<td>Go-Live-Checkliste abgehakt</td>
+<td>Founder</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint</strong>: Training-Session (Wo 6),
+Go-Live-Bestätigung per E-Mail</p>
+<hr />
+<h2 id="team-allocation">Team-Allocation</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rolle</th>
+<th>Phase 1</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+<th>Phase 4</th>
+<th>Phase 5</th>
+<th>Retainer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Founder</strong></td>
+<td>Lead (Discovery, Architektur-Entscheidungen)</td>
+<td>Review</td>
+<td>Score-Kalibrierung</td>
+<td>Dashboard-Abnahme</td>
+<td>QA-Freigabe, Training</td>
+<td>Monatl. Score-Review</td>
+</tr>
+<tr class="even">
+<td><strong>Engineer</strong></td>
+<td>Support (CRM-Audit)</td>
+<td>Lead (technischer Build)</td>
+<td>Lead</td>
+<td>Lead</td>
+<td>Lead (Migration, QA)</td>
+<td>Wartung, neue Flows</td>
+</tr>
+<tr class="odd">
+<td><strong>Customer-Success</strong></td>
+<td>Koordination, Protokoll</td>
+<td>Weekly Sync</td>
+<td>Daten-Koordination</td>
+<td>Flow-Texte-Koordination</td>
+<td>Playbook, Training-Support</td>
+<td>Monitoring, Check-ins</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2
+id="customer-onboarding-touchpoints">Customer-Onboarding-Touchpoints</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Touchpoint</th>
+<th>Timing</th>
+<th>Format</th>
+<th>Owner</th>
+<th>Ziel</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Kick-off-Call</strong></td>
+<td>Woche 1, Tag 1-2</td>
+<td>Video-Call 60 Min</td>
+<td>Founder</td>
+<td>Erwartungen alignen, Daten-Anforderungen klären, Timeline
+bestätigen</td>
+</tr>
+<tr class="even">
+<td><strong>Architektur-Review</strong></td>
+<td>Ende Woche 2</td>
+<td>Video-Call 45 Min</td>
+<td>Founder</td>
+<td>Stage-Map + Scoring-Kriterien abnehmen lassen vor Build-Start</td>
+</tr>
+<tr class="odd">
+<td><strong>Weekly Sync</strong></td>
+<td>Woche 3, 4, 5</td>
+<td>Video-Call 30 Min</td>
+<td>CS</td>
+<td>Status-Update, Blocker identifizieren, nächste Woche
+vorbesprechen</td>
+</tr>
+<tr class="even">
+<td><strong>Milestone-Review: Scoring-Demo</strong></td>
+<td>Ende Woche 4</td>
+<td>Video-Call 45 Min</td>
+<td>Founder + Eng</td>
+<td>Live-Demo Scoring auf echten Leads, Threshold-Feedback einholen</td>
+</tr>
+<tr class="odd">
+<td><strong>Flow-Preview</strong></td>
+<td>Mitte Woche 5</td>
+<td>Async Loom + optional Call</td>
+<td>CS</td>
+<td>Flows zeigen, Customer gibt finale Texte frei</td>
+</tr>
+<tr class="even">
+<td><strong>Team-Training-Session</strong></td>
+<td>Woche 6</td>
+<td>Video-Call 90 Min, aufgezeichnet</td>
+<td>Founder / CS</td>
+<td>Sales-Team lernt System bedienen, Fragen klären</td>
+</tr>
+<tr class="odd">
+<td><strong>Go-Live-Handover</strong></td>
+<td>Ende Woche 6</td>
+<td>E-Mail + kurzes Video</td>
+<td>CS</td>
+<td>Offizielle Übergabe, Retainer-Start-Datum bestätigen</td>
+</tr>
+<tr class="even">
+<td><strong>30-Tage-Retainer-Check</strong></td>
+<td>Woche 10</td>
+<td>Video-Call 30 Min</td>
+<td>CS</td>
+<td>Wie läuft das System? Score-Tuning nötig? Feedback für
+Optimierung</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="risk-register">Risk-Register</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Risiko</th>
+<th>Wahrscheinlichkeit</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>R1</strong></td>
+<td>Customer-Team nutzt CRM nach Go-Live nicht aktiv</td>
+<td>Hoch</td>
+<td>Sehr hoch — Scoring-Modell lernt nicht, Retainer-Wert sinkt</td>
+<td>Bereits im Sales-Gespräch thematisieren. Training-Session
+verpflichtend. Retainer-Check in Woche 10 explizit auf Adoption
+fokussieren. “Adoption-Score” als Metrik einführen.</td>
+</tr>
+<tr class="even">
+<td><strong>R2</strong></td>
+<td>Historische Deal-Daten zu spärlich für sinnvolles
+Scoring-Kalibrierung</td>
+<td>Mittel</td>
+<td>Mittel — regelbasiertes Scoring weniger präzise</td>
+<td>Bereits in Phase 1 prüfen. Falls &lt; 50 Deals: nur regelbasiertes
+Modell, Customer explizit informiert und SOW angepasst.</td>
+</tr>
+<tr class="odd">
+<td><strong>R3</strong></td>
+<td>CRM-Plattform-Wechsel während Projekt (Customer ändert Meinung)</td>
+<td>Niedrig-Mittel</td>
+<td>Sehr hoch — kompletter Rebuild</td>
+<td>Tech-Stack-Entscheidung schriftlich bestätigen lassen vor Phase 2.
+Change-Request-Policy explizit kommunizieren.</td>
+</tr>
+<tr class="even">
+<td><strong>R4</strong></td>
+<td>E-Mail-Deliverability-Probleme blockieren Flows</td>
+<td>Mittel</td>
+<td>Hoch — Flows können nicht live gehen</td>
+<td>DNS-Check in Phase 1 als Blocker-Item. Flows werden gebaut aber erst
+aktiviert wenn Deliverability confirmed. Customer trägt Verantwortung
+für Domain-Setup.</td>
+</tr>
+<tr class="odd">
+<td><strong>R5</strong></td>
+<td>Scope-Creep: Customer will laufend mehr Flows/Features</td>
+<td>Hoch</td>
+<td>Mittel — Verzögerung + Ressourcen-Drain</td>
+<td>Change-Request-Policy von Anfang an kommunizieren. Alle Requests in
+Backlog, nie ad-hoc gebaut. Neue Features = neues Angebot oder
+Retainer-Monat.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-gates">Quality-Gates</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Gate</th>
+<th>Zeitpunkt</th>
+<th>Wer nimmt ab</th>
+<th>Kriterium für Freigabe</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>QG-1: Architektur-Freigabe</strong></td>
+<td>Ende Phase 1</td>
+<td>Founder + Customer (schriftlich)</td>
+<td>Stage-Map, Scoring-Kriterien und Tech-Stack schriftlich bestätigt —
+kein Build ohne Freigabe</td>
+</tr>
+<tr class="even">
+<td><strong>QG-2: CRM-Struktur-Abnahme</strong></td>
+<td>Ende Phase 2</td>
+<td>Founder (intern)</td>
+<td>Alle Stages, Fields, Permissions korrekt — Stichprobe 10 manuell
+angelegte Test-Deals</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-3: Scoring-Validierung</strong></td>
+<td>Ende Phase 3</td>
+<td>Founder + Customer (Demo)</td>
+<td>Scoring läuft auf 50 Test-Leads, Verteilung plausibel, Customer hat
+Thresholds abgenommen</td>
+</tr>
+<tr class="even">
+<td><strong>QG-4: Flow-Freigabe</strong></td>
+<td>Ende Phase 4</td>
+<td>Founder (intern) + Customer (Texte)</td>
+<td>Alle Flows fehlerfrei getestet, Customer-Texte final freigegeben,
+Dashboard zeigt Echtzeit-Daten</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-5: Pre-Go-Live-Check</strong></td>
+<td>Woche 6, vor Training</td>
+<td>Founder</td>
+<td>Migration validiert, alle QA-Punkte grün, Playbook fertig,
+Training-Session geplant</td>
+</tr>
+<tr class="even">
+<td><strong>QG-6: Go-Live-Bestätigung</strong></td>
+<td>Nach Training-Session</td>
+<td>Founder + Customer</td>
+<td>Training absolviert und aufgezeichnet, Customer hat Playbook,
+schriftliche Go-Live-Bestätigung vorhanden</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="handover-package">Handover-Package</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Format</th>
+<th>Inhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Schriftliches Playbook</strong></td>
+<td>Notion-Page oder PDF</td>
+<td>Pipeline-Nutzung, Score-Interpretation, Flow-Management,
+Troubleshooting-FAQ</td>
+</tr>
+<tr class="even">
+<td><strong>Loom-Video 1: Pipeline-Daily-Use</strong></td>
+<td>Loom ~10 Min</td>
+<td>Wie Sales-Rep täglich mit dem System arbeitet, Score liest, Deals
+updated</td>
+</tr>
+<tr class="odd">
+<td><strong>Loom-Video 2: Score-Interpretation</strong></td>
+<td>Loom ~8 Min</td>
+<td>Was bedeuten Cold/Warm/Hot, wie entsteht der Score, wann manuell
+eingreifen</td>
+</tr>
+<tr class="even">
+<td><strong>Loom-Video 3: Admin-Ansicht</strong></td>
+<td>Loom ~12 Min</td>
+<td>Wie Flows angepasst werden, User verwaltet werden, Reports
+exportiert werden</td>
+</tr>
+<tr class="odd">
+<td><strong>Training-Session-Aufzeichnung</strong></td>
+<td>Video-File</td>
+<td>Vollständige Aufzeichnung der 90-Min-Session</td>
+</tr>
+<tr class="even">
+<td><strong>Scoring-Kriterien-Dokument</strong></td>
+<td>PDF</td>
+<td>Alle 15 Datenpunkte, Gewichtung, Threshold-Definitionen —
+versioniert</td>
+</tr>
+<tr class="odd">
+<td><strong>Migrations-Report</strong></td>
+<td>Excel/CSV</td>
+<td>Dokumentation aller migrierten Records, Mapping-Tabelle,
+Validierungs-Protokoll</td>
+</tr>
+<tr class="even">
+<td><strong>Technische Dokumentation</strong></td>
+<td>Notion-Page</td>
+<td>API-Verbindungen, verwendete Tools, Zugangsdaten-Hinweise (kein
+Klartext-Passwörter), Architektur-Übersicht</td>
+</tr>
+<tr class="odd">
+<td><strong>CRM-Zugangsdaten</strong></td>
+<td>1Password Shared Vault oder sicherer Kanal</td>
+<td>Alle Service-Accounts die AEVUM für den Customer angelegt hat</td>
+</tr>
+<tr class="even">
+<td><strong>Retainer-SLA-Dokument</strong></td>
+<td>PDF</td>
+<td>Was ist im Retainer enthalten, Response-Times,
+Change-Request-Prozess</td>
+</tr>
+</tbody>
+</table>
+<h1 id="quality-gate">4. Quality-Gate</h1>
+<p><strong>Projekt-ID</strong>:
+<code>AEVUM-DFY-SALES-OS-[CUSTOMER-ID]</code>
+<strong>Service-Slug</strong>: <code>sales-os</code>
+<strong>Version</strong>: 1.0 <strong>Status</strong>: ⬜ PENDING</p>
+<hr />
+<h2 id="asset-inventory">Asset-Inventory</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Asset</th>
+<th>Format</th>
+<th>Owner</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>CRM-Workspace (konfiguriert + live)</td>
+<td>SaaS-System</td>
+<td>Eng</td>
+<td>⬜</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Pipeline-Stage-Dokumentation</td>
+<td>Notion-Page / PDF</td>
+<td>Eng</td>
+<td>⬜</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Scoring-Kriterien-Dokument (versioniert)</td>
+<td>PDF</td>
+<td>Founder</td>
+<td>⬜</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Scoring-Logik implementiert + dokumentiert</td>
+<td>In-CRM + Notion</td>
+<td>Eng</td>
+<td>⬜</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Automation-Flows (alle vereinbarten, fehlerfrei)</td>
+<td>In-CRM/Automation-Tool</td>
+<td>Eng</td>
+<td>⬜</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Deal-Velocity-Alert-Setup</td>
+<td>In-CRM</td>
+<td>Eng</td>
+<td>⬜</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Score-Threshold-Trigger (Hot-Alert)</td>
+<td>In-CRM</td>
+<td>Eng</td>
+<td>⬜</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Sales-Dashboard (live, Echtzeit-Daten)</td>
+<td>Dashboard-Tool</td>
+<td>Eng</td>
+<td>⬜</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Daten-Migration (Migrations-Report)</td>
+<td>Excel/CSV</td>
+<td>Eng</td>
+<td>⬜</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Schriftliches Playbook</td>
+<td>Notion-Page / PDF</td>
+<td>CS</td>
+<td>⬜</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Loom-Video 1: Pipeline-Daily-Use</td>
+<td>Loom</td>
+<td>CS</td>
+<td>⬜</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Loom-Video 2: Score-Interpretation</td>
+<td>Loom</td>
+<td>CS</td>
+<td>⬜</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td>Loom-Video 3: Admin-Ansicht</td>
+<td>Loom</td>
+<td>CS</td>
+<td>⬜</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td>Training-Session-Aufzeichnung</td>
+<td>Video-File</td>
+<td>CS</td>
+<td>⬜</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td>Technische Dokumentation</td>
+<td>Notion-Page</td>
+<td>Eng</td>
+<td>⬜</td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td>Retainer-SLA-Dokument</td>
+<td>PDF</td>
+<td>CS</td>
+<td>⬜</td>
+</tr>
+<tr class="odd">
+<td>17</td>
+<td>Zugangsdaten-Übergabe (sicherer Kanal)</td>
+<td>1Password o.ä.</td>
+<td>Eng</td>
+<td>⬜</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien">Sign-Off-Kriterien</h2>
+<p>Alle 10 Punkte müssen ✅ sein bevor “Done” kommuniziert wird:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Kriterium</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Scoring-Modell läuft auf Live-Daten, mind. 20 Leads haben plausibel
+verteilte Scores (Cold/Warm/Hot)</td>
+<td>⬜</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Alle vereinbarten Automation-Flows haben End-to-End-Test bestanden,
+0 Error-Logs in 48h nach Aktivierung</td>
+<td>⬜</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Dashboard zeigt Echtzeit-Daten (Refresh max. 4h), alle KPIs
+plausibel und mit Quelldaten abgeglichen</td>
+<td>⬜</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Daten-Migration abgeschlossen: Record-Count stimmt mit Quelldaten
+überein, Spot-Check 50 Records manuell validiert</td>
+<td>⬜</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Deal-Velocity-Alert: Künstlicher Test-Deal durch alle Stages
+geführt, Alert korrekt ausgelöst</td>
+<td>⬜</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Customer-Team hat Training-Session absolviert (Aufzeichnung
+vorhanden, Anwesenheit dokumentiert)</td>
+<td>⬜</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Schriftliches Playbook übergeben inkl. 3 Loom-Videos — Customer hat
+Empfang bestätigt</td>
+<td>⬜</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Scoring-Thresholds schriftlich vom Customer abgenommen (E-Mail oder
+Notion-Kommentar als Nachweis)</td>
+<td>⬜</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Architektur-Entscheidungen und Stage-Struktur schriftlich bestätigt
+(Phase-1-QG-Nachweis vorhanden)</td>
+<td>⬜</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Retainer-SLA-Dokument unterschrieben, Retainer-Start-Datum
+bestätigt, erste Retainer-Zahlung ausgelöst</td>
+<td>⬜</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Freigabe durch</strong>: _________________________
+(Founder-Sign-Off) <strong>Datum</strong>: _________________________</p>
+<hr />
+<h2 id="known-limitations-phase-2-items">Known-Limitations
+(Phase-2-Items)</h2>
+<p>Diese Punkte sind bewusst nicht in Scope — dokumentiert damit kein
+Future-Customer-Success-Manager sie als “vergessen” behandelt:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Warum nicht in Phase 1</th>
+<th>Empfohlener Zeitpunkt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ML-Layer Scoring-Verbesserung (Tier M)</td>
+<td>Benötigt 3-6 Monate Live-Daten aus dem System selbst</td>
+<td>Nach 6 Monaten Retainer als Upgrade bewertbar</td>
+</tr>
+<tr class="even">
+<td>Predictive Forecasting (Deal-Win-Probability per Stage)</td>
+<td>Erfordert ausreichend historische Closed-Won/Lost-Daten — in Woche 6
+nicht verfügbar</td>
+<td>Retainer-Monat 6+ wenn genug Deal-Daten vorliegen</td>
+</tr>
+<tr class="odd">
+<td>Integration mit Buchhaltungs-/ERP-System</td>
+<td>Explizit Out-of-Scope, eigenes Service-Offering</td>
+<td>Bei konkretem Bedarf als separates Projekt kalkulieren</td>
+</tr>
+<tr class="even">
+<td>A/B-Testing der Follow-up-Sequenzen</td>
+<td>Sinnvoll erst nach 2-3 Monaten Laufzeit und ausreichend
+Daten-Volumen</td>
+<td>Ab Retainer-Monat 3 als Change-Request möglich</td>
+</tr>
+<tr class="odd">
+<td>Multi-Pipeline-Setup (mehr als 1 Sales-Team/Region)</td>
+<td>Tier-L-Feature, nicht in Standard-Scope</td>
+<td>Bei Wachstum: Upgrade-Gespräch initiieren</td>
+</tr>
+<tr class="even">
+<td>Inbound-Lead-Capture-Formulare / Website-Integration</td>
+<td>Eigene Komplexität, Berührung mit <code>website-crm</code>
+Service</td>
+<td>Als Add-on oder separates Projekt</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="db-update-befehl">DB-Update-Befehl</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Sales-OS DFY Item in AEVUM Service-DB registrieren / updaten</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- Ausführen nach finalem Go-Live und Customer-Sign-Off</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> aevum_service_items (</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  slug,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  item_type,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  display_name,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  tier_m_setup_min,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  tier_m_setup_max,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  tier_m_retainer_min,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  tier_m_retainer_max,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  tier_l_setup_min,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  tier_l_setup_max,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  tier_l_retainer_min,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  tier_l_retainer_max,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  implementation_weeks_min,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  implementation_weeks_max,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  icp_ag_fit,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  icp_pb_fit,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  icp_fi_fit,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  primary_upsell_slug,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  secondary_upsell_slug,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  status,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  version,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  last_updated</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>) <span class="kw">VALUES</span> (</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;sales-os&#39;</span>,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;dfy&#39;</span>,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;Sales-OS — Sales-Pipeline mit AI-Scoring + CRM-Integration&#39;</span>,</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="dv">10000</span>,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="dv">18000</span>,</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2000</span>,</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="dv">3000</span>,</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="dv">25000</span>,</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="dv">45000</span>,</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="dv">3500</span>,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="dv">5000</span>,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="dv">4</span>,</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  <span class="dv">12</span>,</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  <span class="dv">5</span>,   <span class="co">-- AG: 5/5</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="dv">4</span>,   <span class="co">-- PB: 4/5</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  <span class="dv">5</span>,   <span class="co">-- FI: 5/5</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;ai-lead-engine&#39;</span>,</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;command-center-dashboard&#39;</span>,</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;active&#39;</span>,</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;1.0&#39;</span>,</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">CURRENT_TIMESTAMP</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="kw">ON</span> CONFLICT (slug) DO <span class="kw">UPDATE</span> <span class="kw">SET</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  status <span class="op">=</span> <span class="st">&#39;active&#39;</span>,</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  version <span class="op">=</span> <span class="st">&#39;1.0&#39;</span>,</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  last_updated <span class="op">=</span> <span class="fu">CURRENT_TIMESTAMP</span>;</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="co">-- Customer-Delivery-Eintrag (nach Projekt-Abschluss)</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> aevum_deliveries (</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  project_id,</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>  service_slug,</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>  customer_id,</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>  go_live_date,</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>  tier,</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>  setup_price_actual,</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>  retainer_price_monthly,</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>  retainer_start_date,</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>  sign_off_complete,</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>  delivery_notes</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>) <span class="kw">VALUES</span> (</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;[AEVUM-DFY-SALES-OS-CUSTOMER-ID]&#39;</span>,</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;sales-os&#39;</span>,</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;[CUSTOMER-ID]&#39;</span>,</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">CURRENT_DATE</span>,</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;[M|L]&#39;</span>,          <span class="co">-- Tier einsetzen</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>  [ACTUAL<span class="op">-</span>SETUP],   <span class="co">-- tatsächlicher Setup-Preis</span></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>  [ACTUAL<span class="op">-</span>RETAINER],</span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">CURRENT_DATE</span>,</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>  <span class="kw">true</span>,</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;Phase-2-Items dokumentiert: ML-Upgrade ab Monat 6 evaluieren, Multi-Pipeline bei Wachstum.&#39;</span></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+<hr />
+<h2 id="pattern-notes-für-dfy-builder-pattern">Pattern-Notes für
+DFY-Builder-Pattern</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pattern_id</span><span class="kw">:</span><span class="at"> dfy-sales-os-v1</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">service_category</span><span class="kw">:</span><span class="at"> sales_enablement</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">core_complexity_driver</span><span class="kw">:</span><span class="at"> scoring_model_type</span><span class="co">  # regelbasiert vs ML — bestimmt Tier-Entscheidung</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">critical_dependency</span><span class="kw">:</span><span class="at"> crm_platform_lock_in</span><span class="co">   # muss in Phase 1 abgeschlossen sein, kein Mid-Project-Switch</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">primary_failure_mode</span><span class="kw">:</span><span class="at"> adoption_gap</span><span class="co">          # System gebaut aber nicht genutzt — höchstes Retainer-Risiko</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">retainer_health_signal</span><span class="kw">:</span><span class="at"> scoring_data_volume</span><span class="co"> # Anzahl Leads die wöchentlich Scores bekommen → Adoption-Proxy</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">upsell_trigger_1</span><span class="kw">:</span><span class="at"> lead_volume_insufficient</span><span class="co">  # Wenn Pipeline-Quality gut aber Volumen fehlt → ai-lead-engine</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">upsell_trigger_2</span><span class="kw">:</span><span class="at"> ops_visibility_needed</span><span class="co">     # Wenn Sales-OS stabil und Customer will mehr Dashboard → command-center</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">differentiation_vs_generic_crm_setup</span><span class="kw">:</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> AI-Scoring-Layer (nicht nur Felder anlegen)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> Velocity-Alerts (proaktiv, nicht reaktiv)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> Enrichment-Integration</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> Monatliches Modell-Tuning im Retainer</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">scope_boundary_most_tested</span><span class="kw">:</span><span class="at"> content_for_flows</span><span class="co">  # Customer erwartet oft dass AEVUM E-Mail-Texte schreibt</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">minimum_viable_customer</span><span class="kw">:</span><span class="at"> has_sales_process_even_if_undocumented</span><span class="co">  # kein Sales-OS für Pre-Sales-Stage-Startups</span></span></code></pre></div>
+</body>
+</html>
