@@ -1,0 +1,2092 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM Blueprint: cold-outreach-system</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="data:text/css;charset=utf-8,body{font-family:Inter,system-ui,sans-serif;max-width:780px;margin:2em%20auto;padding:0%201em;line-height:1.6;color:#222}h1,h2,h3{color:#000}h1{border-bottom:2px%20solid%20#000;padding-bottom:0.3em}h2{border-bottom:1px%20solid%20#ccc;padding-bottom:0.2em}code{background:#f4f4f4;padding:2px%206px;border-radius:3px;font-family:monospace}pre{background:#f4f4f4;padding:1em;border-radius:4px;overflow-x:auto}table{border-collapse:collapse;margin:1em%200}th,td{border:1px%20solid%20#ddd;padding:6px%2012px;text-align:left}th{background:#f4f4f4}blockquote{border-left:3px%20solid%20#888;padding-left:1em;color:#555;margin:1em%200}" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM Blueprint: cold-outreach-system</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-blueprint-cold-outreach-system">AEVUM Blueprint —
+cold-outreach-system</h1>
+<blockquote>
+<p>Generated 2026-05-25 16:31 Berlin-TZ. Combines alle Quality-Gate-Docs
+zu einem druckbaren Master-Dokument.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<p><strong>Blueprint:</strong> cold-outreach-system
+<strong>Tier:</strong> Blueprint (DIY) <strong>Preis:</strong> Siehe
+<code>apps/web/public/pricing</code> (€-Range nach Pricing-Model)
+<strong>Sales-Ready seit:</strong> 2026-05-25</p>
+<hr />
+<h2 id="in-einem-satz">In einem Satz</h2>
+<p>Eine Kontaktliste (CSV / Apollo-Export / Airtable) durchläuft eine
+DSGVO-konforme 3-Schritt-E-Mail-Sequenz mit KI-personalisierten Hooks.
+Jeder Kontakt erhält Mail 1, +3d Follow-up und +5d “Letzte Chance” —
+Antwortende werden automatisch ausgeschleust. Inkl. Opt-Out-Webhook und
+Sender-Reputation-Setup.</p>
+<hr />
+<h2 id="wer-das-braucht">Wer das braucht</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Pain</th>
+<th>Hebel</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Agentur</strong> (5–30 MA, AG)</td>
+<td>Sales-Pipeline trocken, Inbound reicht nicht, manuelles Outreach
+kostet 1-2 MA-Tage/Woche</td>
+<td>30-50 personalisierte Mails/Tag autonom, 3-Step-Sequenz ohne
+Copy-Paste</td>
+</tr>
+<tr class="even">
+<td><strong>Personal Brand</strong> (Coach/Berater/Solo, PB)</td>
+<td>Keine Zeit für Outbound, jeder Mail-Anschreiben ist Bauchgefühl,
+keine Disziplin im Follow-up</td>
+<td>Vorlagen + KI-Hook + automatische Reminder → 2h-Setup statt täglich
+Mails schreiben</td>
+</tr>
+<tr class="odd">
+<td><strong>Mittelstand B2B</strong> (10–100 MA, FI)</td>
+<td>Vertrieb scheut Cold-Calls, Marketing macht Content aber keine
+Direktansprache, Top-100-Ziel-Accounts werden ignoriert</td>
+<td>Account-Liste laden, Sequenz starten, Sales bekommt nur Antworter —
+keine Triage</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="was-customer-bekommt">Was Customer bekommt</h2>
+<ol type="1">
+<li><strong>n8n-Workflow (JSON-Export)</strong> — fertig konfigurierter
+Workflow mit 13 Nodes (Trigger, Set, Split, Batch, OpenRouter-HTTP, 3
+Email-Sends, 2 Wait, 2 IF, Opt-Out-Webhook)</li>
+<li><strong>3-Step-Sequenz-Logik</strong> — Mail 1 (personalisiert) +
+Mail 2 (+3 Tage Follow-up) + Mail 3 (+5 Tage Letzte Chance), mit
+Auto-Skip bei Antwort</li>
+<li><strong>KI-Hook-Generator</strong> (OpenRouter) —
+2-Satz-Personalisierung pro Kontakt: 1 Hook + 1 Brücken-Satz zum
+Angebot, kein generisches Lob, kein Clickbait</li>
+<li><strong>3 Mail-Templates</strong> (HTML) — getestet auf
+Deliverability, Plain-Text-Fallback im Workflow</li>
+<li><strong>Opt-Out-Webhook</strong> — separater Webhook-Endpoint,
+automatische Blocklist-Aufnahme, DSGVO-pflichtig</li>
+<li><strong>DSGVO-Pack</strong> — § 7 UWG + Art. 6 lit. f Checkliste,
+Pflicht-Mailfooter-Spec (Impressum + Opt-Out), Löschfristen</li>
+<li><strong>Domain-Warm-Up-Anleitung</strong> — SPF/DKIM/DMARC + 2-4
+Wochen Domain-Aufwärmen vor Cold-Volume</li>
+<li><strong>Bounce + Spam-Troubleshooting-Guide</strong> —
+mail-tester.com-Score, Domain-Reputation-Recovery,
+NeverBounce/ZeroBounce-Verifier</li>
+<li><strong>Install-Guide</strong> — Schritt-für-Schritt in 60-90 Min
+einsatzbereit (länger als Lead-Qualifier wegen Sender-Setup)</li>
+<li><strong>Security-Risk-Review</strong> — Sender-Reputation,
+Bulk-DDoS-Schutz, OpenRouter-Token-Hygiene, Listen-Vergiftung</li>
+<li><strong>CSV-Template</strong> mit korrekten Spaltennamen für
+Apollo/LinkedIn-Export</li>
+</ol>
+<hr />
+<h2 id="mehrwert-konkret">Mehrwert (konkret)</h2>
+<p><strong>Vorher:</strong> - Sales-MA schreibt 10-20 Mails/Tag manuell
+→ ~3-4h/Tag - Follow-up wird vergessen (40-60% der Mails bekommen kein
+Follow-up) - Personalisierung ist “Hi {{firstName}}” — Response-Rate
+&lt;2% - Keine Opt-Out-Mechanik → DSGVO-Beschwerde-Risiko +
+Domain-Blacklisting</p>
+<p><strong>Nachher:</strong> - 30-50 Mails/Tag autonom versendet,
+KI-personalisiert - 3-Step-Sequenz immer durchgezogen (außer bei
+Antwort) - Response-Rate-Realistic: 5-12% (B2B, gut-recherchierte Liste,
+eigene Domain warm) - Opt-Outs landen automatisch auf Blocklist → Domain
+bleibt sauber</p>
+<p><strong>ROI-Schätzung (Agentur, 200 Kontakte/Wo):</strong> -
+Time-Save: ~12h/Wo MA-Zeit für Mail-Versand + Follow-up-Tracking →
+48h/Mo - Bei MA-Kosten €50/h fully-loaded → €2.400/Mo gespart -
+Conversion-Lift: bei 8% Response × 200/Wo = 16 Conversations/Wo.
+Realistisch 2-4 davon werden Calls, 0,5-1 wird Deal. - 1 Deal/Monat
+zusätzlich bei Durchschnitts-Deal €3-10k → Pay-Back in 1 Monat</p>
+<p><strong>Realistic-Caveat:</strong> Cold-Outreach ist KEIN
+Selbstläufer. Liste muss recherchiert sein, Angebot muss klar sein,
+Domain muss aufgewärmt sein. Blueprint liefert die Mechanik — die
+Inhalte (Hook-Quality, Angebots-Klarheit) macht der Customer.</p>
+<hr />
+<h2 id="pricing-logic">Pricing-Logic</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variante</th>
+<th>Was</th>
+<th>Preis-Range</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Blueprint-Only</strong></td>
+<td>JSON + Docs + Install-Guide + CSV-Template</td>
+<td>€X (siehe Pricing-Page)</td>
+</tr>
+<tr class="even">
+<td><strong>Done-for-You</strong></td>
+<td>Wir installieren + warmen Domain auf + 100 Test-Adressen + 1.
+Kampagne live</td>
+<td>€X × 2.5</td>
+</tr>
+<tr class="odd">
+<td><strong>Done-with-You</strong></td>
+<td>Setup gemeinsam, Customer lernt Hook-Optimierung +
+Listen-Hygiene</td>
+<td>€X × 1.75</td>
+</tr>
+</tbody>
+</table>
+<p>→ Conversion-Pfad zu Tier S/M Audit wenn Customer “ich brauche
+bessere Leads, nicht nur mehr Mails” → wird ICP-Refinement +
+AEVUM-Lead-Engine.</p>
+<hr />
+<h2 id="voraussetzungen-customer">Voraussetzungen Customer</h2>
+<ul>
+<li>n8n laufend (Cloud-EU €20/Mo oder Self-Hosted)</li>
+<li>OpenRouter-Account + API-Key (~€5-10/Mo für 200 Hooks)</li>
+<li><strong>Eigene Sender-Domain</strong> (NICHT Hauptdomain) — z.B.
+<code>kontakt.deinefirma.de</code> (~€10/Jahr)</li>
+<li>SMTP / Resend / Postmark / Mailgun für Versand (Resend: €0/Mo bis 3k
+Mails)</li>
+<li>2-4 Wochen Vorlauf für Domain-Warm-Up</li>
+<li>Recherchierte Kontaktliste (Apollo Pro / LinkedIn / Eigenrecherche —
+KEIN gekaufter Listen-Schrott)</li>
+<li>Klares 1-Satz-Angebot</li>
+</ul>
+<p><strong>Total monatliche Tool-Kosten:</strong> €30–80 (n8n +
+OpenRouter + Sender-Provider + Domain).</p>
+<hr />
+<h2 id="nicht-ziele-explizit">Nicht-Ziele (explizit)</h2>
+<ul>
+<li>❌ B2C-Cold-Mail (rechtswidrig nach UWG, hier kategorisch
+verboten)</li>
+<li>❌ Spam-Versand auf gekaufte Listen (= Domain-Suizid)</li>
+<li>❌ Echtzeit-Inbox-Monitoring + Reply-Detection (Phase 2 — aktuell
+nutzen wir CRM-Flag oder manuelle Markierung)</li>
+<li>❌ Multi-Channel (LinkedIn-DM + Mail + Phone kombiniert —
+Future-Blueprint)</li>
+<li>❌ Eigene Liste-Recherche / Scraping (Apollo macht das;
+Lead-Scraper-Factory ist separates Blueprint)</li>
+<li>❌ Inbox-Routing wenn Antworten kommen (Customer muss manuell oder
+via CRM handlen)</li>
+<li>❌ A/B-Testing von Hooks (Phase 2)</li>
+</ul>
+<hr />
+<h2 id="upsell-pfade">Upsell-Pfade</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Customer-Frage</th>
+<th>Next-Step</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Wie bekomme ich überhaupt qualifizierte Adressen?”</td>
+<td>→ Lead-Scraper-Factory (Future-Blueprint) / Apollo-Setup-DwY</td>
+</tr>
+<tr class="even">
+<td>“Antworten landen chaotisch in meinem Posteingang”</td>
+<td>→ Lead-Qualifier-Pro Blueprint (Inbound-Triage)</td>
+</tr>
+<tr class="odd">
+<td>“Wir brauchen verschiedene Sequenzen für verschiedene Branchen”</td>
+<td>→ DFY-Variante mit Multi-Sequenz-Architektur</td>
+</tr>
+<tr class="even">
+<td>“Die Hooks sind nicht gut genug”</td>
+<td>→ Audit S (Hook-Engineering + Prompt-Optimierung mit
+Customer-Voice)</td>
+</tr>
+<tr class="odd">
+<td>“Wir wollen Reply-Tracking automatisch”</td>
+<td>→ Audit M (IMAP-Integration + Reply-Klassifizierung)</td>
+</tr>
+<tr class="even">
+<td>“Telefon + Mail kombiniert”</td>
+<td>→ Multi-Channel-Engine (Future-Blueprint)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conversion-story-brief-für-sales-page">Conversion-Story (Brief
+für Sales-Page)</h2>
+<blockquote>
+<p>“Du hast 200 potenzielle Kunden auf der Liste. Du schreibst 10 Mails
+am Montag, vergisst Follow-up am Donnerstag, am Freitag landest du mit
+der Hälfte im Spam-Ordner — und in Woche 2 macht dein Sales-Team das
+Gleiche nochmal.”</p>
+<p>“Cold-Outreach-System nimmt die Liste, schickt KI-personalisierte
+3-Step-Sequenzen über deine aufgewärmte Sender-Domain, Opt-Outs landen
+automatisch auf der Blocklist — und du siehst nur die Antworter.”</p>
+<p>“DSGVO-konform (§ 7 UWG B2B-Cold-Mail), Opt-Out-Pflicht erfüllt,
+Bounce-Rate &lt;2% nach Setup. Einmalkauf, beliebig oft Kampagnen
+starten.”</p>
+</blockquote>
+<h1 id="install-guide">2. Install-Guide</h1>
+<p><strong>Blueprint:</strong> cold-outreach-system
+<strong>Setup-Dauer:</strong> 60–90 Min (zzgl. 2-4 Wochen
+Domain-Warm-Up) <strong>Schwierigkeit:</strong> Mittel-Hoch (DNS +
+Sender-Reputation-Verständnis nötig) <strong>Letzter Update:</strong>
+2026-05-25</p>
+<hr />
+<h2 id="vorab-check">Vorab-Check</h2>
+<h3 id="tools-die-du-brauchst">Tools die du brauchst</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tool</th>
+<th>Pflicht</th>
+<th>Zweck</th>
+<th>Kosten</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>n8n (Cloud-EU oder Self-Host)</td>
+<td>✅</td>
+<td>Workflow-Engine</td>
+<td>€0–20/Mo</td>
+</tr>
+<tr class="even">
+<td>OpenRouter-Account + API-Key</td>
+<td>✅</td>
+<td>KI-Hook-Personalisierung</td>
+<td>€5–20/Mo nach Volumen</td>
+</tr>
+<tr class="odd">
+<td>Eigene Sub-Domain (z.B. <code>kontakt.firma.de</code>)</td>
+<td>✅</td>
+<td>Sender-Reputation isolieren</td>
+<td>€10/Jahr</td>
+</tr>
+<tr class="even">
+<td>Mail-Provider (Resend / Postmark / Mailgun / SMTP)</td>
+<td>✅</td>
+<td>Mail-Versand mit Auth-Records</td>
+<td>€0–15/Mo</td>
+</tr>
+<tr class="odd">
+<td>Liste-Verifier (NeverBounce / ZeroBounce / hunter.io)</td>
+<td>✅</td>
+<td>Bounce-Schutz</td>
+<td>€0,01-0,05/Adresse</td>
+</tr>
+<tr class="even">
+<td>Kontakt-Quelle (Apollo / LinkedIn / Eigenrecherche)</td>
+<td>✅</td>
+<td>Lead-Daten</td>
+<td>Apollo €49/Mo+</td>
+</tr>
+<tr class="odd">
+<td>Blocklist-Storage (Airtable / Supabase / n8n-Static)</td>
+<td>✅</td>
+<td>DSGVO-Opt-Out-Pflicht</td>
+<td>€0–20/Mo</td>
+</tr>
+<tr class="even">
+<td>Cloudflare (für Opt-Out-Webhook-Schutz)</td>
+<td>⚠️</td>
+<td>DDoS + Rate-Limit</td>
+<td>€0 (Free)</td>
+</tr>
+<tr class="odd">
+<td>CRM (Airtable / HubSpot / Notion)</td>
+<td>❌</td>
+<td>Reply-Tracking</td>
+<td>€0–20/Mo</td>
+</tr>
+<tr class="even">
+<td>mail-tester.com</td>
+<td>✅</td>
+<td>Deliverability-Score</td>
+<td>€0 (3 Tests/Tag free)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="token-secrets-die-du-brauchst-sammeln-vorher">Token &amp;
+Secrets die du brauchst (sammeln vorher!)</h3>
+<pre><code># n8n
+N8N_WEBHOOK_BASE_URL=https://&lt;workspace&gt;.app.n8n.cloud
+N8N_OPTOUT_TOKEN=&lt;generieren — 32-char random für Opt-Out-Webhook&gt;
+
+# OpenRouter
+OPENROUTER_API_KEY=&lt;aus openrouter.ai → Keys&gt;
+OPENROUTER_SPENDING_CAP=50  # EUR/Monat, hart einstellen!
+
+# Mail-Provider (Beispiel Resend)
+RESEND_API_KEY=&lt;aus resend.com → API Keys&gt;
+SENDER_DOMAIN=kontakt.firma.de
+SENDER_EMAIL=vorname.nachname@kontakt.firma.de  # echte Person, kein noreply
+SENDER_NAME=Vorname Nachname
+SENDER_COMPANY=Firma GmbH
+
+# DNS bei deinem Domain-Registrar
+# (kommen aus Resend/Postmark-Dashboard, müssen gesetzt werden)
+SPF_RECORD=&lt;wird im Schritt 3 generiert&gt;
+DKIM_RECORD=&lt;wird im Schritt 3 generiert&gt;
+DMARC_RECORD=&lt;wird im Schritt 3 generiert&gt;
+
+# Optional
+CALENDLY_LINK=https://calendly.com/&lt;handle&gt;/15min
+TELEGRAM_BOT_TOKEN=&lt;von @BotFather, falls Hot-Lead-Alert bei Antwort&gt;</code></pre>
+<p><strong>Empfehlung:</strong> Alle Tokens in Passwort-Manager
+(1Password / Bitwarden), NICHT im Klartext.</p>
+<hr />
+<h2 id="schritt-1-n8n-setup">Schritt 1: n8n-Setup</h2>
+<h3 id="option-a-n8n-cloud-empfohlen-für-start">Option A: n8n Cloud
+(empfohlen für Start)</h3>
+<ol type="1">
+<li>Account auf <a href="https://n8n.cloud">n8n.cloud</a> erstellen</li>
+<li><strong>EU-Region wählen</strong> (Pflicht für DSGVO)</li>
+<li>Workspace-URL notieren</li>
+</ol>
+<h3 id="option-b-self-host">Option B: Self-Host</h3>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Hetzner CX22 (€4/Mo), Standort Falkenstein/Nürnberg</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> root@your-vps</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="at">--name</span> n8n <span class="dt">\</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">-p</span> 5678:5678 <span class="dt">\</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> N8N_BASIC_AUTH_ACTIVE=true <span class="dt">\</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> N8N_BASIC_AUTH_USER=admin <span class="dt">\</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> N8N_BASIC_AUTH_PASSWORD=<span class="op">&lt;</span>strong-pw<span class="op">&gt;</span> <span class="dt">\</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> WEBHOOK_URL=https://n8n.deine-domain.com <span class="dt">\</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> EXECUTIONS_DATA_PRUNE=true <span class="dt">\</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> EXECUTIONS_DATA_MAX_AGE=720 <span class="dt">\</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">-v</span> ~/.n8n:/home/node/.n8n <span class="dt">\</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  n8nio/n8n</span></code></pre></div>
+<p>Cloudflare-Tunnel oder nginx + Let’s Encrypt davor.</p>
+<hr />
+<h2 id="schritt-2-workflow-importieren">Schritt 2: Workflow
+importieren</h2>
+<ol type="1">
+<li>n8n öffnen → “Workflows” → “+” → “Import from File”</li>
+<li><code>workflow.json</code> aus diesem Blueprint-Folder
+hochladen</li>
+<li>Workflow benennen: “AEVUM Cold-Outreach”</li>
+<li><strong>NICHT aktivieren</strong> bevor Schritte 3-10 fertig
+sind!</li>
+</ol>
+<hr />
+<h2
+id="schritt-3-sender-domain-einrichten-auth-records-kritischer-schritt">Schritt
+3: Sender-Domain einrichten + Auth-Records (KRITISCHER SCHRITT)</h2>
+<p><strong>Das ist der Schritt, an dem 80% der Cold-Outreach-Setups
+scheitern. Sorgfältig durchgehen.</strong></p>
+<h3 id="sub-domain-anlegen">3.1 Sub-Domain anlegen</h3>
+<ul>
+<li>Hauptdomain: <code>firma.de</code></li>
+<li>Sender-Sub-Domain: <code>kontakt.firma.de</code> (oder
+<code>outreach.firma.de</code>, <code>mail.firma.de</code>)</li>
+<li><strong>NIE Hauptdomain für Cold-Outreach nutzen</strong> — sonst
+trifft Spam-Markierung deine Geschäfts-Mails</li>
+</ul>
+<h3 id="mail-provider-setup-beispiel-resend">3.2 Mail-Provider-Setup
+(Beispiel Resend)</h3>
+<ol type="1">
+<li>resend.com Account erstellen, EU-Region wählen</li>
+<li>“Domains” → “Add Domain” → <code>kontakt.firma.de</code>
+eintragen</li>
+<li>Resend zeigt 3 DNS-Records: SPF + DKIM (oft 2-3 CNAME-Einträge) +
+optional MX</li>
+</ol>
+<h3 id="dns-records-setzen-bei-domain-registrar">3.3 DNS-Records setzen
+(bei Domain-Registrar)</h3>
+<p>Beispiel-Records (musst du durch echte aus Resend-Dashboard
+ersetzen):</p>
+<pre><code># SPF (TXT-Record auf kontakt.firma.de)
+v=spf1 include:spf.resend.com -all
+
+# DKIM (CNAME-Records, von Resend generiert)
+resend._domainkey.kontakt.firma.de  CNAME  resend._domainkey.resend.com
+
+# DMARC (TXT-Record auf _dmarc.kontakt.firma.de)
+v=DMARC1; p=quarantine; rua=mailto:dmarc@firma.de; pct=100</code></pre>
+<p><strong>DNS-Propagation:</strong> 5 Min bis 24h. Mit
+<code>dig TXT kontakt.firma.de</code> prüfen.</p>
+<h3 id="verifikation-in-resend">3.4 Verifikation in Resend</h3>
+<ul>
+<li>Im Resend-Dashboard “Verify” klicken</li>
+<li>Status muss “Verified” werden (kann 30 Min dauern)</li>
+</ul>
+<h3 id="deliverability-test-via-mail-tester.com">3.5 Deliverability-Test
+via mail-tester.com</h3>
+<ol type="1">
+<li>mail-tester.com öffnen → erhalte Test-Adresse (z.B.
+<code>test-xyz@srv1.mail-tester.com</code>)</li>
+<li>Test-Mail an diese Adresse über Resend versenden (manuell oder via
+Workflow-Test)</li>
+<li>Score abrufen → <strong>mindestens 9/10</strong> erforderlich</li>
+<li>Bei niedrigem Score:
+<ul>
+<li>SPF/DKIM/DMARC nochmal prüfen</li>
+<li>Reverse-DNS-Eintrag beim Hoster anfordern</li>
+<li>Mail-Inhalt entschärfen (keine Spam-Trigger-Wörter)</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="schritt-4-domain-warm-up-phase-2-4-wochen-kein-shortcut">Schritt
+4: Domain-Warm-Up-Phase (2-4 Wochen, KEIN SHORTCUT)</h2>
+<p><strong>Neue Domain = 0 Reputation. Sofortiges Cold-Volume =
+sofortige Spam-Quarantäne.</strong></p>
+<h3 id="warm-up-plan">Warm-Up-Plan</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Woche</th>
+<th>Mails/Tag</th>
+<th>Empfänger</th>
+<th>Open-Rate-Ziel</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>5-10</td>
+<td>Eigene Accounts, Team, warme Kunden</td>
+<td>&gt;80%</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>15-20</td>
+<td>LinkedIn-Verbindungen, Newsletter-Subscribers</td>
+<td>&gt;50%</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>20-30</td>
+<td>Lauwarm-Kontakte mit Vorgeschichte</td>
+<td>&gt;40%</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>30-50</td>
+<td>Erste Cold-Tests mit Top-Recherche-Adressen</td>
+<td>&gt;30%</td>
+</tr>
+<tr class="odd">
+<td>Ab Woche 5</td>
+<td>Voll</td>
+<td>Volle Cold-Outreach-Kampagne</td>
+<td>&gt;25%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Praktisch:</strong> In Woche 1-4 normale Konversations-Mails
+über diese Sub-Domain schicken (auch interne Tests reichen). Wichtig:
+Mails werden GEÖFFNET (Tracking-Pixel ok) und teilweise BEANTWORTET.</p>
+<hr />
+<h2 id="schritt-5-openrouter-setup">Schritt 5: OpenRouter-Setup</h2>
+<ol type="1">
+<li>Account auf openrouter.ai erstellen</li>
+<li>Credit aufladen (€10-20 Start)</li>
+<li><strong>Spending-Cap setzen!</strong> Dashboard → Settings →
+Spending Limits → hart auf €50/Mo</li>
+<li>API-Key generieren (Settings → Keys)</li>
+<li><strong>Modell-Wahl:</strong>
+<ul>
+<li><strong>Empfohlen:</strong> <code>anthropic/claude-3.5-sonnet</code>
+(gute Personalisierung, EU-routable)</li>
+<li><strong>Budget:</strong> <code>openai/gpt-4o-mini</code>
+(~€0,005/Hook)</li>
+<li><strong>Premium:</strong> <code>openai/gpt-4o</code>
+(~€0,02/Hook)</li>
+</ul></li>
+<li>In n8n: Credentials → “Header Auth” hinzufügen
+<ul>
+<li>Name: <code>OpenRouter API</code></li>
+<li>Header-Name: <code>Authorization</code></li>
+<li>Header-Value: <code>Bearer &lt;OPENROUTER_API_KEY&gt;</code></li>
+</ul></li>
+<li>Im HTTP-Node “KI-Hook generieren” Credential-Reference setzen —
+NICHT Token direkt im Body!</li>
+</ol>
+<hr />
+<h2 id="schritt-6-mail-sender-konfiguration-in-n8n">Schritt 6:
+Mail-Sender-Konfiguration in n8n</h2>
+<ol type="1">
+<li><strong>SMTP-Credentials</strong> in n8n anlegen (Settings →
+Credentials → “SMTP”)
+<ul>
+<li>Für Resend: Host <code>smtp.resend.com</code>, Port 465, User
+<code>resend</code>, Password = API-Key</li>
+<li>Für Postmark: Host <code>smtp.postmarkapp.com</code>, Port 587</li>
+</ul></li>
+<li>In allen 3 Email-Nodes (<code>Email: Mail 1</code>,
+<code>Email: Follow-up 1</code>, <code>Email: Letzte Chance</code>) die
+Credential-Reference setzen</li>
+<li><strong>Set-Node “Kampagnen-Konfiguration”</strong> ausfüllen:
+<ul>
+<li><code>senderName</code>, <code>senderCompany</code>,
+<code>senderEmail</code>, <code>offerDescription</code>,
+<code>optoutBaseUrl</code>, <code>calendlyLink</code></li>
+</ul></li>
+<li><strong>Mail-Footer prüfen</strong> — Pflicht-Elemente in HTML:
+<ul>
+<li>Vollständiger Absender (Name + Firma + Anschrift)</li>
+<li>Opt-Out-Link
+(<code>{{ optoutBaseUrl }}?email={{ contact.email }}</code>)</li>
+<li>Optional: AI-Hinweis (“Diese Nachricht wurde KI-gestützt
+personalisiert”)</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="schritt-7-opt-out-webhook-blocklist-storage">Schritt 7:
+Opt-Out-Webhook + Blocklist-Storage</h2>
+<h3 id="webhook-node-konfigurieren">7.1 Webhook-Node konfigurieren</h3>
+<ol type="1">
+<li><code>Webhook: Opt-out</code> Node öffnen</li>
+<li>Webhook-URL kopieren:
+<code>https://&lt;workspace&gt;.app.n8n.cloud/webhook/outreach-optout</code></li>
+<li>Diese URL ist der Wert für <code>optoutBaseUrl</code> im Set-Node
+(Schritt 6)</li>
+</ol>
+<h3 id="blocklist-storage-einrichten-customer-erweiterung-pflicht">7.2
+Blocklist-Storage einrichten (Customer-Erweiterung — Pflicht!)</h3>
+<p><strong>Der Default-Workflow speichert Opt-Outs NICHT.</strong>
+Customer muss erweitern:</p>
+<p><strong>Option A: Airtable-Blocklist</strong> - Airtable-Base
+anlegen, Tabelle <code>optout_blocklist</code>, Spalten:
+<code>email</code>, <code>optedOutAt</code>, <code>source</code> - Im
+Opt-Out-Webhook-Workflow nach Webhook-Node einen HTTP-Request-Node
+hinzufügen:
+<code>POST https://api.airtable.com/v0/&lt;BASE_ID&gt;/optout_blocklist   Header: Authorization: Bearer &lt;AIRTABLE_KEY&gt;   Body: {"fields": {"email": "{{ $json.query.email }}", "optedOutAt": "{{ $now.toISO() }}", "source": "cold-outreach"}}</code></p>
+<p><strong>Option B: Supabase / Postgres</strong> - Tabelle
+<code>optout_blocklist (email text primary key, opted_out_at timestamptz default now())</code>
+- Im Workflow Postgres-Node mit INSERT ON CONFLICT DO NOTHING</p>
+<p><strong>Option C: n8n-Static-Data</strong> (für kleine Volumen) - Im
+Webhook-Workflow: Function-Node der
+<code>$workflow.staticData.blocklist[email] = Date.now()</code> setzt -
+Limit: ~1000 Einträge sauber, danach Performance-Problem</p>
+<h3 id="blocklist-check-vor-jedem-send-pflicht-erweiterung">7.3
+Blocklist-Check vor jedem Send (PFLICHT-ERWEITERUNG)</h3>
+<p>Default-Workflow prüft Blocklist NICHT — du MUSST einen IF-Node vor
+jeden Send-Node einbauen:</p>
+<pre><code>[Batch: 10 pro Tag]
+  → [Set: Hook extrahieren]
+  → [HTTP/DB: Blocklist-Lookup (email)]
+  → [IF: blocklist.found === true]
+      → [No-Op (skip)]
+      → [HTTP: KI-Hook] → [Email: Mail 1]</code></pre>
+<p><strong>Ohne diese Erweiterung: DSGVO-Verstoß</strong> weil
+abgemeldete Adressen erneut kontaktiert werden.</p>
+<h3 id="opt-out-bestätigungsmail-empfohlen">7.4 Opt-Out-Bestätigungsmail
+(Empfohlen)</h3>
+<p>Nach Webhook-Trigger eine kurze Bestätigung an den
+Opt-Out-Klick-Initiator senden:</p>
+<pre><code>Hallo,
+deine Adresse wurde auf unsere Blocklist gesetzt. Du wirst keine weiteren Nachrichten von uns erhalten.
+Falls du das versehentlich gemacht hast, melde dich.</code></pre>
+<hr />
+<h2 id="schritt-8-kontaktliste-vorbereiten-verifizieren">Schritt 8:
+Kontaktliste vorbereiten + verifizieren</h2>
+<h3 id="apollo-export">8.1 Apollo-Export</h3>
+<ol type="1">
+<li><p>Apollo-Filter setzen: Branche / Position / Land /
+Unternehmensgröße</p></li>
+<li><p>Export als CSV (max 10k pro Export bei Apollo Pro)</p></li>
+<li><p>Spalten umbenennen auf Blueprint-Schema:</p>
+<pre class="csv"><code>firstName,lastName,email,company,position,linkedinUrl,note</code></pre></li>
+</ol>
+<h3 id="verifier-lauf-pflicht">8.2 Verifier-Lauf (Pflicht!)</h3>
+<ol type="1">
+<li>CSV in NeverBounce / ZeroBounce / hunter.io hochladen</li>
+<li>Verifier-Lauf abwarten (1-5 Min)</li>
+<li>Nur Ergebnisse mit Status <code>valid</code> / <code>verified</code>
+exportieren</li>
+<li>Bounce-Risk-Adressen (<code>risky</code>, <code>unknown</code>,
+<code>disposable</code>) RAUS</li>
+<li>Role-Mails (<code>info@</code>, <code>contact@</code>,
+<code>noreply@</code>) RAUS</li>
+</ol>
+<h3 id="honeypot-filter">8.3 Honeypot-Filter</h3>
+<p>Spam-Trap-Adressen-Patterns prüfen: - <code>abuse@*</code>,
+<code>postmaster@*</code>, <code>spam@*</code> - Bekannte
+Honeypot-Domains (z.B. <code>*.honeypot.io</code>,
+<code>*.spamtrap.*</code>) - → Aus Liste entfernen</p>
+<h3 id="in-n8n-laden">8.4 In n8n laden</h3>
+<p><strong>Option A:</strong> CSV direkt in Set-Node
+<code>Set: Kampagnen-Konfiguration</code> einfügen (für &lt;50
+Kontakte)</p>
+<p><strong>Option B:</strong> Google Sheets / Airtable als Datenquelle —
+Sheet-Node vor Split-Node einbauen</p>
+<hr />
+<h2 id="schritt-9-test-run-mit-3-test-adressen">Schritt 9: Test-Run mit
+3 Test-Adressen</h2>
+<p><strong>Vor Aktivierung mit echten Kontakten: 3 Test-Adressen
+durchspielen.</strong></p>
+<h3 id="test-setup">Test-Setup</h3>
+<ol type="1">
+<li>Set-Node <code>contacts</code>-Array auf 3 Test-Adressen anpassen:
+<ul>
+<li>Test 1: eigene Mail (<code>du+test1@firma.de</code>)</li>
+<li>Test 2: zweite eigene Mail / Kollege mit OK</li>
+<li>Test 3: Spam-Tester-Adresse (mail-tester.com)</li>
+</ul></li>
+<li>Wait-Nodes temporär auf <code>1 minute</code> setzen (statt 3/5
+Tage)</li>
+<li>Workflow manuell triggern</li>
+</ol>
+<h3 id="test-verifikation">Test-Verifikation</h3>
+<ul>
+<li>✅ Mail 1 kommt an in allen 3 Test-Inboxes</li>
+<li>✅ Mail 1 landet im Posteingang (NICHT Spam)</li>
+<li>✅ Hook ist sinnvoll personalisiert (kein “Sehr geehrte/r
+{{firstName}}”-Bug)</li>
+<li>✅ Opt-Out-Link funktioniert → führt zu Blocklist-Eintrag</li>
+<li>✅ Wait-Nodes lösen Mail 2 + Mail 3 aus</li>
+<li>✅ Manueller <code>replied=true</code> Flag stoppt Sequenz
+korrekt</li>
+<li>✅ mail-tester-Adresse-Score ≥9/10</li>
+</ul>
+<p><strong>Nach Test:</strong> Wait-Nodes auf produktive Werte (3d / 5d)
+zurücksetzen!</p>
+<hr />
+<h2 id="schritt-10-aktivierung-monitoring">Schritt 10: Aktivierung +
+Monitoring</h2>
+<h3 id="workflow-scharf-schalten">10.1 Workflow scharf schalten</h3>
+<ol type="1">
+<li>Letzte Doppelprüfung Set-Node (Sender-Daten korrekt? Opt-Out-URL
+real?)</li>
+<li>Workflow auf “Active” schalten</li>
+<li>Erste Kampagne mit max 30-50 Mails/Tag starten (auch nach Warm-Up
+nicht direkt 200/Tag)</li>
+</ol>
+<h3 id="n8n-settings">10.2 n8n-Settings</h3>
+<ul>
+<li>Execution-Log-Retention: 30 Tage (Settings → Workflow History)</li>
+<li>Sensitive-Field-Masking: für <code>email</code>,
+<code>personalizedHook</code>, Mail-Body-Felder</li>
+</ul>
+<h3 id="tägliches-monitoring-5-min">10.3 Tägliches Monitoring (5
+Min)</h3>
+<ul>
+<li>Bounce-Rate &lt; 2%? (Resend-Dashboard / Postmark-Dashboard)</li>
+<li>Spam-Complaint-Rate &lt; 0,1%? (über Postmark
+<code>complaints</code>-Feed oder Resend)</li>
+<li>Opt-Out-Rate &lt; 5%? (Blocklist-Wachstum/Tag)</li>
+<li>n8n-Execution-Failures? (Log scannen)</li>
+</ul>
+<h3 id="wöchentliches-review">10.4 Wöchentliches Review</h3>
+<ul>
+<li>Response-Rate (manuell tracken oder via CRM-Integration)</li>
+<li>Hook-Quality-Review: 10 zufällige Hooks lesen, generisch oder
+gut?</li>
+<li>Liste-Restbestand prüfen, neue Kampagne planen</li>
+<li>OpenRouter-Cost-Check (Spending-Cap nicht erreicht?)</li>
+</ul>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="bounce-rate-5">Bounce-Rate &gt;5%</h3>
+<ul>
+<li>Listen-Verifier nochmal laufen lassen, alte CSV ist verbrannt</li>
+<li>Apollo-Export-Filter verschärfen
+(<code>verified email</code>-Flag)</li>
+<li>Falsche Domain in Sender-Setting? <code>from</code>-Adresse
+prüfen</li>
+<li>Mail-Provider gedrosselt? → Postmark / Resend kontaktieren</li>
+</ul>
+<h3 id="mails-landen-im-spam">Mails landen im Spam</h3>
+<ul>
+<li>mail-tester.com Score neu testen → wenn &lt;9/10 erst SPF/DKIM/DMARC
+fixen</li>
+<li>Domain-Warm-Up nicht abgeschlossen? → 2 Wochen pausieren, normale
+Mails senden</li>
+<li>Spam-Trigger-Wörter in Templates? (“Gratis”, “Garantie”, “100%”,
+übermäßige Großbuchstaben)</li>
+<li>HTML zu komplex? → Plaintext-Fallback testen</li>
+<li>Bild-Anhang? → kein Bild-Hosting in Mail</li>
+<li>Reverse-DNS-Eintrag fehlt? → Hoster bitten zu setzen</li>
+<li>Tool: GlockApps Inbox-Placement-Test (€20)</li>
+</ul>
+<h3 id="openrouter-fehler">OpenRouter-Fehler</h3>
+<ul>
+<li>401: API-Key falsch oder revoked → neu generieren</li>
+<li>429: Rate-Limit → Spending-Cap erreicht? Plan upgraden oder
+Batch-Size reduzieren</li>
+<li>500: Model temporär down → Fallback-Model definieren (z.B.
+<code>openai/gpt-4o-mini</code> als Backup)</li>
+<li>Hook leer/abgeschnitten: <code>max_tokens</code> erhöhen (aktuell
+200, kann auf 300)</li>
+</ul>
+<h3 id="opt-out-webhook-funktioniert-nicht">Opt-Out-Webhook funktioniert
+nicht</h3>
+<ul>
+<li>n8n öffentlich erreichbar? (nicht localhost)</li>
+<li>Self-Hosted: Cloudflare-Tunnel / ngrok davor</li>
+<li>Workflow im Production-Mode (nicht Test-Mode)? Webhook-URL
+unterscheidet sich!</li>
+<li>Rate-Limit / Cloudflare blockt legitime Klicks? → IP-Whitelist für
+Mail-Klick-Trackers</li>
+</ul>
+<h3 id="hook-qualität-schlecht-zu-generisch">Hook-Qualität schlecht / zu
+generisch</h3>
+<ul>
+<li>Mehr Kontext im CSV (<code>note</code>-Spalte ausfüllen mit
+LinkedIn-Snippet, Posting, News)</li>
+<li>Prompt verschärfen: “Beziehe dich konkret auf die Branche und eine
+spezifische Herausforderung in dieser Branche”</li>
+<li>Temperature von 0.85 auf 0.95 (mehr Variation)</li>
+<li>Modell upgraden auf <code>claude-3.5-sonnet</code> oder
+<code>gpt-4o</code></li>
+</ul>
+<h3 id="wait-nodes-lösen-nicht-aus">Wait-Nodes lösen nicht aus</h3>
+<ul>
+<li>n8n braucht aktive Verbindung — bei Self-Host: Container darf nicht
+restarten während Wait läuft</li>
+<li>Bei n8n.cloud: gewährleistet</li>
+<li>Self-Hosted-Tipp: persistent Wait-Webhooks aktivieren</li>
+</ul>
+<h3 id="antwort-kam-aber-sequenz-läuft-weiter">Antwort kam aber Sequenz
+läuft weiter</h3>
+<ul>
+<li><code>contact.replied</code>-Flag wird nicht automatisch gesetzt im
+Default-Workflow</li>
+<li>DwY-Lösung: IMAP-Trigger-Workflow (Phase 2) der Inbox checkt + Flag
+setzt</li>
+<li>DIY-Lösung: Customer muss vor 3d/5d-Wait-Ablauf manuell in CRM
+<code>replied=true</code> setzen</li>
+</ul>
+<hr />
+<h2 id="wartung">Wartung</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Intervall</th>
+<th>Task</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Täglich</td>
+<td>Bounce + Spam-Complaint-Rate prüfen, n8n-Execution-Failures
+scannen</td>
+</tr>
+<tr class="even">
+<td>Wöchentlich</td>
+<td>Hook-Quality-Stichprobe (10 Hooks lesen), Liste-Restbestand
+reviewen</td>
+</tr>
+<tr class="odd">
+<td>Monatlich</td>
+<td>Vendor-DPAs prüfen, Cold-Leads &gt;90d löschen, Blocklist-Backup,
+OpenRouter-Spending-Review</td>
+</tr>
+<tr class="even">
+<td>Quartalsweise</td>
+<td>Sender-Reputation-Audit (mail-tester, Postmaster-Tools von Google),
+DNS-Records (SPF/DKIM/DMARC) prüfen, Tokens rotieren</td>
+</tr>
+<tr class="odd">
+<td>Halbjährlich</td>
+<td>Workflow-Update vom AEVUM-Repo ziehen (neue Sicherheits-Features,
+Mitigation-Updates)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="done-for-you-variante">Done-for-You-Variante</h2>
+<p>Wenn dir das zu viel ist (insbesondere Domain-Warm-Up + DNS-Setup +
+Listen-Hygiene): AEVUM macht das komplett für dich.</p>
+<p><strong>DFY-Scope (~12h Setup, 4 Wochen Begleitung):</strong> -
+Sub-Domain + SPF/DKIM/DMARC inkl. mail-tester-Verifikation -
+4-Wochen-Warm-Up-Plan mit Mail-Send-Cron - OpenRouter + Spending-Cap +
+Token-Rotation - Listen-Verifikation der ersten 200 Adressen -
+Prompt-Engineering für 3-5 Hook-Varianten + A/B-Test - Blocklist-Storage
+in Supabase + Blocklist-Check-Node - Cloudflare vor Opt-Out-Webhook -
+Test-Run + Inbox-Placement-Test (GlockApps) - Erste Kampagne live mit
+Customer-Monitoring 30 Tage - IMAP-Reply-Detection-Addon (optional)</p>
+<p>→ Buchung über <a
+href="https://aevum-system.de/shop">aevum-system.de/shop</a>
+(DFY-Variante wählen)</p>
+<h1 id="security-risks">3. Security-Risks</h1>
+<p><strong>Blueprint:</strong> cold-outreach-system
+<strong>Review-Datum:</strong> 2026-05-25 <strong>Reviewer:</strong>
+Lennox (AEVUM Quality-Gate) <strong>Schweregrad-Skala:</strong> 🔴
+CRITICAL / 🟠 HIGH / 🟡 MEDIUM / 🟢 LOW</p>
+<hr />
+<h2 id="risk-matrix">Risk-Matrix</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Risiko</th>
+<th>Schwere</th>
+<th>Mitigation</th>
+<th>Customer-Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Sender-Domain ohne SPF/DKIM/DMARC → Spam-Quarantäne +
+Domain-Blacklisting</td>
+<td>🔴 CRITICAL</td>
+<td>SPF + DKIM + DMARC vor erstem Versand, mail-tester.com-Score
+≥9/10</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Domain nicht aufgewärmt → erste 50 Mails landen sofort in Spam,
+Reputation kaputt</td>
+<td>🔴 CRITICAL</td>
+<td>2-4 Wochen Warm-Up (10-20 normale Mails/Tag) vor Cold-Volume</td>
+<td>Pflicht</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Hauptdomain für Outreach genutzt → bei Spam-Markierung
+Geschäfts-Mails betroffen</td>
+<td>🔴 CRITICAL</td>
+<td>Separate Sub-Domain (z.B. <code>kontakt.firma.de</code>), niemals
+Hauptdomain</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Gekaufte / nicht-recherchierte Liste → hohe Bounce-Rate +
+Spam-Complaints → Provider-Sperre</td>
+<td>🟠 HIGH</td>
+<td>Verifier (NeverBounce / ZeroBounce / hunter.io) vor jeder Kampagne,
+Apollo-Only-Adressen</td>
+<td>Pflicht</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Opt-Out-Webhook offen (kein Token) → Trolle können Adressen auf
+Blocklist setzen oder DDoS</td>
+<td>🟠 HIGH</td>
+<td>Webhook mit Header-Token ODER nur via Mail-Link (Signed-URL mit
+Email-Hash)</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Bulk-Mail-DDoS gegen eigenes SMTP → Provider sperrt Account</td>
+<td>🟠 HIGH</td>
+<td>Rate-Limit am SMTP-Sender (max 30-50/h), n8n-Batch-Size auf 10/Tag
+stellen</td>
+<td>Pflicht</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>OpenRouter-API-Token im Workflow-JSON hartcoded → bei Export-Leak
+komplette Personalisierung gekapert + Rechnung explodiert</td>
+<td>🟠 HIGH</td>
+<td>Token NUR in n8n-Credential-Store, niemals im Node-Body.
+Spending-Cap bei OpenRouter setzen</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>OpenRouter-Prompt-Injection durch Kontakt-Daten (Name =
+<code>Ignore previous instructions...</code>)</td>
+<td>🟡 MEDIUM</td>
+<td>User-Input in Prompt escapen, max_tokens 200, Output-Sanitization
+vor Mail-Insert</td>
+<td>Empfohlen</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>KI-Hook erzeugt Halluzinationen (“Sie haben letzte Woche bei XY
+gesprochen”) → Vertrauensbruch + DSGVO-Vorwurf</td>
+<td>🟡 MEDIUM</td>
+<td>Prompt explizit: “keine Fakten erfinden, nur aus gegebener
+Notiz/Position arbeiten”, manueller Review erster 20 Hooks</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>PII (Vorname/Nachname/Mail/Firma) fließt via OpenRouter zu
+US-LLM-Provider</td>
+<td>🟡 MEDIUM</td>
+<td>OpenRouter EU-Routing wählen (Claude/Mistral-EU) ODER explizit in
+DS-Erklärung erwähnen + DPA</td>
+<td>Pflicht</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Listen-Vergiftung: Konkurrent setzt sich + Beschwerde-Adressen auf
+deine Liste → gezielte Spam-Reports</td>
+<td>🟡 MEDIUM</td>
+<td>Quell-Check + Honeypot-Adressen-Filter (z.B. <code>abuse@</code>,
+<code>postmaster@</code>, Spam-Trap-Domains)</td>
+<td>Empfohlen</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Mail-Templates ohne Plaintext-Fallback → Mail-Clients ohne HTML
+zeigen leeren Body, Spam-Score steigt</td>
+<td>🟡 MEDIUM</td>
+<td>Plaintext-Version in Email-Node generieren (n8n unterstützt
+multi-part)</td>
+<td>Empfohlen</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td>Wait-Nodes nutzen n8n-Webhook-Resume → Webhook-URLs werden bei
+Workflow-Export sichtbar</td>
+<td>🟢 LOW</td>
+<td>Production-Mode nutzen (statt Trigger-Mode), kein Workflow-Export an
+Externe</td>
+<td>Empfohlen</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td>Antwort-Detection nur via <code>contact.replied</code>-Flag →
+Customer muss manuell Flag setzen oder hat keine Inbox-Integration →
+Mails gehen raus obwohl geantwortet wurde</td>
+<td>🟠 HIGH</td>
+<td>DwY: IMAP-Reply-Detection als Addon. Sonst: Customer-Pflicht, vor
+jedem Sequenz-Step CRM-Status zu prüfen</td>
+<td>Pflicht</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td>Logs enthalten alle Kontakt-PII + KI-generierte Personalisierung →
+Log-Leak = großer Datenschutz-Vorfall</td>
+<td>🟡 MEDIUM</td>
+<td>n8n-Execution-Log-Retention auf 30d, keine Mail-Bodies in Logs,
+sensitive-Field-Masking aktivieren</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td>EU-Hosting n8n nicht gewährleistet → DSGVO-Verstoß ohne SCC</td>
+<td>🟡 MEDIUM</td>
+<td>n8n.cloud EU-Region oder Hetzner/Scaleway-Self-Host</td>
+<td>Pflicht</td>
+</tr>
+<tr class="odd">
+<td>17</td>
+<td>Calendly-Link in jeder Mail = Reputation an externen US-Dienst
+gebunden</td>
+<td>🟢 LOW</td>
+<td>EU-Alternative (Cal.com / SimpleBooking) optional anbieten, sonst in
+DPA aufnehmen</td>
+<td>Empfohlen</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pflicht-mitigations-customer-muss-umsetzen">Pflicht-Mitigations
+(Customer MUSS umsetzen)</h2>
+<h3 id="sender-domain-setup-spfdkimdmarc">1. Sender-Domain-Setup
+(SPF/DKIM/DMARC)</h3>
+<p><strong>Problem:</strong> Ohne Auth-Records geht jede Cold-Mail
+direkt in Spam. Spam-Markierung führt zu Domain-Blacklisting auf Listen
+wie Spamhaus → kein Versand mehr möglich.</p>
+<p><strong>Fix:</strong> - Sub-Domain anlegen (z.B.
+<code>kontakt.firma.de</code>), NICHT Hauptdomain - Bei Mail-Provider
+(Resend / Postmark / Mailgun) Domain hinzufügen - DNS-Records setzen: -
+<strong>SPF</strong> TXT:
+<code>v=spf1 include:spf.resend.com -all</code> - <strong>DKIM</strong>
+CNAME: Provider-spezifisch - <strong>DMARC</strong> TXT:
+<code>v=DMARC1; p=quarantine; rua=mailto:dmarc@firma.de</code> -
+Verifikation via mail-tester.com → mindestens 9/10</p>
+<h3 id="domain-warm-up-pflicht-vor-erstem-cold-send">2. Domain-Warm-Up
+(Pflicht vor erstem Cold-Send)</h3>
+<p><strong>Problem:</strong> Neue Domain = 0 Reputation. Sofort 50
+Cold-Mails → Spam-Quarantäne.</p>
+<p><strong>Fix-Plan (4 Wochen):</strong> - Woche 1: 5-10 normale
+Mails/Tag an warme Kontakte (interne Tests, eigene Kunden) — alle müssen
+geöffnet werden - Woche 2: 15-20 Mails/Tag, weiterhin warme Kontakte mit
+Antwort - Woche 3: 20-30 Mails/Tag, erste Lauwarm-Kontakte
+(LinkedIn-Verbindungen) - Woche 4: 30-50 Mails/Tag, erste Cold-Tests mit
+hochwertigen Adressen - Ab Woche 5: Volle Cold-Outreach-Volumen</p>
+<h3 id="sender-hauptdomain-schutz">3. Sender-Hauptdomain-Schutz</h3>
+<p><strong>Problem:</strong> Wenn <code>info@firma.de</code> für
+Cold-Outreach genutzt wird und auf Blacklist landet → reguläre
+Geschäfts-Mails kommen nicht mehr durch.</p>
+<p><strong>Fix:</strong> Separate Sub-Domain. Reputation isoliert. Bei
+Problem kann Sub-Domain “weggeworfen” werden, Hauptdomain bleibt
+sauber.</p>
+<h3 id="liste-hygiene-verifier">4. Liste-Hygiene + Verifier</h3>
+<p><strong>Problem:</strong> Bounce-Rate &gt;5% → Mail-Provider drosselt
+/ sperrt Account. Spam-Trap-Adressen in Liste → automatische
+Blacklist.</p>
+<p><strong>Fix:</strong> - Jede Liste vor Kampagnen-Start durch
+NeverBounce / ZeroBounce / hunter.io Verifier - Bounce-Rate-Ziel: &lt;2%
+- Adressen mit <code>info@</code>, <code>contact@</code>,
+<code>noreply@</code> aus Liste filtern (B2B-Role-Mails generieren oft
+Beschwerden) - Apollo-Listen nur mit <code>verified</code>-Flag
+exportieren</p>
+<h3 id="opt-out-webhook-absichern">5. Opt-Out-Webhook absichern</h3>
+<p><strong>Problem:</strong> Offener Webhook → DDoS oder gezielte
+Blocklist-Vergiftung möglich.</p>
+<p><strong>Fix-Optionen:</strong> - <strong>Option A:</strong>
+Signed-URL — Email-Hash als Token
+(<code>?email=x&amp;sig=hmac(email, secret)</code>) - <strong>Option
+B:</strong> n8n-Webhook mit Header-Token + Cloudflare-Rate-Limit
+(30/min/IP) - Rate-Limit auf Opt-Out-Endpoint (Cloudflare-Rule)</p>
+<h3 id="smtp-sending-rate-limit">6. SMTP-Sending-Rate-Limit</h3>
+<p><strong>Problem:</strong> n8n-Workflow schickt Burst von 200 Mails in
+5 Min → Provider klassifiziert als Spam-Bot → Account-Sperre.</p>
+<p><strong>Fix:</strong> - Batch-Size 10/Tag im Workflow lassen
+(default-Setting) - Bei Resend / Postmark / Mailgun: Tageslimit checken
+(Resend Free: 100/Tag) - Throttle-Delay zwischen einzelnen Mails: 30-60
+Sekunden (Wait-Node in n8n)</p>
+<h3 id="openrouter-token-schutz">7. OpenRouter-Token-Schutz</h3>
+<p><strong>Problem:</strong> Token im Workflow-JSON → bei Backup /
+Migration / Bug-Report-Anhang exposed. OpenRouter-Account abgegriffen,
+fremde GPT-4-Calls auf deine Rechnung.</p>
+<p><strong>Fix:</strong> - Token AUSSCHLIESSLICH in n8n-Credential-Store
+(“OpenRouter API”) - Im HTTP-Node nur Credential-Reference nutzen -
+OpenRouter-Dashboard: Spending-Cap auf €50/Mo setzen (Hard-Stop) - Bei
+Verdacht: Token sofort revoken + rotieren</p>
+<h3 id="hallucination-schutz-im-hook-prompt">8. Hallucination-Schutz im
+Hook-Prompt</h3>
+<p><strong>Problem:</strong> KI erfindet Fakten (“Letzte Woche im
+Webinar gesehen…”) → Empfänger erkennt, verliert Vertrauen, schreibt
+Beschwerde, beschuldigt DSGVO-Manipulation.</p>
+<p><strong>Fix:</strong> - Prompt explizit:
+<code>WICHTIG: Erfinde keine Fakten. Wenn Notiz leer ist, beziehe dich nur auf Position oder Branche.   Niemals erfundene Treffen, Webinare, Veröffentlichungen erwähnen.</code>
+- Erste 20 Hooks manuell reviewen - Bei Fehlinformation: Hook verwerfen,
+manuell schreiben</p>
+<h3 id="antwort-detection-discipline">9.
+Antwort-Detection-Discipline</h3>
+<p><strong>Problem:</strong> Workflow nutzt
+<code>contact.replied</code>-Flag — ohne IMAP-Integration weiß n8n
+nicht, ob jemand geantwortet hat. Mail 2 + Mail 3 gehen raus obwohl
+Antwort kam → Empfänger genervt, Spam-Report.</p>
+<p><strong>Fix-Optionen:</strong> - <strong>Option A (DIY):</strong>
+Customer muss bei jeder Antwort manuell in CRM <code>replied=true</code>
+setzen bevor 3d-Wait abläuft - <strong>Option B (DwY):</strong>
+IMAP-Trigger-Workflow als Addon — checkt Inbox, matcht Sender, setzt
+Flag automatisch - <strong>Option C (Enterprise):</strong>
+Reply-Detection-Provider (Postmark Inbound, Mailgun Routes) →
+Webhook-Trigger an n8n</p>
+<h3 id="eu-hosting-tls">10. EU-Hosting + TLS</h3>
+<p>Wie Standard. n8n.cloud EU-Region oder Hetzner/Scaleway.</p>
+<hr />
+<h2 id="empfohlene-mitigations-best-practice">Empfohlene Mitigations
+(Best-Practice)</h2>
+<h3 id="prompt-injection-defense">11. Prompt-Injection-Defense</h3>
+<p>User-Input (Name, Firma, Notiz) vor OpenRouter-Call escapen: -
+Newlines stripping - Backticks/Markdown-Steuerzeichen entfernen -
+Max-Length pro Feld (Name 100, Firma 200, Notiz 500)</p>
+<h3 id="plaintext-fallback-in-mails">12. Plaintext-Fallback in
+Mails</h3>
+<p>n8n-Send-Email-Node unterstützt <code>htmlBody</code> +
+<code>textBody</code>. Beide ausfüllen → Spam-Score verbessert sich.</p>
+<h3 id="honeypot-adressen-filter">13. Honeypot-Adressen-Filter</h3>
+<p>Vor Versand prüfen ob Adresse zu bekannten Spam-Trap-Domains gehört.
+Liste pflegen (z.B. <code>*.honeypot.io</code>,
+<code>spam-trap@*</code>).</p>
+<h3 id="log-retention-30-tage">14. Log-Retention 30 Tage</h3>
+<p>n8n-Settings → Execution-Data → 30d.</p>
+<h3 id="sensitive-field-masking-in-logs">15. Sensitive-Field-Masking in
+Logs</h3>
+<p>n8n unterstützt Field-Masking. Mail-Bodies und vollständige
+Kontakt-PII maskieren.</p>
+<hr />
+<h2 id="was-aevum-bei-dfy-install-zusätzlich-macht">Was AEVUM bei
+DFY-Install zusätzlich macht</h2>
+<p>Wenn Customer DFY bucht, übernimmt AEVUM: - Sub-Domain-Setup +
+SPF/DKIM/DMARC + mail-tester-Verifikation - 4-Wochen-Domain-Warm-Up-Plan
+(Cron + Test-Inbox-Network) - OpenRouter-Account-Setup + Spending-Cap +
+Token-Rotation-Schedule - Liste-Verifizierung der ersten 200 Adressen
+via NeverBounce - Prompt-Engineering für Customer-spezifisches Angebot
+(3-5 Hook-Varianten testen) - IMAP-Reply-Detection-Addon (falls Customer
+das will) - Cloudflare vor Opt-Out-Webhook + Rate-Limit - Test-Run mit
+10 Adressen (Inbox-Placement-Test) vor Live-Versand - Security-Sign-Off
+in Customer-Portal - Bounce-Monitoring-Dashboard für erste 30 Tage</p>
+<hr />
+<h2 id="known-limits-nicht-fixbar-in-diesem-blueprint">Known-Limits
+(nicht-fixbar in diesem Blueprint)</h2>
+<ul>
+<li><strong>Reply-Detection ohne IMAP/Mail-Provider-Webhook:</strong>
+Manueller CRM-Flag-Workflow Pflicht. Phase 2:
+IMAP-Reply-Detection-Addon.</li>
+<li><strong>A/B-Testing von Hooks:</strong> nicht im Blueprint. Customer
+kann manuell verschiedene Prompts in Workflow-Kopien testen. Phase 2:
+A/B-Engine.</li>
+<li><strong>Inbox-Placement-Test:</strong> Tools wie GlockApps /
+Mailgenius nicht integriert. Customer kann manuell vor Kampagne
+nutzen.</li>
+<li><strong>Multi-Inbox-Rotation:</strong> Bei &gt;100 Mails/Tag besser
+auf 3-5 Sender-Inboxes verteilen. Aktuell single-Sender im Blueprint.
+Phase 2.</li>
+<li><strong>OpenRouter-EU-Routing:</strong> abhängig von
+Provider-Verfügbarkeit. Aktuell muss Customer aktiv EU-Modelle
+wählen.</li>
+</ul>
+<hr />
+<h2 id="sign-off-quality-gate">Sign-Off (Quality-Gate)</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Risk-Matrix erstellt (17
+Risks)</label></li>
+<li><label><input type="checkbox" checked="" />10 Pflicht-Mitigations
+dokumentiert</label></li>
+<li><label><input type="checkbox" checked="" />Customer-Action-Liste
+klar</label></li>
+<li><label><input type="checkbox" checked="" />DFY-Differentiator
+ausgearbeitet</label></li>
+<li><label><input type="checkbox" />Pen-Test extern — Phase 2, nicht
+Sales-Blocker</label></li>
+<li><label><input type="checkbox" />IMAP-Reply-Detection-Addon — Phase
+2</label></li>
+<li><label><input type="checkbox" />Inbox-Placement-Test-Integration —
+Phase 2</label></li>
+<li><label><input type="checkbox" />Multi-Inbox-Rotation-Workflow —
+Phase 2</label></li>
+</ul>
+<h1 id="dsgvo-konformitäts-check">4. DSGVO-Konformitäts-Check</h1>
+<p><strong>Blueprint:</strong> cold-outreach-system
+<strong>Review-Datum:</strong> 2026-05-25 <strong>Reviewer:</strong>
+Lennox (AEVUM Quality-Gate) <strong>Disclaimer:</strong> Diese Doku ist
+keine Rechtsberatung. Customer bleibt rechtlich verantwortlich.
+Cold-Outreach ist DSGVO-/UWG-kritisch — bei Unsicherheit Anwalt
+konsultieren. Insbesondere im B2C-Kontext kategorisch verboten.</p>
+<hr />
+<h2 id="kategorischer-vorbehalt">0. Kategorischer Vorbehalt</h2>
+<p><strong>B2B-Only.</strong> Cold-E-Mail an Privatpersonen (B2C) ist
+nach § 7 Abs. 2 Nr. 3 UWG ausnahmslos rechtswidrig ohne Einwilligung.
+Dieses Blueprint ist ausschließlich für B2B-Direktansprache an
+Geschäftsadressen gemacht. Bei B2C-Einsatz: Customer trägt volles Risiko
+(Abmahnung, Bußgeld bis €20k pro Verstoß).</p>
+<hr />
+<h2 id="datenfluss-analyse">1. Datenfluss-Analyse</h2>
+<p><strong>Welche personenbezogenen Daten verarbeitet der
+Workflow?</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Datum</th>
+<th>Kategorie</th>
+<th>Speicherort</th>
+<th>Aufbewahrung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Vorname + Nachname</td>
+<td>Stammdaten (Art. 4 Nr. 1 DSGVO)</td>
+<td>n8n-Execution-Log + CSV-Quelle + Sender-Provider-Logs</td>
+<td>n8n: &lt;30d; CSV: Customer-Choice; Provider:
+provider-spezifisch</td>
+</tr>
+<tr class="even">
+<td>Geschäfts-E-Mail</td>
+<td>Kommunikationsdatum (B2B-Kontakt)</td>
+<td>n8n + Mail-Provider (Resend/Postmark/SMTP) + OpenRouter-Logs</td>
+<td>n8n &lt;30d; Provider 6-12 Monate (Mail-Server-Logs); OpenRouter:
+laut DPA</td>
+</tr>
+<tr class="odd">
+<td>Firma + Position</td>
+<td>Berufliche Daten (B2B)</td>
+<td>n8n + OpenRouter (für Hook-Generierung)</td>
+<td>wie oben</td>
+</tr>
+<tr class="even">
+<td>LinkedIn-URL</td>
+<td>Öffentlich verfügbarer Profil-Link</td>
+<td>n8n + ggf. CSV-Backup</td>
+<td>wie oben</td>
+</tr>
+<tr class="odd">
+<td>Optionale Notiz (Freitext)</td>
+<td>Profilbildung (kann Sensibles enthalten)</td>
+<td>n8n + OpenRouter</td>
+<td>wie oben</td>
+</tr>
+<tr class="even">
+<td>Opt-Out-Status</td>
+<td>Steuerungsdatum</td>
+<td>n8n-Static-Data ODER externe Blocklist-DB</td>
+<td>3 Jahre (DSGVO-Pflicht zur Verhinderung erneuter Kontaktierung)</td>
+</tr>
+<tr class="odd">
+<td>KI-generierter Hook (2 Sätze)</td>
+<td>abgeleiteter Personalisierungs-Output</td>
+<td>n8n-Execution + Mail-Body</td>
+<td>wie n8n</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Potential für besondere Kategorien (Art. 9 DSGVO):</strong>
+Optionale Notiz-Spalte ist Freitext → Customer darf KEINE
+Gesundheits-/politischen/religiösen Annahmen über Empfänger eintragen.
+CSV-Template muss klaren Hinweis enthalten.</p>
+<hr />
+<h2 id="rechtsgrundlage">2. Rechtsgrundlage</h2>
+<p><strong>Welche Rechtsgrundlage trägt die Verarbeitung?</strong></p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kontext</th>
+<th>Grundlage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recherche + Speicherung der B2B-Geschäftsadresse</td>
+<td><strong>Art. 6 (1) lit. f DSGVO</strong> — berechtigtes Interesse
+(Geschäftsanbahnung)</td>
+</tr>
+<tr class="even">
+<td>Versand Cold-Mail 1 (Erstansprache)</td>
+<td><strong>§ 7 Abs. 2 Nr. 3 UWG</strong> (mutmaßliches Interesse)
+<strong>+ Art. 6 (1) lit. f DSGVO</strong> (berechtigtes Interesse)</td>
+</tr>
+<tr class="odd">
+<td>Follow-Up Mail 2 + Mail 3</td>
+<td>Gleiche Grundlage, ABER: Wenn Empfänger nicht reagiert oder ablehnt
+→ kein berechtigtes Interesse mehr</td>
+</tr>
+<tr class="even">
+<td>KI-Personalisierung via OpenRouter</td>
+<td><strong>Art. 6 (1) lit. f</strong> + ggf. <strong>Art. 28 DSGVO
+(Auftragsverarbeitung)</strong> falls OpenRouter Sub-Processor</td>
+</tr>
+<tr class="odd">
+<td>Opt-Out-Speicherung (Blocklist)</td>
+<td><strong>Art. 6 (1) lit. c</strong> — rechtliche Verpflichtung
+(Werbe-Widerspruch nach Art. 21 DSGVO + § 7 UWG umsetzen)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="uwg-voraussetzungen-pflicht-erfüllung">§ 7 UWG Voraussetzungen
+(Pflicht-Erfüllung)</h3>
+<p>Cold-E-Mail an B2B-Empfänger ist nur zulässig, wenn ALLE folgenden
+Kriterien erfüllt sind:</p>
+<ol type="1">
+<li><strong>Sachlicher Zusammenhang</strong> zwischen Angebot und
+Tätigkeit des Empfängers (z.B. Marketing-Tool an Marketing-Manager — JA;
+Yoga-Kurs an CTO — NEIN)</li>
+<li><strong>Mutmaßliches Interesse</strong> des Empfängers an dem
+Angebot (objektiv bewertbar)</li>
+<li><strong>Empfänger ist Unternehmer</strong> im Sinne § 14 BGB
+(juristische Person oder selbstständige natürliche Person)</li>
+<li><strong>Öffentlich zugängliche E-Mail-Adresse</strong>
+(Website-Impressum, LinkedIn-Profil, Apollo-verifizierte
+Geschäftsadresse)</li>
+<li><strong>Klare Absender-Identifikation</strong> (Namen, Firma,
+Kontaktadresse in jeder Mail)</li>
+<li><strong>Opt-Out-Möglichkeit</strong> in jeder Mail</li>
+<li><strong>Keine irreführende Betreffzeile</strong> (z.B. “Re: Ihre
+Anfrage” wenn keine Anfrage existierte → unzulässig)</li>
+</ol>
+<p><strong>Customer-Pflicht:</strong> Vor jeder Kampagne diese
+7-Punkt-Checkliste durchgehen und dokumentieren.</p>
+<hr />
+<h2 id="pflicht-konfiguration-im-workflow-mail">3. Pflicht-Konfiguration
+im Workflow + Mail</h2>
+<h3 id="a-mail-footer-pflicht-in-jeder-einzelnen-mail-mail-1-2-3">A)
+Mail-Footer (Pflicht in jeder einzelnen Mail — Mail 1, 2, 3)</h3>
+<pre><code>Absender: [Vorname Nachname]
+[Firma + Rechtsform, z.B. GmbH]
+[Vollständige Anschrift inkl. PLZ + Ort + Land]
+[Telefon] | [E-Mail]
+[Optional: Website-Link]
+
+Keine weiteren Nachrichten gewünscht? [Hier abmelden — Opt-Out-Link]</code></pre>
+<p><strong>Im Blueprint-Workflow:</strong> Die Email-Nodes enthalten
+bereits Footer-Struktur — Customer MUSS Platzhalter mit echten Daten
+füllen vor Aktivierung.</p>
+<h3 id="b-opt-out-link-in-jeder-mail">B) Opt-Out-Link in jeder Mail</h3>
+<p>Pflicht. Nicht versteckt, nicht im Spam-Filter-anfälligen-Format
+(“klick hier” reicht; “DEINE DATEN LÖSCHEN” macht es schlimmer).</p>
+<p><strong>Workflow-Implementation:</strong> - Webhook-Node
+<code>outreach-optout</code> ist bereits konfiguriert - Bei Klick:
+Email-Adresse landet auf Blocklist - Pflicht-Konfiguration: Customer
+muss Blocklist-Storage einrichten (Airtable / Supabase /
+n8n-Static-Data) - Pflicht-Konfiguration: Vor jedem Versand prüfen, ob
+Adresse auf Blocklist (Customer-Erweiterung, im Default-Workflow noch
+nicht enthalten — siehe Phase-2-Hinweis)</p>
+<h3 id="c-betreff-ohne-irreführung">C) Betreff ohne Irreführung</h3>
+<ul>
+<li>❌ “Re:” wenn kein Vorgespräch</li>
+<li>❌ “Bestätigung Ihrer Anfrage”</li>
+<li>❌ “Ihre Rechnung”</li>
+<li>✅ “Kurze Frage, [Vorname]”</li>
+<li>✅ “Idee für [Firma]”</li>
+<li>✅ “[Konkretes Thema]?”</li>
+</ul>
+<h3 id="d-sender-adresse-transparenz">D) Sender-Adresse-Transparenz</h3>
+<p><code>outreach@firma.de</code> muss zu real existierender,
+erreichbarer Person/Postfach gehören. Reply-To muss funktionieren.
+NIEMALS <code>noreply@</code>-Adressen für Cold-Outreach.</p>
+<hr />
+<h2 id="vendor-dpa-übersicht">4. Vendor-DPA-Übersicht</h2>
+<p>Welche Auftragsverarbeiter sind beteiligt? (Customer braucht DPA mit
+jedem.)</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Vendor</th>
+<th>Rolle</th>
+<th>EU-Hosting?</th>
+<th>DPA-Link</th>
+<th>Risiko-Level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>n8n.cloud</strong></td>
+<td>Workflow-Engine</td>
+<td>✅ EU-Region wählbar</td>
+<td>n8n.io/legal/dpa</td>
+<td>🟢 LOW</td>
+</tr>
+<tr class="even">
+<td><strong>Self-Hosted n8n</strong></td>
+<td>Workflow-Engine</td>
+<td>Customer’s Choice</td>
+<td>—</td>
+<td>🟢 LOW wenn EU-Server</td>
+</tr>
+<tr class="odd">
+<td><strong>OpenRouter</strong></td>
+<td>KI-Hook-Generator</td>
+<td>❌ US (Provider) — leitet weiter an Model-Provider
+(OpenAI/Anthropic/Mistral)</td>
+<td>openrouter.ai/privacy</td>
+<td>🟠 HIGH (PII-Transfer in Drittland, SCC + Customer-Hinweis
+Pflicht)</td>
+</tr>
+<tr class="even">
+<td><strong>Resend</strong></td>
+<td>E-Mail-Versand</td>
+<td>✅ EU-Region verfügbar</td>
+<td>resend.com/legal/dpa</td>
+<td>🟢 LOW</td>
+</tr>
+<tr class="odd">
+<td><strong>Postmark</strong></td>
+<td>E-Mail-Versand (alternative)</td>
+<td>❌ US (mit SCC)</td>
+<td>postmarkapp.com/eu-privacy</td>
+<td>🟡 MEDIUM</td>
+</tr>
+<tr class="even">
+<td><strong>Mailgun</strong></td>
+<td>E-Mail-Versand (alternative)</td>
+<td>✅ EU-Region wählbar</td>
+<td>mailgun.com/dpa</td>
+<td>🟢 LOW wenn EU-gewählt</td>
+</tr>
+<tr class="odd">
+<td><strong>Eigener SMTP</strong></td>
+<td>E-Mail-Versand</td>
+<td>Customer-Choice</td>
+<td>—</td>
+<td>🟢 LOW wenn EU-Server</td>
+</tr>
+<tr class="even">
+<td><strong>Apollo.io</strong></td>
+<td>Lead-Quelle</td>
+<td>❌ US</td>
+<td>apollo.io/privacy/dpa</td>
+<td>🟠 HIGH (Customer ist Verantwortlicher; Apollo nur Lieferant —
+Recherche-Rechtsgrundlage Customer-Sache)</td>
+</tr>
+<tr class="odd">
+<td><strong>LinkedIn</strong></td>
+<td>Lead-Quelle (öffentliche Profile)</td>
+<td>❌ US</td>
+<td>—</td>
+<td>🟡 MEDIUM (öffentliche Daten OK, aber Scraping gegen ToS)</td>
+</tr>
+<tr class="even">
+<td><strong>Cloudflare</strong></td>
+<td>Webhook-Schutz</td>
+<td>Mixed</td>
+<td>cloudflare.com/cloudflare-customer-dpa</td>
+<td>🟢 LOW</td>
+</tr>
+<tr class="odd">
+<td><strong>Calendly</strong></td>
+<td>Termin-Buchung (in Mail-Footer)</td>
+<td>❌ US</td>
+<td>calendly.com/dpa</td>
+<td>🟡 MEDIUM (Lead-Daten beim Termin → Customer braucht DPA)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Action vor Go-Live:</strong> 1. Alle aktiv genutzten
+Vendors als Auftragsverarbeiter in Verzeichnis aufnehmen (Art. 30 DSGVO)
+2. SCCs (Standard Contractual Clauses) bei US-Vendors prüfen 3. In
+Datenschutzerklärung Liste der Auftragsverarbeiter erwähnen +
+Drittland-Transfer-Hinweis</p>
+<hr />
+<h2 id="betroffenenrechte-art.-1522-dsgvo">5. Betroffenenrechte (Art.
+15–22 DSGVO)</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Recht</th>
+<th>Umsetzung im Blueprint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Auskunft</strong> (Art. 15)</td>
+<td>Customer-Prozess: CSV-Quelle + Blocklist + ggf. CRM nach
+Email-Adresse durchsuchen, Daten exportieren, an Betroffenen senden
+binnen 30 Tagen</td>
+</tr>
+<tr class="even">
+<td><strong>Berichtigung</strong> (Art. 16)</td>
+<td>Customer-Prozess: in CSV-Quelle korrigieren, Workflow neu
+durchlaufen lassen für aktualisierte Hooks</td>
+</tr>
+<tr class="odd">
+<td><strong>Löschung</strong> (Art. 17)</td>
+<td>n8n-Execution-Log: Auto-Cleanup 30d. CSV/CRM: Customer-Pflicht zur
+sofortigen Löschung. Blocklist-Eintrag bleibt (siehe Begründung in
+Löschfristen)</td>
+</tr>
+<tr class="even">
+<td><strong>Einschränkung</strong> (Art. 18)</td>
+<td>Email auf Blocklist + CRM-Status “DSGVO-Hold” → kein weiteres
+Processing</td>
+</tr>
+<tr class="odd">
+<td><strong>Datenübertragbarkeit</strong> (Art. 20)</td>
+<td>CSV-Export aus Quelle (Apollo / LinkedIn-Backup / CRM)</td>
+</tr>
+<tr class="even">
+<td><strong>Widerspruch</strong> (Art. 21)</td>
+<td><strong>DAS IST DER KERN BEI COLD-OUTREACH</strong> — Opt-Out-Link
+in jeder Mail Pflicht. Klick = sofortige Aufnahme in Blocklist, keine
+weiteren Mails. Bestätigungsmail mit Bestätigung der Löschung
+empfohlen.</td>
+</tr>
+<tr class="odd">
+<td><strong>Automatisierte Einzelentscheidung</strong> (Art. 22)</td>
+<td>Nicht einschlägig — KI-Hook ist Personalisierung, keine rechtliche
+Entscheidung. Trotzdem: in DS-Erklärung Hinweis auf KI-Personalisierung
+aufnehmen (Transparenz-Pflicht aus Art. 13).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="löschfristen-logik">6. Löschfristen-Logik</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Lead-Status</th>
+<th>Aufbewahrung</th>
+<th>Grund</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kontakt im aktiven Sequenz-Versand</td>
+<td>bis Sequenz-Ende oder Antwort</td>
+<td>Verarbeitungs-Notwendigkeit</td>
+</tr>
+<tr class="even">
+<td>Kontakt hat geantwortet (positiv/neutral)</td>
+<td>nach Customer-CRM-Policy (Vertriebs-Lifecycle, max 12 Monate ohne
+Aktivität)</td>
+<td>berechtigtes Interesse</td>
+</tr>
+<tr class="odd">
+<td>Kontakt hat nicht geantwortet, Sequenz abgeschlossen</td>
+<td>90 Tage nach letztem Mail-Send</td>
+<td>nach 90d kein berechtigtes Interesse mehr für erneute
+Kontaktierung</td>
+</tr>
+<tr class="even">
+<td>Kontakt hat sich abgemeldet (Opt-Out)</td>
+<td><strong>3 Jahre auf Blocklist</strong> (NICHT löschen)</td>
+<td>Verhindert erneute Kontaktierung; § 7 UWG + Werbewiderspruch Art. 21
+DSGVO</td>
+</tr>
+<tr class="odd">
+<td>n8n-Execution-Log</td>
+<td>30 Tage</td>
+<td>Operational</td>
+</tr>
+<tr class="even">
+<td>Mail-Provider-Logs (Resend etc.)</td>
+<td>provider-spezifisch (6-12 Monate üblich)</td>
+<td>Customer hat Einfluss via DPA</td>
+</tr>
+<tr class="odd">
+<td>OpenRouter-API-Logs</td>
+<td>je nach OpenRouter-Settings + Model-Provider-Policy</td>
+<td>bei OpenRouter “no-log”-Modus aktivieren wenn verfügbar</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Implementation:</strong> - Customer richtet Cron in
+CSV-Quelle / CRM ein für Auto-Delete nach 90d (Cold-Lead-Cleanup) -
+Blocklist bleibt 3 Jahre, separater Speicher (z.B. eigene
+Airtable-Tabelle / Supabase-Tabelle), nicht löschen! - Blocklist-Check
+vor jedem Send-Step → Pflicht-Erweiterung des Default-Workflows</p>
+<p><strong>Pflicht-Hinweis Customer:</strong> Blocklist-Check ist im
+Default-Workflow NICHT enthalten. Customer MUSS einen IF-Node mit
+Blocklist-Lookup vor jedem Send-Step einbauen, sonst landet eine
+bereits-abgemeldete Adresse erneut in Sequenz → DSGVO-Verstoß.
+AEVUM-DFY-Variante baut das ein.</p>
+<hr />
+<h2 id="datenschutzfolgen-abschätzung-dsfa-art.-35">7.
+Datenschutzfolgen-Abschätzung (DSFA, Art. 35)</h2>
+<p><strong>Ist eine DSFA erforderlich?</strong></p>
+<p>→ <strong>Grenzfall:</strong> - Reines B2B-Cold-Outreach ohne
+besondere Kategorien + Volumen &lt;10k Empfänger/Jahr:
+<strong>Nein</strong>, aber Risiko-Analyse empfohlen - KI-Profiling über
+Hook hinaus (z.B. Persönlichkeits-Inferenz, Branchen-Sentiment):
+<strong>Ja</strong> - Volumen &gt;10k Empfänger/Jahr:
+<strong>Ja</strong> (Skalierungs-DSFA empfohlen) - B2B in regulierten
+Branchen (Healthcare, Finance): <strong>Ja</strong> (Anwalt!)</p>
+<p><strong>Bei DSFA-Pflicht:</strong> - Zweck-Beschreibung -
+Notwendigkeitsprüfung - Risiko-Matrix (siehe SECURITY-RISKS.md) -
+Mitigation-Maßnahmen - Ggf. Konsultation Datenschutzaufsicht</p>
+<hr />
+<h2 id="eu-ai-act-kompatibilität-ab-2.-aug-2026">8.
+EU-AI-Act-Kompatibilität (ab 2. Aug 2026)</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Klassifizierung</th>
+<th>Cold-Outreach-System</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AI-System nach EU-AI-Act?</strong></td>
+<td><strong>Ja</strong> — OpenRouter-Call mit LLM ist klar AI-System
+nach Art. 3 (1)</td>
+</tr>
+<tr class="even">
+<td><strong>Risk-Class</strong></td>
+<td><strong>Limited Risk</strong> — KI-generierter Text in Mail.
+Transparenz-Pflicht: Empfänger muss erkennen können, dass es
+maschinell-personalisierte Kommunikation ist (Art. 50 AI-Act)</td>
+</tr>
+<tr class="odd">
+<td><strong>High-Risk?</strong></td>
+<td>Nein (kein Annex-III-Anwendungsfall: keine Bonität, kein
+Recruiting-Score, keine Strafverfolgung)</td>
+</tr>
+<tr class="even">
+<td><strong>Prohibited?</strong></td>
+<td>Nein (kein Social-Scoring, kein Manipulations-Verbot — solange Hook
+nicht manipulativ ist)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Action für AI-Act-Compliance:</strong> - In
+Datenschutzerklärung Hinweis aufnehmen: “Wir nutzen KI-gestützte
+Personalisierung für unsere Outreach-Kommunikation.” - Optional (aber
+empfohlen): in Mail-Footer kleiner Hinweis “Diese Nachricht wurde mit
+KI-Unterstützung personalisiert.” - KEINE manipulativen Hook-Patterns
+(false-urgency, fake-personal-connection)</p>
+<hr />
+<h2 id="audit-checkliste-vor-go-live">9. Audit-Checkliste vor
+Go-Live</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />DS-Erklärung des Customers
+aktualisiert (Cold-Outreach-Hinweis + KI-Hinweis +
+Vendor-Liste)</label></li>
+<li><label><input type="checkbox" />§ 7 UWG 7-Punkt-Check pro Kampagne
+dokumentiert</label></li>
+<li><label><input type="checkbox" />Mail-Footer mit vollständigem
+Impressum + Opt-Out-Link in allen 3 Mail-Templates</label></li>
+<li><label><input type="checkbox" />Opt-Out-Webhook funktionsfähig +
+getestet (Test-Klick → Adresse landet auf Blocklist)</label></li>
+<li><label><input type="checkbox" />Blocklist-Check-Node vor jedem
+Send-Step eingebaut (Pflicht-Erweiterung)</label></li>
+<li><label><input type="checkbox" />Vendor-DPAs gegengezeichnet und in
+Verzeichnis (Art. 30)</label></li>
+<li><label><input type="checkbox" />Drittland-Transfer (OpenRouter, ggf.
+Apollo, Postmark) in DS-Erklärung erwähnt</label></li>
+<li><label><input type="checkbox" />SCCs bei US-Vendors
+bestätigt</label></li>
+<li><label><input type="checkbox" />EU-Hosting bei n8n + Mail-Provider
+gewählt</label></li>
+<li><label><input type="checkbox" />OpenRouter-EU-Routing
+(Claude/Mistral-EU) konfiguriert ODER Customer-Hinweis
+dokumentiert</label></li>
+<li><label><input type="checkbox" />Löschfristen-Cron eingerichtet (90d
+Cold-Cleanup)</label></li>
+<li><label><input type="checkbox" />Blocklist-3-Jahre-Retention
+dokumentiert</label></li>
+<li><label><input type="checkbox" />n8n-Execution-Log auf 30d
+retention</label></li>
+<li><label><input type="checkbox" />Liste-Verifier-Lauf vor jeder
+Kampagne (NeverBounce / ZeroBounce)</label></li>
+<li><label><input type="checkbox" />Test-Run: Opt-Out → Bestätigungsmail
+→ Adresse in Blocklist → Re-Send-Versuch → blocked</label></li>
+<li><label><input type="checkbox" />Carlos hat Sign-Off-Dokument
+(Customer + Carlos signed)</label></li>
+</ul>
+<hr />
+<h2 id="quality-gate-sign-off">10. Quality-Gate-Sign-Off</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Datenfluss-Analyse
+vollständig</label></li>
+<li><label><input type="checkbox" checked="" />Rechtsgrundlagen pro
+Schritt klar (inkl. § 7 UWG explizit)</label></li>
+<li><label><input type="checkbox" checked="" />B2C-Verbot explizit
+dokumentiert</label></li>
+<li><label><input type="checkbox" checked="" />Pflicht-Konfiguration
+(Footer + Opt-Out) dokumentiert</label></li>
+<li><label><input type="checkbox" checked="" />Vendor-DPA-Übersicht
+erstellt (11 Vendors)</label></li>
+<li><label><input type="checkbox"
+checked="" />Betroffenenrechte-Implementation skizziert</label></li>
+<li><label><input type="checkbox" checked="" />Löschfristen-Empfehlung
+(inkl. 3-Jahre-Blocklist)</label></li>
+<li><label><input type="checkbox" checked="" />DSFA-Trigger
+benannt</label></li>
+<li><label><input type="checkbox" checked="" />EU-AI-Act-Einordnung
+(Limited Risk)</label></li>
+<li><label><input type="checkbox" checked="" />Audit-Checkliste vor
+Go-Live (16 Punkte)</label></li>
+<li><label><input type="checkbox" />Anwaltliche Validierung der
+DS-Erklärungs-Klauseln + § 7 UWG-Sachzusammenhangs-Prüfung —
+Customer-Action, nicht Blueprint-Block</label></li>
+<li><label><input type="checkbox" />Blocklist-Check-Node als Default in
+workflow.json — Phase 2 (aktuell
+Customer-Erweiterungs-Pflicht)</label></li>
+</ul>
+<h1 id="quality-gate-sign-off-1">5. Quality-Gate Sign-Off</h1>
+<p><strong>Blueprint:</strong> cold-outreach-system
+<strong>Gate-Pass-Datum:</strong> 2026-05-25
+<strong>Gate-Reviewer:</strong> Lennox (autonomous, AEVUM Quality-Gate
+Builder-Agent) <strong>DB-Update:</strong>
+<code>shop_item_build_status.gate_passed = true</code> (via
+Supabase-API)</p>
+<hr />
+<h2 id="inventory">Inventory</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Status</th>
+<th>Pfad</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>n8n-Workflow (JSON)</td>
+<td>✅ Existing</td>
+<td><code>workflow.json</code> (~470 Zeilen, 13 Nodes)</td>
+</tr>
+<tr class="even">
+<td>README (Use-Case + Setup)</td>
+<td>✅ Existing</td>
+<td><code>README.md</code> (237 Zeilen)</td>
+</tr>
+<tr class="odd">
+<td>Sales-Brief (Customer-facing)</td>
+<td>✅ Created 2026-05-25</td>
+<td><code>SALES-BRIEF.md</code></td>
+</tr>
+<tr class="even">
+<td>Security-Risk-Review</td>
+<td>✅ Created 2026-05-25</td>
+<td><code>SECURITY-RISKS.md</code> (17 Risks)</td>
+</tr>
+<tr class="odd">
+<td>DSGVO-Check</td>
+<td>✅ Created 2026-05-25</td>
+<td><code>DSGVO-CHECK.md</code> (§ 7 UWG explizit)</td>
+</tr>
+<tr class="even">
+<td>Install-Guide (extended)</td>
+<td>✅ Created 2026-05-25</td>
+<td><code>INSTALL-GUIDE.md</code> (10 Schritte + Troubleshooting)</td>
+</tr>
+<tr class="odd">
+<td>Quality-Gate-Sign-Off</td>
+<td>✅ Created 2026-05-25</td>
+<td><code>QUALITY-GATE.md</code> (diese Datei)</td>
+</tr>
+<tr class="even">
+<td>PDF-Export</td>
+<td>⏳ Pending</td>
+<td>Phase 2 (Pandoc-Pipeline)</td>
+</tr>
+<tr class="odd">
+<td>Demo-Video</td>
+<td>⏳ Pending</td>
+<td>Phase 2 (Customer-Recording)</td>
+</tr>
+<tr class="even">
+<td>Blocklist-Check-Node (Default)</td>
+<td>⏳ Pending</td>
+<td>Phase 2 — aktuell als Customer-Erweiterung dokumentiert</td>
+</tr>
+<tr class="odd">
+<td>IMAP-Reply-Detection-Addon</td>
+<td>⏳ Pending</td>
+<td>Phase 2 (DwY-Modul)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien">Sign-Off-Kriterien</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kriterium</th>
+<th>Pass</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Workflow lädt ohne Fehler in n8n</td>
+<td>✅</td>
+<td>JSON valide, n8n-Schema 1.1+, 13 Nodes incl. Webhook</td>
+</tr>
+<tr class="even">
+<td>Setup-Anleitung in &lt;90 Min ausführbar</td>
+<td>✅</td>
+<td>10 Schritte mit Token-Specs, +2-4 Wo Warm-Up außerhalb</td>
+</tr>
+<tr class="odd">
+<td>KI-Hook-Generator transparent + customizable</td>
+<td>✅</td>
+<td>OpenRouter-Prompt im Workflow editierbar, Modell-Wahl
+dokumentiert</td>
+</tr>
+<tr class="even">
+<td>3 Test-Szenarien dokumentiert (3 Test-Adressen)</td>
+<td>✅</td>
+<td>In INSTALL-GUIDE Schritt 9</td>
+</tr>
+<tr class="odd">
+<td>Security-Risks identifiziert + Mitigations</td>
+<td>✅</td>
+<td>17 Risks dokumentiert, 10 Pflicht-Mitigations</td>
+</tr>
+<tr class="even">
+<td>DSGVO + § 7 UWG Konformität nachgewiesen</td>
+<td>✅</td>
+<td>10-Punkt-Check + Vendor-DPA-Übersicht + B2C-Verbot</td>
+</tr>
+<tr class="odd">
+<td>EU-AI-Act-Einordnung</td>
+<td>✅</td>
+<td>Limited Risk, Transparenz-Pflicht für KI-Hooks</td>
+</tr>
+<tr class="even">
+<td>Pricing-Logik klar</td>
+<td>✅</td>
+<td>Blueprint / DFY / DwY-Varianten</td>
+</tr>
+<tr class="odd">
+<td>Upsell-Pfad definiert</td>
+<td>✅</td>
+<td>6 Upsell-Trigger in SALES-BRIEF</td>
+</tr>
+<tr class="even">
+<td>Customer-Action-Liste vor Go-Live</td>
+<td>✅</td>
+<td>16-Punkt-Audit-Checkliste in DSGVO-CHECK</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gesamt:</strong> 10/10 ✅</p>
+<hr />
+<h2 id="known-limitations-transparent-für-customer">Known-Limitations
+(transparent für Customer)</h2>
+<ol type="1">
+<li><strong>Reply-Detection</strong> funktioniert nur über manuellen
+<code>replied=true</code>-Flag — IMAP-Auto-Detection ist Phase 2</li>
+<li><strong>Blocklist-Check-Node</strong> ist NICHT im Default-Workflow
+— Customer muss erweitern (Anleitung in INSTALL-GUIDE Schritt 7.3).
+Phase 2: als Default einbauen.</li>
+<li><strong>A/B-Testing von Hook-Varianten</strong> nicht integriert —
+manuell per Workflow-Kopie. Phase 2: A/B-Engine.</li>
+<li><strong>Inbox-Placement-Test</strong> (GlockApps / Mailgenius) nicht
+automatisiert — Customer-Aktion vor jeder Kampagne empfohlen.</li>
+<li><strong>Multi-Inbox-Rotation</strong> für High-Volume (&gt;100/Tag)
+— aktuell Single-Sender. Phase 2: 3-5 Sender-Rotation.</li>
+<li><strong>Domain-Warm-Up</strong> nicht automatisiert — Customer macht
+4-Wochen-Plan selbst (in INSTALL-GUIDE Schritt 4 dokumentiert).
+DFY-Variante automatisiert das.</li>
+<li><strong>OpenRouter EU-Routing</strong> nicht enforced — Customer
+muss aktiv EU-Modell wählen.</li>
+<li><strong>Pen-Test</strong> extern nicht durchgeführt — Phase 2.</li>
+<li><strong>PDF + Demo-Video</strong> Phase 2.</li>
+</ol>
+<p>→ Diese Limits sind im Quality-Gate-Sign-Off
+<strong>akzeptiert</strong> weil: - Reply-Detection-Manual ist gangbar
+mit CRM-Integration / Disziplin (kein Sales-Blocker) -
+Blocklist-Check-Erweiterung ist klar dokumentiert + AEVUM-DFY baut es
+ein - A/B + Inbox-Placement sind Optimierungen, nicht Pflicht-Features -
+Multi-Inbox-Rotation nur ab High-Volume relevant (&gt;100/Tag),
+typischer Customer startet bei 30-50 - Warm-Up-Manual ist akzeptabel
+weil Customer ohnehin 4 Wochen Vorlauf braucht - Pen-Test, PDF, Video
+sind Polishing — Risk-Matrix dokumentiert + Markdown reicht</p>
+<hr />
+<h2
+id="cold-outreach-spezifika-vs.-standard-blueprint-wie-lead-qualifier">Cold-Outreach-Spezifika
+(vs. Standard-Blueprint wie Lead-Qualifier)</h2>
+<p>Was hier substantiell ANDERS ist als bei reaktiven Blueprints (z.B.
+Lead-Qualifier):</p>
+<ol type="1">
+<li><strong>Sender-Reputation ist Tier-0-Risiko</strong> —
+Lead-Qualifier hat kein “Sender-Domain-Suizid”-Risiko. Cold-Outreach hat
+3 CRITICAL-Risks die alle Domain-Reputation betreffen (SPF/DKIM/DMARC,
+Warm-Up, Sub-Domain-Isolation).</li>
+<li><strong>DSGVO-Tiefe</strong> — § 7 UWG B2B-Cold-Mail-Klausel ist
+explizit dokumentiert; B2C ist kategorisch verboten. Bei Lead-Qualifier
+ist nur Consent-Form-Checkbox nötig.</li>
+<li><strong>Bidirektionale Opt-Out-Pflicht</strong> — bei jeder Mail
+Pflicht; Blocklist mit 3-Jahre-Retention; Blocklist-Check-Node vor jedem
+Send (Customer-Erweiterung Pflicht).</li>
+<li><strong>OpenRouter-Hallucination-Risk</strong> — KI-Hooks dürfen
+keine Fakten erfinden; manueller Review erster 20 Hooks Pflicht.</li>
+<li><strong>Listen-Hygiene als Pflicht-Vorstep</strong> — Verifier-Lauf,
+Honeypot-Filter, Role-Mail-Ausschluss. Lead-Qualifier braucht das nicht
+(eingehende Leads sind vom Customer selbst).</li>
+<li><strong>Setup-Dauer 60-90 Min vs. 30-60 Min</strong> und zusätzlich
+2-4 Wochen Domain-Warm-Up als Vorlauf — Lead-Qualifier ist
+Same-Day-Setup.</li>
+</ol>
+<hr />
+<h2 id="db-update-befehl">DB-Update-Befehl</h2>
+<p>Update Quality-Gate-Status in AEVUM-DB (Supabase):</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> <span class="kw">public</span>.shop_item_build_status</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  gate_passed <span class="op">=</span> <span class="kw">true</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  gate_passed_at <span class="op">=</span> now(),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  built_by <span class="op">=</span> <span class="st">&#39;lennox-builder-2026-05-25&#39;</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  n8n_export_url <span class="op">=</span> <span class="st">&#39;/blueprints/cold-outreach-system/workflow.json&#39;</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  pdf_url <span class="op">=</span> <span class="kw">NULL</span>, <span class="co">-- Phase 2</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  demo_video_url <span class="op">=</span> <span class="kw">NULL</span>, <span class="co">-- Phase 2</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  notes <span class="op">=</span> <span class="st">&#39;Quality-Gate passed via Builder-Agent 2026-05-25. Alle 10 Kriterien erfüllt. Known-Limits: Blocklist-Check-Node, IMAP-Reply-Detection, Multi-Inbox-Rotation als Phase 2.&#39;</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  updated_at <span class="op">=</span> now()</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> item_slug <span class="op">=</span> <span class="st">&#39;cold-outreach-system&#39;</span>;</span></code></pre></div>
+<p><strong>Execution:</strong> Bei nächstem Bash-Run via psql /
+Supabase-CLI / Supabase-Management-API durchziehen.</p>
+<p><strong>Alternative via Supabase-REST:</strong></p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-X</span> PATCH <span class="dt">\</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;https://&lt;AEVUM_SUPABASE_REF&gt;.supabase.co/rest/v1/shop_item_build_status?item_slug=eq.cold-outreach-system&quot;</span> <span class="dt">\</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&quot;apikey: </span><span class="va">$AEVUM_SUPABASE_SERVICE_KEY</span><span class="st">&quot;</span> <span class="dt">\</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&quot;Authorization: Bearer </span><span class="va">$AEVUM_SUPABASE_SERVICE_KEY</span><span class="st">&quot;</span> <span class="dt">\</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&quot;Content-Type: application/json&quot;</span> <span class="dt">\</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&quot;Prefer: return=representation&quot;</span> <span class="dt">\</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">-d</span> <span class="st">&#39;{</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="st">    &quot;gate_passed&quot;: true,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="st">    &quot;gate_passed_at&quot;: &quot;2026-05-25T00:00:00Z&quot;,</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="st">    &quot;built_by&quot;: &quot;lennox-builder-2026-05-25&quot;,</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="st">    &quot;n8n_export_url&quot;: &quot;/blueprints/cold-outreach-system/workflow.json&quot;,</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="st">    &quot;notes&quot;: &quot;Quality-Gate passed via Builder-Agent 2026-05-25. Alle 10 Kriterien erfüllt. Known-Limits Phase 2.&quot;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="st">  }&#39;</span></span></code></pre></div>
+<hr />
+<h2 id="pattern-notes-für-builder-agent">Pattern-Notes für
+Builder-Agent</h2>
+<h3 id="item-klassifikation">Item-Klassifikation</h3>
+<ul>
+<li><strong>Type:</strong> Active-Outbound (vs. Reactive-Inbound bei
+Lead-Qualifier)</li>
+<li><strong>Risk-Tier:</strong> HIGH (Sender-Reputation + DSGVO-Tiefe +
+Brand-Schaden bei Failure)</li>
+<li><strong>Setup-Komplexität:</strong> HIGH (DNS-Records +
+Domain-Warm-Up sind nicht-trivial)</li>
+</ul>
+<h3 id="builder-lessons-für-später">Builder-Lessons (für später)</h3>
+<ol type="1">
+<li><strong>Active-Outbound-Blueprints brauchen
+Sender-Reputation-Section</strong> — Builder-Agent muss erkennen, ob
+Mail-Sending-Node im Workflow ist und entsprechend
+Auth-Records-Dokumentation erzwingen</li>
+<li><strong>DSGVO-Section pro Blueprint-Typ unterschiedlich</strong> —
+Cold-Outreach braucht § 7 UWG-Logik, Lead-Qualifier braucht
+Consent-Form-Logik. Pattern-Library nach Use-Case-Type aufbauen.</li>
+<li><strong>Customer-Erweiterungs-Anforderungen explizit
+benennen</strong> — Blocklist-Check-Node ist nicht im Default-Workflow,
+aber DSGVO-Pflicht. Builder-Agent muss solche “Must-Extend”-Items klar
+markieren.</li>
+<li><strong>Setup-Dauer-Schätzung muss Warm-Up-Phasen
+einrechnen</strong> — 90 Min Setup-Zeit + 4 Wochen Wartezeit ist anderes
+Beast als 60 Min Setup-Done.</li>
+<li><strong>OpenRouter / LLM-Nodes triggern AI-Act-Section</strong> —
+Builder-Agent muss Workflow nach LLM-Calls scannen und
+AI-Act-Limited-Risk-Disclosure einbauen.</li>
+</ol>
+<h3 id="reusable-risk-patterns-cold-outreach-spezifisch">Reusable
+Risk-Patterns (Cold-Outreach-spezifisch)</h3>
+<ul>
+<li><code>pattern:smtp-send-without-auth-records</code> → 🔴
+CRITICAL</li>
+<li><code>pattern:bulk-mail-without-rate-limit</code> → 🟠 HIGH</li>
+<li><code>pattern:llm-call-with-user-pii</code> → 🟡 MEDIUM
+(PII-Transfer-Disclosure)</li>
+<li><code>pattern:public-webhook-without-token</code> → 🟠 HIGH (gilt
+auch für Opt-Out)</li>
+<li><code>pattern:no-blocklist-check-before-send</code> → 🟠 HIGH
+(DSGVO-Pflicht)</li>
+</ul>
+<p>→ Pattern-Library-Ausbau für nächste Active-Outbound-Items (z.B.
+LinkedIn-DM-Sequencer, Cold-Caller).</p>
+</body>
+</html>

@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM Blueprint: newsletter-machine</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="data:text/css;charset=utf-8,body{font-family:Inter,system-ui,sans-serif;max-width:780px;margin:2em%20auto;padding:0%201em;line-height:1.6;color:#222}h1,h2,h3{color:#000}h1{border-bottom:2px%20solid%20#000;padding-bottom:0.3em}h2{border-bottom:1px%20solid%20#ccc;padding-bottom:0.2em}code{background:#f4f4f4;padding:2px%206px;border-radius:3px;font-family:monospace}pre{background:#f4f4f4;padding:1em;border-radius:4px;overflow-x:auto}table{border-collapse:collapse;margin:1em%200}th,td{border:1px%20solid%20#ddd;padding:6px%2012px;text-align:left}th{background:#f4f4f4}blockquote{border-left:3px%20solid%20#888;padding-left:1em;color:#555;margin:1em%200}" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM Blueprint: newsletter-machine</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-blueprint-newsletter-machine">AEVUM Blueprint —
+newsletter-machine</h1>
+<blockquote>
+<p>Generated 2026-05-25 16:31 Berlin-TZ. Combines alle Quality-Gate-Docs
+zu einem druckbaren Master-Dokument.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<h2 id="in-einem-satz">In einem Satz</h2>
+<p>Dieser Workflow generiert jeden Mittwoch automatisch einen
+versandfertigen Newsletter-Entwurf (800–1.200 Wörter), schickt ihn zur
+menschlichen Freigabe, und published erst nach deinem Klick — ohne dass
+du eine leere Seite sehen musst.</p>
+<hr />
+<h2 id="wer-das-braucht">Wer das braucht</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Konkreter Use Case</th>
+<th>Fit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AG</strong> Agentur (3–50 MA)</td>
+<td>Positionierungs-Newsletter für Kunden-Retention und Inbound-Leads;
+wöchentlicher Aufwand derzeit: 3–5h Texter-Zeit</td>
+<td>🟢 Hoch</td>
+</tr>
+<tr class="even">
+<td><strong>PB</strong> Personal Brand (Coach/Berater)</td>
+<td>Thought-Leadership-Newsletter für Listenaufbau; Problem: Schreiben
+verdrängt Billable Hours</td>
+<td>🟢 Sehr hoch</td>
+</tr>
+<tr class="odd">
+<td><strong>FI</strong> Mittelstand B2B-Dienstleister</td>
+<td>Kunden-Newsletter für Cross-Sell / Bestandskundenpflege; aktuell
+unregelmäßig oder gar nicht</td>
+<td>🟠 Mittel (braucht Tone-Customization)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="was-der-customer-bekommt">Was der Customer bekommt</h2>
+<ol type="1">
+<li>Fertiger n8n-Workflow (11 Nodes, import-ready) mit wöchentlichem
+Cron-Trigger</li>
+<li>KI-gesteuerte Themen-Ideation (5 Vorschläge, automatisch bestes
+Thema selektiert)</li>
+<li>Zweistufige Content-Generierung: Outline → Full Draft (800–1.200
+Wörter)</li>
+<li>Review-E-Mail mit Approve-Link — du liest, du entscheidest, du
+klickst</li>
+<li>Automatischer Push in Beehiiv (oder Mailchimp) als
+Draft/Scheduled</li>
+<li>Vollständige Dokumentation: Setup-Guide, DSGVO-Check,
+Security-Matrix</li>
+<li>Konfigurierbare Nischen-Parameter: Thema, Zielgruppe, Ton,
+Format</li>
+</ol>
+<hr />
+<h2 id="mehrwert-konkret">Mehrwert (konkret)</h2>
+<h3 id="vorher-nachher">Vorher / Nachher</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Vorher</th>
+<th>Nachher</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Zeitaufwand pro Ausgabe</td>
+<td>3–6h (Thema finden, schreiben, formatieren)</td>
+<td>15–30 Min (lesen, editieren, freigeben)</td>
+</tr>
+<tr class="even">
+<td>Erscheinungsfrequenz</td>
+<td>Unregelmäßig, “wenn Zeit ist”</td>
+<td>Jeden Mittwoch, deterministisch</td>
+</tr>
+<tr class="odd">
+<td>Kontrollverlust-Risiko</td>
+<td>Null — nichts wird veröffentlicht</td>
+<td>Null — menschlicher Freigabe-Gate bleibt</td>
+</tr>
+<tr class="even">
+<td>Qualitäts-Floor</td>
+<td>Abhängig von Tagesverfassung</td>
+<td>Konsistente Struktur, Outline-gestützt</td>
+</tr>
+<tr class="odd">
+<td>Toolwechsel-Reibung</td>
+<td>Recherche → Docs → Copy-Paste → Beehiiv</td>
+<td>Ein Workflow, ein Klick</td>
+</tr>
+</tbody>
+</table>
+<h3 id="roi-schätzung-konservativ">ROI-Schätzung (konservativ)</h3>
+<ul>
+<li><strong>Zeitersparnis:</strong> 3h/Woche × 48 Wochen =
+144h/Jahr</li>
+<li><strong>Opportunitätskosten bei 150 EUR/h (Berater):</strong> 21.600
+EUR/Jahr</li>
+<li><strong>Oder:</strong> 1 zusätzlicher Consulting-Tag/Woche =
+7.200–15.000 EUR/Jahr Mehrumsatz</li>
+<li><strong>Break-even Blueprint-Tier S:</strong> &lt; 6 Wochen</li>
+</ul>
+<hr />
+<h2 id="pricing-logic">Pricing-Logic</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tier</th>
+<th>Beschreibung</th>
+<th>Setup</th>
+<th>Monatlich</th>
+<th>Für wen</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Blueprint</strong> (Self-Service)</td>
+<td>JSON + Docs, kein Support</td>
+<td>297–497 EUR einmalig</td>
+<td>—</td>
+<td>Technisch affine PB mit n8n-Erfahrung</td>
+</tr>
+<tr class="even">
+<td><strong>DFY S</strong> (Done-for-You Small)</td>
+<td>Setup, Credentials, Test-Run, 30 Tage Support</td>
+<td>2.000–4.000 EUR</td>
+<td>1.000–1.500 EUR</td>
+<td>PB ohne Ops-Ressourcen, AG mit &lt;10 MA</td>
+</tr>
+<tr class="odd">
+<td><strong>DFY M</strong> (Done-for-You Medium)</td>
+<td>DFY S + Multi-Newsletter (bis 3 Publikationen), Custom Tone-System,
+DSGVO-Packet</td>
+<td>8.000–14.000 EUR</td>
+<td>2.000–3.000 EUR</td>
+<td>AG mit mehreren Kunden-Newslettern, FI</td>
+</tr>
+<tr class="even">
+<td><strong>DwY</strong> (Done-with-You)</td>
+<td>Gemeinsames Setup + Prompt-Engineering-Workshop</td>
+<td>3.000–5.000 EUR</td>
+<td>—</td>
+<td>PB/FI mit eigenem Tech-Team</td>
+</tr>
+<tr class="odd">
+<td><strong>Audit Only</strong></td>
+<td>Review bestehender Newsletter-Automation auf Gaps</td>
+<td>1.500–2.500 EUR</td>
+<td>—</td>
+<td>Wer bereits etwas gebaut hat</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer">Voraussetzungen Customer</h2>
+<ul>
+<li>Aktives n8n-Konto (Self-Hosted oder Cloud ab “Pro”-Plan wegen
+Webhook-Wait-Node)</li>
+<li>OpenRouter API Key mit aktiviertem Budget (empfohlen: min. 10
+EUR/Monat, reicht für ~50 Newsletter)</li>
+<li>Beehiiv-Konto (Free Tier reicht für Setup) oder Mailchimp mit
+API-Zugriff</li>
+<li>SMTP-Zugang oder Resend-Account für Review-Mails</li>
+<li>Klare Definition von Nische, Zielgruppe und Ton (15-minütiges
+Briefing-Sheet wird mitgeliefert)</li>
+<li>Technisches Mindestniveau: Credentials in n8n eintragen, Copy-Paste
+von API Keys</li>
+</ul>
+<hr />
+<h2 id="nicht-ziele">Nicht-Ziele</h2>
+<p>Dieser Blueprint macht <strong>nicht</strong>:</p>
+<ul>
+<li>Automatische Themen-Recherche aus Live-Quellen (RSS, Twitter/X,
+News-APIs) — das ist ein separates Add-on</li>
+<li>A/B-Testing von Subject Lines</li>
+<li>Subscriber-Segmentierung oder personalisierte Versionen</li>
+<li>Automatischen Versand ohne menschlichen Review (by design — wer das
+will, muss den Wait-Node entfernen, auf eigene Verantwortung)</li>
+<li>Bildgenerierung oder Design-Elemente</li>
+<li>Multi-Language-Output (Prompt-Anpassung möglich, aber nicht
+getestet)</li>
+<li>CRM-Sync oder Conversion-Tracking</li>
+</ul>
+<hr />
+<h2 id="upsell-pfade">Upsell-Pfade</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Nächster Schritt</th>
+<th>Beschreibung</th>
+<th>Delta-Investment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Content-Factory Add-on</strong></td>
+<td>Themen-Ideation aus RSS/News-API statt statischem Prompt</td>
+<td>+1.500–3.000 EUR Setup</td>
+</tr>
+<tr class="even">
+<td><strong>Social Repurposing</strong></td>
+<td>Newsletter-Draft → LinkedIn-Posts, X-Threads automatisch</td>
+<td>+2.000–4.000 EUR Setup</td>
+</tr>
+<tr class="odd">
+<td><strong>Analytics-Loop</strong></td>
+<td>Open-Rate / Click-Rate zurück in Ideation-Prompt (welche Themen
+performen)</td>
+<td>+3.000–6.000 EUR</td>
+</tr>
+<tr class="even">
+<td><strong>Multi-Brand</strong></td>
+<td>Gleicher Workflow für 3–10 Newsletter-Brands / Kunden parallel</td>
+<td>+5.000–12.000 EUR</td>
+</tr>
+<tr class="odd">
+<td><strong>Lead-Magnet-Machine</strong></td>
+<td>Newsletter-Best-of → automatisch PDF-Lead-Magnet generieren</td>
+<td>+2.500–5.000 EUR</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conversion-story">Conversion-Story</h2>
+<p>Du sitzt Dienstagabend am Laptop. Die Idee war gut, der Draft ist
+leer, der Kaffee kalt. Nächste Woche dann. Das wiederholt sich seit drei
+Monaten — und deine Liste bemerkt es. Open-Rates sinken nicht weil deine
+Themen schlecht sind, sondern weil du zu selten sendest. Konsistenz
+schlägt Perfektion, jedes Mal.</p>
+<p>Die Newsletter Machine löst nicht das Problem, dass du schreiben
+<em>könntest</em> — sie löst das Problem, dass du es <em>nicht
+tust</em>, weil der Einstieg zu teuer ist. Mittwoch 09:00 Uhr landet ein
+fertiger Entwurf in deiner Inbox. Du liest 10 Minuten, streichst einen
+Abschnitt, fügst deine eigene Anekdote ein, klickst “Freigeben”. Der
+Rest ist erledigt. Nicht weil KI besser schreibt als du — sondern weil
+du mit einem 80%-Entwurf anfängst statt mit einer leeren Seite.</p>
+<p>Was das für Agenturen bedeutet: Statt dass ein Texter 4 Stunden für
+einen Kunden-Newsletter abrechnet, prüft er 20 Minuten einen KI-Draft.
+Margin-Impact sofort. Für Personal Brands bedeutet es: Newsletter als
+Kanal wird wieder realistisch neben Kundenarbeit. Und für
+Mittelständler, die ihren Kunden-Newsletter seit 18 Monaten “planen”:
+Der erste Draft entsteht diese Woche, nicht wenn Budget und Zeit sich
+irgendwann treffen. </p>
+<h1 id="install-guide">2. Install-Guide</h1>
+<p><strong>Zielgruppe:</strong> Technisch affine Nutzer mit
+Basis-n8n-Erfahrung <strong>Geschätzte Setup-Zeit:</strong> 45–90
+Minuten (inkl. Test-Run) <strong>n8n-Version:</strong> Getestet ab
+1.30.0</p>
+<hr />
+<h2 id="vorab-check-alle-tools-und-tokens-bereit">Vorab-Check: Alle
+Tools und Tokens bereit?</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tool / Credential</th>
+<th>Zweck im Workflow</th>
+<th>Wo besorgen</th>
+<th>Pflicht</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>n8n Instanz (Self-Hosted oder Cloud Pro+)</td>
+<td>Workflow-Runtime, Webhook-Wait-Node</td>
+<td><a href="https://n8n.io">n8n.io</a> — Cloud: mind. “Pro”-Plan wegen
+Wait-Webhook</td>
+<td>Ja</td>
+</tr>
+<tr class="even">
+<td>OpenRouter API Key</td>
+<td>LLM-Generierung (Themen, Outline, Draft)</td>
+<td><a href="https://openrouter.ai">openrouter.ai</a> → Keys → Create
+Key; Budget min. 10 EUR</td>
+<td>Ja</td>
+</tr>
+<tr class="odd">
+<td>Beehiiv API Key + Publication ID</td>
+<td>Newsletter-Draft pushen</td>
+<td>Beehiiv Dashboard → Settings → API</td>
+<td>Ja (oder Mailchimp)</td>
+</tr>
+<tr class="even">
+<td>Resend API Key (oder SMTP)</td>
+<td>Review-Mail an Operator</td>
+<td><a href="https://resend.com">resend.com</a> → API Keys → Create;
+Free Tier reicht</td>
+<td>Ja</td>
+</tr>
+<tr class="odd">
+<td>Eigene Domain verifiziert in Resend/SMTP</td>
+<td>Sender-Reputation</td>
+<td>Resend: Domains → Add → DNS-Records setzen</td>
+<td>Empfohlen</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Token-Specs:</strong> - OpenRouter Key: Format
+<code>sk-or-v1-[64 Hex-Chars]</code> - Beehiiv API Key: Format
+<code>Bearer [Token]</code> — aus Settings → API → Generate New Key -
+Beehiiv Publication ID: Format <code>pub_[alphanumeric]</code> — aus
+URL: <code>app.beehiiv.com/publications/pub_XXXXX</code> - Resend API
+Key: Format <code>re_[alphanumeric]</code></p>
+<p><strong>n8n-Plan-Check:</strong></p>
+<pre><code>n8n Free (Cloud): Wait-Webhook nur begrenzt supported → NICHT ausreichend
+n8n Pro (Cloud): Wait-Webhook unterstützt → OK
+n8n Self-Hosted: Alle Features verfügbar → OK (empfohlen für DSGVO)</code></pre>
+<hr />
+<h2 id="schritt-1-n8n-instanz-vorbereiten">Schritt 1: n8n-Instanz
+vorbereiten</h2>
+<p><strong>1a. Self-Hosted (empfohlen):</strong></p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Docker-Compose Minimal-Setup</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">version:</span> <span class="st">&#39;3.8&#39;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">services:</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">n8n:</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">image:</span> n8nio/n8n:latest</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">ports:</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> <span class="st">&quot;5678:5678&quot;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">environment:</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> N8N_BASIC_AUTH_ACTIVE=true</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> N8N_BASIC_AUTH_USER=admin</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> N8N_BASIC_AUTH_PASSWORD=SICHERES_PASSWORT</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> EXECUTIONS_DATA_MAX_AGE=7</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> EXECUTIONS_DATA_PRUNE=true</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> N8N_HOST=your-domain.com</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> WEBHOOK_URL=https://your-domain.com/</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="ex">volumes:</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> n8n_data:/home/node/.n8n</span></code></pre></div>
+<p><strong>1b. n8n Cloud:</strong> - Account unter n8n.io erstellen,
+Pro-Plan aktivieren - Settings → Region: EU (Frankfurt) auswählen -
+Settings → Executions: Save Data = “Error only” oder “None”</p>
+<hr />
+<h2 id="schritt-2-credentials-in-n8n-anlegen">Schritt 2: Credentials in
+n8n anlegen</h2>
+<p>Credentials <strong>immer</strong> über n8n Credential Manager
+anlegen — niemals als Plaintext in Nodes.</p>
+<p><strong>Credential 1: OpenRouter</strong></p>
+<pre><code>Credentials → New → HTTP Header Auth
+Name: OpenRouter API
+Header Name: Authorization
+Header Value: Bearer sk-or-v1-DEIN_KEY</code></pre>
+<p><strong>Credential 2: Beehiiv API</strong></p>
+<pre><code>Credentials → New → HTTP Header Auth
+Name: Beehiiv API
+Header Name: Authorization
+Header Value: Bearer DEIN_BEEHIIV_KEY</code></pre>
+<p><strong>Credential 3: Resend (Mail)</strong></p>
+<pre><code>Credentials → New → HTTP Header Auth (wenn HTTP-Node verwendet)
+Name: Resend API
+Header Name: Authorization
+Header Value: Bearer re_DEIN_RESEND_KEY
+
+-- ODER --
+
+Credentials → New → SMTP
+Host: smtp.resend.com
+Port: 587
+User: resend
+Password: re_DEIN_RESEND_KEY
+SSL/TLS: STARTTLS</code></pre>
+<hr />
+<h2 id="schritt-3-workflow-importieren">Schritt 3: Workflow
+importieren</h2>
+<ol type="1">
+<li>In n8n: <strong>Workflows → New → Import from File</strong></li>
+<li><code>workflow.json</code> (aus Blueprint-Package) auswählen</li>
+<li>Import bestätigen</li>
+<li>Workflow öffnet sich mit 11 Nodes</li>
+<li>Prüfen: Alle Nodes sichtbar, keine roten Fehler-Icons</li>
+<li>Workflow noch <strong>nicht aktivieren</strong> — erst nach
+vollständiger Konfiguration</li>
+</ol>
+<hr />
+<h2 id="schritt-4-set-konfiguration-node-befüllen">Schritt 4: Set:
+Konfiguration Node befüllen</h2>
+<p>Node öffnen → Folgende Felder anpassen:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feld</th>
+<th>Beispielwert</th>
+<th>Hinweis</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>reviewEmail</code></td>
+<td><code>du@deinedomain.com</code></td>
+<td>Deine E-Mail für den Draft</td>
+</tr>
+<tr class="even">
+<td><code>beehiivPublicationId</code></td>
+<td><code>pub_abc123def456</code></td>
+<td>Aus Beehiiv URL kopieren</td>
+</tr>
+<tr class="odd">
+<td><code>newsletterTopic</code></td>
+<td><code>B2B SaaS Marketing für Startups</code></td>
+<td>Deine Nische, spezifisch</td>
+</tr>
+<tr class="even">
+<td><code>targetAudience</code></td>
+<td><code>Marketing-Leads in B2B-SaaS-Unternehmen, 20–200 MA</code></td>
+<td>Kein PII, generische Beschreibung</td>
+</tr>
+<tr class="odd">
+<td><code>toneOfVoice</code></td>
+<td><code>Direkt, praxisorientiert, keine Buzzwords</code></td>
+<td>Wie du schreiben würdest</td>
+</tr>
+<tr class="even">
+<td><code>newsletterWordCount</code></td>
+<td><code>1000</code></td>
+<td>Zielwert zwischen 800–1.200</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="schritt-5-http-nodes-mit-credentials-verknüpfen">Schritt 5:
+HTTP-Nodes mit Credentials verknüpfen</h2>
+<p>Jeden der drei HTTP-Nodes öffnen und Credential zuweisen:</p>
+<pre><code>Node &quot;HTTP: Themen-Ideen&quot;:
+→ Authentication: Predefined Credential Type = HTTP Header Auth
+→ Credential: OpenRouter API (aus Schritt 2)
+
+Node &quot;HTTP: Outline bauen&quot;:
+→ Gleiche Einstellung
+
+Node &quot;HTTP: Full Draft schreiben&quot;:
+→ Gleiche Einstellung
+
+Node &quot;HTTP: Beehiiv Push&quot;:
+→ Authentication: Predefined Credential Type = HTTP Header Auth
+→ Credential: Beehiiv API (aus Schritt 2)</code></pre>
+<hr />
+<h2 id="schritt-6-email-node-konfigurieren">Schritt 6: Email-Node
+konfigurieren</h2>
+<p><strong>Wenn SMTP:</strong></p>
+<pre><code>Node &quot;Email: Draft zur Review&quot;
+→ Credential: SMTP (aus Schritt 2)
+→ From: newsletter-bot@deinedomain.com
+→ To: {{ $vars.reviewEmail }} (oder direkt hardcoded)
+→ Subject: Newsletter Draft KW{{ $now.weekNumber }} — Bitte freigeben</code></pre>
+<p><strong>Wenn Resend via HTTP:</strong></p>
+<pre><code>Node durch HTTP Request Node ersetzen:
+URL: https://api.resend.com/emails
+Method: POST
+Authentication: HTTP Header Auth → Resend API
+Body (JSON):
+{
+  &quot;from&quot;: &quot;Newsletter Bot &lt;bot@deinedomain.com&gt;&quot;,
+  &quot;to&quot;: [&quot;{{ $json.reviewEmail }}&quot;],
+  &quot;subject&quot;: &quot;Newsletter Draft zur Freigabe&quot;,
+  &quot;html&quot;: &quot;{{ $json.emailBody }}&quot;
+}</code></pre>
+<hr />
+<h2 id="schritt-7-approval-webhook-absichern-und-url-notieren">Schritt
+7: Approval-Webhook absichern und URL notieren</h2>
+<ol type="1">
+<li>Node <strong>“Wait for Webhook: Approval”</strong> öffnen</li>
+<li>Webhook-URL kopieren (Format:
+<code>https://your-n8n.com/webhook-waiting/[UUID]</code>)</li>
+<li>Timeout prüfen: Standard = 1 Woche; anpassen nach Bedarf</li>
+<li>Security-Token in Review-Mail-Template einbauen:</li>
+</ol>
+<pre><code>URL in Mail-Body:
+https://your-n8n.com/webhook-waiting/[UUID]?token=DEIN_SECRET_TOKEN&amp;approved=true
+
+Im IF-Node nach Wait (neu anlegen):
+Condition: {{ $json.query.token }} equals DEIN_SECRET_TOKEN
+→ true: Weiter
+→ false: Execution stoppen</code></pre>
+<p>Token generieren:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">openssl</span> rand <span class="at">-hex</span> 16</span></code></pre></div>
+<hr />
+<h2 id="schritt-8-cron-schedule-prüfen">Schritt 8: Cron-Schedule
+prüfen</h2>
+<p>Node <strong>“Schedule: Mittwoch 09:00”</strong> öffnen:</p>
+<pre><code>Trigger: Cron
+Cron Expression: 0 9 * * 3
+(= Jeden Mittwoch um 09:00 Uhr Serverzeit)
+
+WICHTIG: Serverzeit-Zone prüfen!
+n8n Self-Hosted: TZ=Europe/Berlin in Docker-Compose setzen
+n8n Cloud: Timezone in Schedule-Node auf Europe/Berlin setzen</code></pre>
+<hr />
+<h2 id="schritt-9-test-run-3-szenarien">Schritt 9: Test-Run (3
+Szenarien)</h2>
+<p><strong>Szenario A: Vollständiger Happy Path</strong> 1. Workflow
+manuell starten (Execute Workflow Button) 2. Prüfen: Execution-Log zeigt
+grüne Nodes bis “Email: Draft zur Review” 3. Prüfen: Review-Mail landet
+in Inbox (max. 2 Minuten warten) 4. Approval-Link klicken 5. Prüfen:
+Beehiiv-Dashboard → Posts → Draft erscheint 6. Ergebnis: ✅ Alle 11
+Nodes grün</p>
+<p><strong>Szenario B: Timeout-Test</strong> 1. Workflow starten 2.
+Review-Mail öffnen, Approval-Link NICHT klicken 3. Warten bis Timeout
+(für Test: im Wait-Node temporär auf 2 Minuten reduzieren) 4. Prüfen:
+Execution läuft ab, kein Beehiiv-Push, keine Fehlermeldung 5. Ergebnis:
+✅ Kein ungewollter Versand</p>
+<p><strong>Szenario C: Fehlerhafter API Key (Negative Test)</strong> 1.
+OpenRouter-Credential temporär mit falschem Key befüllen 2. Workflow
+starten 3. Prüfen: Node “HTTP: Themen-Ideen” zeigt roten Fehler mit
+401-Status 4. Prüfen: Kein weiterer Node wird ausgeführt 5. Credential
+reparieren 6. Ergebnis: ✅ Fehler-Handling funktioniert, kein Silent
+Fail</p>
+<hr />
+<h2 id="schritt-10-aktivierung-und-monitoring">Schritt 10: Aktivierung
+und Monitoring</h2>
+<p><strong>Aktivierung:</strong></p>
+<pre><code>Workflow-Toggle oben rechts: OFF → ON
+Status-Badge: &quot;Active&quot; (grün)
+Nächster Run: Kommenden Mittwoch 09:00</code></pre>
+<p><strong>Monitoring-Setup (empfohlen):</strong></p>
+<pre><code>n8n Settings → Workflow Settings → Error Workflow:
+→ Separaten Error-Notification-Workflow anlegen
+→ Bei Fehler: Mail an dich mit Execution-ID + Error-Message
+
+Minimaler Error-Workflow:
+Trigger: n8n Error Trigger
+→ HTTP: Resend-Mail mit {{ $json.execution.error.message }}</code></pre>
+<p><strong>Wöchentliche Checks:</strong> - Mittwoch 09:30: Review-Mail
+angekommen? - Mittwoch bis Donnerstag: Draft freigeben oder Skip
+notieren - Monatlich: Execution-Logs prüfen, API-Kosten kontrollieren
+(OpenRouter Dashboard)</p>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="problem-1-review-mail-kommt-nicht-an">Problem 1: Review-Mail
+kommt nicht an</h3>
+<pre><code>Diagnose:
+1. n8n Execution-Log → Node &quot;Email: Draft zur Review&quot; → Output prüfen
+2. Status 200? → Mail wurde gesendet, Spam-Ordner prüfen
+3. Status 4xx/5xx? → SMTP-Credential prüfen
+
+Fix SMTP:
+→ n8n → Credentials → SMTP → Test Connection
+→ Port 587 statt 465 probieren
+→ SMTP-Provider: Google Workspace braucht App-Passwort, nicht Account-Passwort
+
+Fix Resend:
+→ Domain-Verifizierung in Resend Dashboard prüfen (DNS-Records gesetzt?)
+→ API Key aktiv und nicht expired?</code></pre>
+<h3 id="problem-2-beehiiv-push-schlägt-fehl-401403">Problem 2: Beehiiv
+Push schlägt fehl (401/403)</h3>
+<pre><code>Diagnose:
+→ Execution-Log → Node &quot;HTTP: Beehiiv Push&quot; → Error-Body lesen
+
+401 = API Key ungültig oder abgelaufen
+→ Beehiiv: Settings → API → Neuen Key generieren → In n8n Credential aktualisieren
+
+403 = Falscher Scope oder falsche Publication ID
+→ Publication ID aus URL nochmal kopieren (pub_XXXXX exakt)
+→ API Key Permissions prüfen
+
+404 = Endpoint-URL veraltet
+→ Beehiiv API-Dokumentation prüfen: aktuelle Version v2
+→ Endpoint: https://api.beehiiv.com/v2/publications/{pub_id}/posts</code></pre>
+<h3 id="problem-3-openrouter-antwortet-mit-leerem-content">Problem 3:
+OpenRouter antwortet mit leerem Content</h3>
+<pre><code>Symptom: Set: Thema extrahieren zeigt leeren String
+Diagnose:
+→ HTTP: Themen-Ideen → Output → Response Body prüfen
+→ Ist choices[0].message.content vorhanden?
+
+Häufige Ursachen:
+1. Modell-Name falsch geschrieben (Case-sensitiv)
+   Fix: openrouter.ai/models → korrekten Model-Slug kopieren
+   
+2. Budget aufgebraucht
+   Fix: OpenRouter Dashboard → Billing → Guthaben prüfen
+   
+3. Content-Filter des Modells hat geblockt
+   Fix: Prompt auf aggressive Sprache prüfen; anderes Modell testen</code></pre>
+<h3 id="problem-4-wait-node-verliert-state-nach-n8n-restart">Problem 4:
+Wait-Node verliert State nach n8n-Restart</h3>
+<pre><code>Symptom: Nach n8n-Neustart ist Approval-Link tot
+Ursache: n8n Cloud Outage oder Self-Hosted Neustart während Wait
+
+Verhalten: Execution ist &quot;Unknown&quot;-Status
+Fix: Workflow neu starten, neuen Draft generieren
+
+Prevention (Self-Hosted):
+→ Docker volume für n8n_data persistent mounten (nicht tmpfs)
+→ Kein Container-Neustart während laufender Executions (Maintenance-Window Dienstag Nacht)</code></pre>
+<h3 id="problem-5-ki-output-nicht-auf-deutsch-falscher-stil">Problem 5:
+KI-Output nicht auf Deutsch / falscher Stil</h3>
+<pre><code>Symptom: Draft auf Englisch oder generisch
+Fix im Prompt (Node &quot;HTTP: Full Draft schreiben&quot;):
+System-Prompt ergänzen:
+&quot;Schreibe ausschließlich auf Deutsch. 
+Dein Schreibstil: [TON aus Konfiguration].
+Vermeide folgende Phrasen: [LISTE].
+Nutze folgende Struktur: Hook (2-3 Sätze), ...&quot;
+
+Qualitäts-Tipp: Erst 3 Ausgaben manuell editieren, dann 
+diese Edits als &quot;Gutes Beispiel&quot;-Section in den System-Prompt aufnehmen.</code></pre>
+<hr />
+<h2 id="wartungs-schedule">Wartungs-Schedule</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aufgabe</th>
+<th>Frequenz</th>
+<th>Aufwand</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>API-Keys rotieren (OpenRouter, Beehiiv, Resend)</td>
+<td>Alle 90 Tage</td>
+<td>10 Min</td>
+</tr>
+<tr class="even">
+<td>OpenRouter-Budget prüfen</td>
+<td>Monatlich</td>
+<td>2 Min</td>
+</tr>
+<tr class="odd">
+<td>n8n auf neue Version updaten (Self-Hosted)</td>
+<td>Monatlich</td>
+<td>15 Min (Docker pull)</td>
+</tr>
+<tr class="even">
+<td>Execution-Logs auf Fehler reviewen</td>
+<td>Wöchentlich</td>
+<td>5 Min</td>
+</tr>
+<tr class="odd">
+<td>Beehiiv API-Dokumentation auf Breaking Changes prüfen</td>
+<td>Quartalsweise</td>
+<td>15 Min</td>
+</tr>
+<tr class="even">
+<td>Modell-Performance evaluieren (Draft-Qualität)</td>
+<td>Quartalsweise</td>
+<td>30 Min</td>
+</tr>
+<tr class="odd">
+<td>Prompts anpassen (Saisonale Themen, neue Nischen-Insights)</td>
+<td>Nach Bedarf</td>
+<td>20 Min</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="dfy-alternative-aevum-übernimmt-setup">DFY-Alternative: AEVUM
+übernimmt Setup</h2>
+<p>Wenn Setup-Zeit, Credential-Management oder Troubleshooting nicht
+selbst handelbar:</p>
+<p><strong>DFY S umfasst:</strong> - Alle obigen Schritte durch AEVUM -
+Test-Run mit allen 3 Szenarien dokumentiert - Security-Härtung
+(Webhook-Token, Execution-Retention) - 30 Tage Support-Chat für
+Troubleshooting - Übergabe-Call (45 Min): wie Review-Prozess
+funktioniert, wie Prompts angepasst werden</p>
+<p><strong>Nächster Schritt:</strong> [calendly-link oder
+Kontaktformular] </p>
+<h1 id="security-risks">3. Security-Risks</h1>
+<p><strong>Blueprint-ID:</strong> newsletter-growth-machine
+<strong>Workflow-Nodes:</strong> 11 <strong>Kritische Patterns:</strong>
+LLM-Call via HTTP, Mail-Sender, Webhook-Wait mit State-Haltung, API-Push
+zu Drittsystem</p>
+<hr />
+<h2 id="risk-matrix">Risk-Matrix</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Risiko</th>
+<th>Schwere</th>
+<th>Mitigation</th>
+<th>Customer-Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><strong>KI-Hallucination / Falschaussagen im Draft</strong> — LLM
+generiert faktisch falsche, markenunpassende oder rechtlich
+problematische Inhalte (Gesundheitsversprechen, Wettbewerber-Aussagen,
+erfundene Statistiken)</td>
+<td>🔴 HIGH</td>
+<td>Pflicht-Review vor Freigabe (by design); Fact-Check-Hinweis in
+Review-Mail einbauen</td>
+<td>Customer klickt niemals “Freigeben” ohne tatsächlich zu lesen;
+Pflicht: mind. 1 Fact-Check pro Draft</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><strong>API-Key Exposition im n8n-Set-Node</strong> — OpenRouter,
+Beehiiv, SMTP-Credentials landen als Plaintext in Workflow-JSON wenn
+exportiert oder geteilt</td>
+<td>🔴 HIGH</td>
+<td>Credentials NUR über n8n Credential Manager speichern, niemals in
+Set-Node-Felder eintragen; Workflow-JSON vor Weitergabe auf
+Plaintext-Secrets scannen</td>
+<td>Workflow-JSON niemals in GitHub/Notion ohne Secret-Scan
+hochladen</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td><strong>Webhook-Approval-URL missbrauchbar</strong> — Die
+Wait-Webhook-URL ist eine ungescützte GET-URL; wer sie kennt, kann
+Newsletter-Drafts ohne Wissen des Owners freigeben</td>
+<td>🔴 HIGH</td>
+<td>URL in E-Mail nicht öffentlich posten; Token-Parameter zur
+Verifikation hinzufügen (siehe Mitigation-Sektion); n8n Webhook-Auth
+aktivieren</td>
+<td>URL wie ein Passwort behandeln; URL-basierte Approval nur in
+verschlüsselten Mail-Kanälen</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td><strong>Newsletter-Versand ohne Lesen</strong> — Workflow-Design
+erlaubt Freigabe ohne Content-Review wenn Approval-Link automatisch
+aufgerufen wird (z.B. Mail-Client-Preview lädt URLs)</td>
+<td>🟠 MEDIUM</td>
+<td>Approval-URL per POST statt GET implementieren; Bestätigungs-Seite
+mit explizitem zweiten Klick</td>
+<td>Mail-Client auf Auto-Link-Preview prüfen (insb. Apple Mail,
+Outlook)</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><strong>SMTP-Credential-Kompromittierung → Spam-Abuse</strong> —
+Gestohlene SMTP-Credentials ermöglichen Spam-Versand über eigene
+Domain</td>
+<td>🟠 MEDIUM</td>
+<td>Dediziertes Transactional-Mail-Konto (Resend empfohlen);
+SPF/DKIM/DMARC korrekt setzen; API-Key statt Username/Passwort</td>
+<td>Resend oder Postmark statt SMTP-Passwort verwenden; API-Key rotieren
+alle 90 Tage</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td><strong>Beehiiv-API-Key Vollzugriff</strong> — Default API Keys in
+Beehiiv haben Schreib- und Lesezugriff auf alle Subscriber-Daten, nicht
+nur Draft-Push</td>
+<td>🟠 MEDIUM</td>
+<td>Scoped API Keys nutzen (Beehiiv unterstützt Permission-Scoping); Key
+auf “Posts: Write” beschränken</td>
+<td>In Beehiiv Settings API-Key-Scope prüfen und einschränken</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td><strong>Workflow-State enthält PII</strong> — Der Wait-Node hält
+Workflow-Execution am Leben; in dieser Execution sind Newsletter-Draft
+und potenziell Subscriber-Daten aus vorherigen Runs im n8n-Speicher</td>
+<td>🟠 MEDIUM</td>
+<td>n8n Execution-History auf 7 Tage begrenzen; n8n-Instanz
+access-geschützt (kein Public Access ohne Auth)</td>
+<td>n8n Settings → Executions → “Save Data” auf Minimum setzen</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td><strong>LLM-Prompt-Injection via Konfigurations-Felder</strong> —
+Wenn <code>newsletterTopic</code> oder <code>targetAudience</code> aus
+externen Quellen befüllt werden, kann Prompt-Injection den Output
+manipulieren</td>
+<td>🟡 LOW-MEDIUM</td>
+<td>Konfigurations-Felder manuell befüllen, niemals aus unvalidierten
+externen Inputs speisen; Input-Sanitization wenn dynamisch</td>
+<td>Konfiguration nur manuell ändern, niemals aus Web-Formular ohne
+Sanitization</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td><strong>OpenRouter als Single Point of Failure +
+Datenweitergabe</strong> — Alle Draft-Inhalte (Thema, Outline, Full
+Text) passieren OpenRouter-Server; bei Breach sind Inhalte
+exponiert</td>
+<td>🟡 LOW-MEDIUM</td>
+<td>Sensible Inhalte nicht in Prompts aufnehmen (kein Firmen-IP, keine
+Kundennamen); OpenRouter DPA prüfen</td>
+<td>Kein PII von Kunden, Mandanten oder Dritten in Prompts einfügen</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td><strong>n8n-Instanz ohne Rate-Limiting</strong> — Webhook-Endpoint
+kann theoretisch geflutet werden (DoS gegen Wait-Webhook); fehlendes
+Rate-Limiting auf n8n-Cloud oder Self-Hosted</td>
+<td>🟡 LOW</td>
+<td>Reverse Proxy (nginx/Caddy) mit Rate-Limit vor n8n-Instanz;
+n8n-Cloud: Vendor-seitiges Rate-Limiting vorhanden</td>
+<td>Self-Hosted: nginx Rate-Limit konfigurieren (5 req/min auf
+Webhook-Pfad)</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td><strong>Timeout-Verhalten des Wait-Node unklar kommuniziert</strong>
+— Nach 7 Tagen Timeout läuft Execution ab; Customer könnte denken der
+Draft wird automatisch versendet</td>
+<td>🟡 LOW</td>
+<td>Timeout-Verhalten explizit in Review-Mail kommunizieren (“Läuft ab
+am [Datum], wird NICHT automatisch versendet”)</td>
+<td>Timeout-Wert im Wait-Node dokumentieren und in Mail-Template
+erklären</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td><strong>Brand-Voice-Drift durch Modell-Updates</strong> —
+OpenRouter-Modell-Updates können Output-Qualität und -Stil verändern
+ohne Vorankündigung</td>
+<td>🟡 LOW</td>
+<td>Modell-Version explizit pinnen (z.B.
+<code>claude-3-5-sonnet-20241022</code> statt
+<code>claude-3-5-sonnet</code>); Versionierung im Konfig-Node</td>
+<td>Modell-Version nach Updates im Workflow prüfen</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pflicht-mitigations-nummeriert">Pflicht-Mitigations
+(Nummeriert)</h2>
+<h3 id="pm-1-approval-webhook-absichern">PM-1: Approval-Webhook
+absichern</h3>
+<p>Token-basierte Verifikation im Wait-Node:</p>
+<pre><code>Webhook-URL erweitern um Secret-Token:
+https://your-n8n.com/webhook/approval?token=RANDOM_SECRET_32CHARS&amp;approved=true
+
+Im n8n IF-Node nach dem Wait-Node:
+Condition: {{ $json.query.token }} === {{ $vars.approvalToken }}
+→ true: Weiter zu Beehiiv Push
+→ false: Stop + Alert-Mail</code></pre>
+<p>Token generieren (Terminal):</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">openssl</span> rand <span class="at">-hex</span> 16</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Beispiel-Output: a3f9b2c1d4e5f6a7b8c9d0e1f2a3b4c5</span></span></code></pre></div>
+<h3 id="pm-2-api-keys-korrekt-speichern">PM-2: API-Keys korrekt
+speichern</h3>
+<pre><code>❌ FALSCH: Set-Node → Field &quot;openrouterKey&quot; = &quot;sk-or-v1-abc123...&quot;
+✅ RICHTIG: n8n → Credentials → New → HTTP Header Auth
+   Header Name: Authorization
+   Header Value: Bearer sk-or-v1-abc123...
+   → Credential im HTTP-Node referenzieren, NICHT als Set-Field</code></pre>
+<h3 id="pm-3-n8n-execution-retention-begrenzen">PM-3: n8n
+Execution-Retention begrenzen</h3>
+<pre><code>n8n Settings → (Umgebungsvariable für Self-Hosted):
+EXECUTIONS_DATA_MAX_AGE=7          # Tage
+EXECUTIONS_DATA_PRUNE=true
+N8N_LOG_LEVEL=warn                  # Kein verbose Logging mit Draft-Content</code></pre>
+<h3 id="pm-4-smtp-durch-resend-ersetzen">PM-4: SMTP durch Resend
+ersetzen</h3>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Resend API statt SMTP-Credentials:</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co">// HTTP Request Node statt Email Node</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>POST https<span class="op">:</span><span class="co">//api.resend.com/emails</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>Header<span class="op">:</span> Authorization<span class="op">:</span> Bearer re_XXXX</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>Body<span class="op">:</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;from&quot;</span><span class="op">:</span> <span class="st">&quot;newsletter@yourdomain.com&quot;</span><span class="op">,</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;to&quot;</span><span class="op">:</span> [<span class="st">&quot;{{ $vars.reviewEmail }}&quot;</span>]<span class="op">,</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;subject&quot;</span><span class="op">:</span> <span class="st">&quot;Newsletter Draft zur Freigabe — {{ $json.subject }}&quot;</span><span class="op">,</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;html&quot;</span><span class="op">:</span> <span class="st">&quot;{{ $json.emailBody }}&quot;</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Vorteil: API-Key statt SMTP-Passwort, besseres Rate-Limiting, Delivery-Logs</span></span></code></pre></div>
+<hr />
+<h2
+id="empfohlene-mitigations-nicht-pflicht-aber-stark-empfohlen">Empfohlene
+Mitigations (nicht Pflicht, aber stark empfohlen)</h2>
+<ul>
+<li><strong>EM-1:</strong> Fact-Check-Checkliste in Review-Mail einbauen
+(3 Punkte: Statistiken überprüft? Markenaussagen korrekt? Keine
+Versprechen die nicht haltbar sind?)</li>
+<li><strong>EM-2:</strong> Modell-Version im Set-Konfiguration-Node
+pinnen, nicht dynamisch</li>
+<li><strong>EM-3:</strong> Beihiiv-Push-Response loggen und bei non-2xx
+eine Alert-Mail senden</li>
+<li><strong>EM-4:</strong> Draft-Content in Review-Mail als HTML mit
+<code>&lt;blockquote&gt;</code> formatieren, sodass klar ist “das ist
+KI-Output, noch nicht final”</li>
+<li><strong>EM-5:</strong> Separates n8n-Service-Konto (nicht Admin) für
+Newsletter-Workflow anlegen</li>
+</ul>
+<hr />
+<h2 id="was-aevum-bei-dfy-zusätzlich-macht">Was AEVUM bei DFY zusätzlich
+macht</h2>
+<ul>
+<li>Approval-Webhook mit Token-Auth implementieren und testen</li>
+<li>Credentials-Audit: Kein Plaintext in exportierten JSONs</li>
+<li>Beehiiv API-Key Scope prüfen und dokumentieren</li>
+<li>n8n-Instanz-Härtung: Rate-Limiting, Execution-Retention,
+Log-Level</li>
+<li>Review-Mail-Template mit Fact-Check-Hinweisen und klarem
+Timeout-Datum</li>
+<li>Erste 4 Newsletter-Runs begleiten und Output-Qualität
+evaluieren</li>
+<li>Schriftliches Security-Briefing für Customer (1-Pager)</li>
+</ul>
+<hr />
+<h2 id="known-limits">Known Limits</h2>
+<ul>
+<li>n8n Wait-Node State-Persistenz: Bei n8n-Cloud-Outage (&gt;24h) kann
+Execution-State verloren gehen — kein automatisches Recovery</li>
+<li>OpenRouter bietet keine garantierte Output-Determinismus: gleicher
+Prompt, unterschiedliche Ergebnisse</li>
+<li>Beehiiv-API v2 limitiert auf 60 Requests/Minute — bei
+Multi-Newsletter-Setup relevant</li>
+<li>Kein eingebautes Rollback wenn Beehiiv-Push partial failed (Draft
+landet defekt)</li>
+<li>Approval via E-Mail-Link: Bei kompromittierter E-Mail-Inbox ist der
+gesamte Approval-Flow kompromittiert</li>
+</ul>
+<hr />
+<h2 id="sign-off-checkliste-security">Sign-Off-Checkliste Security</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />Alle API-Keys ausschließlich in n8n
+Credential Manager gespeichert</label></li>
+<li><label><input type="checkbox" />Approval-Webhook-URL mit
+Token-Parameter gesichert (PM-1)</label></li>
+<li><label><input type="checkbox" />n8n Execution-Retention auf max. 7
+Tage gesetzt (PM-3)</label></li>
+<li><label><input type="checkbox" />SMTP-Credentials durch
+API-Key-basiertes System ersetzt (PM-4)</label></li>
+<li><label><input type="checkbox" />Beehiiv API-Key Scope auf “Posts:
+Write” eingeschränkt</label></li>
+<li><label><input type="checkbox" />n8n-Instanz nicht öffentlich ohne
+Authentifizierung erreichbar</label></li>
+<li><label><input type="checkbox" />Workflow-JSON auf Plaintext-Secrets
+geprüft vor Backup/Share</label></li>
+<li><label><input type="checkbox" />Modell-Version in OpenRouter-Calls
+explizit gepinnt</label></li>
+<li><label><input type="checkbox" />Review-Mail enthält
+Fact-Check-Hinweis und Timeout-Datum</label></li>
+<li><label><input type="checkbox" />Mail-Client auf Auto-URL-Preview
+getestet (kein ungewolltes Approve) </label></li>
+</ul>
+<h1 id="dsgvo-konformitäts-check">4. DSGVO-Konformitäts-Check</h1>
+<p><strong>Blueprint-ID:</strong> newsletter-growth-machine
+<strong>Stand:</strong> 2025 <strong>Scope:</strong> EU/EWR-Betrieb; für
+CH/UK gelten analoge, leicht abweichende Regelungen</p>
+<hr />
+<blockquote>
+<p><strong>Vorab-Hinweis:</strong> Dieser Check ist eine
+technisch-operative DSGVO-Analyse, kein Rechtsgutachten. Für
+verbindliche rechtliche Beurteilung ist ein Datenschutzbeauftragter oder
+Rechtsanwalt hinzuzuziehen.</p>
+</blockquote>
+<hr />
+<h2 id="datenfluss-analyse">Datenfluss-Analyse</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Datenkategorie</th>
+<th>Entstehungsort</th>
+<th>Verarbeitung durch</th>
+<th>Speicherort</th>
+<th>Weitergabe an Dritte</th>
+<th>Löschfrist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Konfigurations-Daten (Thema, Zielgruppe, Ton)</td>
+<td>Set-Node in n8n</td>
+<td>n8n-Instanz, OpenRouter</td>
+<td>n8n-Execution-Log, OpenRouter-Server</td>
+<td>OpenRouter (USA/EU je nach Routing)</td>
+<td>7 Tage (Execution-Log)</td>
+</tr>
+<tr class="even">
+<td>Newsletter-Draft (generierter Text)</td>
+<td>OpenRouter API Response</td>
+<td>n8n-Instanz, E-Mail-Versand</td>
+<td>n8n-Execution-Log, Inbox des Reviewers, Beehiiv</td>
+<td>OpenRouter, SMTP/Resend, Beehiiv</td>
+<td>7 Tage n8n; je nach Mail-Client; Beehiiv bis Löschung</td>
+</tr>
+<tr class="odd">
+<td>Review-E-Mail-Adresse (<code>reviewEmail</code>)</td>
+<td>Set-Node</td>
+<td>n8n-Instanz, SMTP/Resend</td>
+<td>n8n-Execution-Log, Resend-Server</td>
+<td>Resend/SMTP-Provider</td>
+<td>7 Tage n8n; Resend: 30 Tage Log</td>
+</tr>
+<tr class="even">
+<td>Approval-Webhook-Token + Timestamp</td>
+<td>n8n Wait-Node</td>
+<td>n8n-Instanz</td>
+<td>n8n-Execution-Log</td>
+<td>Keine</td>
+<td>7 Tage</td>
+</tr>
+<tr class="odd">
+<td>Beehiiv Publication-ID + API-Key</td>
+<td>n8n Credential Manager</td>
+<td>n8n-Instanz</td>
+<td>n8n-verschlüsselt</td>
+<td>Beehiiv</td>
+<td>Bis manuelle Löschung</td>
+</tr>
+<tr class="even">
+<td>Subscriber-Daten (im Newsletter-Kontext)</td>
+<td>Beehiiv</td>
+<td>Beehiiv-Plattform</td>
+<td>Beehiiv-Server (USA)</td>
+<td>Beehiiv</td>
+<td>Gemäß Beehiiv-Einstellungen</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Kritischer Befund:</strong> Newsletter-Draft-Inhalte und die
+Review-E-Mail-Adresse passieren OpenRouter-Server. Wenn im Prompt
+personenbezogene Daten (z.B. Kundenreferenzen, Fallstudien mit Namen)
+enthalten sind, wird daraus eine Datenübermittlung in Drittländer.</p>
+<hr />
+<h2 id="rechtsgrundlage">Rechtsgrundlage</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Verarbeitungsvorgang</th>
+<th>Rechtsgrundlage</th>
+<th>Begründung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Nutzung des Workflows durch den Operator (Business-to-Tool)</td>
+<td>Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse)</td>
+<td>Betrieb eines internen Marketing-Tools; kein Eingriff in Rechte der
+betroffenen Personen solange keine Subscriber-Daten in Prompts
+fließen</td>
+</tr>
+<tr class="even">
+<td>Review-Mail an eigene E-Mail-Adresse</td>
+<td>Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung / Eigenbetrieb)</td>
+<td>Operator ist gleichzeitig betroffene Person; interne
+Kommunikation</td>
+</tr>
+<tr class="odd">
+<td>Push zu Beehiiv (Newsletter-Draft, ohne Subscriber-Daten)</td>
+<td>Art. 6 Abs. 1 lit. f DSGVO</td>
+<td>Legitimes Interesse an Marketingbetrieb</td>
+</tr>
+<tr class="even">
+<td><strong>Wenn</strong> Subscriber-Daten in Prompts fließen</td>
+<td>Art. 6 Abs. 1 lit. a DSGVO (Einwilligung) oder lit. b</td>
+<td>Separate Prüfung erforderlich; standardmäßig: NICHT TUN</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2
+id="pflicht-konfiguration-dsgvo-konformer-betrieb">Pflicht-Konfiguration
+(DSGVO-konformer Betrieb)</h2>
+<p><strong>P-1: Kein PII in Prompts</strong> Der OpenRouter-Request
+(Nodes “HTTP: Themen-Ideen”, “HTTP: Outline bauen”, “HTTP: Full Draft
+schreiben”) darf keine personenbezogenen Daten enthalten: - Keine
+Kundennamen, keine E-Mail-Adressen, keine Fallstudien mit
+identifizierbaren Personen - Konfigurations-Felder
+<code>targetAudience</code> und <code>newsletterTopic</code> auf
+generische Beschreibungen begrenzen</p>
+<p><strong>P-2: Execution-Daten begrenzen</strong></p>
+<pre><code>n8n Self-Hosted Umgebungsvariablen:
+EXECUTIONS_DATA_MAX_AGE=7
+EXECUTIONS_DATA_PRUNE=true
+N8N_EXECUTION_DATA_SAVE_MANUAL_EXECUTIONS=false</code></pre>
+<p><strong>P-3: Datenverarbeitungsverzeichnis (VVT) Eintrag</strong>
+Dieser Workflow muss im VVT des Operators dokumentiert werden: - Zweck:
+Automatisierte Newsletter-Content-Generierung - Kategorien betroffener
+Personen: Operator selbst (Review-Mail), Subscriber (indirekt über
+Beehiiv) - Empfänger: OpenRouter, Resend/SMTP-Provider, Beehiiv -
+Löschfristen: wie oben</p>
+<p><strong>P-4: Auftragsverarbeitungsverträge (AVV) abschließen</strong>
+Siehe Vendor-Tabelle unten — AVV vor Go-Live für alle Drittanbieter.</p>
+<hr />
+<h2 id="vendor-dpa-übersicht">Vendor-DPA-Übersicht</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Vendor</th>
+<th>Funktion im Workflow</th>
+<th>EU-Hosting verfügbar</th>
+<th>DPA vorhanden</th>
+<th>DPA-Link / Hinweis</th>
+<th>SCCs erforderlich</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>n8n</strong> (Cloud)</td>
+<td>Workflow-Engine</td>
+<td>Ja (EU-Region wählbar)</td>
+<td>Ja</td>
+<td><a href="https://n8n.io/legal/dpa">n8n.io/legal/dpa</a></td>
+<td>Nein (wenn EU-Region)</td>
+</tr>
+<tr class="even">
+<td><strong>n8n</strong> (Self-Hosted)</td>
+<td>Workflow-Engine</td>
+<td>Ja (eigener Server)</td>
+<td>Entfällt</td>
+<td>Operator ist selbst Verantwortlicher</td>
+<td>Entfällt</td>
+</tr>
+<tr class="odd">
+<td><strong>OpenRouter</strong></td>
+<td>LLM-Routing / KI-Generierung</td>
+<td>Nein (USA-basiert)</td>
+<td>Eingeschränkt — Terms of Service enthält Datenverarbeitungsklauseln,
+kein vollständiger AVV</td>
+<td><a
+href="https://openrouter.ai/privacy">openrouter.ai/privacy</a></td>
+<td>🔴 Ja — SCCs oder alternative Rechtsgrundlage für
+Drittlandübermittlung prüfen</td>
+</tr>
+<tr class="even">
+<td><strong>Resend</strong></td>
+<td>Transactional Mail</td>
+<td>Ja (EU-Region)</td>
+<td>Ja</td>
+<td><a href="https://resend.com/legal/dpa">resend.com/legal/dpa</a></td>
+<td>Nein (wenn EU-Region gewählt)</td>
+</tr>
+<tr class="odd">
+<td><strong>Beehiiv</strong></td>
+<td>Newsletter-Publikation</td>
+<td>Nein (USA-basiert)</td>
+<td>Ja (GDPR Data Processing Agreement verfügbar)</td>
+<td>Settings → Legal → DPA in Beehiiv-Dashboard anfordern</td>
+<td>Ja — Beehiiv bietet SCCs im Rahmen des DPA</td>
+</tr>
+<tr class="even">
+<td><strong>Mailchimp</strong> (Alternative)</td>
+<td>Newsletter-Publikation</td>
+<td>Nein (USA-basiert, Intuit)</td>
+<td>Ja</td>
+<td><a
+href="https://mailchimp.com/legal/data-processing-addendum/">mailchimp.com/legal/data-processing-addendum</a></td>
+<td>Ja — SCCs über Standard-DPA</td>
+</tr>
+</tbody>
+</table>
+<p><strong>🔴 Kritischer Hinweis OpenRouter:</strong> OpenRouter ist
+derzeit kein klassischer AVV-Partner im DSGVO-Sinne. Solange
+ausschließlich eigene, nicht-personenbezogene Business-Inhalte (Themen,
+Nischen-Beschreibungen) verarbeitet werden, ist das Risiko manageable —
+dennoch: VVT-Eintrag als “berechtigtes Interesse” + Datensparsamkeit
+(kein PII in Prompts) als Pflicht-Mitigation.</p>
+<hr />
+<h2 id="betroffenenrechte">Betroffenenrechte</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Recht (DSGVO)</th>
+<th>Relevant für diesen Workflow?</th>
+<th>Umsetzung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Auskunft (Art. 15)</td>
+<td>Gering — Workflow verarbeitet primär eigene Betriebsdaten</td>
+<td>n8n Execution-Logs auf Anfrage einsehbar</td>
+</tr>
+<tr class="even">
+<td>Löschung (Art. 17)</td>
+<td>Relevant für Beehiiv-Subscriber-Daten</td>
+<td>Über Beehiiv-Dashboard; n8n Executions manuell oder via
+Retention-Setting</td>
+</tr>
+<tr class="odd">
+<td>Datenportabilität (Art. 20)</td>
+<td>Nicht direkt relevant für Workflow-Betrieb</td>
+<td>Beehiiv-Export-Funktion für Subscriber-Daten</td>
+</tr>
+<tr class="even">
+<td>Widerspruch (Art. 21)</td>
+<td>Für Newsletter-Empfänger über Beehiiv-Unsubscribe</td>
+<td>Beehiiv handelt Unsubscribe; Workflow berührt das nicht</td>
+</tr>
+<tr class="odd">
+<td>Einschränkung (Art. 18)</td>
+<td>Nicht relevant — kein kontinuierliches Subscriber-Profiling im
+Workflow</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="löschfristen">Löschfristen</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Datenkategorie</th>
+<th>Frist</th>
+<th>Mechanismus</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>n8n Execution-Logs</td>
+<td>7 Tage</td>
+<td>Automatisch via <code>EXECUTIONS_DATA_MAX_AGE=7</code></td>
+</tr>
+<tr class="even">
+<td>Review-E-Mails im Postfach</td>
+<td>Operator-Verantwortung; empfohlen: 30 Tage</td>
+<td>Manuelle Inbox-Regel oder automatisches Archiv</td>
+</tr>
+<tr class="odd">
+<td>Beehiiv Draft-Posts</td>
+<td>Bis Veröffentlichung oder manuelle Löschung</td>
+<td>Beehiiv Dashboard</td>
+</tr>
+<tr class="even">
+<td>Resend Delivery-Logs</td>
+<td>30 Tage (Resend Default)</td>
+<td>Resend Settings</td>
+</tr>
+<tr class="odd">
+<td>API-Keys in n8n</td>
+<td>Bis manuelle Rotation</td>
+<td>Pflicht-Rotation alle 90 Tage dokumentieren</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2
+id="dsfa-trigger-datenschutz-folgenabschätzung-nach-art.-35-dsgvo">DSFA-Trigger
+(Datenschutz-Folgenabschätzung nach Art. 35 DSGVO)</h2>
+<p>Eine DSFA ist für diesen Workflow in der Standardkonfiguration
+<strong>nicht erforderlich</strong>, da: - Keine systematische
+Verarbeitung besonderer Kategorien (Art. 9) - Kein automatisiertes
+Profiling von Personen - Kein großflächiges Monitoring</p>
+<p><strong>DSFA wird erforderlich wenn:</strong> - Subscriber-Daten
+(auch aggregiert) in Prompts fließen - Der Workflow für mehr als 5.000
+Subscriber-Profile Personalisierungsentscheidungen trifft -
+Gesundheits-, Finanz- oder politische Inhalte für vulnerable Zielgruppen
+generiert werden</p>
+<hr />
+<h2 id="eu-ai-act-einordnung">EU AI Act Einordnung</h2>
+<p><strong>Klassifizierung: Limited Risk (Art. 50 EU AI
+Act)</strong></p>
+<p>Begründung: - LLM-Calls via OpenRouter erzeugen KI-generierten
+Content - Der Content wird in Newslettern an Personen kommuniziert -
+Art. 50 Abs. 1: Pflicht zur <strong>Kennzeichnung KI-generierter
+Inhalte</strong> wenn diese mit Personen interagieren</p>
+<p><strong>Pflicht-Maßnahme:</strong></p>
+<pre><code>In der Review-Mail und/oder im Beehiiv-Draft-Template:
+Fußzeile empfohlen:
+&quot;[Teile dieses Newsletters wurden KI-unterstützt erstellt und 
+von [NAME] geprüft und freigegeben.]&quot;</code></pre>
+<p>Keine DSGVO-Vorabgenehmigung oder spezifische Registrierung für
+Limited-Risk-Systeme erforderlich. Kennzeichnungspflicht gilt ab
+Veröffentlichung.</p>
+<p><strong>Nicht anwendbar:</strong> High-Risk-Klassifizierung (kein
+kritischer Sektor, keine Entscheidungen über Personen, keine
+Biometrie).</p>
+<hr />
+<h2 id="audit-checkliste-vor-go-live">Audit-Checkliste vor Go-Live</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />VVT-Eintrag für Newsletter-Workflow
+angelegt</label></li>
+<li><label><input type="checkbox" />AVV mit Beehiiv abgeschlossen (DPA
+angefordert und signiert)</label></li>
+<li><label><input type="checkbox" />AVV-Situation OpenRouter
+dokumentiert; Entscheidung: SCCs oder ausschließlich
+non-PII-Prompts</label></li>
+<li><label><input type="checkbox" />AVV mit Resend abgeschlossen (wenn
+Resend genutzt)</label></li>
+<li><label><input type="checkbox" />n8n Cloud: EU-Region in
+Account-Settings bestätigt</label></li>
+<li><label><input type="checkbox" />n8n Self-Hosted: Server-Standort EU
+dokumentiert</label></li>
+<li><label><input type="checkbox" />Execution-Retention auf 7 Tage
+konfiguriert</label></li>
+<li><label><input type="checkbox" />Prompts auf PII geprüft: Kein
+personenbezogener Inhalt in Themen-/Outline-/Draft-Prompts</label></li>
+<li><label><input type="checkbox" />KI-Kennzeichnung im
+Newsletter-Template implementiert (EU AI Act Art. 50)</label></li>
+<li><label><input type="checkbox" />Beihiiv Unsubscribe-Link in allen
+ausgesendeten Newslettern vorhanden</label></li>
+<li><label><input type="checkbox" />Datenschutzhinweis auf eigener
+Website um Beehiiv und KI-Tool-Einsatz ergänzt</label></li>
+<li><label><input type="checkbox" />Löschfristen-Prozedur dokumentiert
+(wer löscht was wann)</label></li>
+</ul>
+<hr />
+<h2 id="sign-off">Sign-Off</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Prüfpunkt</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Rechtsgrundlage identifiziert</td>
+<td>Ausstehend bis VVT-Eintrag</td>
+</tr>
+<tr class="even">
+<td>Drittland-Übermittlung bewertet</td>
+<td>OpenRouter: Risiko-akzeptiert unter Bedingungen</td>
+</tr>
+<tr class="odd">
+<td>AVVs vollständig</td>
+<td>Vor Go-Live zwingend</td>
+</tr>
+<tr class="even">
+<td>EU AI Act Compliance</td>
+<td>Kennzeichnung implementieren</td>
+</tr>
+<tr class="odd">
+<td>DSFA erforderlich</td>
+<td>Nein (Standardkonfiguration)</td>
+</tr>
+</tbody>
+</table>
+<h1 id="quality-gate-sign-off">5. Quality-Gate Sign-Off</h1>
+<p><strong>Blueprint-ID:</strong> <code>newsletter-growth-machine</code>
+<strong>Typ:</strong> Blueprint <strong>Gate-Version:</strong> 1.0
+<strong>Erstellt:</strong> 2025 <strong>Status:</strong> PENDING
+SIGN-OFF</p>
+<hr />
+<h2 id="asset-inventory">Asset-Inventory</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Dateiname</th>
+<th>Status</th>
+<th>Prüfpunkte</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Workflow JSON</td>
+<td><code>workflow.json</code></td>
+<td>✅ Vorhanden</td>
+<td>11 Nodes, import-tested</td>
+</tr>
+<tr class="even">
+<td>README</td>
+<td><code>README.md</code></td>
+<td>✅ Vorhanden (existing)</td>
+<td>Vollständig bis auf abgeschnittenes Troubleshooting-Ende</td>
+</tr>
+<tr class="odd">
+<td>Sales Brief</td>
+<td><code>SALES-BRIEF.md</code></td>
+<td>✅ Erstellt</td>
+<td>Alle 9 Sections vorhanden</td>
+</tr>
+<tr class="even">
+<td>Security Risk Matrix</td>
+<td><code>SECURITY-RISKS.md</code></td>
+<td>✅ Erstellt</td>
+<td>12 Risks, davon 3 HIGH, PM-Code-Snippets</td>
+</tr>
+<tr class="odd">
+<td>DSGVO-Check</td>
+<td><code>DSGVO-CHECK.md</code></td>
+<td>✅ Erstellt</td>
+<td>EU AI Act, Vendor-DPA-Tabelle, Audit-Checklist</td>
+</tr>
+<tr class="even">
+<td>Install Guide</td>
+<td><code>INSTALL-GUIDE.md</code></td>
+<td>✅ Erstellt</td>
+<td>10 Schritte, 5 Troubleshooting-Cases</td>
+</tr>
+<tr class="odd">
+<td>Quality Gate</td>
+<td><code>QUALITY-GATE.md</code></td>
+<td>✅ Dieses File</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td><code>workflow.json</code> Smoke-Test</td>
+<td>Manuell vor Go-Live</td>
+<td>⏳ Ausstehend</td>
+<td>Import → Execute → Check alle 11 Nodes</td>
+</tr>
+<tr class="odd">
+<td>Pricing-Kalkulation</td>
+<td>Intern (nicht Customer-facing)</td>
+<td>✅ In Sales-Brief</td>
+<td>DFY S/M, Blueprint-Tier, Audit</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien-1010">Sign-Off-Kriterien (10/10)</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Kriterium</th>
+<th>Prüfmethode</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Workflow-JSON importierbar ohne Fehler in n8n ≥ 1.30</td>
+<td>Manueller Import-Test</td>
+<td>⏳ Ausstehend</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Alle 11 Nodes korrekt verknüpft, keine fehlenden Connections</td>
+<td>Node-Graph-Review</td>
+<td>⏳ Ausstehend</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Happy-Path-Test (Szenario A aus Install-Guide) erfolgreich</td>
+<td>Execute + Beehiiv-Draft-Check</td>
+<td>⏳ Ausstehend</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Approval-Webhook feuert korrekt und triggert Beehiiv-Push</td>
+<td>Manueller Klick + API-Response 200</td>
+<td>⏳ Ausstehend</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Kein API-Key im Workflow-JSON als Plaintext vorhanden</td>
+<td><code>grep -i "sk-or\|bearer\|api_key" workflow.json</code></td>
+<td>⏳ Ausstehend</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>README vollständig (abgeschnittenes Ende im existing README
+repariert)</td>
+<td>Linter + Sichtprüfung</td>
+<td>🔴 Offen — README bricht bei Troubleshooting ab</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>SALES-BRIEF alle Pricing-Tiers enthalten + realistisch für ICP</td>
+<td>Review durch Sales/Founder</td>
+<td>⏳ Ausstehend</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>DSGVO-CHECK: Vendor-DPA-Links funktionsfähig</td>
+<td>Link-Check</td>
+<td>⏳ Ausstehend</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>SECURITY-RISKS: Alle Pflicht-Mitigations im Install-Guide
+referenziert</td>
+<td>Cross-Check PM-1 bis PM-4</td>
+<td>✅ Erledigt</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>EU AI Act Kennzeichnungs-Empfehlung in DSGVO-CHECK und Install-Guide
+vorhanden</td>
+<td>Sichtprüfung</td>
+<td>✅ Erledigt</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Go-Live-Freigabe:</strong> Erst wenn alle 10 Kriterien ✅</p>
+<hr />
+<h2 id="known-limitations">Known Limitations</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Limitation</th>
+<th>Severity</th>
+<th>Phase 2 Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Thema-Selektion automatisch = immer #1 von 5 Vorschlägen; kein
+manueller Auswahl-Flow eingebaut</td>
+<td>Mittel — einschränkend für Nutzer mit kuratierten Themen</td>
+<td>🔵 Phase 2: Wait-Node nach Ideation für manuelle Themen-Wahl</td>
+</tr>
+<tr class="even">
+<td>Kein eingebautes Fehler-Handling bei Beihiiv-Push-Failure (kein
+Retry, keine Alert-Mail)</td>
+<td>Mittel — Silent Fail möglich</td>
+<td>🔵 Phase 2: Error-Branch nach HTTP: Beehiiv Push</td>
+</tr>
+<tr class="odd">
+<td>Single-Model-Dependency auf OpenRouter; Modell-Downtime =
+Workflow-Fail</td>
+<td>Mittel</td>
+<td>🔵 Phase 2: Fallback-Modell in IF-Node implementieren</td>
+</tr>
+<tr class="even">
+<td>Kein Quality-Check des generierten Drafts (Wortanzahl,
+Themen-Konsistenz) vor Review-Mail</td>
+<td>Niedrig — manuell abfangbar im Review</td>
+<td>🔵 Phase 2: Auto-QC-Node (Wortanzahl-Check, Keyword-Presence)</td>
+</tr>
+<tr class="odd">
+<td>Beehiiv-Push pusht als “Draft”, nicht als “Scheduled” —
+Versand-Zeitpunkt muss manuell in Beehiiv gesetzt werden</td>
+<td>Niedrig — zusätzlicher manueller Schritt in Beehiiv</td>
+<td>🔵 Phase 2: <code>scheduled_at</code>-Parameter in
+Beehiiv-Push-Body</td>
+</tr>
+<tr class="even">
+<td>Kein Multi-Newsletter-Support im aktuellen Workflow (eine
+Publication ID fest konfiguriert)</td>
+<td>Niedrig für PB, Mittel für AG mit mehreren Clients</td>
+<td>🔵 Phase 2: Loop über Konfigurations-Array</td>
+</tr>
+<tr class="odd">
+<td>README bricht im Troubleshooting-Abschnitt ab (vorliegendes existing
+README unvollständig)</td>
+<td>Niedrig — Installation noch möglich via Install-Guide</td>
+<td>🔴 Fix vor Go-Live: README reparieren</td>
+</tr>
+<tr class="even">
+<td>Approval über E-Mail-Link ohne zweiten Bestätigungsschritt —
+Mail-Client Auto-Preview-Bug möglich</td>
+<td>Mittel (Security)</td>
+<td>🔵 Phase 2: Redirect auf Bestätigungs-Seite mit zweitem Button</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="readme-fix-aufgabe-vor-go-live">README-Fix-Aufgabe (vor
+Go-Live)</h2>
+<p>Das bestehende README bricht ab bei:</p>
+<pre><code>**Beehiiv Push schlägt fehl (401):** API Key abgelaufen oder</code></pre>
+<p><strong>Zu ergänzen:</strong></p>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>**Beehiiv Push schlägt fehl (401):** API Key abgelaufen oder falscher Scope. </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>Neuen Key in Beehiiv Settings → API generieren, in n8n Credential aktualisieren.</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>**Wait-Node nimmt Approval nicht an:** URL abgelaufen (&gt;7 Tage) oder </span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>Workflow wurde neu gestartet. Workflow manuell neu ausführen, neuen Draft generieren.</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>**KI-Output auf Englisch:** System-Prompt um explizite Sprachanweisung ergänzen </span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>(&quot;Schreibe auf Deutsch.&quot;) im Node HTTP: Full Draft schreiben.</span></code></pre></div>
+<hr />
+<h2 id="db-update-befehl">DB-Update-Befehl</h2>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Blueprint als &quot;ready_for_review&quot; markieren nach Asset-Erstellung</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> blueprint_items</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  status               <span class="op">=</span> <span class="st">&#39;ready_for_review&#39;</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  has_sales_brief      <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  has_security_risks   <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  has_dsgvo_check      <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  has_install_guide    <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  has_quality_gate     <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  quality_gate_version <span class="op">=</span> <span class="st">&#39;1.0&#39;</span>,</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  sign_off_complete    <span class="op">=</span> <span class="kw">FALSE</span>,  <span class="co">-- erst nach Smoke-Test und README-Fix</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  known_limitations    <span class="op">=</span> <span class="dv">8</span>,</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  phase2_items         <span class="op">=</span> <span class="dv">6</span>,</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  pricing_tier_min     <span class="op">=</span> <span class="st">&#39;S&#39;</span>,</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  pricing_tier_max     <span class="op">=</span> <span class="st">&#39;M&#39;</span>,</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>  icp_fit_ag           <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>  icp_fit_pb           <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>  icp_fit_fi           <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>  eu_ai_act_class      <span class="op">=</span> <span class="st">&#39;limited_risk&#39;</span>,</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>  dsgvo_dsfa_required  <span class="op">=</span> <span class="kw">FALSE</span>,</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>  updated_at           <span class="op">=</span> NOW(),</span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>  updated_by           <span class="op">=</span> <span class="st">&#39;builder-agent-v1&#39;</span></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> item_id <span class="op">=</span> <span class="st">&#39;newsletter-growth-machine&#39;</span>;</span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a><span class="co">-- Sign-Off nach manuellem Smoke-Test und README-Fix:</span></span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a><span class="co">-- UPDATE blueprint_items SET sign_off_complete = TRUE, status = &#39;published&#39; WHERE item_id = &#39;newsletter-growth-machine&#39;;</span></span></code></pre></div>
+<hr />
+<h2 id="pattern-notes-für-builder-logik">Pattern-Notes für
+Builder-Logik</h2>
+<p>Diese Notes dokumentieren Patterns aus diesem Blueprint für
+Wiederverwendung in der Builder-Logik:</p>
+<p><strong>Pattern: Webhook-Wait-Approval</strong> - Jeder Blueprint mit
+<code>n8n-nodes-base.wait</code> triggert automatisch: Security-Risk
+“Webhook missbrauchbar” (Severity HIGH) + Mitigation PM-1 (Token-Auth) -
+DSGVO-Note: Wait-Node hält PII in Execution-State →
+Execution-Retention-Setting Pflicht - Sales-Note: Human-in-the-Loop ist
+Kaufargument für Compliance-affine Kunden, immer in Conversion-Story
+erwähnen</p>
+<p><strong>Pattern: LLM via HTTP (OpenRouter)</strong> - Jeder LLM-Call
+via HTTP triggert: EU AI Act Limited Risk Einordnung +
+Kennzeichnungspflicht - DSGVO-Risk: Drittlandübermittlung USA, kein
+vollständiger AVV verfügbar → “No-PII-in-Prompts” als Pflicht-Mitigation
+- Security-Risk: Hallucination + Content-Quality = immer Severity HIGH
+wenn Output öffentlich kommuniziert wird - Modell-Version immer pinnen:
+Known Limitation wenn nicht gepinnt</p>
+<p><strong>Pattern: Mail-Sender Node</strong> - Jeder sendEmail-Node
+triggert: SMTP-Credential-Risk (Spam-Abuse), SPF/DKIM/DMARC-</p>
+</body>
+</html>

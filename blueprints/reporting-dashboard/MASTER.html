@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM Blueprint: reporting-dashboard</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="data:text/css;charset=utf-8,body{font-family:Inter,system-ui,sans-serif;max-width:780px;margin:2em%20auto;padding:0%201em;line-height:1.6;color:#222}h1,h2,h3{color:#000}h1{border-bottom:2px%20solid%20#000;padding-bottom:0.3em}h2{border-bottom:1px%20solid%20#ccc;padding-bottom:0.2em}code{background:#f4f4f4;padding:2px%206px;border-radius:3px;font-family:monospace}pre{background:#f4f4f4;padding:1em;border-radius:4px;overflow-x:auto}table{border-collapse:collapse;margin:1em%200}th,td{border:1px%20solid%20#ddd;padding:6px%2012px;text-align:left}th{background:#f4f4f4}blockquote{border-left:3px%20solid%20#888;padding-left:1em;color:#555;margin:1em%200}" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM Blueprint: reporting-dashboard</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-blueprint-reporting-dashboard">AEVUM Blueprint —
+reporting-dashboard</h1>
+<blockquote>
+<p>Generated 2026-05-25 16:31 Berlin-TZ. Combines alle Quality-Gate-Docs
+zu einem druckbaren Master-Dokument.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<h2 id="in-einem-satz">In einem Satz</h2>
+<p>Jeden Montag um 07:00 liegt der fertige KPI-Report in der Inbox —
+automatisch aus GA4, Meta Ads und deinem Daten-Sheet zusammengestellt,
+ohne dass jemand einen Finger rührt.</p>
+<hr />
+<h2 id="wer-das-braucht">Wer das braucht</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Typischer Schmerz</th>
+<th>Fit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AG</strong> — Agentur (3–50 MA)</td>
+<td>Jeder Montag beginnt mit manuellen Daten-Exports für 3–8 Kunden,
+Marketing-Manager verliert 2–4h</td>
+<td>Starker Fit — ein Blueprint pro Kunden-Property skalierbar</td>
+</tr>
+<tr class="even">
+<td><strong>PB</strong> — Personal Brand / Solopreneur</td>
+<td>Zahlen werden “irgendwie” verfolgt, meist in Woche 3 dann gar nicht
+mehr</td>
+<td>Guter Fit — zero-maintenance nach Setup, sofortige Klarheit</td>
+</tr>
+<tr class="odd">
+<td><strong>FI</strong> — Mittelstand B2B-Dienstleister</td>
+<td>Geschäftsführer bekommt Zahlen erst am Mittwoch nach dem
+Wochentreffen, immer veraltet</td>
+<td>Starker Fit — Entscheidungsgrundlage liegt vor dem Montagsmeeting
+bereit</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="was-customer-bekommt">Was Customer bekommt</h2>
+<ol type="1">
+<li>Fertiger n8n-Workflow (6 Nodes, produktionsbereit, kommentiert)</li>
+<li>Wöchentlicher HTML-Report per E-Mail — KPI-Übersicht,
+Vorwochenvergleich, Performance-Ampel</li>
+<li>GA4-Integration via Service Account (kein
+OAuth-Ablaufdatum-Problem)</li>
+<li>Optionaler Meta Ads Kanal (Spend, CPL, ROAS)</li>
+<li>Manuelle KPI-Eingabe via Google Sheets (für Offline-Werte)</li>
+<li>Konfigurierbare Schwellenwerte für die Performance-Ampel</li>
+<li>Setup-Anleitung Schritt für Schritt (inkl. Google Cloud Service
+Account)</li>
+<li>Troubleshooting-Referenz für die 5 häufigsten Fehler</li>
+</ol>
+<hr />
+<h2 id="mehrwert-konkret">Mehrwert (konkret)</h2>
+<h3 id="vorher-nachher">Vorher / Nachher</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Vorher (manuell)</th>
+<th>Nachher (Blueprint)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Zeitaufwand pro Woche</td>
+<td>2–4h Daten zusammensuchen</td>
+<td>~0 min (Monitoring: 5 min)</td>
+</tr>
+<tr class="even">
+<td>Datenfreshness</td>
+<td>Mittwoch–Donnerstag</td>
+<td>Montag 07:00 Uhr</td>
+</tr>
+<tr class="odd">
+<td>Fehlerquote</td>
+<td>Copy-Paste-Fehler, falsche Zeiträume</td>
+<td>Deterministisch, gleiche API-Abfrage jede Woche</td>
+</tr>
+<tr class="even">
+<td>Sichtbarkeit</td>
+<td>Nur wer ExportZugriff hat sieht Zahlen</td>
+<td>Alle Empfänger gleichzeitig, per Mail</td>
+</tr>
+<tr class="odd">
+<td>Skalierung</td>
+<td>Pro Kunde / Projekt +2h Setup</td>
+<td>Pro Kunde: Konfiguration duplizieren, 15 min</td>
+</tr>
+</tbody>
+</table>
+<h3 id="roi-schätzung">ROI-Schätzung</h3>
+<p>Annahme: Marketing-Manager oder Agenturmitarbeiter, 50 EUR/h interner
+Kostensatz.</p>
+<ul>
+<li><strong>2h/Woche gespart × 50 EUR × 52 Wochen = 5.200
+EUR/Jahr</strong> pro Property</li>
+<li>Bei einer Agentur mit 5 Kunden: <strong>26.000 EUR/Jahr</strong>
+Opportunity Cost zurückgewonnen</li>
+<li>Setup-Aufwand (Blueprint-Tier): einmalig 2–4h</li>
+</ul>
+<blockquote>
+<p>Diese Zahlen sind Schätzungen auf Basis typischer Agenturprozesse.
+Tatsächliche Einsparung hängt von Anzahl Properties, Reporting-Empfänger
+und bestehenden Prozessen ab.</p>
+</blockquote>
+<hr />
+<h2 id="pricing-logic">Pricing-Logic</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tier</th>
+<th>Format</th>
+<th>Was ist enthalten</th>
+<th>Preis</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Blueprint (Self-Service)</strong></td>
+<td>Download + Doku</td>
+<td>Workflow-File, README, Install-Guide, Security-Hinweise</td>
+<td>auf Anfrage / Produktseite</td>
+</tr>
+<tr class="even">
+<td><strong>DFY — Done For You</strong></td>
+<td>AEVUM richtet ein</td>
+<td>Alle Blueprint-Inhalte + Setup in deiner Infrastruktur, Test-Run, 1x
+Anpassung der KPI-Schwellenwerte, 30 Tage E-Mail-Support</td>
+<td>S-Tier: €2.500 Setup + €750/Mo Monitoring optional</td>
+</tr>
+<tr class="odd">
+<td><strong>DwY — Done with You</strong></td>
+<td>Workshop + Co-Setup</td>
+<td>2h Remote-Session, gemeinsamer Setup, du lernst die Konfiguration
+selbst zu pflegen, Aufzeichnung</td>
+<td>€1.200 einmalig</td>
+</tr>
+<tr class="even">
+<td><strong>Audit-Only</strong></td>
+<td>Review bestehender Setup</td>
+<td>Sicherheits- und DSGVO-Review deines bestehenden
+Reporting-Workflows</td>
+<td>€1.500</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Preise netto zzgl. MwSt. Für Agenturen mit mehr als 3 Properties:
+Staffelkonditionen auf Anfrage.</p>
+</blockquote>
+<hr />
+<h2 id="voraussetzungen-customer">Voraussetzungen Customer</h2>
+<ul>
+<li>n8n (self-hosted oder Cloud-Account, min. Starter-Plan)</li>
+<li>Zugriff auf Google Cloud Console (Service Account erstellen)</li>
+<li>GA4 Property mit mind. 14 Tagen Daten (Vorwochenvergleich
+funktioniert sonst nicht vollständig)</li>
+<li>SMTP-Konto oder Resend.com Account für Mail-Versand</li>
+<li>Optional: Meta Business Manager Account mit API-Zugriff</li>
+<li>Grundlegendes Verständnis: Was ist ein API-Key, wie öffne ich n8n
+Credentials (15-min-Einarbeitung realistisch)</li>
+</ul>
+<p><strong>Nicht vorausgesetzt:</strong> Programmierkenntnisse, eigener
+Server (n8n Cloud reicht), Meta Ads (optional).</p>
+<hr />
+<h2 id="nicht-ziele">Nicht-Ziele</h2>
+<p>Dieses Blueprint ist ausdrücklich <strong>nicht</strong> für folgende
+Use Cases gebaut:</p>
+<ul>
+<li>Real-time Dashboards (Refresh &lt; 24h) — dafür Looker Studio oder
+Metabase</li>
+<li>Multi-Property-Rollup in einer Mail (jede GA4 Property braucht
+eigene Workflow-Instanz)</li>
+<li>Historische Datenanalyse &gt; 90 Tage (GA4 API-Abfragen auf 7/14
+Tage optimiert)</li>
+<li>KI-gestützte Anomalieerkennung oder automatisches Kommentieren (kein
+LLM-Call im Workflow)</li>
+<li>White-Label-Reports mit Kunden-Branding pro Mail (HTML-Template ist
+statisch)</li>
+<li>CRM-Sync (HubSpot, Salesforce) — kein nativer Node im Blueprint</li>
+</ul>
+<hr />
+<h2 id="upsell-pfade">Upsell-Pfade</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Upsell</th>
+<th>Trigger</th>
+<th>Produkt</th>
+<th>Tier</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Multi-Channel Reporting</td>
+<td>Customer hat LinkedIn Ads, TikTok Ads zusätzlich</td>
+<td>Erweiterter Reporting-Workflow mit 3+ Kanälen</td>
+<td>M</td>
+</tr>
+<tr class="even">
+<td>Anomalie-Alerting</td>
+<td>“Ich will nicht warten bis Montag wenn ROAS einbricht”</td>
+<td>Real-time Alert-Blueprint (Threshold-Trigger, sofortige
+Slack/Mail-Benachrichtigung)</td>
+<td>S</td>
+</tr>
+<tr class="odd">
+<td>Client Reporting Automation</td>
+<td>Agentur mit 5+ Kunden</td>
+<td>Multi-Tenant Reporting mit eigenem Portal</td>
+<td>L</td>
+</tr>
+<tr class="even">
+<td>Data Warehouse Integration</td>
+<td>Daten sollen historisch gespeichert werden</td>
+<td>BigQuery/Postgres-Anbindung + dbt-Modell</td>
+<td>M</td>
+</tr>
+<tr class="odd">
+<td>Full Marketing Automation Audit</td>
+<td>Nach 3 Monaten Nutzung</td>
+<td>Kompletter Prozess-Audit: Was automatisieren wir als nächstes?</td>
+<td>Audit €2.500</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conversion-story">Conversion-Story</h2>
+<p><strong>Die Situation:</strong> Montag, 09:00 Uhr. Das Weekly hat
+gerade gestartet. Die Frage “Wie lief letzte Woche?” hängt im Raum.
+Jemand öffnet GA4, jemand anderes exportiert Meta Ads — in zwei
+verschiedene Versionen einer Excel-Tabelle. Bis die Zahlen auf einem
+Stand sind, ist es 09:45. Das ist kein Einzelfall, das ist jede
+Woche.</p>
+<p><strong>Was das Blueprint ändert:</strong> Der Report ist um 07:00
+Uhr bereits in der Inbox. Sessions, Leads, ROAS, Vorwochenvergleich,
+Performance-Ampel — alles in einer Mail, alle Empfänger gleichzeitig.
+Das Meeting beginnt mit einer Entscheidung, nicht mit einem
+Daten-Export. Der Code läuft deterministisch, zieht immer die gleichen
+Zeiträume ab, macht keine Copy-Paste-Fehler. Nach dem Setup gibt es
+nichts zu pflegen — außer wenn sich deine KPIs ändern.</p>
+<p><strong>Warum jetzt:</strong> Die manuelle Alternative kostet jede
+Woche Zeit, die sich summiert. Wer diese Entscheidung auf “irgendwann”
+verschiebt, zahlt jede Woche denselben Preis. Das Blueprint-Tier ist der
+Einstieg mit minimalem Commitment — wer die Einrichtung nicht selbst
+übernehmen will, kommt zum DFY-Setup. In beiden Fällen ist der erste
+automatisierte Report der konkrete Beweis, dass Automatisierung
+funktioniert — und der Startpunkt für weitere Prozesse. </p>
+<h1 id="install-guide">2. Install-Guide</h1>
+<p><strong>Workflow:</strong> <code>AEVUM — Reporting Dashboard</code>
+<strong>Nodes:</strong> 6 | <strong>Geschätzte Setup-Zeit:</strong>
+45–90 Minuten <strong>Schwierigkeitsgrad:</strong> Einsteiger bis
+Fortgeschrittener</p>
+<hr />
+<h2 id="vorab-check">Vorab-Check</h2>
+<p>Stelle sicher, dass alle folgenden Voraussetzungen erfüllt sind,
+bevor du mit dem Setup beginnst.</p>
+<h3 id="tool-tabelle">Tool-Tabelle</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tool</th>
+<th>Version / Specs</th>
+<th>Pflicht</th>
+<th>Prüfen</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>n8n</td>
+<td>min. 1.30.0 (self-hosted) oder Cloud Starter</td>
+<td>Ja</td>
+<td><code>n8n --version</code> oder n8n Cloud Dashboard</td>
+</tr>
+<tr class="even">
+<td>Google Cloud Console Zugriff</td>
+<td>Google-Konto mit Berechtigung, Service Accounts zu erstellen</td>
+<td>Ja</td>
+<td><a
+href="https://console.cloud.google.com">console.cloud.google.com</a></td>
+</tr>
+<tr class="odd">
+<td>GA4 Property</td>
+<td>Mind. 14 Tage Daten, du bist Property-Administrator</td>
+<td>Ja</td>
+<td>GA4 Admin Panel</td>
+</tr>
+<tr class="even">
+<td>SMTP-Account oder Resend.com</td>
+<td>SMTP: TLS-Port 587 oder 465; Resend: API-Key</td>
+<td>Ja</td>
+<td>Testmail senden können</td>
+</tr>
+<tr class="odd">
+<td>Google Sheets (optional)</td>
+<td>Lese-Zugriff für Service Account</td>
+<td>Empfohlen</td>
+<td>Sheet-URL verfügbar</td>
+</tr>
+<tr class="even">
+<td>Meta Business Manager (optional)</td>
+<td>System User Token mit <code>ads_read</code> Permission</td>
+<td>Optional</td>
+<td>Meta Business Settings</td>
+</tr>
+</tbody>
+</table>
+<h3 id="token-specs">Token-Specs</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Token-Typ</th>
+<th>Format</th>
+<th>Scope / Rechte</th>
+<th>Ablauf</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Google Service Account JSON</td>
+<td>JSON-File mit <code>private_key</code>, <code>client_email</code>,
+<code>project_id</code></td>
+<td><code>analytics.readonly</code></td>
+<td>Kein automatischer Ablauf (bis manuelle Rotation)</td>
+</tr>
+<tr class="even">
+<td>Meta System User Token</td>
+<td>200+ Zeichen String</td>
+<td><code>ads_read</code>, <code>read_insights</code></td>
+<td>60 Tage (Long-lived Token)</td>
+</tr>
+<tr class="odd">
+<td>Resend API Key</td>
+<td><code>re_xxxxxxxxxxxx</code></td>
+<td>Mail senden</td>
+<td>Kein Ablauf (bis Widerruf)</td>
+</tr>
+<tr class="even">
+<td>SMTP App-Passwort</td>
+<td>Provider-spezifisch (z.B. Gmail 16-Zeichen)</td>
+<td>SMTP Auth</td>
+<td>Kein Ablauf (bis Widerruf)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="schritt-1-google-cloud-service-account-erstellen">Schritt 1 —
+Google Cloud Service Account erstellen</h2>
+<ol type="1">
+<li>Öffne <a
+href="https://console.cloud.google.com">console.cloud.google.com</a></li>
+<li>Projekt wählen oder neu erstellen (Name z.B.
+<code>n8n-reporting</code>)</li>
+<li>Linkes Menü: <strong>“APIs &amp; Dienste”</strong> →
+<strong>“Bibliothek”</strong></li>
+<li>Suche nach <strong>“Google Analytics Data API”</strong> →
+<strong>“Aktivieren”</strong></li>
+<li>Linkes Menü: <strong>“IAM &amp; Admin”</strong> →
+<strong>“Dienstkonten”</strong></li>
+<li><strong>“Dienstkonto erstellen”</strong> klicken
+<ul>
+<li>Name: <code>n8n-reporting</code></li>
+<li>Beschreibung:
+<code>Service Account für n8n Reporting Dashboard</code></li>
+<li>Rolle: <strong>Betrachter</strong> (Viewer) — nicht mehr, nicht
+weniger</li>
+</ul></li>
+<li><strong>“Fertig”</strong> klicken</li>
+<li>Das neue Dienstkonto anklicken → Tab
+<strong>“Schlüssel”</strong></li>
+<li><strong>“Schlüssel hinzufügen”</strong> → <strong>“Neuen Schlüssel
+erstellen”</strong> → <strong>JSON</strong> →
+<strong>“Erstellen”</strong></li>
+<li>JSON-Datei wird automatisch heruntergeladen — sicher aufbewahren,
+nur einmal downloadbar</li>
+</ol>
+<blockquote>
+<p>Diese JSON-Datei enthält den privaten Schlüssel. Sie gehört nicht in
+Git, nicht in Slack, nicht in E-Mails.</p>
+</blockquote>
+<hr />
+<h2 id="schritt-2-service-account-zu-ga4-hinzufügen">Schritt 2 — Service
+Account zu GA4 hinzufügen</h2>
+<ol type="1">
+<li>Öffne <a
+href="https://analytics.google.com">analytics.google.com</a></li>
+<li>Klicke unten links auf <strong>“Admin”</strong> (Zahnrad-Icon)</li>
+<li>In der Property-Spalte:
+<strong>“Property-Zugriffsverwaltung”</strong></li>
+<li>Blau <strong>“+”</strong> oben rechts → <strong>“Nutzer
+hinzufügen”</strong></li>
+<li>E-Mail-Adresse: aus der JSON-Datei den Wert
+<code>client_email</code> kopieren (Format:
+<code>n8n-reporting@projektname.iam.gserviceaccount.com</code>)</li>
+<li>Rolle: <strong>Analyst</strong></li>
+<li><strong>“Hinzufügen”</strong> klicken</li>
+<li>Notiere die <strong>Property-ID</strong> (Admin →
+Property-Einstellungen → “Property-ID”: eine reine Zahl, z.B.
+<code>123456789</code>)</li>
+</ol>
+<hr />
+<h2 id="schritt-3-n8n-credentials-einrichten">Schritt 3 — n8n
+Credentials einrichten</h2>
+<h3 id="google-service-account-credential">Google Service Account
+Credential</h3>
+<ol type="1">
+<li>In n8n: <strong>“Credentials”</strong> → <strong>“Add
+Credential”</strong> → Suche nach <strong>“Google Service
+Account”</strong> (nicht OAuth2)</li>
+<li>Felder ausfüllen aus der JSON-Datei:
+<ul>
+<li><strong>Service Account Email:</strong> Wert von
+<code>client_email</code></li>
+<li><strong>Private Key:</strong> Wert von <code>private_key</code>
+(inklusive <code>-----BEGIN PRIVATE KEY-----</code> und
+<code>-----END PRIVATE KEY-----</code>)</li>
+</ul></li>
+<li><strong>“Save”</strong> klicken — n8n verschlüsselt die Werte mit
+dem <code>N8N_ENCRYPTION_KEY</code></li>
+</ol>
+<h3 id="e-mail-credential-resend-empfohlen">E-Mail Credential (Resend
+empfohlen)</h3>
+<p><strong>Option A — Resend:</strong> 1. <a
+href="https://resend.com">resend.com</a> Account erstellen, API-Key
+generieren 2. In n8n: Credential-Typ <strong>“Resend”</strong> → API-Key
+einfügen 3. Absender-Domain in Resend verifizieren (DNS-Einträge
+setzen)</p>
+<p><strong>Option B — SMTP:</strong> 1. In n8n: Credential-Typ
+<strong>“SMTP”</strong> 2. Host, Port, User, Passwort (App-Passwort,
+nicht Haupt-Passwort) eintragen 3. TLS: aktiviert, Port 587 (STARTTLS)
+oder 465 (SSL)</p>
+<hr />
+<h2 id="schritt-4-workflow-importieren">Schritt 4 — Workflow
+importieren</h2>
+<ol type="1">
+<li>In n8n: <strong>“Workflows”</strong> → <strong>“Add
+Workflow”</strong> → <strong>“Import from File”</strong> (oder “Import
+from URL”)</li>
+<li>Die Blueprint-JSON-Datei hochladen</li>
+<li>Workflow öffnet sich mit 6 Nodes</li>
+</ol>
+<hr />
+<h2 id="schritt-5-config-node-ausfüllen">Schritt 5 — Config-Node
+ausfüllen</h2>
+<p>Öffne den Node <strong>“Set: Konfiguration”</strong> und trage
+folgende Werte ein:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Wo zu finden</th>
+<th>Beispielwert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ga4PropertyId</code></td>
+<td>GA4 Admin → Property-Einstellungen</td>
+<td><code>123456789</code></td>
+</tr>
+<tr class="even">
+<td><code>reportRecipients</code></td>
+<td>Deine Entscheidung</td>
+<td><code>["chef@firma.de", "marketing@firma.de"]</code></td>
+</tr>
+<tr class="odd">
+<td><code>reportTitle</code></td>
+<td>Frei wählbar</td>
+<td><code>Weekly Marketing Report — Meine GmbH</code></td>
+</tr>
+<tr class="even">
+<td><code>currency</code></td>
+<td>EUR oder USD</td>
+<td><code>EUR</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="schritt-6-ga4-api-node-konfigurieren">Schritt 6 — GA4 API Node
+konfigurieren</h2>
+<ol type="1">
+<li>Node <strong>“HTTP: GA4 Report”</strong> öffnen</li>
+<li>Credential-Feld: das in Schritt 3 erstellte Google Service Account
+Credential wählen</li>
+<li>URL prüfen: enthält <code>{{$json.ga4PropertyId}}</code> — wird aus
+Set-Node übernommen</li>
+<li>Methode: POST, Header <code>Content-Type: application/json</code> —
+bereits gesetzt</li>
+</ol>
+<hr />
+<h2 id="schritt-7-e-mail-node-konfigurieren">Schritt 7 — E-Mail-Node
+konfigurieren</h2>
+<ol type="1">
+<li>Node <strong>“Email: Report versenden”</strong> öffnen</li>
+<li>Credential: das in Schritt 3 erstellte Mail-Credential wählen</li>
+<li><strong>“To”</strong>-Feld:
+<code>{{$json.reportRecipients.join(', ')}}</code> oder Array-Expression
+— je nach n8n-Version prüfen</li>
+<li><strong>“Subject”</strong>:
+<code>{{$json.reportTitle}} – KW {{$json.reportKw}}</code></li>
+<li><strong>“HTML”</strong>: bereits mit
+<code>{{$json.reportHtml}}</code> vorbelegt — nicht ändern</li>
+</ol>
+<hr />
+<h2 id="schritt-8-test-run-3-szenarien">Schritt 8 — Test-Run (3
+Szenarien)</h2>
+<p>Führe alle Tests mit dem <strong>“Test Workflow”</strong>-Button aus
+(kein Live-Trigger nötig).</p>
+<h3 id="szenario-1-happy-path">Szenario 1: Happy Path</h3>
+<ul>
+<li>GA4 Property hat Daten der letzten 14 Tage</li>
+<li>Erwartetes Ergebnis: Report-HTML wird generiert, Mail landet in
+Inbox</li>
+<li>Prüfen: Alle 6 Nodes grün, keine Fehler in Execution-Log</li>
+</ul>
+<h3 id="szenario-2-leere-ga4-response-neues-property">Szenario 2: Leere
+GA4-Response (neues Property)</h3>
+<ul>
+<li>Property hat weniger als 7 Tage Daten</li>
+<li>Vorgehen: Im GA4 API Node <code>dateRange</code> temporär auf
+<code>30daysAgo</code> ändern</li>
+<li>Erwartetes Ergebnis: Report erscheint mit Nullwerten statt
+Fehlermeldung</li>
+<li>Prüfen: Code Node verarbeitet leere Arrays ohne Crash</li>
+</ul>
+<h3 id="szenario-3-ungültige-e-mail-adresse">Szenario 3: Ungültige
+E-Mail-Adresse</h3>
+<ul>
+<li><code>reportRecipients</code> mit Tipp-Fehler (z.B.
+<code>chef@firma</code>) belegen</li>
+<li>Erwartetes Ergebnis: E-Mail-Node gibt Fehler, Error-Workflow
+feuert</li>
+<li>Prüfen: Fehler-Notification kommt an (nur wenn Error-Workflow
+eingerichtet)</li>
+</ul>
+<hr />
+<h2 id="schritt-9-aktivierung-und-schedule">Schritt 9 — Aktivierung und
+Schedule</h2>
+<ol type="1">
+<li>Alle Tests erfolgreich: oben rechts
+<strong>“Activate”</strong>-Toggle einschalten</li>
+<li>Der Workflow läuft ab sofort jeden Montag um 07:00 Uhr (Zeitzone
+prüfen!)</li>
+<li><strong>Zeitzone prüfen:</strong> Schedule Trigger öffnen → Timezone
+muss <code>Europe/Berlin</code> (oder deine Zeitzone) sein</li>
+</ol>
+<blockquote>
+<p>n8n Cloud: Zeitzone wird aus Account-Einstellungen gezogen.
+Self-hosted: <code>GENERIC_TIMEZONE=Europe/Berlin</code> in .env
+setzen.</p>
+</blockquote>
+<h3 id="monitoring-nach-aktivierung">Monitoring nach Aktivierung</h3>
+<ul>
+<li>Erste drei Montage: Execution-Log manuell prüfen (n8n →
+Executions)</li>
+<li>Prüfpunkte: Node-Laufzeiten, Payload-Größe, Fehlerfreiheit</li>
+<li>Nach 3 erfolgreichen Ausführungen: Monitoring auf
+Error-Workflow-Alerting verlassen</li>
+</ul>
+<hr />
+<h2 id="schritt-10-meta-ads-optional">Schritt 10 — Meta Ads
+(optional)</h2>
+<p>Falls Meta Ads-Daten gewünscht:</p>
+<ol type="1">
+<li>Meta Business Manager: System User mit <code>ads_read</code>
+Berechtigung erstellen</li>
+<li>Long-lived Token generieren (60 Tage, Ablauf im Kalender
+eintragen)</li>
+<li>Im Code Node: Meta-Daten-Block aktivieren (Kommentierung
+entfernen)</li>
+<li>Ad Account ID (Format: <code>act_XXXXXXXXX</code>) in Set-Node
+eintragen</li>
+<li>n8n Credential: HTTP Header Auth mit
+<code>Authorization: Bearer &lt;TOKEN&gt;</code></li>
+</ol>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="problem-1-ga4-api-gibt-403-zurück">Problem 1: GA4 API gibt 403
+zurück</h3>
+<p><strong>Ursache:</strong> Service Account hat keinen Zugriff auf die
+GA4 Property. <strong>Lösung:</strong> 1. GA4 Admin → Property Access
+Management → Service Account E-Mail prüfen 2. Property-ID prüfen: nur
+die Zahl, kein <code>properties/</code> Präfix 3. Google Analytics Data
+API in Google Cloud Console aktiviert? (Schritt 1, Punkt 4)</p>
+<h3 id="problem-2-report-e-mail-landet-im-spam">Problem 2: Report-E-Mail
+landet im Spam</h3>
+<p><strong>Ursache:</strong> SPF/DKIM der Absender-Domain nicht
+konfiguriert. <strong>Lösung:</strong> - Resend.com nutzen (automatische
+DKIM-Konfiguration via DNS) - Alternativ: SPF-Record für Absender-Domain
+beim Domain-Registrar setzen - Absender-Adresse muss zur verifizierten
+Domain passen</p>
+<h3 id="problem-3-schedule-läuft-nicht-läuft-zur-falschen-zeit">Problem
+3: Schedule läuft nicht / läuft zur falschen Zeit</h3>
+<p><strong>Ursache:</strong> Zeitzone in n8n nicht korrekt gesetzt.
+<strong>Lösung:</strong></p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In .env (self-hosted):</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="va">GENERIC_TIMEZONE</span><span class="op">=</span>Europe/Berlin</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># n8n neu starten</span></span></code></pre></div>
+<p>n8n Cloud: Settings → Account → Timezone prüfen und auf
+<code>Europe/Berlin</code> setzen.</p>
+<h3
+id="problem-4-code-node-fehler-cannot-read-property-of-undefined">Problem
+4: Code Node Fehler “Cannot read property of undefined”</h3>
+<p><strong>Ursache:</strong> GA4 API hat leere Response geliefert (keine
+Daten im Zeitraum). <strong>Lösung:</strong> Im Code Node: Null-Checks
+für alle <code>$input.item.json</code>-Zugriffe hinzufügen:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> sessions <span class="op">=</span> $input<span class="op">.</span><span class="at">item</span><span class="op">.</span><span class="at">json</span><span class="op">.</span><span class="at">sessions</span> <span class="op">??</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> conversions <span class="op">=</span> $input<span class="op">.</span><span class="at">item</span><span class="op">.</span><span class="at">json</span><span class="op">.</span><span class="at">conversions</span> <span class="op">??</span> <span class="dv">0</span><span class="op">;</span></span></code></pre></div>
+<h3 id="problem-5-meta-access-token-abgelaufen">Problem 5: Meta Access
+Token abgelaufen</h3>
+<p><strong>Ursache:</strong> Meta User Token hat 60-Tage-Limit.
+<strong>Lösung:</strong> 1. Meta Business Manager → System Users → Token
+erneuern 2. Neuen Token in n8n Credential aktualisieren 3. Long-lived
+Token via Meta Graph API Explorer für längere Laufzeit generieren</p>
+<hr />
+<h2 id="wartungs-schedule">Wartungs-Schedule</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Intervall</th>
+<th>Aufgabe</th>
+<th>Zeitaufwand</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Wöchentlich (automatisch)</td>
+<td>Workflow läuft, Report kommt</td>
+<td>0 min</td>
+</tr>
+<tr class="even">
+<td>Monatlich</td>
+<td>Execution-Log kurz prüfen, Fehler-Quote checken</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Alle 60 Tage</td>
+<td>Meta Access Token erneuern (falls genutzt)</td>
+<td>10 min</td>
+</tr>
+<tr class="even">
+<td>Alle 90 Tage</td>
+<td>Google Service Account Key rotieren</td>
+<td>15 min</td>
+</tr>
+<tr class="odd">
+<td>Bei GA4-Property-Änderungen</td>
+<td>Property-ID und Metriken in Config-Node prüfen</td>
+<td>20 min</td>
+</tr>
+<tr class="even">
+<td>Bei n8n-Update</td>
+<td>Workflow-Kompatibilität testen (Node-Versionen)</td>
+<td>30 min</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="dfy-alternative">DFY-Alternative</h2>
+<p>Wer diesen Setup nicht selbst durchführen möchte:</p>
+<p><strong>AEVUM DFY-Setup</strong> (Done For You): - AEVUM übernimmt
+alle Schritte 1–10 in deiner Infrastruktur - Inkl.
+Security-Konfiguration, Error-Workflow, erster Live-Test - Übergabe mit
+Dokumentation und 30-Tage-Support-Fenster - Preis: ab €2.500 Setup
+(S-Tier)</p>
+<p>Kontakt: Blueprint-Seite → “DFY anfragen” </p>
+<h1 id="security-risks">3. Security-Risks</h1>
+<p><strong>Workflow-ID:</strong> <code>reporting-dashboard-setup</code>
+<strong>Nodes im Scope:</strong> Schedule Trigger, Set Konfiguration,
+HTTP GA4 Report, Set Daten normalisieren, Code HTML Report, Email Report
+versenden <strong>Review-Datum:</strong> 2025 <strong>Reviewer:</strong>
+AEVUM Builder-Agent</p>
+<hr />
+<h2 id="risk-matrix">Risk-Matrix</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Risiko</th>
+<th>Schwere</th>
+<th>Mitigation</th>
+<th>Customer-Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>R-01</td>
+<td><strong>Service Account JSON Key im n8n-Credential
+gespeichert</strong> — private_key liegt im n8n-Datenbankplain oder
+verschlüsselt, je nach n8n-Konfiguration. Wenn n8n-Instanz
+kompromittiert → vollständiger GA4-Lesezugriff</td>
+<td>🔴 CRITICAL</td>
+<td>Encryption Key in n8n zwingend setzen
+(<code>N8N_ENCRYPTION_KEY</code>). Key nie in Git. Service Account mit
+minimal-Rechten (Analyst, nur Lesezugriff).</td>
+<td><code>N8N_ENCRYPTION_KEY</code> als Umgebungsvariable setzen, Wert
+aus Passwortmanager</td>
+</tr>
+<tr class="even">
+<td>R-02</td>
+<td><strong>E-Mail-Empfänger-Array in Set-Node hartcodiert</strong> —
+wenn Workflow-JSON geteilt oder exportiert wird, sind interne
+E-Mail-Adressen exponiert</td>
+<td>🟠 HIGH</td>
+<td>Empfänger-Array in n8n-Variable oder Umgebungsvariable auslagern,
+nicht in Workflow-JSON committen</td>
+<td>Workflow-JSON nicht in öffentlichen Git-Repos teilen; Credentials
+und Config trennen</td>
+</tr>
+<tr class="odd">
+<td>R-03</td>
+<td><strong>HTTP Request Node gegen GA4 API ohne
+TLS-Verification-Check</strong> — wenn n8n-Instanz in misconfigured
+Docker-Setup → MITM möglich</td>
+<td>🟠 HIGH</td>
+<td><code>SSL Certificates</code> in n8n HTTP-Node auf “Verify” belassen
+(Default). Self-signed Certs auf Proxy ausschließen.</td>
+<td>TLS-Terminierung am Reverse-Proxy prüfen, kein
+<code>NODE_TLS_REJECT_UNAUTHORIZED=0</code> setzen</td>
+</tr>
+<tr class="even">
+<td>R-04</td>
+<td><strong>Code Node führt arbiträren JS-Code aus</strong> —
+<code>Code: HTML Report bauen</code> ist ein freier Code-Node. Bei
+Modifikation durch Dritte oder Supply-Chain-Manipulation könnte
+Exfiltrations-Code eingebaut werden</td>
+<td>🟠 HIGH</td>
+<td>Code-Nodes in produktiven Workflows nach Setup einfrieren (n8n
+Enterprise: Workflow-Locking). Änderungen an Code-Nodes nur nach
+Review.</td>
+<td>Code-Node-Inhalt vor Go-Live reviewen und dokumentieren; Hash des
+Inhalts festhalten</td>
+</tr>
+<tr class="odd">
+<td>R-05</td>
+<td><strong>GA4-Daten enthalten potenziell personenbezogene
+Informationen</strong> — bei falscher Property-Konfiguration können
+User-Level-Daten (User-IDs, demographische Daten) in den Report
+fließen</td>
+<td>🟠 HIGH</td>
+<td>Nur aggregierte Metriken abfragen (Sessions, Conversion Rate, keine
+User-Dimension). GA4 Property auf Datenschutz-Einstellungen prüfen.</td>
+<td>GA4 IP-Anonymisierung aktiviert lassen; keine
+<code>userId</code>-Dimension in API-Query</td>
+</tr>
+<tr class="even">
+<td>R-06</td>
+<td><strong>SMTP-Credentials im Klartext in n8n-Konfiguration</strong> —
+unsichere SMTP-Setups oder App-Passwörter landen in
+Credentials-Store</td>
+<td>🟡 MEDIUM</td>
+<td>Resend.com oder dediziertes API-Key-basiertes Mail-System verwenden
+statt SMTP mit Passwort. API-Keys sind rotierbar.</td>
+<td>Dedizierte Absender-Domain einrichten; kein Haupt-Mailaccount als
+SMTP-Sender verwenden</td>
+</tr>
+<tr class="odd">
+<td>R-07</td>
+<td><strong>Schedule Trigger läuft ohne Fehler-Notification</strong> —
+wenn GA4 API 403 wirft oder Report leer ist, bemerkt niemand den Ausfall
+bis zum nächsten Montag</td>
+<td>🟡 MEDIUM</td>
+<td>Error-Workflow in n8n konfigurieren
+(<code>Settings &gt; Error Workflow</code>). Slack- oder Mail-Alert bei
+Workflow-Fehler.</td>
+<td>n8n Error Workflow einrichten; Monitoring-Cronjob oder n8n Cloud
+Execution-History prüfen</td>
+</tr>
+<tr class="even">
+<td>R-08</td>
+<td><strong>Meta Access Token läuft ab</strong> — Meta Marketing API
+Tokens haben typischerweise 60-Tage-Lebensdauer. Ablauf führt zu stummem
+Fehler im Report</td>
+<td>🟡 MEDIUM</td>
+<td>Token-Ablaufdatum im Kalender setzen. Long-lived Token via Meta
+Business SDK generieren. Alternativ: Meta-Daten-Block als optionalen
+Zweig mit Fehler-Handling</td>
+<td>Token-Rotations-Erinnerung 7 Tage vor Ablauf im Kalender; Token-Typ
+prüfen (User vs. System)</td>
+</tr>
+<tr class="odd">
+<td>R-09</td>
+<td><strong>Report-HTML enthält keine Output-Encoding-Sicherung</strong>
+— wenn manueller Kommentar aus Google Sheet Sonderzeichen oder
+<code>&lt;script&gt;</code>-Tags enthält, könnte HTML-Mail XSS-fähig
+sein (in Mail-Clients mit HTML-Rendering)</td>
+<td>���� MEDIUM</td>
+<td>Im Code Node: HTML-Escape aller Werte aus externen Quellen vor
+Einbettung in Template</td>
+<td>Code Node reviewen:
+<code>value.replace(/&lt;/g, '&amp;lt;').replace(/&gt;/g, '&amp;gt;')</code>
+für Sheet-Inhalte</td>
+</tr>
+<tr class="even">
+<td>R-10</td>
+<td><strong>Google Sheets als Datenquelle ohne
+Zugriffskontrollen</strong> — wenn das Sheet mit “Jeder mit Link”
+geteilt ist, können externe Personen KPI-Daten einsehen oder Kommentare
+manipulieren</td>
+<td>🟡 MEDIUM</td>
+<td>Sheet-Freigabe auf “Eingeschränkt” setzen; Service Account explizit
+hinzufügen</td>
+<td>Sheet-Freigabe-Einstellungen prüfen: nur Service Account + interne
+Nutzer</td>
+</tr>
+<tr class="odd">
+<td>R-11</td>
+<td><strong>n8n-Instanz ohne Authentifizierung erreichbar</strong> — bei
+self-hosted n8n ohne Reverse-Proxy-Auth kann jeder den Workflow sehen
+und Credentials auslesen</td>
+<td>🟡 MEDIUM</td>
+<td>n8n hinter Reverse-Proxy mit Basic Auth oder SSO.
+<code>N8N_BASIC_AUTH_ACTIVE=true</code> als Minimum.</td>
+<td>n8n-URL nicht öffentlich zugänglich machen; VPN oder
+IP-Whitelist</td>
+</tr>
+<tr class="even">
+<td>R-12</td>
+<td><strong>Workflow-Execution-Logs enthalten API-Responses mit
+Metriken</strong> — n8n speichert Input/Output jedes Nodes. Wer
+Execution-History einsehen kann, sieht alle KPI-Daten</td>
+<td>🟢 LOW</td>
+<td>n8n Execution Data Pruning aktivieren. Retention auf 7–14 Tage
+begrenzen.</td>
+<td><code>EXECUTIONS_DATA_PRUNE=true</code>,
+<code>EXECUTIONS_DATA_MAX_AGE=168</code> (7 Tage) setzen</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pflicht-mitigations">Pflicht-Mitigations</h2>
+<p>Folgende Maßnahmen sind <strong>vor Go-Live zwingend
+erforderlich</strong>:</p>
+<h3 id="n8n-encryption-key-setzen">1. n8n Encryption Key setzen</h3>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In .env oder docker-compose.yml</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="va">N8N_ENCRYPTION_KEY</span><span class="op">=&lt;</span>32+ <span class="ex">Zeichen,</span> zufällig generiert<span class="op">&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Key generieren:</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">openssl</span> rand <span class="at">-hex</span> 32</span></code></pre></div>
+<blockquote>
+<p>Ohne diesen Key speichert n8n Credentials im Klartext in der
+SQLite/Postgres-Datenbank.</p>
+</blockquote>
+<h3 id="execution-logs-begrenzen">2. Execution-Logs begrenzen</h3>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In .env</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">EXECUTIONS_DATA_PRUNE</span><span class="op">=</span>true</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="va">EXECUTIONS_DATA_MAX_AGE</span><span class="op">=</span>168</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Wert in Stunden: 168 = 7 Tage</span></span></code></pre></div>
+<h3 id="service-account-minimal-rechte-verifizieren">3. Service Account
+Minimal-Rechte verifizieren</h3>
+<pre><code>GA4 Property Access Management:
+- Service Account Rolle: Analyst (NICHT Editor oder Administrator)
+- Keine weiteren Google Cloud APIs aktiviert für diesen Service Account
+- Service Account Keys-Rotation: alle 90 Tage im Kalender</code></pre>
+<h3 id="html-output-encoding-im-code-node">4. HTML Output Encoding im
+Code Node</h3>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Im Code Node: Alle externen String-Werte vor HTML-Einbettung escapen</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">escapeHtml</span>(str) {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="kw">typeof</span> str <span class="op">!==</span> <span class="st">&#39;string&#39;</span>) <span class="cf">return</span> <span class="bu">String</span>(str)<span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> str</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">replace</span>(<span class="ss">/&amp;/g</span><span class="op">,</span> <span class="st">&#39;&amp;amp;&#39;</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">replace</span>(<span class="ss">/&lt;/g</span><span class="op">,</span> <span class="st">&#39;&amp;lt;&#39;</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">replace</span>(<span class="op">/&gt;/</span>g<span class="op">,</span> <span class="st">&#39;&amp;gt;&#39;</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">replace</span>(<span class="ss">/&quot;/g</span><span class="op">,</span> <span class="st">&#39;&amp;quot;&#39;</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">replace</span>(<span class="ss">/&#39;/g</span><span class="op">,</span> <span class="st">&#39;&amp;#039;&#39;</span>)<span class="op">;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">// Anwendung auf alle Werte aus Google Sheets:</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> kommentar <span class="op">=</span> <span class="fu">escapeHtml</span>($input<span class="op">.</span><span class="at">item</span><span class="op">.</span><span class="at">json</span><span class="op">.</span><span class="at">kommentar</span> <span class="op">||</span> <span class="st">&#39;&#39;</span>)<span class="op">;</span></span></code></pre></div>
+<h3 id="error-workflow-konfigurieren">5. Error-Workflow
+konfigurieren</h3>
+<pre><code>n8n Settings &gt; Error Workflow:
+- Eigenen Error-Notification-Workflow erstellen
+- Mindestens: Send Email bei Workflow-Fehler
+- Empfänger: technischer Admin, nicht gesamtes Team</code></pre>
+<hr />
+<h2
+id="empfohlene-mitigations-nicht-zwingend-aber-stark-empfohlen">Empfohlene
+Mitigations (nicht zwingend, aber stark empfohlen)</h2>
+<ul>
+<li><strong>Resend.com statt SMTP:</strong> API-Key-basiert, bessere
+Zustellbarkeit, einfacher rotierbar</li>
+<li><strong>Google Sheets Zugriff:</strong> Zweites Sheet für
+historische Reports anlegen — bei Datenpanne ist Verlauf
+rekonstruierbar</li>
+<li><strong>Meta Token Monitoring:</strong> Separater
+Weekly-Check-Workflow der Token-Ablaufdatum prüft und 7 Tage vorher
+warnt</li>
+<li><strong>Workflow-Versionierung:</strong> n8n Workflow als JSON in
+privatem Git-Repo versionieren (<code>.gitignore</code> für
+Credential-Exports)</li>
+</ul>
+<hr />
+<h2 id="was-aevum-bei-dfy-zusätzlich-macht">Was AEVUM bei DFY zusätzlich
+macht</h2>
+<ul>
+<li><code>N8N_ENCRYPTION_KEY</code> wird generiert und sicher übergeben
+(nicht per Mail)</li>
+<li>Service Account wird mit Minimal-Rechten angelegt und
+dokumentiert</li>
+<li>Error-Workflow wird gemeinsam konfiguriert und getestet</li>
+<li>HTML Output Encoding wird im Code Node vor Übergabe
+implementiert</li>
+<li>SMTP vs. Resend-Entscheidung wird gemeinsam getroffen</li>
+<li>Execution-Log-Retention wird in der n8n-Konfiguration gesetzt</li>
+<li>Erstes Security-Review nach 30 Tagen im DFY-Scope</li>
+</ul>
+<hr />
+<h2 id="known-limits">Known Limits</h2>
+<p>Diese Security-Maßnahmen adressieren <strong>nicht</strong>:</p>
+<ul>
+<li>Kompromittierung der Google-Cloud-Infrastruktur selbst</li>
+<li>Angreifer mit legitimem Zugriff auf n8n (Insider-Threat)</li>
+<li>Datenlecks auf Seite der E-Mail-Empfänger (Weiterleitung, geteilte
+Inboxen)</li>
+<li>Compliance-Anforderungen über DSGVO-Grundanforderungen hinaus (ISO
+27001, SOC 2 — separates Audit erforderlich)</li>
+<li>Sicherheit des n8n-Host-Systems selbst (OS-Hardening, Firewall —
+Infrastruktur-Scope)</li>
+</ul>
+<hr />
+<h2 id="sign-off-checkliste">Sign-Off-Checkliste</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Maßnahme</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><code>N8N_ENCRYPTION_KEY</code> gesetzt und dokumentiert</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Execution-Log-Retention konfiguriert (max. 14 Tage)</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Service Account Rolle: nur Analyst (kein Edit-Zugriff)</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>HTML Escape-Funktion im Code Node implementiert</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Error-Workflow aktiv und getestet</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>n8n-Instanz nicht ohne Auth öffentlich erreichbar</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>E-Mail-Empfänger-Liste geprüft (kein öffentlicher Zugriff auf
+Workflow-JSON)</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Google Sheets Freigabe auf “Eingeschränkt”</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Meta Token Ablaufdatum im Kalender eingetragen (falls genutzt)</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Erster Test-Run ohne echte Produktionsdaten durchgeführt</td>
+<td>[ ]</td>
+</tr>
+</tbody>
+</table>
+<h1 id="dsgvo-konformitäts-check">4. DSGVO-Konformitäts-Check</h1>
+<p><strong>Workflow-ID:</strong> <code>reporting-dashboard-setup</code>
+<strong>Rechtsraum:</strong> EU / DSGVO (GDPR) <strong>Stand:</strong>
+2025 <strong>Hinweis:</strong> Dieses Dokument ist eine technische
+Einschätzung, keine Rechtsberatung. Im Zweifel: Datenschutzbeauftragten
+hinzuziehen.</p>
+<hr />
+<h2 id="datenfluss-analyse">Datenfluss-Analyse</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Datenquelle</th>
+<th>Datentyp</th>
+<th>Personenbezug</th>
+<th>Empfänger</th>
+<th>Speicherung in n8n</th>
+<th>Retention</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>D-01</td>
+<td>Google Analytics 4 API</td>
+<td>Aggregierte Sessions, Conversion Rate, Top-Seiten,
+Traffic-Zahlen</td>
+<td>Kein direkter Personenbezug wenn korrekt konfiguriert (keine
+User-IDs, keine Client-IDs in Abfrage)</td>
+<td>n8n Workflow → E-Mail-Empfänger</td>
+<td>Nur in Execution-Log (temporär)</td>
+<td>Execution-Log: siehe Konfiguration</td>
+</tr>
+<tr class="even">
+<td>D-02</td>
+<td>Meta Marketing API (optional)</td>
+<td>Ad Spend, CPL, ROAS — kampagnenbezogen</td>
+<td>Kein Personenbezug (aggregierte Kampagnendaten)</td>
+<td>n8n Workflow → E-Mail-Empfänger</td>
+<td>Nur in Execution-Log (temporär)</td>
+<td>Execution-Log</td>
+</tr>
+<tr class="odd">
+<td>D-03</td>
+<td>Google Sheets</td>
+<td>Manuelle KPIs, Kommentarfeld</td>
+<td>Potenziell personenbezogen wenn Kommentar Mitarbeiterbewertungen
+oder Namen enthält</td>
+<td>n8n Workflow → E-Mail-Empfänger</td>
+<td>Nur in Execution-Log (temporär)</td>
+<td>Execution-Log</td>
+</tr>
+<tr class="even">
+<td>D-04</td>
+<td>E-Mail-Empfänger-Adressen</td>
+<td>E-Mail-Adressen der Report-Empfänger</td>
+<td>Personenbezogen (DSGVO-relevant)</td>
+<td>n8n Konfiguration (Set Node)</td>
+<td>Im Workflow-JSON + Execution-Log</td>
+<td>Bis Workflow-Änderung</td>
+</tr>
+<tr class="odd">
+<td>D-05</td>
+<td>Report-HTML (generiert)</td>
+<td>Zusammengestellte KPI-Daten aus D-01 bis D-03</td>
+<td>Abhängig von Inhalt (s. D-03)</td>
+<td>E-Mail-System (SMTP/Resend), E-Mail-Postfächer der Empfänger</td>
+<td>Beim E-Mail-Provider</td>
+<td>Gemäß Mail-Retention des Unternehmens</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="rechtsgrundlage">Rechtsgrundlage</h2>
+<p><strong>Primär: Art. 6 Abs. 1 lit. f DSGVO — Berechtigtes
+Interesse</strong></p>
+<p>Begründung: Der Workflow verarbeitet aggregierte Unternehmens-KPIs
+zur internen Berichterstattung. Die Verarbeitung dient dem berechtigten
+Interesse des Unternehmens an der Steuerung seiner
+Marketing-Performance. Solange keine personenbezogenen Nutzerdaten
+(User-IDs, IPs) aus GA4 abgefragt werden, überwiegt das berechtigte
+Interesse.</p>
+<p><strong>Für E-Mail-Empfänger (D-04):</strong> Art. 6 Abs. 1 lit. b
+DSGVO (Vertragserfüllung / arbeitsvertragliche Grundlage bei
+Mitarbeitern) oder Art. 6 Abs. 1 lit. f (internes Reporting).</p>
+<p><strong>Achtung:</strong> Wenn Kommentarfeld in Google Sheets (D-03)
+Bewertungen oder Aussagen über einzelne Mitarbeiter enthält → Art. 6
+Abs. 1 lit. c oder b erforderlich, oder Einwilligung. Kommentarfeld
+ausschließlich für sachliche KPI-Notizen nutzen.</p>
+<hr />
+<h2
+id="pflicht-konfiguration-für-dsgvo-konformität">Pflicht-Konfiguration
+für DSGVO-Konformität</h2>
+<ol type="1">
+<li><p><strong>GA4 IP-Anonymisierung:</strong> In GA4 muss
+“IP-Anonymisierung” aktiv sein (in GA4 per Default für EU-Properties,
+prüfen). GA4 Admin &gt; Dateneinstellungen &gt; Datenerfassung.</p></li>
+<li><p><strong>Keine User-Level-Dimensionen in API-Query:</strong> Die
+GA4 API-Abfrage darf keine Dimensionen wie <code>userId</code>,
+<code>clientId</code>, <code>deviceCategory + city</code>
+(re-identifizierbar) enthalten. Nur: <code>sessions</code>,
+<code>conversions</code>, <code>pagePath</code> (aggregiert).</p></li>
+<li><p><strong>Google Sheets Kommentarfeld:</strong> Keine
+personenbezogenen Daten (Mitarbeiternamen, Kundennamen, E-Mails) im
+Kommentarfeld. Nur sachliche Notizen.</p></li>
+<li><p><strong>E-Mail-Empfänger-Liste:</strong> Nur Personen, die einen
+legitimen Geschäftsbedarf für diese KPI-Daten haben. Keine externen
+Dritten ohne Auftragsdatenverarbeitungsvertrag.</p></li>
+<li><p><strong>Execution-Log-Retention begrenzen:</strong>
+Execution-Logs in n8n dürfen keine personenbezogenen Daten länger als
+nötig halten. Retention auf max. 30 Tage begrenzen (empfohlen: 7
+Tage).</p></li>
+<li><p><strong>n8n selbst-hosted in der EU:</strong> Wenn n8n Cloud
+genutzt wird → Prüfen ob EU-Region gewählt (n8n Cloud Europa). Keine
+US-Region ohne Standardvertragsklauseln.</p></li>
+</ol>
+<hr />
+<h2 id="vendor-dpa-übersicht">Vendor-DPA-Übersicht</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Vendor</th>
+<th>Zweck im Workflow</th>
+<th>EU-Hosting verfügbar</th>
+<th>DPA vorhanden</th>
+<th>DPA-Link / Hinweis</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Google (GA4 API)</strong></td>
+<td>Traffic-Daten abrufen</td>
+<td>Ja (EU-Rechenzentren, Daten-Residency konfigurierbar)</td>
+<td>Ja</td>
+<td><a href="https://business.safety.google/adsprocessorterms/">Google
+Ads Data Processing Terms</a> / GA4 Einstellungen: Datenverarbeitung in
+EU</td>
+</tr>
+<tr class="even">
+<td><strong>Google (Sheets)</strong></td>
+<td>Manuelle KPI-Eingabe</td>
+<td>Ja</td>
+<td>Ja</td>
+<td>Google Workspace DPA in Admin-Konsole</td>
+</tr>
+<tr class="odd">
+<td><strong>Meta (Marketing API)</strong></td>
+<td>Ad-Spend-Daten</td>
+<td>Primär US, EU-Datenlokalisierung eingeschränkt</td>
+<td>Ja</td>
+<td><a href="https://www.facebook.com/legal/terms/dataprocessing">Meta
+Data Processing Terms</a> — Prüfen ob Kampagnendaten als personenbezogen
+gelten</td>
+</tr>
+<tr class="even">
+<td><strong>n8n Cloud</strong></td>
+<td>Workflow-Engine</td>
+<td>Ja (EU-Region wählbar)</td>
+<td>Ja</td>
+<td><a href="https://n8n.io/legal/dpa/">n8n DPA</a></td>
+</tr>
+<tr class="odd">
+<td><strong>Resend.com</strong></td>
+<td>E-Mail-Versand</td>
+<td>US-basiert, EU-Kunden über SCCs</td>
+<td>Ja</td>
+<td><a href="https://resend.com/legal/dpa">Resend Privacy &amp; DPA</a>
+— SCCs prüfen</td>
+</tr>
+<tr class="even">
+<td><strong>SMTP (eigener Provider)</strong></td>
+<td>E-Mail-Versand</td>
+<td>Abhängig vom Provider</td>
+<td>Abhängig</td>
+<td>Eigenen Mail-Provider-DPA prüfen</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Hinweis Meta:</strong> Wenn Meta Ads-Daten ausschließlich
+aggregierte Kampagnen-Metriken sind (kein Custom Audience Upload, kein
+Pixel-Daten-Abruf), ist Personenbezug in der Regel nicht gegeben. Im
+Zweifel: Meta DPA abschließen.</p>
+</blockquote>
+<hr />
+<h2 id="betroffenenrechte">Betroffenenrechte</h2>
+<p><strong>Betroffene in diesem Workflow:</strong> Primär keine
+Endnutzer-Daten, da nur aggregierte Metriken.</p>
+<p>Ausnahme: E-Mail-Empfänger (D-04) haben Rechte als Betroffene.</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Recht</th>
+<th>Umsetzung im Workflow-Kontext</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Auskunft (Art. 15)</td>
+<td>E-Mail-Adressen im Set-Node auf Anfrage offenlegen</td>
+</tr>
+<tr class="even">
+<td>Löschung (Art. 17)</td>
+<td>E-Mail-Adresse aus Empfänger-Array entfernen</td>
+</tr>
+<tr class="odd">
+<td>Widerspruch (Art. 21)</td>
+<td>Empfänger kann jederzeit aus Report-Verteilung entfernt werden —
+Prozess intern dokumentieren</td>
+</tr>
+<tr class="even">
+<td>Datenportabilität (Art. 20)</td>
+<td>Report-HTML ist bereits die “portable” Ausgabe</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="löschfristen">Löschfristen</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Datenkategorie</th>
+<th>Speicherort</th>
+<th>Empfohlene Retention</th>
+<th>Maßnahme</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Execution-Logs (inkl. API-Responses)</td>
+<td>n8n Datenbank</td>
+<td>7–14 Tage</td>
+<td><code>EXECUTIONS_DATA_PRUNE=true</code> setzen</td>
+</tr>
+<tr class="even">
+<td>Generierte Report-E-Mails</td>
+<td>E-Mail-Postfächer der Empfänger</td>
+<td>Gemäß Unternehmens-E-Mail-Policy (typ. 1–3 Jahre)</td>
+<td>In E-Mail-Archivierungsrichtlinie aufnehmen</td>
+</tr>
+<tr class="odd">
+<td>Google Sheets Kommentarfeld</td>
+<td>Google Drive</td>
+<td>Laufend; bei Projektende löschen</td>
+<td>Sheet in Projekt-Ablage-Prozess einbinden</td>
+</tr>
+<tr class="even">
+<td>Service Account JSON Key</td>
+<td>n8n Credentials</td>
+<td>Bis Rotation (max. 90 Tage)</td>
+<td>Key-Rotation-Reminder setzen</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="dsfa-trigger-datenschutz-folgenabschätzung">DSFA-Trigger
+(Datenschutz-Folgenabschätzung)</h2>
+<p>Eine DSFA nach Art. 35 DSGVO ist für diesen Workflow in der
+Standardkonfiguration <strong>nicht erforderlich</strong>, da: - Keine
+systematische Verarbeitung von Nutzerprofilen - Keine sensiblen
+Datenkategorien (Art. 9 DSGVO) - Keine Verarbeitung im großen Maßstab
+personenbezogener Daten</p>
+<p><strong>DSFA wird erforderlich wenn:</strong> - User-Level-Daten aus
+GA4 abgefragt werden (User-IDs, demographische Profile) - Der Report für
+externe Kunden generiert wird und Kundendaten enthält - Das
+Kommentarfeld für HR-Daten (Mitarbeiterleistung) genutzt wird - Der
+Workflow in Gesundheits-, Finanz- oder Behörden-Kontext eingesetzt
+wird</p>
+<hr />
+<h2 id="eu-ai-act-einordnung">EU AI Act Einordnung</h2>
+<p><strong>Kein LLM-Call im Workflow</strong> — der
+<code>Code: HTML Report bauen</code> Node ist deterministischer
+JavaScript-Code ohne KI-Komponente.</p>
+<p><strong>EU AI Act: Nicht anwendbar</strong> für diesen Workflow in
+der Standardkonfiguration.</p>
+<p>Sollte der Workflow erweitert werden um automatische
+Kommentar-Generierung via OpenAI/GPT → Neubewertung erforderlich
+(wahrscheinlich: Limited Risk, Transparenzpflicht gegenüber
+Empfängern).</p>
+<hr />
+<h2 id="audit-checkliste-vor-go-live">Audit-Checkliste vor Go-Live</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Prüfpunkt</th>
+<th>Verantwortlich</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>GA4 IP-Anonymisierung aktiv</td>
+<td>Customer</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>GA4 API-Query enthält keine User-Level-Dimensionen</td>
+<td>AEVUM / Customer</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Google Sheets Kommentarfeld-Nutzungsrichtlinie kommuniziert</td>
+<td>Customer</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>DPA mit Google (GA4, Sheets) abgeschlossen / geprüft</td>
+<td>Customer</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>DPA mit Mail-Provider (Resend oder SMTP) abgeschlossen</td>
+<td>Customer</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>n8n in EU-Region gehostet (Cloud) oder EU-Server (self-hosted)</td>
+<td>Customer</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Execution-Log-Retention auf max. 30 Tage begrenzt</td>
+<td>Customer / AEVUM</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>E-Mail-Empfänger-Liste dokumentiert und begründet</td>
+<td>Customer</td>
+<td>[ ]</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Verarbeitungsverzeichnis (Art. 30 DSGVO) aktualisiert</td>
+<td>Customer</td>
+<td>[ ]</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Meta DPA geprüft falls Meta Ads Modul aktiv</td>
+<td>Customer</td>
+<td>[ ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off">Sign-Off</h2>
+<blockquote>
+<p>Dieses DSGVO-Check-Dokument wurde auf Basis des vorliegenden
+Workflow-Summaries erstellt. Es ersetzt keine Rechtsberatung und keine
+individuelle Datenschutzprüfung durch einen qualifizierten
+Datenschutzbeauftragten. Bei Unklarheiten zur konkreten Rechtsgrundlage
+oder bei Einsatz in regulierten Branchen ist externe Rechtsberatung
+hinzuzuziehen.</p>
+</blockquote>
+<p><strong>Erstellungsdatum:</strong> 2025 |
+<strong>Blueprint-Version:</strong> 1.0 | <strong>Nächste
+Überprüfung:</strong> bei Workflow-Änderung oder spätestens nach 12
+Monaten </p>
+<h1 id="quality-gate-sign-off">5. Quality-Gate Sign-Off</h1>
+<p><strong>Item-ID:</strong> <code>reporting-dashboard-setup</code>
+<strong>Typ:</strong> blueprint <strong>Quality-Gate-Version:</strong>
+1.0 <strong>Datum:</strong> 2025 <strong>Status:</strong> REVIEW
+PENDING</p>
+<hr />
+<h2 id="asset-inventory">Asset-Inventory</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Dateiname</th>
+<th>Status</th>
+<th>Letztes Update</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Workflow-JSON</td>
+<td><code>reporting-dashboard-setup.json</code></td>
+<td>Vorhanden (Summary geprüft)</td>
+<td>2025</td>
+</tr>
+<tr class="even">
+<td>README</td>
+<td><code>README.md</code></td>
+<td>Vorhanden, vollständig</td>
+<td>2025</td>
+</tr>
+<tr class="odd">
+<td>Sales Brief</td>
+<td><code>SALES-BRIEF.md</code></td>
+<td>Erstellt (dieser Run)</td>
+<td>2025</td>
+</tr>
+<tr class="even">
+<td>Security Risks</td>
+<td><code>SECURITY-RISKS.md</code></td>
+<td>Erstellt (dieser Run)</td>
+<td>2025</td>
+</tr>
+<tr class="odd">
+<td>DSGVO Check</td>
+<td><code>DSGVO-CHECK.md</code></td>
+<td>Erstellt (dieser Run)</td>
+<td>2025</td>
+</tr>
+<tr class="even">
+<td>Install Guide</td>
+<td><code>INSTALL-GUIDE.md</code></td>
+<td>Erstellt (dieser Run)</td>
+<td>2025</td>
+</tr>
+<tr class="odd">
+<td>Quality Gate</td>
+<td><code>QUALITY-GATE.md</code></td>
+<td>Erstellt (dieser Run)</td>
+<td>2025</td>
+</tr>
+<tr class="even">
+<td>Thumbnail / Preview</td>
+<td>nicht geprüft</td>
+<td>Ausstehend</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Changelog</td>
+<td>nicht vorhanden</td>
+<td>Ausstehend</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien-1010">Sign-Off-Kriterien (10/10)</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Kriterium</th>
+<th>Gewicht</th>
+<th>Status</th>
+<th>Notiz</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>QG-01</td>
+<td>Workflow-JSON importierbar und alle 6 Nodes vorhanden</td>
+<td>KRITISCH</td>
+<td>🟡 PENDING</td>
+<td>Summary bestätigt 6 Nodes; tatsächlicher Import-Test ausstehend</td>
+</tr>
+<tr class="even">
+<td>QG-02</td>
+<td>Schedule Trigger konfiguriert auf Montag 07:00 + korrekte
+Zeitzone</td>
+<td>KRITISCH</td>
+<td>🟡 PENDING</td>
+<td>Schedule Trigger vorhanden laut Summary; Timezone-Setting muss im
+echten JSON geprüft werden</td>
+</tr>
+<tr class="odd">
+<td>QG-03</td>
+<td>Config-Node enthält alle dokumentierten Parameter
+(<code>ga4PropertyId</code>, <code>reportRecipients</code>,
+<code>reportTitle</code>, <code>currency</code>)</td>
+<td>KRITISCH</td>
+<td>🟡 PENDING</td>
+<td>Laut README vorhanden; tatsächliche Node-Werte im JSON
+ungeprüft</td>
+</tr>
+<tr class="even">
+<td>QG-04</td>
+<td>Code Node enthält HTML-Escape-Funktion für externe
+String-Inputs</td>
+<td>HOCH</td>
+<td>🔴 OFFEN</td>
+<td>Laut Security-Review nicht implementiert — muss vor Go-Live
+nachgerüstet werden</td>
+</tr>
+<tr class="odd">
+<td>QG-05</td>
+<td>Error-Handling: mindestens ein Fehler-Pfad oder dokumentierter
+Error-Workflow-Hinweis vorhanden</td>
+<td>HOCH</td>
+<td>🟢 ERFÜLLT</td>
+<td>Install-Guide dokumentiert Error-Workflow-Setup; im Workflow selbst
+kein nativer Error-Node (akzeptiert mit Anleitung)</td>
+</tr>
+<tr class="even">
+<td>QG-06</td>
+<td>DSGVO-Check erstellt und GA4-Query auf aggregierte Metriken
+beschränkt</td>
+<td>HOCH</td>
+<td>🟡 PENDING</td>
+<td>Dok erstellt; tatsächliche GA4 API Query-Parameter im HTTP Node
+ungeprüft</td>
+</tr>
+<tr class="odd">
+<td>QG-07</td>
+<td>Security-Risk-Matrix mit min. 10 Risks, davon 2+ HIGH/CRITICAL</td>
+<td>MITTEL</td>
+<td>🟢 ERFÜLLT</td>
+<td>12 Risks identifiziert, davon 4 CRITICAL/HIGH
+workflow-spezifisch</td>
+</tr>
+<tr class="even">
+<td>QG-08</td>
+<td>Pricing-Logik in Sales-Brief vollständig und konsistent mit
+AEVUM-Preistiers</td>
+<td>MITTEL</td>
+<td>🟢 ERFÜLLT</td>
+<td>S-Tier korrekt referenziert (€2.500 Setup), DFY/DwY/Blueprint
+abgedeckt</td>
+</tr>
+<tr class="odd">
+<td>QG-09</td>
+<td>Install-Guide enthält mind. 3 Test-Szenarien + 3
+Troubleshooting-Cases</td>
+<td>MITTEL</td>
+<td>🟢 ERFÜLLT</td>
+<td>3 Test-Szenarien, 5 Troubleshooting-Cases</td>
+</tr>
+<tr class="even">
+<td>QG-10</td>
+<td>Alle Docs referenzieren <code>reporting-dashboard-setup</code> als
+Item-ID konsistent</td>
+<td>NIEDRIG</td>
+<td>🟢 ERFÜLLT</td>
+<td>Item-ID in allen 5 Docs korrekt gesetzt</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gesamt-Score:</strong> 5/10 grün, 4/10 pending, 1/10 offen
+<strong>Gate-Entscheidung:</strong> 🟠 CONDITIONAL PASS — QG-04 muss
+geschlossen werden, QG-01/02/03/06 nach echtem Import-Test
+bestätigen</p>
+<hr />
+<h2 id="known-limitations">Known Limitations</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Limitation</th>
+<th>Scope</th>
+<th>Phase 2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>L-01</td>
+<td>Kein nativer Error-Node im Workflow — Fehler-Alerting muss extern
+über n8n Error-Workflow konfiguriert werden</td>
+<td>Workflow-Design</td>
+<td>Phase 2: Error-Branch direkt im Blueprint integrieren</td>
+</tr>
+<tr class="even">
+<td>L-02</td>
+<td>Meta Ads Integration ist auskommentiert / optional — kein
+vollständiger Test-Pfad für Meta-Daten im aktuellen Blueprint</td>
+<td>Feature-Scope</td>
+<td>Phase 2: Meta als eigenständiger Sub-Workflow oder eigenes
+Blueprint-Item</td>
+</tr>
+<tr class="odd">
+<td>L-03</td>
+<td>Einzel-Property only — kein Multi-Property-Rollup in einer Mail</td>
+<td>Skalierung</td>
+<td>Phase 2: Multi-Property-Blueprint mit Loop-Over-Properties-Node</td>
+</tr>
+<tr class="even">
+<td>L-04</td>
+<td>Report-Zeitraum fix auf 7 Tage — kein UI/Config-basierter
+Zeitraum-Selector</td>
+<td>Konfigurierbarkeit</td>
+<td>Phase 2: Dropdown-basierte Zeitraum-Auswahl via Form-Trigger</td>
+</tr>
+<tr class="odd">
+<td>L-05</td>
+<td>HTML-Template statisch im Code Node — kein externes
+Template-Management</td>
+<td>Customization</td>
+<td>Phase 2: Template aus Google Sheets oder externem File laden</td>
+</tr>
+<tr class="even">
+<td>L-06</td>
+<td>Kein historisches Reporting — jede Ausführung ist zustandslos, keine
+Persistenz in DB</td>
+<td>Datenarchiv</td>
+<td>Phase 2: Postgres-/Airtable-Anbindung für historische
+KPI-Speicherung</td>
+</tr>
+<tr class="odd">
+<td>L-07</td>
+<td>HTML-Escape für Sheet-Kommentar nicht in Standard-Blueprint
+enthalten</td>
+<td>Security</td>
+<td>Hotfix empfohlen vor Go-Live (QG-04)</td>
+</tr>
+<tr class="even">
+<td>L-08</td>
+<td>Token-Ablauf-Monitoring für Meta nicht automatisiert</td>
+<td>Betrieb</td>
+<td>Phase 2: Separater Token-Health-Check-Workflow</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="db-update-befehl">DB-Update-Befehl</h2>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Einfügen oder Update des Blueprint-Eintrags in AEVUM Blueprint Registry</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> blueprint_items (</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  item_id,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  name,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">type</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  status,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  pricing_tier,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  node_count,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  quality_gate_version,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  quality_gate_score,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  quality_gate_status,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  known_limitations_count,</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  dsgvo_cleared,</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  security_risks_documented,</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  docs_complete,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  created_at,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  updated_at</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>) <span class="kw">VALUES</span> (</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;reporting-dashboard-setup&#39;</span>,</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;AEVUM — Reporting Dashboard&#39;</span>,</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;blueprint&#39;</span>,</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;conditional_pass&#39;</span>,</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;S&#39;</span>,</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="dv">6</span>,</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;1.0&#39;</span>,</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;5/10&#39;</span>,</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;CONDITIONAL_PASS&#39;</span>,</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  <span class="dv">8</span>,</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  <span class="kw">TRUE</span>,</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="kw">TRUE</span>,</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  <span class="kw">TRUE</span>,</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>  NOW(),</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>  NOW()</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="kw">ON</span> CONFLICT (item_id) DO <span class="kw">UPDATE</span> <span class="kw">SET</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>  status <span class="op">=</span> EXCLUDED.status,</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  quality_gate_score <span class="op">=</span> EXCLUDED.quality_gate_score,</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  quality_gate_status <span class="op">=</span> EXCLUDED.quality_gate_status,</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  known_limitations_count <span class="op">=</span> EXCLUDED.known_limitations_count,</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>  docs_complete <span class="op">=</span> EXCLUDED.docs_complete,</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>  updated_at <span class="op">=</span> NOW();</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a><span class="co">-- Quality Gate Log Entry</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> quality_gate_log (</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>  item_id,</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>  gate_version,</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>  gate_date,</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>  gate_result,</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>  open_items,</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>  reviewer,</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>  notes</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>) <span class="kw">VALUES</span> (</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;reporting-dashboard-setup&#39;</span>,</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;1.0&#39;</span>,</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>  NOW(),</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;CONDITIONAL_PASS&#39;</span>,</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;QG-04: HTML-Escape im Code Node; QG-01/02/03/06: Import-Test ausstehend&#39;</span>,</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;AEVUM Builder-Agent&#39;</span>,</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;Hotfix QG-04 vor Customer-Delivery erforderlich. Phase-2-Items dokumentiert.&#39;</span></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+<hr />
+<h2 id="pattern-notes-für-builder-logik">Pattern-Notes für
+Builder-Logik</h2>
+<p>Diese Notes dienen der Weiterentwicklung der Blueprint-Builder-Logik
+und dokumentieren Muster, die beim Erstellen dieses Blueprint-Typs
+relevant sind.</p>
+<h3 id="pattern-schedule-trigger-mail-sender-kombination">Pattern:
+Schedule-Trigger + Mail-Sender Kombination</h3>
+<p>Workflows mit Schedule Trigger + E-Mail-Versand haben folgende
+wiederkehrende Risiken die immer geprüft werden müssen: - Fehlende
+Fehler-Benachrichtigung bei stummem Scheitern (Trigger läuft, Node
+schlägt fehl, niemand merkt es) - Absender-Reputation (SPF/DKIM immer in
+Security-Risks und Install-Guide erwähnen) - Zeitzone-Mismatch zwischen
+n8n-Host und gewünschter Trigger-Zeit</p>
+<h3
+id="pattern-http-request-gegen-externe-api-kein-nativer-n8n-node">Pattern:
+HTTP-Request gegen externe API (kein nativer n8n Node)</h3>
+<p>Der Blueprint nutzt <code>httpRequest</code> statt eines nativen
+GA4-Nodes. Das bedeutet: - Credential-Verwaltung ist manueller (Service
+Account JSON statt OAuth-Flow) - API-Response-Parsing liegt vollständig
+im Code Node - Fehler-Codes müssen im Code Node explizit behandelt
+werden - Für Builder-Logik: Bei diesem Pattern immer auf fehlende
+Null-Checks im Code Node hinweisen</p>
+<h3 id="pattern-code-node-als-html-builder">Pattern: Code Node als
+HTML-Builder</h3>
+<p>Immer wenn ein Code Node HTML-Output generiert der aus externen
+Quellen gespeist wird: - HTML-Escape ist Pflicht-Mitigation (QG-04) - Im
+Builder-Prompt automatisch auf dieses Risiko hinweisen - Dieses Muster
+tritt auf bei: Report-Generierung, Mail-Template-Building,
+PDF-Vorstufen</p>
+<h3 id="pattern-konfiguration-im-set-node">Pattern: Konfiguration im
+Set-Node</h3>
+<p>Konfigurations-Werte im Set-Node (statt in Umgebungsvariablen) sind
+für Self-Service-Blueprints akzeptabel, haben aber Limitations: - Werte
+sind im Workflow-JSON sichtbar → kein Schutz für sensible Daten - Nicht
+umgebungs-spezifisch (kein Staging/Prod-Split) - Für DFY: Empfehlung auf
+n8n-Variablen oder <code>.env</code> migrieren</p>
+<h3 id="offene-builder-tasks-für-dieses-item">Offene Builder-Tasks für
+dieses Item</h3>
+<ul class="task-list">
+<li><label><input type="checkbox" />Code Node auf HTML-Escape nachrüsten
+(QG-04 schließen)</label></li>
+<li><label><input type="checkbox" />Tatsächlichen Workflow-JSON gegen
+Summary validieren (QG-01/02/03)</label></li>
+<li><label><input type="checkbox" />GA4 HTTP Request Body dokumentieren
+(welche <code>dimensions</code> und <code>metrics</code>
+genau)</label></li>
+<li><label><input type="checkbox" />Changelog-File erstellen
+(<code>CHANGELOG.md</code>)</label></li>
+<li><label><input type="checkbox" />Thumbnail/Preview-Grafik für
+Produktseite erstellen</label></li>
+</ul>
+</body>
+</html>

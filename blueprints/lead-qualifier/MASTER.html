@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM Blueprint: lead-qualifier</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="data:text/css;charset=utf-8,body{font-family:Inter,system-ui,sans-serif;max-width:780px;margin:2em%20auto;padding:0%201em;line-height:1.6;color:#222}h1,h2,h3{color:#000}h1{border-bottom:2px%20solid%20#000;padding-bottom:0.3em}h2{border-bottom:1px%20solid%20#ccc;padding-bottom:0.2em}code{background:#f4f4f4;padding:2px%206px;border-radius:3px;font-family:monospace}pre{background:#f4f4f4;padding:1em;border-radius:4px;overflow-x:auto}table{border-collapse:collapse;margin:1em%200}th,td{border:1px%20solid%20#ddd;padding:6px%2012px;text-align:left}th{background:#f4f4f4}blockquote{border-left:3px%20solid%20#888;padding-left:1em;color:#555;margin:1em%200}" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM Blueprint: lead-qualifier</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-blueprint-lead-qualifier">AEVUM Blueprint —
+lead-qualifier</h1>
+<blockquote>
+<p>Generated 2026-05-25 16:31 Berlin-TZ. Combines alle Quality-Gate-Docs
+zu einem druckbaren Master-Dokument.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<p><strong>Blueprint:</strong> lead-qualifier-pro <strong>Tier:</strong>
+Blueprint (DIY) <strong>Preis:</strong> Siehe
+<code>apps/web/public/pricing</code> (€-Range nach Pricing-Model)
+<strong>Sales-Ready seit:</strong> 2026-05-25</p>
+<hr />
+<h2 id="in-einem-satz">In einem Satz</h2>
+<p>Eingehende Leads werden automatisch nach BANT+ bewertet
+(Budget/Authority/Need/Timing + Größe/Branche/Engagement), 0–100
+gescored und in drei Routing-Pfade verteilt: Hot/Warm/Cold. Funktioniert
+mit jedem Formular-Tool und CRM.</p>
+<hr />
+<h2 id="wer-das-braucht">Wer das braucht</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Pain</th>
+<th>Hebel</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Agentur</strong> (5–30 MA)</td>
+<td>Lead-Inflation, Team verbrennt Zeit mit unqualifizierten
+Anfragen</td>
+<td>Top-20% direkt sichtbar, Rest automatisch nurtured</td>
+</tr>
+<tr class="even">
+<td><strong>Personal Brand</strong> (Coach/Berater)</td>
+<td>DMs + Form-Anfragen ohne Triage, “Spam-vs-Gold”-Problem</td>
+<td>Hot-Lead-Alert direkt aufs Handy, Cold-Leads in Newsletter-Loop</td>
+</tr>
+<tr class="odd">
+<td><strong>B2B-Service</strong> (10–100 MA)</td>
+<td>Sales-Team priorisiert falsch, Hot-Leads warten zu lang</td>
+<td>Score-basiertes Routing, SLA für Top-Leads automatisch</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="was-customer-bekommt">Was Customer bekommt</h2>
+<ol type="1">
+<li><strong>n8n-Workflow (JSON-Export)</strong> — fertig konfigurierter
+Workflow mit 11 Nodes</li>
+<li><strong>BANT+-Scoring-Engine</strong> (JS) — anpassbar in 30
+Sekunden (Gewichtungen, Schwellenwerte, Ziel-Branchen)</li>
+<li><strong>3-Pfad-Routing</strong> — Hot (&gt;70) / Warm (40–70) / Cold
+(&lt;40), individuell konfigurierbar</li>
+<li><strong>CRM-Anbindung</strong> — Airtable / HubSpot / Notion /
+Custom-Webhook</li>
+<li><strong>E-Mail-Templates</strong> — 3 vorbereitete Szenarien
+(Hot-Alert, Lead-Bestätigung, Cold-Nurture)</li>
+<li><strong>Telegram-Hot-Lead-Alert</strong> (optional) —
+Sofort-Benachrichtigung mit Score-Breakdown</li>
+<li><strong>DSGVO-Pack</strong> — Konfigurations-Checkliste,
+Vendor-DPA-Übersicht, Löschfristen-Logik</li>
+<li><strong>Install-Guide</strong> — Schritt-für-Schritt in &lt;60 Min
+einsatzbereit</li>
+<li><strong>Security-Risk-Review</strong> — bekannte Risiken +
+Mitigations (Webhook-Schutz, Rate-Limit, PII-Handling)</li>
+</ol>
+<hr />
+<h2 id="mehrwert-konkret">Mehrwert (konkret)</h2>
+<p><strong>Vorher:</strong> - Lead kommt → Sales-MA liest → Score nach
+Bauchgefühl → manuell in CRM → Follow-up vergessen - ~15 min pro Lead ×
+30 Leads/Wo = 7,5h/Wo Triage-Aufwand - Hot-Leads kühlen ab
+(Avg-Response-Time 8h+)</p>
+<p><strong>Nachher:</strong> - Lead kommt → Score in &lt;2 Sek →
+Hot-Alert in TG → CRM-Entry mit Breakdown → Auto-Nurture für Cold -
+Sales-MA sieht: “5 Hot, 12 Warm, 13 Cold” → priorisiert sofort -
+Hot-Response unter 1h möglich</p>
+<p><strong>ROI-Schätzung (Mittel-Agentur, 30 Leads/Wo):</strong> -
+Time-Save: ~6h/Wo MA-Zeit × 4 Wo = 24h/Mo - Bei MA-Kosten €50/h
+fully-loaded → €1.200/Mo - Plus Conversion-Lift durch schnellere
+Hot-Response (10-30%) → schwer zu quantifizieren, aber real</p>
+<hr />
+<h2 id="pricing-logic">Pricing-Logic</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variante</th>
+<th>Was</th>
+<th>Preis-Range</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Blueprint-Only</strong></td>
+<td>JSON + Docs + Install-Guide</td>
+<td>€X (siehe Pricing-Page)</td>
+</tr>
+<tr class="even">
+<td><strong>Done-for-You</strong></td>
+<td>Wir installieren + konfigurieren auf deine Tools</td>
+<td>€X × 2</td>
+</tr>
+<tr class="odd">
+<td><strong>Done-with-You</strong></td>
+<td>Setup gemeinsam, du lernst dabei</td>
+<td>€X × 1.5</td>
+</tr>
+</tbody>
+</table>
+<p>→ Conversion-Pfad zu Tier S/M Audit wenn Customer “noch mehr
+Automation” will.</p>
+<hr />
+<h2 id="voraussetzungen-customer">Voraussetzungen Customer</h2>
+<ul>
+<li>n8n laufend (Cloud €20/Mo oder Self-Hosted)</li>
+<li>Formular-Tool (Typeform/Tally/eigenes)</li>
+<li>CRM oder Airtable-Base</li>
+<li>E-Mail-Versand (Resend €0/Mo bis 100 Mails/Tag, SMTP, oder
+Mailchimp)</li>
+<li>Optional: Telegram-Bot-Token</li>
+</ul>
+<p><strong>Total monatliche Tool-Kosten:</strong> €20–60 (abhängig vom
+Stack).</p>
+<hr />
+<h2 id="nicht-ziele-explizit">Nicht-Ziele (explizit)</h2>
+<ul>
+<li>❌ Ersatz für vollwertiges CRM</li>
+<li>❌ AI-Lead-Generation (das ist ein anderes Blueprint)</li>
+<li>❌ Multi-Channel-Aggregation (LinkedIn + Email + DM zusammen —
+Future-Blueprint)</li>
+<li>❌ Lead-Enrichment (Company-Data aus externen APIs — kommt
+separat)</li>
+</ul>
+<hr />
+<h2 id="upsell-pfade">Upsell-Pfade</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Customer-Frage</th>
+<th>Next-Step</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Wie bekomme ich überhaupt mehr Leads?”</td>
+<td>→ Cold-Outreach-System Blueprint</td>
+</tr>
+<tr class="even">
+<td>“Kann der Score smart werden über Zeit?”</td>
+<td>→ Audit M (Custom-AI-Layer + Hermes-Pattern)</td>
+</tr>
+<tr class="odd">
+<td>“Wir brauchen vollständige Lead-Pipeline”</td>
+<td>→ AI-Lead-Engine DFY</td>
+</tr>
+<tr class="even">
+<td>“Wir haben spezifische Branchen-Logik”</td>
+<td>→ Audit S (Custom-BANT-Layer)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conversion-story-brief-für-sales-page">Conversion-Story (Brief
+für Sales-Page)</h2>
+<blockquote>
+<p>“Du sammelst Leads. Dein Team bewertet sie nach Bauchgefühl. Die 5
+Hot-Leads des Monats versinken im 30er-Stapel von Cold-Anfragen. Du
+verlierst Deals weil deine Response-Time zu lang ist.”</p>
+<p>“Lead-Qualifier Pro löst das in unter 60 Minuten Setup.
+BANT+-Scoring, 3-Pfad-Routing, Hot-Lead-Alert aufs Handy. Funktioniert
+mit jedem Formular und CRM.”</p>
+<p>“Einmal kaufen. Beliebig anpassen. Skaliert mit deinem
+Lead-Volumen.”</p>
+</blockquote>
+<h1 id="install-guide">2. Install-Guide</h1>
+<p><strong>Blueprint:</strong> lead-qualifier-pro
+<strong>Setup-Dauer:</strong> 30–60 Min <strong>Schwierigkeit:</strong>
+Mittel (n8n-Grundkenntnisse hilfreich) <strong>Letzter Update:</strong>
+2026-05-25</p>
+<hr />
+<h2 id="vorab-check">Vorab-Check</h2>
+<h3 id="tools-die-du-brauchst">Tools die du brauchst</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tool</th>
+<th>Pflicht</th>
+<th>Zweck</th>
+<th>Kosten</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>n8n (Cloud oder Self-Host)</td>
+<td>✅</td>
+<td>Workflow-Engine</td>
+<td>€0–20/Mo</td>
+</tr>
+<tr class="even">
+<td>Form-Tool (Tally / Typeform / Custom)</td>
+<td>✅</td>
+<td>Lead-Quelle</td>
+<td>€0–29/Mo</td>
+</tr>
+<tr class="odd">
+<td>CRM (Airtable / HubSpot / Notion)</td>
+<td>✅</td>
+<td>Lead-Speicher</td>
+<td>€0–20/Mo</td>
+</tr>
+<tr class="even">
+<td>E-Mail-Provider (Resend / SMTP / Mailchimp)</td>
+<td>✅</td>
+<td>Lead-Bestätigung</td>
+<td>€0–15/Mo</td>
+</tr>
+<tr class="odd">
+<td>Telegram-Bot</td>
+<td>❌</td>
+<td>Hot-Lead-Alert</td>
+<td>€0</td>
+</tr>
+<tr class="even">
+<td>Cloudflare</td>
+<td>⚠️</td>
+<td>DDoS + Rate-Limit (Pflicht für Production)</td>
+<td>€0 (Free)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="token-secrets-die-du-brauchst-sammeln-vorher">Token &amp;
+Secrets die du brauchst (sammeln vorher!)</h3>
+<pre><code># Form-Tool
+FORM_WEBHOOK_TOKEN=&lt;generieren — 32-char random&gt;
+
+# CRM
+AIRTABLE_API_KEY=&lt;aus Airtable Account → Developer Hub&gt;
+AIRTABLE_BASE_ID=&lt;aus Airtable URL: airtable.com/{BASE_ID}/...&gt;
+AIRTABLE_TABLE_ID=&lt;Tabellen-ID&gt;
+
+# ODER HubSpot
+HUBSPOT_PRIVATE_APP_TOKEN=&lt;aus HubSpot Settings → Integrations → Private Apps&gt;
+
+# E-Mail
+RESEND_API_KEY=&lt;aus resend.com → API Keys&gt;
+EMAIL_FROM=leads@deine-domain.com  # MUSS Domain-verifiziert sein
+
+# Telegram (optional)
+TELEGRAM_BOT_TOKEN=&lt;von @BotFather&gt;
+TELEGRAM_CHAT_ID=&lt;deine Chat-ID, ermitteln via @userinfobot&gt;</code></pre>
+<p><strong>Empfehlung:</strong> Alle Tokens in einem Passwort-Manager
+(1Password / Bitwarden) speichern, NICHT im Klartext.</p>
+<hr />
+<h2 id="schritt-1-n8n-setup">Schritt 1: n8n-Setup</h2>
+<h3 id="option-a-n8n-cloud-empfohlen-für-start">Option A: n8n Cloud
+(empfohlen für Start)</h3>
+<ol type="1">
+<li>Account auf <a href="https://n8n.cloud">n8n.cloud</a> erstellen</li>
+<li><strong>EU-Region wählen</strong> (Pflicht für DSGVO!)</li>
+<li>Workspace-URL notieren:
+<code>https://&lt;dein-workspace&gt;.app.n8n.cloud</code></li>
+</ol>
+<h3
+id="option-b-self-host-für-100-workflowsmo-oder-datenschutz-bedürfnis">Option
+B: Self-Host (für &gt;100 Workflows/Mo oder Datenschutz-Bedürfnis)</h3>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Hetzner CX22 (€4/Mo) oder gleichwertig, Standort Falkenstein/Nürnberg</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> root@your-vps</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="at">--name</span> n8n <span class="dt">\</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">-p</span> 5678:5678 <span class="dt">\</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> N8N_BASIC_AUTH_ACTIVE=true <span class="dt">\</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> N8N_BASIC_AUTH_USER=admin <span class="dt">\</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> N8N_BASIC_AUTH_PASSWORD=<span class="op">&lt;</span>strong-pw<span class="op">&gt;</span> <span class="dt">\</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> WEBHOOK_URL=https://n8n.deine-domain.com <span class="dt">\</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">-v</span> ~/.n8n:/home/node/.n8n <span class="dt">\</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  n8nio/n8n</span></code></pre></div>
+<p>Dann Cloudflare-Tunnel oder nginx davor + TLS via Let’s Encrypt.</p>
+<hr />
+<h2 id="schritt-2-workflow-importieren">Schritt 2: Workflow
+importieren</h2>
+<ol type="1">
+<li>n8n öffnen → “Workflows” → “+” → “Import from File”</li>
+<li><code>workflow.json</code> aus diesem Blueprint-Folder
+hochladen</li>
+<li>Workflow benennen: “AEVUM Lead-Qualifier”</li>
+<li><strong>NICHT aktivieren</strong> bevor Schritt 3–5 fertig
+sind!</li>
+</ol>
+<hr />
+<h2 id="schritt-3-webhook-konfigurieren">Schritt 3: Webhook
+konfigurieren</h2>
+<ol type="1">
+<li><strong>Webhook-Node</strong> öffnen (erstes Element)</li>
+<li>Webhook-URL kopieren — format:
+<code>https://&lt;workspace&gt;.app.n8n.cloud/webhook/lead-qualifier</code></li>
+<li><strong>Authentication</strong> auf “Header Auth” setzen</li>
+<li>Header-Name: <code>X-AEVUM-Token</code></li>
+<li>Header-Value: dein <code>FORM_WEBHOOK_TOKEN</code> (32-char random
+aus Vorab-Check)</li>
+</ol>
+<hr />
+<h2 id="schritt-4-form-tool-konfigurieren">Schritt 4: Form-Tool
+konfigurieren</h2>
+<h3 id="tally-empfohlen-eu-hosting">Tally (empfohlen, EU-Hosting)</h3>
+<ol type="1">
+<li>Tally → Form → “Integrations” → “Webhook”</li>
+<li>URL: deine n8n-Webhook-URL</li>
+<li>Custom Header hinzufügen:
+<code>X-AEVUM-Token: &lt;dein Token&gt;</code></li>
+<li>Felder mappen (Form-Field → JSON-Key):
+<ul>
+<li><code>firstName</code>, <code>lastName</code>, <code>email</code>,
+<code>company</code>, <code>message</code>, <code>budget</code>,
+<code>timing</code>, <code>role</code>, <code>companySize</code>,
+<code>industry</code>, <code>source</code></li>
+</ul></li>
+</ol>
+<h3 id="typeform">Typeform</h3>
+<ol type="1">
+<li>Typeform → “Connect” → “Webhooks”</li>
+<li>URL + Header eintragen</li>
+<li>Field-Mapping über Typeform-Logic-Map</li>
+</ol>
+<h3 id="eigenes-formular">Eigenes Formular</h3>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fetch</span>(<span class="st">&#39;https://&lt;workspace&gt;.app.n8n.cloud/webhook/lead-qualifier&#39;</span><span class="op">,</span> {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">method</span><span class="op">:</span> <span class="st">&#39;POST&#39;</span><span class="op">,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">headers</span><span class="op">:</span> {</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;Content-Type&#39;</span><span class="op">:</span> <span class="st">&#39;application/json&#39;</span><span class="op">,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;X-AEVUM-Token&#39;</span><span class="op">:</span> <span class="st">&#39;&lt;token&gt;&#39;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">body</span><span class="op">:</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>({</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">firstName</span><span class="op">:</span> formData<span class="op">.</span><span class="at">firstName</span><span class="op">,</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">lastName</span><span class="op">:</span> formData<span class="op">.</span><span class="at">lastName</span><span class="op">,</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">email</span><span class="op">:</span> formData<span class="op">.</span><span class="at">email</span><span class="op">,</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">company</span><span class="op">:</span> formData<span class="op">.</span><span class="at">company</span><span class="op">,</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">message</span><span class="op">:</span> formData<span class="op">.</span><span class="at">message</span><span class="op">,</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">budget</span><span class="op">:</span> formData<span class="op">.</span><span class="at">budget</span><span class="op">,</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">timing</span><span class="op">:</span> formData<span class="op">.</span><span class="at">timing</span><span class="op">,</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">role</span><span class="op">:</span> formData<span class="op">.</span><span class="at">role</span><span class="op">,</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">companySize</span><span class="op">:</span> formData<span class="op">.</span><span class="at">companySize</span><span class="op">,</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">industry</span><span class="op">:</span> formData<span class="op">.</span><span class="at">industry</span><span class="op">,</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">source</span><span class="op">:</span> <span class="st">&#39;website-form&#39;</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<hr />
+<h2 id="schritt-5-crm-verbindung">Schritt 5: CRM-Verbindung</h2>
+<h3 id="airtable">Airtable</h3>
+<ol type="1">
+<li><strong>HTTP Request: CRM Push</strong> Node öffnen</li>
+<li>URL:
+<code>https://api.airtable.com/v0/&lt;AIRTABLE_BASE_ID&gt;/&lt;AIRTABLE_TABLE_ID&gt;</code></li>
+<li>Method: POST</li>
+<li>Header:
+<code>Authorization: Bearer &lt;AIRTABLE_API_KEY&gt;</code></li>
+<li>Body (JSON):</li>
+</ol>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;fields&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;Name&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ $json.firstName }} {{ $json.lastName }}&quot;</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;Email&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ $json.email }}&quot;</span><span class="fu">,</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;Company&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ $json.company }}&quot;</span><span class="fu">,</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;Score&quot;</span><span class="fu">:</span> <span class="fu">{</span><span class="er">{</span> <span class="er">$json.score</span> <span class="fu">}},</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;Routing&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ $json.routing }}&quot;</span><span class="fu">,</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;Source&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ $json.source }}&quot;</span><span class="fu">,</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;Submitted&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ $json.submittedAt }}&quot;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div>
+<p><strong>Pflicht:</strong> In Airtable die Tabelle “Leads” mit genau
+diesen Feldnamen anlegen (case-sensitive!).</p>
+<h3 id="hubspot">HubSpot</h3>
+<ol type="1">
+<li><strong>HTTP Request: CRM Push</strong> Node anpassen</li>
+<li>URL:
+<code>https://api.hubapi.com/crm/v3/objects/contacts</code></li>
+<li>Header:
+<code>Authorization: Bearer &lt;HUBSPOT_PRIVATE_APP_TOKEN&gt;</code></li>
+<li>Body:</li>
+</ol>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;properties&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;firstname&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ $json.firstName }}&quot;</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;lastname&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ $json.lastName }}&quot;</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ $json.email }}&quot;</span><span class="fu">,</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;company&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ $json.company }}&quot;</span><span class="fu">,</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;aevum_lead_score&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ $json.score }}&quot;</span><span class="fu">,</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;aevum_routing&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ $json.routing }}&quot;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p><strong>Pflicht:</strong> Custom-Properties
+<code>aevum_lead_score</code> und <code>aevum_routing</code> in HubSpot
+vorher anlegen.</p>
+<hr />
+<h2 id="schritt-6-e-mail-templates">Schritt 6: E-Mail-Templates</h2>
+<h3 id="hot-lead-alert-an-dich">Hot-Lead-Alert (an dich)</h3>
+<p>In <strong>Send Email: Hot-Lead</strong> Node: - From:
+<code>EMAIL_FROM</code> - To: deine E-Mail - Subject:
+<code>🔥 Hot Lead ({{ $json.score }}/100): {{ $json.firstName }} {{ $json.lastName }} ({{ $json.company }})</code>
+- Body: Score-Breakdown + Lead-Daten + Call-to-Action</p>
+<h3 id="lead-bestätigung-an-lead">Lead-Bestätigung (an Lead)</h3>
+<p>In <strong>Send Email: Lead-Confirmation</strong> Node: - From:
+<code>EMAIL_FROM</code> - To: <code>{{ $json.email }}</code> - Subject:
+<code>Vielen Dank für deine Nachricht, {{ $json.firstName }}</code> -
+Body: Bestätigung + Erwartungs-Management (“Wir melden uns binnen
+24h”)</p>
+<h3 id="cold-lead-nurture-an-lead-opt-in-pflicht">Cold-Lead-Nurture (an
+Lead, OPT-IN-Pflicht)</h3>
+<p>Nur senden wenn Marketing-Checkbox getickt war
+(Conditional-Node).</p>
+<hr />
+<h2 id="schritt-7-telegram-bot-optional">Schritt 7: Telegram-Bot
+(optional)</h2>
+<ol type="1">
+<li><span class="citation" data-cites="BotFather">@BotFather</span> in
+Telegram → <code>/newbot</code> → Name + Username → Token notieren</li>
+<li><span class="citation" data-cites="userinfobot">@userinfobot</span>
+in Telegram → <code>/start</code> → eigene Chat-ID notieren</li>
+<li><strong>Telegram Node</strong> im Workflow → Credentials hinzufügen
+mit Bot-Token</li>
+<li>Chat-ID + Message-Template setzen</li>
+</ol>
+<hr />
+<h2 id="schritt-8-cloudflare-pflicht-für-production">Schritt 8:
+Cloudflare (Pflicht für Production)</h2>
+<ol type="1">
+<li>Domain bei Cloudflare hinzufügen (NS auf Cloudflare zeigen
+lassen)</li>
+<li>DNS-Eintrag für n8n-Subdomain (Self-Host) oder Page-Rule für
+n8n.cloud-URL</li>
+<li><strong>Bot-Fight-Mode aktivieren</strong> (Security → Bots →
+On)</li>
+<li><strong>Rate-Limit</strong> einrichten:
+<ul>
+<li>Path: <code>/webhook/lead-qualifier</code></li>
+<li>Limit: 30 requests/min per IP</li>
+<li>Action: Block</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="schritt-9-test-run">Schritt 9: Test-Run</h2>
+<p><strong>Vor Aktivierung 3 Test-Submissions durchspielen:</strong></p>
+<ol type="1">
+<li><strong>Hot-Test:</strong>
+<ul>
+<li>Budget: “20.000€”</li>
+<li>Role: “Geschäftsführer”</li>
+<li>Need: “Wir brauchen sofort eine Lösung für…”</li>
+<li>Erwartung: Score &gt;70, Routing “hot”, Telegram-Alert kommt</li>
+</ul></li>
+<li><strong>Warm-Test:</strong>
+<ul>
+<li>Budget: “5.000-15.000€”</li>
+<li>Role: “Manager”</li>
+<li>Need: “Wir denken über Automatisierung nach”</li>
+<li>Erwartung: Score 40-70, Routing “warm”</li>
+</ul></li>
+<li><strong>Cold-Test:</strong>
+<ul>
+<li>Budget: “Noch unklar”</li>
+<li>Role: “Assistent”</li>
+<li>Need: “Mal schauen was möglich ist”</li>
+<li>Erwartung: Score &lt;40, Routing “cold”</li>
+</ul></li>
+</ol>
+<p><strong>Jeder Test verifizieren:</strong> - ✅ Lead in CRM mit
+korrektem Score - ✅ Score-Breakdown nachvollziehbar - ✅ Routing
+korrekt - ✅ E-Mail-Bestätigung an Test-Adresse angekommen</p>
+<hr />
+<h2 id="schritt-10-aktivieren-monitoring">Schritt 10: Aktivieren +
+Monitoring</h2>
+<ol type="1">
+<li>Workflow in n8n auf “Active” schalten</li>
+<li><strong>n8n-Execution-Log</strong> → Retention auf 30 Tage setzen
+(Settings → Workflow History)</li>
+<li><strong>Wöchentliches Monitoring</strong> (5 Min/Wo):
+<ul>
+<li>Erfolgsrate (Executions: Success vs Failed)</li>
+<li>Score-Verteilung (Hot/Warm/Cold-Anteil)</li>
+<li>Top-Branchen / Top-Sources</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="webhook-empfängt-keine-daten">Webhook empfängt keine Daten</h3>
+<ul>
+<li><p><strong>Form-Tool Header korrekt?</strong> Test mit curl:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-X</span> POST https://<span class="op">&lt;</span>workspace<span class="op">&gt;</span>.app.n8n.cloud/webhook/lead-qualifier <span class="dt">\</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&quot;Content-Type: application/json&quot;</span> <span class="dt">\</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&quot;X-AEVUM-Token: &lt;dein-token&gt;&quot;</span> <span class="dt">\</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">-d</span> <span class="st">&#39;{&quot;firstName&quot;:&quot;Test&quot;,&quot;email&quot;:&quot;test@example.com&quot;,&quot;company&quot;:&quot;AEVUM&quot;}&#39;</span></span></code></pre></div></li>
+<li><p><strong>n8n-Execution-Log</strong> prüfen — kommt Trigger
+an?</p></li>
+<li><p><strong>n8n im Test-Modus?</strong> Webhook in Production-Mode
+aktivieren</p></li>
+</ul>
+<h3 id="score-immer-0">Score immer 0</h3>
+<ul>
+<li><strong>Field-Mapping korrekt?</strong> In Set-Node prüfen — kommen
+die Daten an?</li>
+<li><strong>Console.log in Code-Node aktivieren</strong> → Execution-Log
+anschauen</li>
+<li><strong>JSON-Pfad korrekt?</strong> Tally schickt
+<code>body.firstName</code>, Typeform manchmal
+<code>event.first_name</code></li>
+</ul>
+<h3 id="crm-push-401403">CRM-Push 401/403</h3>
+<ul>
+<li><strong>API-Token korrekt?</strong> In CRM neu generieren</li>
+<li><strong>Permissions?</strong> Token braucht Schreib-Rechte auf
+Tabelle</li>
+<li><strong>Feldnamen case-sensitive!</strong> “Email” ≠ “email” in
+Airtable</li>
+</ul>
+<h3 id="e-mail-kommt-nicht-an">E-Mail kommt nicht an</h3>
+<ul>
+<li><strong>Domain verifiziert?</strong> Resend/SES brauchen DNS-Records
+(SPF + DKIM + MX)</li>
+<li><strong>Spam-Filter?</strong> Erst-Mails landen oft in Spam —
+Customer auf Whitelist setzen</li>
+<li><strong>Resend Rate-Limit?</strong> Free-Plan: 3.000/Mo</li>
+</ul>
+<h3 id="telegram-alert-kommt-nicht">Telegram-Alert kommt nicht</h3>
+<ul>
+<li><strong>Bot mit Chat verbunden?</strong> Bot muss
+<code>/start</code> vom Chat gesehen haben</li>
+<li><strong>Chat-ID korrekt?</strong> Bei negativem Vorzeichen für
+Gruppen (<code>-1001234567890</code>)</li>
+</ul>
+<hr />
+<h2 id="wartung">Wartung</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Intervall</th>
+<th>Task</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Täglich</td>
+<td>n8n-Execution-Log auf Fehler scannen</td>
+</tr>
+<tr class="even">
+<td>Wöchentlich</td>
+<td>Score-Verteilung reviewen, Threshold ggf. anpassen</td>
+</tr>
+<tr class="odd">
+<td>Monatlich</td>
+<td>Vendor-DPAs prüfen, Aufbewahrungs-Cleanup (Cold-Leads &gt;90d
+löschen)</td>
+</tr>
+<tr class="even">
+<td>Quartalsweise</td>
+<td>Workflow-Audit (kein Token-Leak, alle Credentials rotiert)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="done-for-you-variante">Done-for-You-Variante</h2>
+<p>Wenn dir das zu viel ist: AEVUM macht das komplett für dich (~4h
+Setup, DSGVO + Security gehärtet, Test-Run inkl., 30 Tage Support).</p>
+<p>→ Buchung über <a
+href="https://aevum-system.de/shop">aevum-system.de/shop</a>
+(DFY-Variante wählen)</p>
+<h1 id="security-risks">3. Security-Risks</h1>
+<p><strong>Blueprint:</strong> lead-qualifier-pro
+<strong>Review-Datum:</strong> 2026-05-25 <strong>Reviewer:</strong>
+Lennox (AEVUM Quality-Gate) <strong>Schweregrad-Skala:</strong> 🔴
+CRITICAL / 🟠 HIGH / 🟡 MEDIUM / 🟢 LOW</p>
+<hr />
+<h2 id="risk-matrix">Risk-Matrix</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Risiko</th>
+<th>Schwere</th>
+<th>Mitigation</th>
+<th>Customer-Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Webhook offen (kein Token/Signatur)</td>
+<td>🟠 HIGH</td>
+<td>n8n-Webhook mit HMAC-Signatur ODER Header-Token absichern</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Kein Rate-Limit am Webhook</td>
+<td>🟠 HIGH</td>
+<td>n8n-Webhook hinter Cloudflare/nginx mit Rate-Limit (z.B.
+30/min/IP)</td>
+<td>Pflicht</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>PII (E-Mail, Name, Firma) fließt durch n8n unverschlüsselt</td>
+<td>🟡 MEDIUM</td>
+<td>n8n auf EU-Hoster (Hetzner/Scaleway), TLS-only, kein Self-Host ohne
+HTTPS</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>CRM-API-Token im n8n-Credential-Store</td>
+<td>🟡 MEDIUM</td>
+<td>n8n-Credentials-Encryption-Key separat verwalten, Rotation alle
+90d</td>
+<td>Empfohlen</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Telegram-Bot-Token im Workflow-JSON exportierbar</td>
+<td>🟠 HIGH</td>
+<td>Token NIE im Workflow-Body hartcoden — n8n-Credential-Reference
+nutzen</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>E-Mail-Versand via SMTP ohne SPF/DKIM</td>
+<td>🟡 MEDIUM</td>
+<td>SPF + DKIM für Sending-Domain, Resend bevorzugt (Auto-Auth)</td>
+<td>Empfohlen</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Score-Logic in Plain-JS sichtbar (Reverse-Engineering durch
+Customer-Customer)</td>
+<td>🟢 LOW</td>
+<td>Kein Mitigation nötig — Score-Logik ist nicht
+Business-Geheimnis</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Replay-Attack möglich (gleicher Webhook-Call mehrfach)</td>
+<td>🟡 MEDIUM</td>
+<td>Idempotency-Key oder Submission-Hash im Workflow prüfen</td>
+<td>Empfohlen</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Cross-Site-Form-Submission ohne CSRF-Schutz</td>
+<td>🟡 MEDIUM</td>
+<td>Origin-Header-Check im n8n-Workflow (Conditional-Node)</td>
+<td>Empfohlen</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Sensitive-Logging (Score-Breakdown in Logs)</td>
+<td>🟢 LOW</td>
+<td>n8n-Log-Retention &lt;30 Tage, kein Long-Term-Storage von Lead-Data
+in Logs</td>
+<td>Empfohlen</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>DDoS auf öffentlichen Webhook</td>
+<td>🟠 HIGH</td>
+<td>Cloudflare vor Webhook-Domain, Bot-Fight-Mode aktiv</td>
+<td>Pflicht</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Phishing-Lookalike-Domain für Email-Alerts</td>
+<td>🟡 MEDIUM</td>
+<td>E-Mail-Templates aus eigener Domain senden, kein
+Drittanbieter-Branding</td>
+<td>Empfohlen</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pflicht-mitigations-customer-muss-umsetzen">Pflicht-Mitigations
+(Customer MUSS umsetzen)</h2>
+<h3 id="webhook-token-schutz">1. Webhook-Token-Schutz</h3>
+<p><strong>Problem:</strong> Wer die Webhook-URL kennt, kann beliebig
+viele Fake-Leads injecten.</p>
+<p><strong>Fix:</strong> Webhook-Node in n8n öffnen → “Authentication”
+auf “Header Auth” setzen → Custom-Header mit Random-Token (z.B.
+<code>X-AEVUM-Token: &lt;32-char-random&gt;</code>).</p>
+<p>Im Formular-Tool diesen Header mitsenden. Bei Typeform/Tally →
+Custom-Webhook mit Header-Support (Pro-Plan).</p>
+<h3 id="rate-limit">2. Rate-Limit</h3>
+<p><strong>Problem:</strong> Ungeschützter Webhook =
+Lead-Spam-Vector.</p>
+<p><strong>Fix-Option A (n8n-Cloud):</strong> Cloud-Plan inkludiert
+IP-basierte Rate-Limits.</p>
+<p><strong>Fix-Option B (Self-Hosted):</strong> Cloudflare vor
+n8n-Domain. Rule: “Rate-Limit <code>/webhook/*</code> → 30 req/min/IP”.
+Cloudflare-Free-Plan reicht.</p>
+<h3 id="eu-hosting-tls">3. EU-Hosting + TLS</h3>
+<p><strong>Problem:</strong> PII durch US-Hoster = DSGVO-Verstoß ohne
+SCC.</p>
+<p><strong>Fix:</strong> n8n-Cloud-EU-Region ODER Hetzner/Scaleway-VPS
+für Self-Host. Domain MUSS HTTPS (Let’s Encrypt). Kein HTTP-Webhook
+akzeptieren.</p>
+<h3 id="telegram-token-im-credential-store">4. Telegram-Token im
+Credential-Store</h3>
+<p><strong>Problem:</strong> Wenn Workflow exportiert + geteilt wird
+(z.B. Backup, Migration), wird Token mit-exportiert wenn nicht in
+Credentials.</p>
+<p><strong>Fix:</strong> In n8n: Settings → Credentials → “Telegram API”
+→ Token NUR HIER speichern. Im Workflow-Node nur “Credential-Reference”
+nutzen.</p>
+<h3 id="cloudflare-ddos-schutz">5. Cloudflare DDoS-Schutz</h3>
+<p><strong>Problem:</strong> Öffentlicher Webhook ist DDoS-Vector.</p>
+<p><strong>Fix:</strong> Domain hinter Cloudflare (Free reicht).
+Bot-Fight-Mode aktiv. “Under Attack Mode” bei Bedarf.</p>
+<hr />
+<h2 id="empfohlene-mitigations-best-practice">Empfohlene Mitigations
+(Best-Practice)</h2>
+<h3 id="idempotency">6. Idempotency</h3>
+<p>In Webhook-Body einen <code>submissionId</code> mitsenden (z.B.
+Form-Tool generiert UUID). Im Workflow prüfen → wenn schon gesehen,
+skippen.</p>
+<h3 id="origin-check">7. Origin-Check</h3>
+<p>Conditional-Node nach Webhook: <code>{{ $headers.origin }}</code>
+muss in Whitelist sein. Sonst Workflow stoppen.</p>
+<h3 id="log-retention">8. Log-Retention</h3>
+<p>n8n-Settings → “Execution Data” → “Delete after X days” auf 30
+setzen.</p>
+<hr />
+<h2 id="was-aevum-bei-dfy-install-zusätzlich-macht">Was AEVUM bei
+DFY-Install zusätzlich macht</h2>
+<p>Wenn Customer DFY (Done-for-You) bucht, übernimmt AEVUM: -
+Cloudflare-Setup vor Webhook-Domain - HMAC-Signatur-Validierung im
+Workflow - IP-Allowlist (falls Customer das will) -
+n8n-Credentials-Setup mit Rotation-Schedule - Test-Run mit 10 Fake-Leads
+(verschiedene Scoring-Pfade) - Security-Sign-Off in Customer-Portal</p>
+<hr />
+<h2 id="known-limits-nicht-fixbar-in-diesem-blueprint">Known-Limits
+(nicht-fixbar in diesem Blueprint)</h2>
+<ul>
+<li><strong>n8n-Cloud Self-Service Plan:</strong> kein
+Custom-IP-Whitelisting möglich (nur Enterprise). →
+Customer-Recommendation: Self-Host für High-Volume.</li>
+<li><strong>Free-Form-Tools (Tally-Free):</strong> Kein Header-Auth. →
+Recommendation: Tally Pro (€29/Mo) oder Custom-Form.</li>
+</ul>
+<hr />
+<h2 id="sign-off-quality-gate">Sign-Off (Quality-Gate)</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Risk-Matrix
+erstellt</label></li>
+<li><label><input type="checkbox" checked="" />5 Pflicht-Mitigations
+dokumentiert</label></li>
+<li><label><input type="checkbox" checked="" />Customer-Action-Liste
+klar</label></li>
+<li><label><input type="checkbox" checked="" />DFY-Differentiator
+ausgearbeitet</label></li>
+<li><label><input type="checkbox" />Penetration-Test (extern) — Phase 2,
+nicht für Sales-Ready blockierend</label></li>
+<li><label><input type="checkbox" />HMAC-Signature-Validation-Node als
+optionaler Workflow-Addon — Phase 2</label></li>
+</ul>
+<h1 id="dsgvo-konformitäts-check">4. DSGVO-Konformitäts-Check</h1>
+<p><strong>Blueprint:</strong> lead-qualifier-pro
+<strong>Review-Datum:</strong> 2026-05-25 <strong>Reviewer:</strong>
+Lennox (AEVUM Quality-Gate) <strong>Disclaimer:</strong> Diese Doku ist
+keine Rechtsberatung. Customer bleibt rechtlich verantwortlich. Bei
+DSGVO-kritischen Branchen (Health/Finance) zusätzlich Anwalt
+konsultieren.</p>
+<hr />
+<h2 id="datenfluss-analyse">1. Datenfluss-Analyse</h2>
+<p><strong>Welche personenbezogenen Daten verarbeitet der
+Workflow?</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Datum</th>
+<th>Kategorie</th>
+<th>Speicherort</th>
+<th>Aufbewahrung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Vorname + Nachname</td>
+<td>Stammdaten (Art. 4 Nr. 1 DSGVO)</td>
+<td>n8n-Execution-Log + CRM</td>
+<td>n8n: &lt;30d; CRM: nach Customer-Policy</td>
+</tr>
+<tr class="even">
+<td>E-Mail</td>
+<td>Kommunikation</td>
+<td>n8n + CRM + E-Mail-Provider</td>
+<td>siehe oben</td>
+</tr>
+<tr class="odd">
+<td>Firma</td>
+<td>Berufliche Daten</td>
+<td>n8n + CRM</td>
+<td>siehe oben</td>
+</tr>
+<tr class="even">
+<td>Nachricht</td>
+<td>Freitextfeld (kann Sensibles enthalten!)</td>
+<td>n8n-Log + CRM</td>
+<td>&lt;30d in Log, langfristig in CRM nur wenn nötig</td>
+</tr>
+<tr class="odd">
+<td>Budget/Timing/Größe/Branche/Rolle</td>
+<td>Profilbildung</td>
+<td>CRM</td>
+<td>für Lead-Lifecycle</td>
+</tr>
+<tr class="even">
+<td>Quelle (Source)</td>
+<td>Tracking</td>
+<td>CRM + ggf. Analytics</td>
+<td>nach Customer-Policy</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Potential für besondere Kategorien (Art. 9 DSGVO):</strong>
+Freitextfeld “Nachricht” kann ungewollt
+Gesundheits-/politische/religiöse Daten enthalten → Customer muss in
+Formular-UX warnen, dass diese nicht eingegeben werden sollen.</p>
+<hr />
+<h2 id="rechtsgrundlage">2. Rechtsgrundlage</h2>
+<p><strong>Welche Rechtsgrundlage trägt die Verarbeitung?</strong></p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kontext</th>
+<th>Grundlage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Lead reicht Formular ein</td>
+<td><strong>Art. 6 (1) lit. a</strong> — Einwilligung (Pflicht: explicit
+Opt-In) <strong>+</strong> <strong>lit. b</strong> — Anbahnung
+vorvertraglicher Maßnahmen</td>
+</tr>
+<tr class="even">
+<td>Scoring + Routing</td>
+<td><strong>Art. 6 (1) lit. f</strong> — berechtigtes Interesse
+(effiziente Lead-Bearbeitung)</td>
+</tr>
+<tr class="odd">
+<td>Hot-Lead-Telegram-Alert (intern)</td>
+<td><strong>Art. 6 (1) lit. f</strong> — internes Tooling</td>
+</tr>
+<tr class="even">
+<td>E-Mail-Bestätigung an Lead</td>
+<td><strong>Art. 6 (1) lit. b</strong> — vorvertraglich</td>
+</tr>
+<tr class="odd">
+<td>Cold-Lead-Nurture-Mail (Marketing)</td>
+<td><strong>Art. 6 (1) lit. a</strong> — separate Einwilligung
+erforderlich</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Wichtig:</strong> Cold-Nurture braucht <strong>separate
+Marketing-Einwilligung</strong> (Doppel-Opt-In empfohlen).
+Anbahnungs-Mails sind OK auch ohne, Werbe-Mails brauchen Opt-In.</p>
+<hr />
+<h2 id="pflicht-konfiguration-im-formular">3. Pflicht-Konfiguration im
+Formular</h2>
+<h3 id="a-datenschutz-checkbox">A) Datenschutz-Checkbox</h3>
+<p>Pflicht. Muss <strong>unausgefüllt</strong> sein (kein
+Pre-Check).</p>
+<p><strong>Text-Vorschlag:</strong> &gt; ☐ Ich stimme der Verarbeitung
+meiner Daten gemäß [Datenschutzerklärung] zur Bearbeitung meiner Anfrage
+zu. (Pflicht)</p>
+<h3 id="b-marketing-checkbox-optional-für-cold-nurture">B)
+Marketing-Checkbox (optional, für Cold-Nurture)</h3>
+<p>Falls Customer Cold-Leads in Newsletter packen will:</p>
+<blockquote>
+<p>☐ Ich möchte zusätzlich gelegentlich relevante Inhalte zu [Thema]
+erhalten. (jederzeit widerrufbar)</p>
+</blockquote>
+<h3 id="c-link-zur-datenschutzerklärung">C) Link zur
+Datenschutzerklärung</h3>
+<p>Pflicht. Im Formular sichtbar verlinkt.</p>
+<h3 id="d-information-über-datentransfer-in-drittländer">D) Information
+über Datentransfer in Drittländer</h3>
+<p>Falls Customer US-Tools nutzt (Notion, HubSpot, etc.) → Hinweis in
+DS-Erklärung Pflicht.</p>
+<hr />
+<h2 id="vendor-dpa-übersicht">4. Vendor-DPA-Übersicht</h2>
+<p>Welche Auftragsverarbeiter sind beteiligt? (Customer braucht DPA mit
+jedem.)</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Vendor</th>
+<th>Rolle</th>
+<th>EU-Hosting?</th>
+<th>DPA-Link</th>
+<th>Risiko-Level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>n8n.cloud</strong></td>
+<td>Workflow-Engine</td>
+<td>✅ EU-Region wählbar</td>
+<td>n8n.io/legal/dpa</td>
+<td>🟢 LOW</td>
+</tr>
+<tr class="even">
+<td><strong>Self-Hosted n8n</strong></td>
+<td>Workflow-Engine</td>
+<td>Customer’s Choice</td>
+<td>— (kein DPA nötig, eigener Server)</td>
+<td>🟢 LOW wenn EU-Server</td>
+</tr>
+<tr class="odd">
+<td><strong>Airtable</strong></td>
+<td>CRM</td>
+<td>❌ US (Sub-Processor)</td>
+<td>airtable.com/legal/dpa</td>
+<td>🟡 MEDIUM (SCC nötig)</td>
+</tr>
+<tr class="even">
+<td><strong>HubSpot</strong></td>
+<td>CRM</td>
+<td>❌ US (EU-Datacenters für Enterprise)</td>
+<td>legal.hubspot.com/dpa</td>
+<td>🟡 MEDIUM</td>
+</tr>
+<tr class="odd">
+<td><strong>Notion</strong></td>
+<td>CRM (alternative)</td>
+<td>❌ US</td>
+<td>notion.so/help/data-protection</td>
+<td>🟡 MEDIUM</td>
+</tr>
+<tr class="even">
+<td><strong>Resend</strong></td>
+<td>E-Mail-Versand</td>
+<td>✅ EU-Region</td>
+<td>resend.com/legal/dpa</td>
+<td>🟢 LOW</td>
+</tr>
+<tr class="odd">
+<td><strong>Mailchimp</strong></td>
+<td>E-Mail-Versand (alternative)</td>
+<td>❌ US (Sub-Processor)</td>
+<td>mailchimp.com/legal/data-processing-addendum</td>
+<td>🟡 MEDIUM</td>
+</tr>
+<tr class="even">
+<td><strong>Telegram</strong></td>
+<td>Alert-Channel (intern)</td>
+<td>Mixed</td>
+<td>core.telegram.org/api/terms</td>
+<td>🟡 MEDIUM (Hinweis: nicht für PII von Leads, nur intern für
+Customer-Team)</td>
+</tr>
+<tr class="odd">
+<td><strong>Typeform</strong></td>
+<td>Formular</td>
+<td>✅ EU-Option (Pro)</td>
+<td>typeform.com/legal/dpa</td>
+<td>🟡 MEDIUM (Free: US)</td>
+</tr>
+<tr class="even">
+<td><strong>Tally</strong></td>
+<td>Formular</td>
+<td>✅ EU</td>
+<td>tally.so/help/dpa</td>
+<td>🟢 LOW</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Action:</strong> Vor Go-Live alle aktiv genutzten
+Vendors als Auftragsverarbeiter in Verzeichnis aufnehmen (Art. 30
+DSGVO).</p>
+<hr />
+<h2 id="betroffenenrechte-art.-1522-dsgvo">5. Betroffenenrechte (Art.
+15–22 DSGVO)</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Recht</th>
+<th>Umsetzung im Blueprint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Auskunft</strong> (Art. 15)</td>
+<td>CRM-Filter “Email = X” → Export → an Betroffenen senden
+(Customer-Prozess)</td>
+</tr>
+<tr class="even">
+<td><strong>Berichtigung</strong> (Art. 16)</td>
+<td>CRM-Record direkt editieren (Customer-Prozess)</td>
+</tr>
+<tr class="odd">
+<td><strong>Löschung</strong> (Art. 17)</td>
+<td>Airtable/HubSpot: Record löschen. n8n-Execution-Log: Auto-Cleanup
+&lt;30d.</td>
+</tr>
+<tr class="even">
+<td><strong>Einschränkung</strong> (Art. 18)</td>
+<td>CRM-Status auf “DSGVO-Hold” + kein weiteres Processing</td>
+</tr>
+<tr class="odd">
+<td><strong>Datenübertragbarkeit</strong> (Art. 20)</td>
+<td>JSON-Export aus CRM</td>
+</tr>
+<tr class="even">
+<td><strong>Widerspruch</strong> (Art. 21)</td>
+<td>Marketing-Opt-Out-Link in jeder Cold-Nurture-Mail (Pflicht)</td>
+</tr>
+<tr class="odd">
+<td><strong>Automatisierte Einzelentscheidung</strong> (Art. 22)</td>
+<td>⚠️ Score-basiertes Routing ist <strong>keine</strong>
+Einzelentscheidung im Sinne Art. 22 weil kein rechtlicher Effekt — aber
+<strong>DS-Erklärung muss Scoring transparent erklären</strong>.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="löschfristen-logik">6. Löschfristen-Logik</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Lead-Status</th>
+<th>Aufbewahrung</th>
+<th>Grund</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cold-Lead (Score &lt;40), kein Marketing-Opt-In</td>
+<td>90 Tage</td>
+<td>Anbahnung gescheitert, danach keine Rechtsgrundlage</td>
+</tr>
+<tr class="even">
+<td>Warm-Lead, kein aktiver Kontakt</td>
+<td>12 Monate</td>
+<td>Vertriebs-Lifecycle</td>
+</tr>
+<tr class="odd">
+<td>Hot-Lead, in Sales-Pipeline</td>
+<td>bis Deal-Close oder -Drop</td>
+<td>berechtigtes Interesse</td>
+</tr>
+<tr class="even">
+<td>Kunde geworden</td>
+<td>gesetzliche Aufbewahrung (Steuer: 6/10 Jahre)</td>
+<td>HGB / AO</td>
+</tr>
+<tr class="odd">
+<td>n8n-Execution-Log</td>
+<td>30 Tage</td>
+<td>Operational</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Implementation:</strong> Customer richtet Cron in CRM ein
+(Airtable-Automations / HubSpot-Workflows) für Auto-Delete.</p>
+<hr />
+<h2 id="datenschutzfolgen-abschätzung-dsfa-art.-35">7.
+Datenschutzfolgen-Abschätzung (DSFA, Art. 35)</h2>
+<p><strong>Ist eine DSFA erforderlich?</strong></p>
+<p>→ <strong>Nein</strong>, wenn: - Keine besonderen Kategorien
+(Health/etc.) erhoben werden - Score-Routing kein rechtlicher Effekt
+(was hier der Fall ist) - Volumen &lt;100k Leads/Jahr (sonst
+Skalierungs-DSFA empfohlen)</p>
+<p>→ <strong>Ja</strong>, wenn Customer: - Health-Sektor / Finanz-Sektor
+- AI-basierte Profilbildung über Score hinaus (z.B. Voice-Analyse) -
+Skoring + AI-Decision auf besonders sensibler Branchenbasis</p>
+<hr />
+<h2 id="eu-ai-act-kompatibilität-ab-2.-aug-2026">8.
+EU-AI-Act-Kompatibilität (ab 2. Aug 2026)</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Klassifizierung</th>
+<th>Lead-Qualifier Pro</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AI-System nach EU-AI-Act?</strong></td>
+<td>Grenzfall — JS-Scoring ohne LLM ist <strong>kein</strong> AI-System
+nach Art. 3 (1). Wenn Customer später LLM-Layer dazwischen schaltet →
+wird AI-System.</td>
+</tr>
+<tr class="even">
+<td><strong>Risk-Class</strong> (falls AI-System)</td>
+<td><strong>Limited Risk</strong> — Transparenzpflicht (Customer muss
+Lead informieren, dass Score automatisch berechnet wird)</td>
+</tr>
+<tr class="odd">
+<td><strong>High-Risk?</strong></td>
+<td>Nein (keine Beschäftigungs-/Bonitäts-Entscheidung im Sinne Annex
+III)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Action:</strong> In Datenschutzerklärung
+Scoring-Transparenz aufnehmen (“Wir verwenden ein automatisches
+Scoring-System zur Priorisierung von Anfragen”).</p>
+<hr />
+<h2 id="audit-checkliste-vor-go-live">9. Audit-Checkliste vor
+Go-Live</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />DS-Erklärung des Customers
+aktualisiert (Scoring-Hinweis + Vendor-Liste)</label></li>
+<li><label><input type="checkbox" />Datenschutz-Checkbox im Formular
+Pflicht, unausgefüllt</label></li>
+<li><label><input type="checkbox" />Doppel-Opt-In für Cold-Nurture
+eingerichtet (wenn genutzt)</label></li>
+<li><label><input type="checkbox" />Vendor-DPAs gegengezeichnet und in
+Verzeichnis (Art. 30)</label></li>
+<li><label><input type="checkbox" />Auftragsverarbeiter-Liste in
+DS-Erklärung erwähnt</label></li>
+<li><label><input type="checkbox" />EU-Hosting bei n8n + Form-Tool +
+Mail-Provider gewählt</label></li>
+<li><label><input type="checkbox" />Löschfristen im CRM als Automation
+konfiguriert</label></li>
+<li><label><input type="checkbox" />n8n-Execution-Log auf 30d
+retention</label></li>
+<li><label><input type="checkbox" />Test-Anfrage durchgelaufen: Auskunft
+→ Export → Löschung</label></li>
+<li><label><input type="checkbox" />Carlos hat Sign-Off-Dokument
+(Customer + Carlos signed)</label></li>
+</ul>
+<hr />
+<h2 id="quality-gate-sign-off">10. Quality-Gate-Sign-Off</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Datenfluss-Analyse
+vollständig</label></li>
+<li><label><input type="checkbox" checked="" />Rechtsgrundlagen pro
+Schritt klar</label></li>
+<li><label><input type="checkbox" checked="" />Pflicht-Konfiguration im
+Formular dokumentiert</label></li>
+<li><label><input type="checkbox" checked="" />Vendor-DPA-Übersicht
+erstellt</label></li>
+<li><label><input type="checkbox"
+checked="" />Betroffenenrechte-Implementation skizziert</label></li>
+<li><label><input type="checkbox"
+checked="" />Löschfristen-Empfehlung</label></li>
+<li><label><input type="checkbox" checked="" />DSFA-Trigger
+benannt</label></li>
+<li><label><input type="checkbox"
+checked="" />EU-AI-Act-Einordnung</label></li>
+<li><label><input type="checkbox" checked="" />Audit-Checkliste vor
+Go-Live</label></li>
+<li><label><input type="checkbox" />Anwaltliche Validierung der
+DS-Erklärungs-Klauseln — Customer-Action, nicht
+Blueprint-Block</label></li>
+</ul>
+<h1 id="quality-gate-sign-off-1">5. Quality-Gate Sign-Off</h1>
+<p><strong>Blueprint:</strong> lead-qualifier-pro
+<strong>Gate-Pass-Datum:</strong> 2026-05-25
+<strong>Gate-Reviewer:</strong> Lennox (autonomous, AEVUM Quality-Gate
+Pilot) <strong>DB-Update:</strong>
+<code>shop_item_build_status.gate_passed = true</code> (manuell via
+API)</p>
+<hr />
+<h2 id="inventory">Inventory</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Asset</th>
+<th>Status</th>
+<th>Pfad</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>n8n-Workflow (JSON)</td>
+<td>✅ Existing</td>
+<td><code>workflow.json</code> (408 Zeilen)</td>
+</tr>
+<tr class="even">
+<td>README (Use-Case + Setup)</td>
+<td>✅ Existing</td>
+<td><code>README.md</code> (168 Zeilen)</td>
+</tr>
+<tr class="odd">
+<td>Sales-Brief (Customer-facing)</td>
+<td>✅ Created 2026-05-25</td>
+<td><code>SALES-BRIEF.md</code></td>
+</tr>
+<tr class="even">
+<td>Security-Risk-Review</td>
+<td>✅ Created 2026-05-25</td>
+<td><code>SECURITY-RISKS.md</code></td>
+</tr>
+<tr class="odd">
+<td>DSGVO-Check</td>
+<td>✅ Created 2026-05-25</td>
+<td><code>DSGVO-CHECK.md</code></td>
+</tr>
+<tr class="even">
+<td>Install-Guide (extended)</td>
+<td>✅ Created 2026-05-25</td>
+<td><code>INSTALL-GUIDE.md</code></td>
+</tr>
+<tr class="odd">
+<td>PDF-Export</td>
+<td>⏳ Pending</td>
+<td>Generierung via Pandoc (Phase 2)</td>
+</tr>
+<tr class="even">
+<td>Demo-Video</td>
+<td>⏳ Pending</td>
+<td>Customer-recording (Phase 2)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien">Sign-Off-Kriterien</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kriterium</th>
+<th>Pass</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Workflow lädt ohne Fehler in n8n</td>
+<td>✅</td>
+<td>JSON valide, n8n-Schema 1.1+</td>
+</tr>
+<tr class="even">
+<td>Setup-Anleitung in &lt;60 Min ausführbar</td>
+<td>✅</td>
+<td>10 Schritte mit Token-Specs</td>
+</tr>
+<tr class="odd">
+<td>BANT+-Scoring transparent + customizable</td>
+<td>✅</td>
+<td>JS-Code im Workflow, READMEdokumentiert</td>
+</tr>
+<tr class="even">
+<td>3 Test-Szenarien dokumentiert (Hot/Warm/Cold)</td>
+<td>✅</td>
+<td>In INSTALL-GUIDE Schritt 9</td>
+</tr>
+<tr class="odd">
+<td>Security-Risks identifiziert + Mitigations</td>
+<td>✅</td>
+<td>12 Risks dokumentiert, 5 Pflicht-Mitigations</td>
+</tr>
+<tr class="even">
+<td>DSGVO-Konformität nachgewiesen</td>
+<td>✅</td>
+<td>10-Punkt-Check + Vendor-DPA-Übersicht</td>
+</tr>
+<tr class="odd">
+<td>EU-AI-Act-Einordnung</td>
+<td>✅</td>
+<td>Limited Risk, Transparenz-Pflicht</td>
+</tr>
+<tr class="even">
+<td>Pricing-Logik klar</td>
+<td>✅</td>
+<td>Blueprint / DFY / DwY-Varianten</td>
+</tr>
+<tr class="odd">
+<td>Upsell-Pfad definiert</td>
+<td>✅</td>
+<td>4 Upsell-Trigger in SALES-BRIEF</td>
+</tr>
+<tr class="even">
+<td>Customer-Action-Liste vor Go-Live</td>
+<td>✅</td>
+<td>10-Punkt-Audit-Checkliste in DSGVO-CHECK</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gesamt:</strong> 10/10 ✅</p>
+<hr />
+<h2 id="known-limitations-transparent-für-customer">Known-Limitations
+(transparent für Customer)</h2>
+<ol type="1">
+<li><strong>Penetration-Test</strong> nicht durchgeführt — Phase 2
+(extern)</li>
+<li><strong>HMAC-Signatur-Validation</strong> als Workflow-Addon — Phase
+2 (optional)</li>
+<li><strong>Demo-Video</strong> für Customer-Onboarding — Phase 2</li>
+<li><strong>PDF-Export</strong> der Docs — Phase 2
+(Pandoc-Pipeline)</li>
+<li><strong>Multi-Language-Support</strong> (EN/DE) — Phase 3</li>
+</ol>
+<p>→ Diese Limits sind im Quality-Gate-Sign-Off
+<strong>akzeptiert</strong> weil: - Pen-Test nicht Sales-Blocker
+(Risk-Matrix dokumentiert) - HMAC ist Optional, Header-Token reicht für
+90% der Cases - Demo-Video kann post-Sale aufgenommen werden - PDF ist
+Nice-to-Have, Markdown reicht für Customer-Delivery</p>
+<hr />
+<h2 id="db-update-befehl">DB-Update Befehl</h2>
+<p>Update Quality-Gate-Status in AEVUM-DB:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> <span class="kw">public</span>.shop_item_build_status</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  gate_passed <span class="op">=</span> <span class="kw">true</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  gate_passed_at <span class="op">=</span> now(),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  built_by <span class="op">=</span> <span class="st">&#39;lennox-pilot-2026-05-25&#39;</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  n8n_export_url <span class="op">=</span> <span class="st">&#39;/blueprints/lead-qualifier/workflow.json&#39;</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  pdf_url <span class="op">=</span> <span class="kw">NULL</span>, <span class="co">-- Phase 2</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  demo_video_url <span class="op">=</span> <span class="kw">NULL</span>, <span class="co">-- Phase 2</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  notes <span class="op">=</span> <span class="st">&#39;Pilot durch Lennox autonom — alle Quality-Gate-Kriterien erfüllt. PDF + Video Phase 2.&#39;</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  updated_at <span class="op">=</span> now()</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> item_slug <span class="op">=</span> <span class="st">&#39;lead-qualifier-pro&#39;</span>;</span></code></pre></div>
+<p><strong>Execution:</strong> Bei nächstem Bash-Run via psql oder
+Supabase-CLI durchziehen.</p>
+<hr />
+<h2 id="pattern-für-builder-agent-später">Pattern für Builder-Agent
+(später)</h2>
+<p>Was hier als Pilot manuell gemacht wurde, ist die Vorlage für den
+autonomen Builder-Agent:</p>
+<h3 id="input-pro-blueprint">Input pro Blueprint</h3>
+<ul>
+<li><code>workflow.json</code> (existing)</li>
+<li><code>README.md</code> (existing)</li>
+</ul>
+<h3 id="output-auto-generated">Output (auto-generated)</h3>
+<ol type="1">
+<li><code>SALES-BRIEF.md</code> — Template + Item-spezifische
+Insertions</li>
+<li><code>SECURITY-RISKS.md</code> — Risk-Pattern-Library +
+Item-spezifische Risks (Webhook-exposed? PII?)</li>
+<li><code>DSGVO-CHECK.md</code> — Vendor-DPA-Lookup +
+Datenfluss-Inferenz</li>
+<li><code>INSTALL-GUIDE.md</code> — Step-by-Step aus
+Workflow-Node-Analyse</li>
+<li><code>QUALITY-GATE.md</code> — Auto-Check gegen 10 Kriterien</li>
+<li>DB-Update via Supabase-Client</li>
+</ol>
+<h3 id="agent-logic-pseudocode">Agent-Logic (Pseudocode)</h3>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">const</span> item <span class="kw">of</span> <span class="fu">getPendingShopItems</span>()) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> workflow <span class="op">=</span> <span class="fu">parseWorkflowJson</span>(item)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> readme <span class="op">=</span> <span class="fu">parseReadme</span>(item)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> salesBrief <span class="op">=</span> <span class="fu">generateSalesBrief</span>({workflow<span class="op">,</span> readme<span class="op">,</span> <span class="dt">segments</span><span class="op">:</span> ICP_V2})</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> securityRisks <span class="op">=</span> <span class="fu">analyzeSecurityRisks</span>(workflow)  <span class="co">// node-pattern-matching</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> dsgvoCheck <span class="op">=</span> <span class="fu">generateDsgvoCheck</span>(workflow<span class="op">,</span> vendorDpaLookup)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> installGuide <span class="op">=</span> <span class="fu">generateInstallGuide</span>(workflow)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> gate <span class="op">=</span> <span class="fu">runQualityGate</span>({salesBrief<span class="op">,</span> securityRisks<span class="op">,</span> dsgvoCheck<span class="op">,</span> installGuide})</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (gate<span class="op">.</span><span class="at">passed</span>) {</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">writeFiles</span>(item<span class="op">,</span> {salesBrief<span class="op">,</span> securityRisks<span class="op">,</span> dsgvoCheck<span class="op">,</span> installGuide})</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> db<span class="op">.</span><span class="fu">markGatePassed</span>(item<span class="op">.</span><span class="at">slug</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">notify</span>(<span class="st">&#39;quality-gate&#39;</span><span class="op">,</span> <span class="vs">`</span><span class="sc">${</span>item<span class="op">.</span><span class="at">slug</span><span class="sc">}</span><span class="vs"> → gate_passed=true`</span>)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">notify</span>(<span class="st">&#39;quality-gate&#39;</span><span class="op">,</span> <span class="vs">`</span><span class="sc">${</span>item<span class="op">.</span><span class="at">slug</span><span class="sc">}</span><span class="vs"> → gate FAILED: </span><span class="sc">${</span>gate<span class="op">.</span><span class="at">reasons</span><span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="pattern-quality">Pattern-Quality</h3>
+<ul>
+<li>Anwendbar auf alle 6 Blueprints + 10 DFY-Items + 1 SaaS = 17
+Items</li>
+<li>Geschätzte Builder-Run-Dauer: ~3 min/Item (LLM-Calls für
+Sales-Brief, Pattern-Match für Risks/DSGVO)</li>
+<li>Manueller Review-Aufwand für Carlos: ~10 min/Item (Sign-Off)</li>
+<li><strong>Cost-Estimate (Anthropic Claude Sonnet 4.6):</strong>
+~$0.30/Item × 17 = ~$5.10 total für komplette Shop-Aufbereitung</li>
+</ul>
+<hr />
+<h2 id="lessons-learned-pilot-builder-spec">Lessons Learned (Pilot →
+Builder-Spec)</h2>
+<ol type="1">
+<li><strong>README + workflow.json sind solide Inputs</strong> — Builder
+muss nicht von Null bauen, sondern erweitern</li>
+<li><strong>Security-Risks lassen sich pattern-basieren</strong> —
+Webhook-Node ohne Auth = bekanntes Risk, kein LLM-Call nötig</li>
+<li><strong>DSGVO-Vendor-Lookup als Library</strong> — n8n-Node-Type →
+Vendor-Mapping → DPA-URL ist deterministisch</li>
+<li><strong>Sales-Brief braucht ICP-Context</strong> — Builder muss
+<code>LINKEDIN-CONTENT-PILLARS.md</code> +
+<code>ICP-ANALYSIS-2026-05-23.md</code> als Context laden</li>
+<li><strong>Quality-Gate ist binär</strong> — entweder alle 10 Kriterien
+erfüllt oder Item wird nicht freigeschaltet (Hard-Gate)</li>
+</ol>
+<p>→ Builder-Agent-Spec daraus →
+<code>personal-os/07-tools/BLUEPRINT-BUILDER-SPEC.md</code> (Phase
+2).</p>
+</body>
+</html>

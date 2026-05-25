@@ -1,283 +1,256 @@
-# AEVUM Install-Guide — Reporting Dashboard Blueprint
+# AEVUM Install Guide — Reporting Dashboard Blueprint
 
-**Blueprint:** `reporting-dashboard-setup`
-**Geschätzte Setup-Zeit:** 60–90 Minuten (Self-Service) | 2h (DwY mit AEVUM)
-**Schwierigkeit:** Mittel — technisches Grundverständnis für Service Accounts und n8n erforderlich
+**Workflow:** `AEVUM — Reporting Dashboard`
+**Nodes:** 6 | **Geschätzte Setup-Zeit:** 45–90 Minuten
+**Schwierigkeitsgrad:** Einsteiger bis Fortgeschrittener
 
 ---
 
-## Vorab-Check: Alles vorhanden?
+## Vorab-Check
 
-Vor Start dieser Anleitung sicherstellen, dass alle Tools und Zugänge bereitstehen.
+Stelle sicher, dass alle folgenden Voraussetzungen erfüllt sind, bevor du mit dem Setup beginnst.
 
-| Tool / Zugang | Spezifikation | Pflicht | Wo besorgen |
+### Tool-Tabelle
+
+| Tool | Version / Specs | Pflicht | Prüfen |
 |---|---|---|---|
-| n8n Instanz | v1.30+ (self-hosted oder Cloud) | Ja | [n8n.io](https://n8n.io) / eigener Server |
-| Google Cloud Account | Kostenloser Account reicht | Ja | [console.cloud.google.com](https://console.cloud.google.com) |
-| GA4 Property | Muss existieren, min. 7 Tage Daten | Ja | [analytics.google.com](https://analytics.google.com) |
-| GA4 Property ID | Format: `123456789` (nur Zahlen) | Ja | GA4 Admin → Property Settings |
-| Service Account JSON | Privater Schlüssel als .json-Datei | Ja | Wird in Schritt 2 erstellt |
-| SMTP-Zugangsdaten oder Resend API Key | TLS-fähig, Port 587 oder 465 | Ja | Eigener Mailserver / [resend.com](https://resend.com) |
-| Meta Business Manager (optional) | System User Token, nicht persönlicher Token | Optional | [business.facebook.com](https://business.facebook.com) |
-| Google Sheets (optional) | Für manuelle KPI-Eingabe + Kommentarfeld | Empfohlen | Google Drive |
+| n8n | min. 1.30.0 (self-hosted) oder Cloud Starter | Ja | `n8n --version` oder n8n Cloud Dashboard |
+| Google Cloud Console Zugriff | Google-Konto mit Berechtigung, Service Accounts zu erstellen | Ja | [console.cloud.google.com](https://console.cloud.google.com) |
+| GA4 Property | Mind. 14 Tage Daten, du bist Property-Administrator | Ja | GA4 Admin Panel |
+| SMTP-Account oder Resend.com | SMTP: TLS-Port 587 oder 465; Resend: API-Key | Ja | Testmail senden können |
+| Google Sheets (optional) | Lese-Zugriff für Service Account | Empfohlen | Sheet-URL verfügbar |
+| Meta Business Manager (optional) | System User Token mit `ads_read` Permission | Optional | Meta Business Settings |
 
-**Token-Specs:**
-- **GA4 Service Account:** JSON-Key-Datei mit Feldern `private_key`, `client_email`, `project_id`
-- **Meta System User Token:** Permissions `ads_read`, `business_management` — kein Ablauf bei System User (im Gegensatz zu User Access Token)
-- **Resend API Key:** Format `re_XXXXX` — aus Resend Dashboard → API Keys
+### Token-Specs
 
----
-
-## Schritt 1: n8n absichern (Pflicht vor allem anderen)
-
-Nur wenn noch nicht erledigt:
-
-```bash
-# docker-compose.yml — Pflicht-Umgebungsvariablen
-environment:
-  - N8N_BASIC_AUTH_ACTIVE=true
-  - N8N_BASIC_AUTH_USER=admin
-  - N8N_BASIC_AUTH_PASSWORD=<starkes-passwort>
-  - N8N_ENCRYPTION_KEY=<32-byte-hex-zufallswert>
-  - EXECUTIONS_DATA_PRUNE=true
-  - EXECUTIONS_DATA_MAX_AGE=7
-  - N8N_HOST=<deine-domain.de>
-  - N8N_PROTOCOL=https
-```
-
-**Prüfen:** n8n unter `https://deine-domain.de` erreichbar, Login erforderlich. Wenn n8n Cloud: Region auf EU (Frankfurt) stellen — Settings → Organizational Settings.
+| Token-Typ | Format | Scope / Rechte | Ablauf |
+|---|---|---|---|
+| Google Service Account JSON | JSON-File mit `private_key`, `client_email`, `project_id` | `analytics.readonly` | Kein automatischer Ablauf (bis manuelle Rotation) |
+| Meta System User Token | 200+ Zeichen String | `ads_read`, `read_insights` | 60 Tage (Long-lived Token) |
+| Resend API Key | `re_xxxxxxxxxxxx` | Mail senden | Kein Ablauf (bis Widerruf) |
+| SMTP App-Passwort | Provider-spezifisch (z.B. Gmail 16-Zeichen) | SMTP Auth | Kein Ablauf (bis Widerruf) |
 
 ---
 
-## Schritt 2: Google Service Account erstellen
+## Schritt 1 — Google Cloud Service Account erstellen
 
-1. Öffne [Google Cloud Console](https://console.cloud.google.com)
-2. Neues Projekt erstellen: Name z.B. `n8n-reporting-prod`
-3. Suchleiste: `Analytics Data API` → **aktivieren**
-4. Navigation: **IAM & Admin → Service Accounts**
-5. Klick auf **"Service Account erstellen"**
+1. Öffne [console.cloud.google.com](https://console.cloud.google.com)
+2. Projekt wählen oder neu erstellen (Name z.B. `n8n-reporting`)
+3. Linkes Menü: **"APIs & Dienste"** → **"Bibliothek"**
+4. Suche nach **"Google Analytics Data API"** → **"Aktivieren"**
+5. Linkes Menü: **"IAM & Admin"** → **"Dienstkonten"**
+6. **"Dienstkonto erstellen"** klicken
    - Name: `n8n-reporting`
-   - Rolle: **Viewer** (nicht mehr!)
-   - Klick durch bis Fertig
-6. Service Account anklicken → Tab **"Keys"** → **"Schlüssel hinzufügen" → JSON**
-7. JSON-Datei wird heruntergeladen — **sicher aufbewahren, nicht in Git committen**
+   - Beschreibung: `Service Account für n8n Reporting Dashboard`
+   - Rolle: **Betrachter** (Viewer) — nicht mehr, nicht weniger
+7. **"Fertig"** klicken
+8. Das neue Dienstkonto anklicken → Tab **"Schlüssel"**
+9. **"Schlüssel hinzufügen"** → **"Neuen Schlüssel erstellen"** → **JSON** → **"Erstellen"**
+10. JSON-Datei wird automatisch heruntergeladen — sicher aufbewahren, nur einmal downloadbar
 
-**Service Account zur GA4 Property hinzufügen:**
-1. [analytics.google.com](https://analytics.google.com) → Admin → Property (die richtige auswählen)
-2. **Property Access Management** → **"+"** oben rechts
-3. E-Mail aus der JSON-Datei eintragen (Feld: `client_email`, Format: `n8n-reporting@projektname.iam.gserviceaccount.com`)
-4. Rolle: **Analyst**
-5. Einladung bestätigen — kein E-Mail-Bestätigungsschritt nötig, direkt aktiv
+> Diese JSON-Datei enthält den privaten Schlüssel. Sie gehört nicht in Git, nicht in Slack, nicht in E-Mails.
 
 ---
 
-## Schritt 3: Credentials in n8n anlegen
+## Schritt 2 — Service Account zu GA4 hinzufügen
 
-### GA4 Service Account
-
-1. n8n → **Settings → Credentials → "+ Credential"**
-2. Suche nach: `Google Service Account`
-3. JSON-Datei-Inhalt öffnen (Texteditor), folgende Felder eintragen:
-   - **Service Account Email:** Wert aus `client_email`
-   - **Private Key:** Wert aus `private_key` (inkl. `-----BEGIN RSA PRIVATE KEY-----` Header)
-4. Credential speichern als `GA4 Reporting Service Account`
-
-### SMTP / Resend
-
-**Option A — Resend (empfohlen):**
-1. "+ Credential" → `SMTP`
-2. Host: `smtp.resend.com`, Port: `587`, Security: `STARTTLS`
-3. User: `resend`, Password: `<dein-resend-api-key>`
-
-**Option B — Eigener Mailserver:**
-1. "+ Credential" → `SMTP`
-2. Host + Port + TLS gemäß eigenem Mail-Provider
-3. Sicherstellen: Port 587 oder 465, niemals Port 25
+1. Öffne [analytics.google.com](https://analytics.google.com)
+2. Klicke unten links auf **"Admin"** (Zahnrad-Icon)
+3. In der Property-Spalte: **"Property-Zugriffsverwaltung"**
+4. Blau **"+"** oben rechts → **"Nutzer hinzufügen"**
+5. E-Mail-Adresse: aus der JSON-Datei den Wert `client_email` kopieren (Format: `n8n-reporting@projektname.iam.gserviceaccount.com`)
+6. Rolle: **Analyst**
+7. **"Hinzufügen"** klicken
+8. Notiere die **Property-ID** (Admin → Property-Einstellungen → "Property-ID": eine reine Zahl, z.B. `123456789`)
 
 ---
 
-## Schritt 4: Workflow importieren
+## Schritt 3 — n8n Credentials einrichten
 
-1. n8n → **Workflows → "+ Import"**
-2. Blueprint-JSON-Datei auswählen (`reporting-dashboard-setup.json`)
-3. Workflow erscheint im Editor
-4. Noch **nicht aktivieren** — erst konfigurieren
+### Google Service Account Credential
+
+1. In n8n: **"Credentials"** → **"Add Credential"** → Suche nach **"Google Service Account"** (nicht OAuth2)
+2. Felder ausfüllen aus der JSON-Datei:
+   - **Service Account Email:** Wert von `client_email`
+   - **Private Key:** Wert von `private_key` (inklusive `-----BEGIN PRIVATE KEY-----` und `-----END PRIVATE KEY-----`)
+3. **"Save"** klicken — n8n verschlüsselt die Werte mit dem `N8N_ENCRYPTION_KEY`
+
+### E-Mail Credential (Resend empfohlen)
+
+**Option A — Resend:**
+1. [resend.com](https://resend.com) Account erstellen, API-Key generieren
+2. In n8n: Credential-Typ **"Resend"** → API-Key einfügen
+3. Absender-Domain in Resend verifizieren (DNS-Einträge setzen)
+
+**Option B — SMTP:**
+1. In n8n: Credential-Typ **"SMTP"**
+2. Host, Port, User, Passwort (App-Passwort, nicht Haupt-Passwort) eintragen
+3. TLS: aktiviert, Port 587 (STARTTLS) oder 465 (SSL)
 
 ---
 
-## Schritt 5: Node "Set: Konfiguration" befüllen
+## Schritt 4 — Workflow importieren
 
-Diesen Node öffnen (linker Klick → Edit). Folgende Felder setzen:
+1. In n8n: **"Workflows"** → **"Add Workflow"** → **"Import from File"** (oder "Import from URL")
+2. Die Blueprint-JSON-Datei hochladen
+3. Workflow öffnet sich mit 6 Nodes
 
-| Feld | Wert | Beispiel |
+---
+
+## Schritt 5 — Config-Node ausfüllen
+
+Öffne den Node **"Set: Konfiguration"** und trage folgende Werte ein:
+
+| Parameter | Wo zu finden | Beispielwert |
 |---|---|---|
-| `ga4PropertyId` | GA4 Property ID (nur Zahlen) | `123456789` |
-| `reportRecipients` | JSON-Array mit E-Mail-Adressen | `["chef@firma.de","marketing@firma.de"]` |
-| `reportTitle` | Name für den Report-Header | `Mein Unternehmen Weekly KPI` |
-| `currency` | Währung für Ad-Spend-Anzeige | `EUR` |
-
-**Empfohlen:** Empfänger als Env-Var auslagern (Security-Risiko #3):
-```
-{{ $env.N8N_REPORT_RECIPIENTS }}
-```
-Dann in `.env`: `N8N_REPORT_RECIPIENTS=chef@firma.de,marketing@firma.de`
+| `ga4PropertyId` | GA4 Admin → Property-Einstellungen | `123456789` |
+| `reportRecipients` | Deine Entscheidung | `["chef@firma.de", "marketing@firma.de"]` |
+| `reportTitle` | Frei wählbar | `Weekly Marketing Report — Meine GmbH` |
+| `currency` | EUR oder USD | `EUR` |
 
 ---
 
-## Schritt 6: Node "HTTP: GA4 Report" konfigurieren
+## Schritt 6 — GA4 API Node konfigurieren
 
-1. Node öffnen → **Credential:** `GA4 Reporting Service Account` auswählen
-2. URL prüfen: `https://analyticsdata.googleapis.com/v1beta/properties/{{ $json.ga4PropertyId }}:runReport`
-3. Request-Body enthält Datumsbereich ��� Standard: letzte 7 Tage und Vergleichszeitraum davor. Für erstes Testing auf `last30Days` ändern falls Property noch jung ist.
-
----
-
-## Schritt 7: Node "Email: Report versenden" konfigurieren
-
-1. Node öffnen → **Credential:** zuvor angelegte SMTP-Credential auswählen
-2. **From:** Absender-Adresse eintragen (muss zur SMTP-Domain passen)
-3. **To:** `{{ $json.reportRecipients }}` — aus Konfiguration
-4. **Subject:** `{{ $json.reportTitle }} | KW {{ $now.weekNumber }}`
-5. **HTML-Body:** kommt aus Code Node — kein Eingriff nötig
+1. Node **"HTTP: GA4 Report"** öffnen
+2. Credential-Feld: das in Schritt 3 erstellte Google Service Account Credential wählen
+3. URL prüfen: enthält `{{$json.ga4PropertyId}}` — wird aus Set-Node übernommen
+4. Methode: POST, Header `Content-Type: application/json` — bereits gesetzt
 
 ---
 
-## Schritt 8: Test-Run — 3 Szenarien
+## Schritt 7 — E-Mail-Node konfigurieren
 
-**Vor dem Test:** Schedule Trigger deaktivieren (damit kein ungewollter Montags-Versand). Stattdessen manuell triggern.
-
-### Szenario A — Happy Path
-
-1. Workflow manuell starten (▶ Button oben)
-2. Prüfen: Alle Nodes Grün? Keine Fehler?
-3. E-Mail im Postfach angekommen? Report sieht korrekt aus?
-4. KPIs realistisch (keine Nullwerte, kein `undefined`)?
-
-### Szenario B — GA4 Fehler simulieren
-
-1. Im "Set: Konfiguration" Node: `ga4PropertyId` auf `000000000` (ungültige ID) setzen
-2. Workflow starten
-3. Erwartetes Verhalten: HTTP Node wirft Fehler, Workflow stoppt
-4. Prüfen: Kommt eine Fehler-Notification? (Wenn Error-Workflow eingerichtet: ja)
-5. Danach: Property ID wieder korrekt setzen
-
-### Szenario C — Leere GA4-Daten
-
-1. Zeitraum im GA4-Node auf `yesterday` → `yesterday` ändern (ein Tag, wahrscheinlich wenig Daten)
-2. Workflow starten
-3. Prüfen: Report enthält `0`-Werte statt `undefined`/`NaN`? Performance-Ampel zeigt "Rot"?
-4. Zeitraum danach zurück auf Standard setzen
+1. Node **"Email: Report versenden"** öffnen
+2. Credential: das in Schritt 3 erstellte Mail-Credential wählen
+3. **"To"**-Feld: `{{$json.reportRecipients.join(', ')}}` oder Array-Expression — je nach n8n-Version prüfen
+4. **"Subject"**: `{{$json.reportTitle}} – KW {{$json.reportKw}}`
+5. **"HTML"**: bereits mit `{{$json.reportHtml}}` vorbelegt — nicht ändern
 
 ---
 
-## Schritt 9: Workflow aktivieren
+## Schritt 8 — Test-Run (3 Szenarien)
 
-1. Alle Test-Szenarien erfolgreich? Checklist aus Security und DSGVO abgehakt?
-2. Schedule Trigger Node prüfen: **"Montag, 07:00 Uhr"** — Timezone korrekt? (Standard: UTC — ggf. auf `Europe/Berlin` anpassen)
-3. Workflow oben rechts auf **"Aktiv"** setzen (Toggle)
-4. Bestätigen: Workflow erscheint in Workflows-Liste mit grünem Status
+Führe alle Tests mit dem **"Test Workflow"**-Button aus (kein Live-Trigger nötig).
 
-**Nächster regulärer Lauf:** Kommenden Montag 07:00 Uhr. Zur Kontrolle: n8n → Workflow → Executions zeigt nächsten geplanten Lauf.
+### Szenario 1: Happy Path
+
+- GA4 Property hat Daten der letzten 14 Tage
+- Erwartetes Ergebnis: Report-HTML wird generiert, Mail landet in Inbox
+- Prüfen: Alle 6 Nodes grün, keine Fehler in Execution-Log
+
+### Szenario 2: Leere GA4-Response (neues Property)
+
+- Property hat weniger als 7 Tage Daten
+- Vorgehen: Im GA4 API Node `dateRange` temporär auf `30daysAgo` ändern
+- Erwartetes Ergebnis: Report erscheint mit Nullwerten statt Fehlermeldung
+- Prüfen: Code Node verarbeitet leere Arrays ohne Crash
+
+### Szenario 3: Ungültige E-Mail-Adresse
+
+- `reportRecipients` mit Tipp-Fehler (z.B. `chef@firma`) belegen
+- Erwartetes Ergebnis: E-Mail-Node gibt Fehler, Error-Workflow feuert
+- Prüfen: Fehler-Notification kommt an (nur wenn Error-Workflow eingerichtet)
 
 ---
 
-## Schritt 10: Monitoring einrichten
+## Schritt 9 — Aktivierung und Schedule
 
-Minimales Monitoring ohne Extra-Tools:
+1. Alle Tests erfolgreich: oben rechts **"Activate"**-Toggle einschalten
+2. Der Workflow läuft ab sofort jeden Montag um 07:00 Uhr (Zeitzone prüfen!)
+3. **Zeitzone prüfen:** Schedule Trigger öffnen → Timezone muss `Europe/Berlin` (oder deine Zeitzone) sein
 
-1. **n8n Executions Log** wöchentlich prüfen (montags nach Report-Versand): n8n → Workflow → Executions — letzter Eintrag grün?
-2. **E-Mail-Empfang prüfen:** Erster Montag nach Go-Live — Report angekommen?
+> n8n Cloud: Zeitzone wird aus Account-Einstellungen gezogen. Self-hosted: `GENERIC_TIMEZONE=Europe/Berlin` in .env setzen.
 
-Empfohlenes Monitoring mit Error-Workflow:
+### Monitoring nach Aktivierung
 
-1. Neuen n8n-Workflow erstellen: "Error Handler"
-2. Trigger: **"n8n Trigger (Error Trigger)"**
-3. Node: E-Mail oder Slack-Nachricht → "Workflow [Name] fehlgeschlagen: {{ $json.execution.error.message }}"
-4. Diesen Error-Workflow in den Workflow-Settings des Report-Workflows als "Error Workflow" eintragen
+- Erste drei Montage: Execution-Log manuell prüfen (n8n → Executions)
+- Prüfpunkte: Node-Laufzeiten, Payload-Größe, Fehlerfreiheit
+- Nach 3 erfolgreichen Ausführungen: Monitoring auf Error-Workflow-Alerting verlassen
+
+---
+
+## Schritt 10 — Meta Ads (optional)
+
+Falls Meta Ads-Daten gewünscht:
+
+1. Meta Business Manager: System User mit `ads_read` Berechtigung erstellen
+2. Long-lived Token generieren (60 Tage, Ablauf im Kalender eintragen)
+3. Im Code Node: Meta-Daten-Block aktivieren (Kommentierung entfernen)
+4. Ad Account ID (Format: `act_XXXXXXXXX`) in Set-Node eintragen
+5. n8n Credential: HTTP Header Auth mit `Authorization: Bearer <TOKEN>`
 
 ---
 
 ## Troubleshooting
 
-### Problem 1: GA4 gibt 403 PERMISSION_DENIED zurück
+### Problem 1: GA4 API gibt 403 zurück
 
-**Ursache:** Service Account wurde der GA4 Property nicht hinzugefügt, oder falsche Property ID.
-
+**Ursache:** Service Account hat keinen Zugriff auf die GA4 Property.
 **Lösung:**
-1. GA4 Admin → Property Access Management → Service Account E-Mail vorhanden?
-2. Property ID prüfen: Nur die Zahlen, kein `properties/` Prefix
-3. Google Cloud Console: Analytics Data API aktiviert?
-4. Wartezeit: Nach Hinzufügen des Service Accounts kann es 5–10 Minuten dauern
+1. GA4 Admin → Property Access Management → Service Account E-Mail prüfen
+2. Property-ID prüfen: nur die Zahl, kein `properties/` Präfix
+3. Google Analytics Data API in Google Cloud Console aktiviert? (Schritt 1, Punkt 4)
 
-### Problem 2: E-Mails landen im Spam-Ordner
+### Problem 2: Report-E-Mail landet im Spam
 
-**Ursache:** SPF/DKIM nicht konfiguriert, oder Absender-Domain hat schlechte Reputation.
-
+**Ursache:** SPF/DKIM der Absender-Domain nicht konfiguriert.
 **Lösung:**
-1. SPF-Record prüfen: `dig TXT deine-domain.de` — enthält `v=spf1`?
-2. Resend.com nutzen: DKIM ist automatisch konfiguriert
-3. Absender-Adresse auf bestehende Domain-Adresse setzen (nicht `noreply@gmail.com`)
-4. Test mit [mail-tester.com](https://mail-tester.com)
+- Resend.com nutzen (automatische DKIM-Konfiguration via DNS)
+- Alternativ: SPF-Record für Absender-Domain beim Domain-Registrar setzen
+- Absender-Adresse muss zur verifizierten Domain passen
 
-### Problem 3: Report enthält Nullwerte oder `undefined`
+### Problem 3: Schedule läuft nicht / läuft zur falschen Zeit
 
-**Ursache:** GA4 Property hat weniger als 7 Tage Daten, oder Metriken-Namen stimmen nicht mit GA4-Konfiguration überein.
-
-**Lösung:**
-1. Im GA4 Node: Zeitraum auf `last30Days` stellen für ersten Test
-2. GA4 Realtime-Report prüfen: Kommen überhaupt Events an?
-3. Im Code Node: `console.log(JSON.stringify($input.all()))` am Anfang einfügen, Execution Log prüfen
-4. Metriken-Namen gegen [GA4 Metrics Reference](https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema) abgleichen
-
-### Problem 4: Meta Ads Node schlägt fehl
-
-**Ursache:** Access Token abgelaufen (User Token: 60 Tage) oder falsche Permissions.
-
-**Lösung:**
-1. Meta Business Manager → System Users → System User Access Token generieren (kein Ablaufdatum)
-2. Permissions: `ads_read`, `business_management`
-3. Im HTTP Node: Authorization Header `Bearer <token>` prüfen
-4. Testweise: Meta-Abschnitt im Code Node auskommentieren, Rest des Reports ohne Meta-Daten laufen lassen
-
-### Problem 5: Schedule Trigger läuft zur falschen Zeit
-
-**Ursache:** n8n läuft in UTC, Konfiguration war auf lokale Zeit bezogen.
-
+**Ursache:** Zeitzone in n8n nicht korrekt gesetzt.
 **Lösung:**
 ```bash
-# n8n Timezone in Env-Vars setzen
+# In .env (self-hosted):
 GENERIC_TIMEZONE=Europe/Berlin
+# n8n neu starten
 ```
-Schedule Trigger Einstellung: "07:00" in der konfigurierten Timezone.
+n8n Cloud: Settings → Account → Timezone prüfen und auf `Europe/Berlin` setzen.
+
+### Problem 4: Code Node Fehler "Cannot read property of undefined"
+
+**Ursache:** GA4 API hat leere Response geliefert (keine Daten im Zeitraum).
+**Lösung:** Im Code Node: Null-Checks für alle `$input.item.json`-Zugriffe hinzufügen:
+```javascript
+const sessions = $input.item.json.sessions ?? 0;
+const conversions = $input.item.json.conversions ?? 0;
+```
+
+### Problem 5: Meta Access Token abgelaufen
+
+**Ursache:** Meta User Token hat 60-Tage-Limit.
+**Lösung:**
+1. Meta Business Manager → System Users → Token erneuern
+2. Neuen Token in n8n Credential aktualisieren
+3. Long-lived Token via Meta Graph API Explorer für längere Laufzeit generieren
 
 ---
 
-## Wartung-Schedule
+## Wartungs-Schedule
 
-| Aufgabe | Intervall | Aufwand |
+| Intervall | Aufgabe | Zeitaufwand |
 |---|---|---|
-| Service Account JSON-Key rotieren | Alle 90 Tage | 15 Min |
-| Meta System User Token prüfen (falls aktiv) | Monatlich | 5 Min |
-| n8n Execution Logs manuell prüfen | Wöchentlich | 2 Min |
-| n8n Updates einspielen | Bei Minor Releases (~monatlich) | 30 Min |
-| SMTP/Resend Zustellung prüfen (Bounce-Rate) | Monatlich | 5 Min |
-| GA4-Metriken-Konfiguration prüfen | Bei GA4-Property-Änderungen | 30 Min |
-| KPI-Schwellenwerte anpassen | Quartalsweise | 15 Min |
+| Wöchentlich (automatisch) | Workflow läuft, Report kommt | 0 min |
+| Monatlich | Execution-Log kurz prüfen, Fehler-Quote checken | 5 min |
+| Alle 60 Tage | Meta Access Token erneuern (falls genutzt) | 10 min |
+| Alle 90 Tage | Google Service Account Key rotieren | 15 min |
+| Bei GA4-Property-Änderungen | Property-ID und Metriken in Config-Node prüfen | 20 min |
+| Bei n8n-Update | Workflow-Kompatibilität testen (Node-Versionen) | 30 min |
 
 ---
 
 ## DFY-Alternative
 
-Wer den Setup nicht selbst durchführen möchte:
+Wer diesen Setup nicht selbst durchführen möchte:
 
-**AEVUM Done-for-You (S-Tier)** übernimmt:
-- Komplettes Setup nach dieser Anleitung
-- Service Account erstellen und sichern
-- n8n-Instanz absichern (Reverse Proxy, Auth, Encryption Key)
-- SMTP/Resend konfigurieren inkl. DKIM-Test
-- Error-Workflow implementieren
-- Erste Testläufe und Kalibrierung
-- Übergabe-Session (30 Min) mit Erklärung aller Nodes
-- 4 Wochen Hypercare (Fehler werden innerhalb 24h behoben)
+**AEVUM DFY-Setup** (Done For You):
+- AEVUM übernimmt alle Schritte 1–10 in deiner Infrastruktur
+- Inkl. Security-Konfiguration, Error-Workflow, erster Live-Test
+- Übergabe mit Dokumentation und 30-Tage-Support-Fenster
+- Preis: ab €2.500 Setup (S-Tier)
 
-**Kontakt:** Über AEVUM-Onboarding-Formular — Angabe: Blueprint `reporting-dashboard-setup`, gewünschter Go-Live-Termin.
+Kontakt: Blueprint-Seite → "DFY anfragen"

@@ -1,33 +1,31 @@
-# AEVUM Blueprint: Reporting Dashboard — Weekly KPI-Report auf Autopilot
+# AEVUM Blueprint: Reporting Dashboard — Weekly KPI Automation
 
 ## In einem Satz
 
-Jeden Montag um 07:00 Uhr landet ein vollständiger, optisch sauberer KPI-Report automatisch in den Postfächern deines Teams — ohne dass jemand auch nur einen Tab öffnen muss.
+Jeden Montag um 07:00 liegt der fertige KPI-Report in der Inbox — automatisch aus GA4, Meta Ads und deinem Daten-Sheet zusammengestellt, ohne dass jemand einen Finger rührt.
 
 ---
 
 ## Wer das braucht
 
-| Segment | Situation | Schmerzpunkt |
+| Segment | Typischer Schmerz | Fit |
 |---|---|---|
-| **AG** Agentur (3–50 MA) | Mehrere Kunden-Accounts, wöchentliche Status-Calls | Freitags 2h GA4 + Meta zusammenklicken, dann noch Slides bauen |
-| **PB** Personal Brand / Coach | Solo oder kleines Team, kaum Admin-Ressource | KPIs werden nur angeschaut, wenn "Zeit ist" — also nie systematisch |
-| **FI** Mittelstand B2B-Dienstleister | Marketing-Team 1–3 Personen, Geschäftsführer will Zahlen sehen | Reporting fällt unter den Tisch, weil es kein festes System gibt |
+| **AG** — Agentur (3–50 MA) | Jeder Montag beginnt mit manuellen Daten-Exports für 3–8 Kunden, Marketing-Manager verliert 2–4h | Starker Fit — ein Blueprint pro Kunden-Property skalierbar |
+| **PB** — Personal Brand / Solopreneur | Zahlen werden "irgendwie" verfolgt, meist in Woche 3 dann gar nicht mehr | Guter Fit — zero-maintenance nach Setup, sofortige Klarheit |
+| **FI** — Mittelstand B2B-Dienstleister | Geschäftsführer bekommt Zahlen erst am Mittwoch nach dem Wochentreffen, immer veraltet | Starker Fit — Entscheidungsgrundlage liegt vor dem Montagsmeeting bereit |
 
 ---
 
 ## Was Customer bekommt
 
-1. Fertiger n8n-Workflow (6 Nodes, import-ready JSON)
-2. HTML-Report-Template mit Performance-Ampel (Grün/Gelb/Rot)
-3. Konfigurierbare KPI-Schwellenwerte (Conv.Rate, ROAS, Ad Spend)
-4. Vorwoche-Vergleich automatisch berechnet (Delta absolut + %)
-5. Google Analytics 4 Integration via Service Account (kein OAuth-Refresh-Problem)
-6. Meta Ads Integration (optional, aktivierbar)
-7. Google Sheets / Airtable Hook für manuelle Offline-KPIs
-8. Setup-Anleitung inkl. Service Account, GA4-Berechtigungen, SMTP/Resend
-9. Troubleshooting-Dokumentation für die 4 häufigsten Fehlerbilder
-10. Diese Dokumentations-Suite (Security, DSGVO, Install-Guide)
+1. Fertiger n8n-Workflow (6 Nodes, produktionsbereit, kommentiert)
+2. Wöchentlicher HTML-Report per E-Mail — KPI-Übersicht, Vorwochenvergleich, Performance-Ampel
+3. GA4-Integration via Service Account (kein OAuth-Ablaufdatum-Problem)
+4. Optionaler Meta Ads Kanal (Spend, CPL, ROAS)
+5. Manuelle KPI-Eingabe via Google Sheets (für Offline-Werte)
+6. Konfigurierbare Schwellenwerte für die Performance-Ampel
+7. Setup-Anleitung Schritt für Schritt (inkl. Google Cloud Service Account)
+8. Troubleshooting-Referenz für die 5 häufigsten Fehler
 
 ---
 
@@ -35,85 +33,81 @@ Jeden Montag um 07:00 Uhr landet ein vollständiger, optisch sauberer KPI-Report
 
 ### Vorher / Nachher
 
-| Dimension | Vorher | Nachher |
+| Dimension | Vorher (manuell) | Nachher (Blueprint) |
 |---|---|---|
-| Zeit für wöchentliches Reporting | 1,5–3 h/Woche (manuell) | < 5 Min (Report lesen) |
-| Datenstand bei Montags-Meeting | Freitag-Nachmittag oder veraltet | Heute Morgen, 07:00 Uhr |
-| Konsistenz der KPIs | Jede Woche andere Metriken je nach Ersteller | Immer gleiche Struktur, vergleichbar |
-| Meta Ads + GA4 in einer Ansicht | Copy-Paste aus 2 Tools | Automatisch kombiniert |
-| Offshore-Kommentar / Kontext | Fehlt meist | Freitextfeld aus Google Sheet |
+| Zeitaufwand pro Woche | 2–4h Daten zusammensuchen | ~0 min (Monitoring: 5 min) |
+| Datenfreshness | Mittwoch–Donnerstag | Montag 07:00 Uhr |
+| Fehlerquote | Copy-Paste-Fehler, falsche Zeiträume | Deterministisch, gleiche API-Abfrage jede Woche |
+| Sichtbarkeit | Nur wer ExportZugriff hat sieht Zahlen | Alle Empfänger gleichzeitig, per Mail |
+| Skalierung | Pro Kunde / Projekt +2h Setup | Pro Kunde: Konfiguration duplizieren, 15 min |
 
 ### ROI-Schätzung
 
-**Konservative Annahme:** Marketing-Manager oder Agentur-MA mit 40 EUR/h, 2 h Reporting-Aufwand pro Woche.
+Annahme: Marketing-Manager oder Agenturmitarbeiter, 50 EUR/h interner Kostensatz.
 
-- Eingesparte Zeit: 2 h × 52 Wochen = **104 h/Jahr**
-- Wert: 104 × 40 EUR = **~4.160 EUR/Jahr** nur für eine Person
-- Für Agenturen mit 5+ Kunden-Reports: Multiplikator entsprechend höher
-- Qualitäts-Effekt (weniger Fehler, schnellere Entscheidung): nicht quantifiziert, aber real
+- **2h/Woche gespart × 50 EUR × 52 Wochen = 5.200 EUR/Jahr** pro Property
+- Bei einer Agentur mit 5 Kunden: **26.000 EUR/Jahr** Opportunity Cost zurückgewonnen
+- Setup-Aufwand (Blueprint-Tier): einmalig 2–4h
 
-Blueprint-Setup-Kosten amortisieren sich bei 2h/Woche-Einsparung in unter 6 Wochen.
+> Diese Zahlen sind Schätzungen auf Basis typischer Agenturprozesse. Tatsächliche Einsparung hängt von Anzahl Properties, Reporting-Empfänger und bestehenden Prozessen ab.
 
 ---
 
 ## Pricing-Logic
 
-| Modell | Was Customer macht | Was AEVUM macht | Preis |
+| Tier | Format | Was ist enthalten | Preis |
 |---|---|---|---|
-| **Blueprint (Self-Service)** | Selbst importieren, selbst konfigurieren, Doku lesen | Workflow + diese Doku bereitstellen | Im Bundle / Flat-Fee |
-| **Done-with-You (DwY)** | Credentials besorgen, Testing, Feedback | Gemeinsames Setup-Call (2h), Konfiguration live, 1 Revisions-Runde | **S-Tier: €2–4k Setup, €1k/Mo** |
-| **Done-for-You (DFY)** | Zugänge übergeben, Report-Wünsche definieren | Komplettsetup, Hardening, DSGVO-Konfiguration, 4 Wochen Hypercare | **S/M-Tier: €4–8k Setup, €1–2k/Mo** |
-| **Audit only** | Bestehenden Workflow zeigen | Security + DSGVO-Check, schriftliches Findings-Dokument | **€1.5–2.5k** |
+| **Blueprint (Self-Service)** | Download + Doku | Workflow-File, README, Install-Guide, Security-Hinweise | auf Anfrage / Produktseite |
+| **DFY — Done For You** | AEVUM richtet ein | Alle Blueprint-Inhalte + Setup in deiner Infrastruktur, Test-Run, 1x Anpassung der KPI-Schwellenwerte, 30 Tage E-Mail-Support | S-Tier: €2.500 Setup + €750/Mo Monitoring optional |
+| **DwY — Done with You** | Workshop + Co-Setup | 2h Remote-Session, gemeinsamer Setup, du lernst die Konfiguration selbst zu pflegen, Aufzeichnung | €1.200 einmalig |
+| **Audit-Only** | Review bestehender Setup | Sicherheits- und DSGVO-Review deines bestehenden Reporting-Workflows | €1.500 |
 
-Hinweis: Dieser Blueprint ist technisch S-Tier. Wer mehr als 3 Datenquellen, Multi-Client-Reporting oder Custom-Dashboard-Frontend braucht, landet in M-Tier (€8–20k Setup).
+> Preise netto zzgl. MwSt. Für Agenturen mit mehr als 3 Properties: Staffelkonditionen auf Anfrage.
 
 ---
 
 ## Voraussetzungen Customer
 
-| Voraussetzung | Beschreibung |
-|---|---|
-| n8n-Instanz | Self-hosted (empfohlen) oder n8n Cloud. Root-Zugriff für Self-hosted nötig. |
-| Google Analytics 4 Property | Muss existieren und min. 7 Tage Daten haben |
-| Google Cloud Account | Für Service Account Erstellung (kostenlos) |
-| SMTP-Zugang oder Resend.com Account | Für E-Mail-Versand |
-| Meta Business Manager (optional) | Nur wenn Meta Ads Teil des Reports sein sollen |
-| Google Sheets (empfohlen) | Für manuelle KPI-Eingabe / Kommentarfeld |
-| Grundlegendes technisches Verständnis | Service Account JSON handhaben, n8n-Node konfigurieren |
+- n8n (self-hosted oder Cloud-Account, min. Starter-Plan)
+- Zugriff auf Google Cloud Console (Service Account erstellen)
+- GA4 Property mit mind. 14 Tagen Daten (Vorwochenvergleich funktioniert sonst nicht vollständig)
+- SMTP-Konto oder Resend.com Account für Mail-Versand
+- Optional: Meta Business Manager Account mit API-Zugriff
+- Grundlegendes Verständnis: Was ist ein API-Key, wie öffne ich n8n Credentials (15-min-Einarbeitung realistisch)
+
+**Nicht vorausgesetzt:** Programmierkenntnisse, eigener Server (n8n Cloud reicht), Meta Ads (optional).
 
 ---
 
 ## Nicht-Ziele
 
-Dieses Blueprint macht **nicht**:
+Dieses Blueprint ist ausdrücklich **nicht** für folgende Use Cases gebaut:
 
-- Kein Live-Dashboard (kein Browser-Frontend, kein Grafana, kein Looker Studio)
-- Kein Multi-Client-Reporting aus einer Instanz heraus (dafür M-Tier Custom-Build)
-- Kein automatischer Alert bei Anomalien (kein "Wenn ROAS < 1.5, Slack-Alert" — separater Blueprint)
-- Keine historische Trendanalyse über mehr als 2 Wochen
-- Kein Google Ads / LinkedIn Ads out of the box
-- Keine Daten-Persistenz / Datenbank — Report wird gebaut und verschickt, nicht gespeichert
-- Kein White-Label-Report mit Kunden-Logo für Agenturen (Erweiterung möglich, nicht im Scope)
+- Real-time Dashboards (Refresh < 24h) — dafür Looker Studio oder Metabase
+- Multi-Property-Rollup in einer Mail (jede GA4 Property braucht eigene Workflow-Instanz)
+- Historische Datenanalyse > 90 Tage (GA4 API-Abfragen auf 7/14 Tage optimiert)
+- KI-gestützte Anomalieerkennung oder automatisches Kommentieren (kein LLM-Call im Workflow)
+- White-Label-Reports mit Kunden-Branding pro Mail (HTML-Template ist statisch)
+- CRM-Sync (HubSpot, Salesforce) — kein nativer Node im Blueprint
 
 ---
 
 ## Upsell-Pfade
 
-| Nächster Schritt | Was es löst | Tier |
-|---|---|---|
-| **Anomaly-Alert Blueprint** | Sofort-Benachrichtigung wenn ROAS abstürzt, nicht erst Montag | S |
-| **Multi-Client Reporting Engine** | Eine n8n-Instanz, N Kunden-Reports, automatische Zuordnung | M |
-| **Looker Studio / Metabase Integration** | Persistentes Dashboard statt Mail | M |
-| **Google Ads + LinkedIn Ads Erweiterung** | Weitere Ad-Kanäle im selben Report | S Add-on |
-| **Slack/Teams Digest statt Mail** | Report in Team-Channel posten | S Add-on |
-| **AEVUM Full-Stack Marketing Automation** | CRM + Lead-Routing + Reporting in einem System | L |
+| Upsell | Trigger | Produkt | Tier |
+|---|---|---|---|
+| Multi-Channel Reporting | Customer hat LinkedIn Ads, TikTok Ads zusätzlich | Erweiterter Reporting-Workflow mit 3+ Kanälen | M |
+| Anomalie-Alerting | "Ich will nicht warten bis Montag wenn ROAS einbricht" | Real-time Alert-Blueprint (Threshold-Trigger, sofortige Slack/Mail-Benachrichtigung) | S |
+| Client Reporting Automation | Agentur mit 5+ Kunden | Multi-Tenant Reporting mit eigenem Portal | L |
+| Data Warehouse Integration | Daten sollen historisch gespeichert werden | BigQuery/Postgres-Anbindung + dbt-Modell | M |
+| Full Marketing Automation Audit | Nach 3 Monaten Nutzung | Kompletter Prozess-Audit: Was automatisieren wir als nächstes? | Audit €2.500 |
 
 ---
 
 ## Conversion-Story
 
-**Für die Agentur:** Du sitzt Freitagabend und weißt, dass morgen früh das Kunden-Meeting ist. Irgendwer muss noch GA4 aufmachen, die Zahlen rausziehen, mit der Vorwoche vergleichen, Meta dazu, alles in eine Mail tippen. Das dauert zwei Stunden, die keiner einkalkuliert hat, und trotzdem ist der Report meistens unvollständig. Mit diesem Blueprint ist der Report Montag früh um 07:00 Uhr im Postfach — bevor dein Team aufwacht. Das Kunden-Meeting beginnt mit echten Zahlen statt Erinnerungen.
+**Die Situation:** Montag, 09:00 Uhr. Das Weekly hat gerade gestartet. Die Frage "Wie lief letzte Woche?" hängt im Raum. Jemand öffnet GA4, jemand anderes exportiert Meta Ads — in zwei verschiedene Versionen einer Excel-Tabelle. Bis die Zahlen auf einem Stand sind, ist es 09:45. Das ist kein Einzelfall, das ist jede Woche.
 
-**Für Personal Brands und Coaches:** Wer solo arbeitet, hat keine Zeit für Infrastruktur. Gleichzeitig weißt du, dass du ohne regelmäßiges Zahlen-Review blind fährst. Dieses Blueprint ist kein Luxus-Tool für Enterprise — es ist ein 6-Node-Workflow, den du in einem halben Tag aufsetzt und der danach wöchentlich automatisch läuft. Du siehst jeden Montag, ob deine Reichweite wächst, ob deine Ads performen, ob deine Conversion-Rate sich bewegt. Das ist die Basis jeder seriösen Geschäftsentscheidung.
+**Was das Blueprint ändert:** Der Report ist um 07:00 Uhr bereits in der Inbox. Sessions, Leads, ROAS, Vorwochenvergleich, Performance-Ampel — alles in einer Mail, alle Empfänger gleichzeitig. Das Meeting beginnt mit einer Entscheidung, nicht mit einem Daten-Export. Der Code läuft deterministisch, zieht immer die gleichen Zeiträume ab, macht keine Copy-Paste-Fehler. Nach dem Setup gibt es nichts zu pflegen — außer wenn sich deine KPIs ändern.
 
-**Für den B2B-Mittelstand:** Geschäftsführer wollen Zahlen sehen, Marketing-Teams wollen keine Stunden in Reporting investieren, und am Ende fehlt das Reporting trotzdem im Management-Meeting. Dieses Blueprint löst genau diesen Konflikt: wöchentlicher Report, automatisch, konsistent, mit Performance-Ampel die auch ein GF in 90 Sekunden lesen kann — ohne dass jemand daran erinnert werden muss.
+**Warum jetzt:** Die manuelle Alternative kostet jede Woche Zeit, die sich summiert. Wer diese Entscheidung auf "irgendwann" verschiebt, zahlt jede Woche denselben Preis. Das Blueprint-Tier ist der Einstieg mit minimalem Commitment — wer die Einrichtung nicht selbst übernehmen will, kommt zum DFY-Setup. In beiden Fällen ist der erste automatisierte Report der konkrete Beweis, dass Automatisierung funktioniert — und der Startpunkt für weitere Prozesse.

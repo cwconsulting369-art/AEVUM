@@ -1,8 +1,8 @@
 # AEVUM Security Risk Matrix — Reporting Dashboard Blueprint
 
-**Blueprint:** `reporting-dashboard-setup`
-**Workflow-Typ:** Scheduled Data Aggregation + HTML Mail Dispatch
-**Bewertungs-Datum:** 2026
+**Workflow-ID:** `reporting-dashboard-setup`
+**Nodes im Scope:** Schedule Trigger, Set Konfiguration, HTTP GA4 Report, Set Daten normalisieren, Code HTML Report, Email Report versenden
+**Review-Datum:** 2025
 **Reviewer:** AEVUM Builder-Agent
 
 ---
@@ -11,64 +11,59 @@
 
 | # | Risiko | Schwere | Mitigation | Customer-Action |
 |---|---|---|---|---|
-| 1 | Service Account JSON mit privatem Schlüssel in n8n Credential Store — bei kompromittiertem n8n-Server vollständiger GA4-Lesezugriff | 🔴 HIGH | Service Account auf minimale Berechtigungen beschränken (Analyst-Rolle, kein Editor), JSON-Key rotieren alle 90 Tage | Service Account-Rotation als Kalender-Reminder einrichten; n8n Credential Store mit Encryption Key sichern |
-| 2 | E-Mail-Report enthält echte Unternehmens-KPIs (Umsatz-Proxys, Ad-Spend, Conversion-Daten) — unverschlüsselter SMTP-Versand = Klartext im Transit | 🔴 HIGH | Ausschließlich TLS-gesicherte SMTP-Verbindung (Port 587 STARTTLS oder 465 SSL); Resend.com als Alternative mit erzwungenem TLS | SMTP-Konfiguration auf TLS prüfen; keine KPI-Reports über Port 25 oder unverschlüsseltes SMTP |
-| 3 | Empfänger-Array im "Set: Konfiguration" Node hardcoded — bei Workflow-Export oder unbefugtem n8n-Zugriff sichtbar | 🟠 MEDIUM | Empfänger-Liste in n8n Environment Variables auslagern; nicht in Workflow-JSON speichern | `N8N_REPORT_RECIPIENTS` als Env-Var setzen, im Node via `{{ $env.N8N_REPORT_RECIPIENTS }}` referenzieren |
-| 4 | GA4 API-Response kann theoretisch PII enthalten (z.B. wenn Custom Dimensions mit User-IDs konfiguriert sind) — diese fließen dann in HTML-Report und E-Mail | 🟠 MEDIUM | GA4-Property auf aggregierte Metriken prüfen; Custom Dimensions mit User-IDs explizit aus dem API-Request ausschließen | GA4 Admin: Custom Definitions prüfen, keine User-Level-Daten im Report-Request anfordern |
-| 5 | Meta Ads Access Token in n8n gespeichert — Token hat typischerweise 60-Tage-Gültigkeit, dann stiller Fehler ohne Alert | 🟠 MEDIUM | Token-Expiry überwachen; n8n Error-Handler Node für HTTP 401/403 von Meta API ergänzen; System User Token statt User Token verwenden | Meta Business Manager: System User Token erstellen (kein persönlicher Account); Token-Ablauf dokumentieren |
-| 6 | n8n self-hosted ohne Authentifizierung oder mit Standard-Passwort erreichbar — Workflow + alle Credentials öffentlich zugänglich | 🔴 HIGH | n8n zwingend hinter Reverse Proxy mit HTTPS; Basic Auth oder SSO aktivieren; nicht auf Port 5678 public exponieren | Nginx/Caddy Reverse Proxy aufsetzen; n8n `N8N_BASIC_AUTH_ACTIVE=true` oder OAuth2 Proxy |
-| 7 | Workflow-Export (JSON) enthält keine Credentials, aber Node-Konfiguration inkl. GA4 Property ID und Empfänger-Array — Information Disclosure bei Weitergabe | 🟡 LOW | Property IDs und E-Mail-Adressen vor Export aus Workflow entfernen oder durch Platzhalter ersetzen | Vor Blueprint-Weitergabe: "Set: Konfiguration" Node auf Platzhalter zurücksetzen |
-| 8 | HTML-Report per `n8n-nodes-base.sendEmail` — kein DKIM/SPF → hohe Spam-Wahrscheinlichkeit + Reputation-Risiko für Absender-Domain | 🟡 LOW | SPF-Record für Absender-Domain setzen; DKIM aktivieren; Resend.com nutzt eigenes DKIM out of the box | DNS-Provider: SPF-Eintrag prüfen/setzen; DKIM-Key im Mailserver hinterlegen |
-| 9 | Code Node ("Code: HTML Report bauen") führt JavaScript aus — bei manipulierten GA4-Daten (z.B. XSS-Payload in Seitentitel) theoretisch HTML-Injection in Report | 🟡 LOW | Alle GA4-String-Werte vor HTML-Rendering escapen | Im Code Node: `String.replace()` oder dedizierte Escape-Funktion vor Template-Einbettung |
-| 10 | Schedule Trigger läuft ohne Failure-Notification — wenn Workflow Montag früh fehlschlägt, merkt niemand, dass der Report nicht ankam | 🟡 LOW | n8n Workflow-Error-Trigger als separaten Notification-Workflow einrichten | Error-Workflow in n8n anlegen: bei Fehler → Slack/E-Mail-Alert an Admin |
-| 11 | Google Sheets mit manuellen KPIs: Zugriffsrechte unklar — wenn Sheet "für alle mit Link" geteilt ist, sind Unternehmens-KPIs öffentlich | 🟠 MEDIUM | Google Sheet auf "Eingeschränkt" setzen; nur Service Account + berechtigte Nutzer | Google Drive: Sheet-Freigabe prüfen, "Jeder mit dem Link" deaktivieren |
-| 12 | n8n Execution-Log speichert Input/Output jedes Nodes — Report-Daten (KPIs, Ad-Spend) im Klartext in n8n-Datenbank | 🟡 LOW | n8n Execution Data Pruning aktivieren; Retention auf max. 7 Tage setzen | `EXECUTIONS_DATA_PRUNE=true`, `EXECUTIONS_DATA_MAX_AGE=7` in n8n Env-Vars |
+| R-01 | **Service Account JSON Key im n8n-Credential gespeichert** — private_key liegt im n8n-Datenbankplain oder verschlüsselt, je nach n8n-Konfiguration. Wenn n8n-Instanz kompromittiert → vollständiger GA4-Lesezugriff | 🔴 CRITICAL | Encryption Key in n8n zwingend setzen (`N8N_ENCRYPTION_KEY`). Key nie in Git. Service Account mit minimal-Rechten (Analyst, nur Lesezugriff). | `N8N_ENCRYPTION_KEY` als Umgebungsvariable setzen, Wert aus Passwortmanager |
+| R-02 | **E-Mail-Empfänger-Array in Set-Node hartcodiert** — wenn Workflow-JSON geteilt oder exportiert wird, sind interne E-Mail-Adressen exponiert | 🟠 HIGH | Empfänger-Array in n8n-Variable oder Umgebungsvariable auslagern, nicht in Workflow-JSON committen | Workflow-JSON nicht in öffentlichen Git-Repos teilen; Credentials und Config trennen |
+| R-03 | **HTTP Request Node gegen GA4 API ohne TLS-Verification-Check** — wenn n8n-Instanz in misconfigured Docker-Setup → MITM möglich | 🟠 HIGH | `SSL Certificates` in n8n HTTP-Node auf "Verify" belassen (Default). Self-signed Certs auf Proxy ausschließen. | TLS-Terminierung am Reverse-Proxy prüfen, kein `NODE_TLS_REJECT_UNAUTHORIZED=0` setzen |
+| R-04 | **Code Node führt arbiträren JS-Code aus** — `Code: HTML Report bauen` ist ein freier Code-Node. Bei Modifikation durch Dritte oder Supply-Chain-Manipulation könnte Exfiltrations-Code eingebaut werden | 🟠 HIGH | Code-Nodes in produktiven Workflows nach Setup einfrieren (n8n Enterprise: Workflow-Locking). Änderungen an Code-Nodes nur nach Review. | Code-Node-Inhalt vor Go-Live reviewen und dokumentieren; Hash des Inhalts festhalten |
+| R-05 | **GA4-Daten enthalten potenziell personenbezogene Informationen** — bei falscher Property-Konfiguration können User-Level-Daten (User-IDs, demographische Daten) in den Report fließen | 🟠 HIGH | Nur aggregierte Metriken abfragen (Sessions, Conversion Rate, keine User-Dimension). GA4 Property auf Datenschutz-Einstellungen prüfen. | GA4 IP-Anonymisierung aktiviert lassen; keine `userId`-Dimension in API-Query |
+| R-06 | **SMTP-Credentials im Klartext in n8n-Konfiguration** — unsichere SMTP-Setups oder App-Passwörter landen in Credentials-Store | 🟡 MEDIUM | Resend.com oder dediziertes API-Key-basiertes Mail-System verwenden statt SMTP mit Passwort. API-Keys sind rotierbar. | Dedizierte Absender-Domain einrichten; kein Haupt-Mailaccount als SMTP-Sender verwenden |
+| R-07 | **Schedule Trigger läuft ohne Fehler-Notification** — wenn GA4 API 403 wirft oder Report leer ist, bemerkt niemand den Ausfall bis zum nächsten Montag | 🟡 MEDIUM | Error-Workflow in n8n konfigurieren (`Settings > Error Workflow`). Slack- oder Mail-Alert bei Workflow-Fehler. | n8n Error Workflow einrichten; Monitoring-Cronjob oder n8n Cloud Execution-History prüfen |
+| R-08 | **Meta Access Token läuft ab** — Meta Marketing API Tokens haben typischerweise 60-Tage-Lebensdauer. Ablauf führt zu stummem Fehler im Report | 🟡 MEDIUM | Token-Ablaufdatum im Kalender setzen. Long-lived Token via Meta Business SDK generieren. Alternativ: Meta-Daten-Block als optionalen Zweig mit Fehler-Handling | Token-Rotations-Erinnerung 7 Tage vor Ablauf im Kalender; Token-Typ prüfen (User vs. System) |
+| R-09 | **Report-HTML enthält keine Output-Encoding-Sicherung** — wenn manueller Kommentar aus Google Sheet Sonderzeichen oder `<script>`-Tags enthält, könnte HTML-Mail XSS-fähig sein (in Mail-Clients mit HTML-Rendering) | ���� MEDIUM | Im Code Node: HTML-Escape aller Werte aus externen Quellen vor Einbettung in Template | Code Node reviewen: `value.replace(/</g, '&lt;').replace(/>/g, '&gt;')` für Sheet-Inhalte |
+| R-10 | **Google Sheets als Datenquelle ohne Zugriffskontrollen** — wenn das Sheet mit "Jeder mit Link" geteilt ist, können externe Personen KPI-Daten einsehen oder Kommentare manipulieren | 🟡 MEDIUM | Sheet-Freigabe auf "Eingeschränkt" setzen; Service Account explizit hinzufügen | Sheet-Freigabe-Einstellungen prüfen: nur Service Account + interne Nutzer |
+| R-11 | **n8n-Instanz ohne Authentifizierung erreichbar** — bei self-hosted n8n ohne Reverse-Proxy-Auth kann jeder den Workflow sehen und Credentials auslesen | 🟡 MEDIUM | n8n hinter Reverse-Proxy mit Basic Auth oder SSO. `N8N_BASIC_AUTH_ACTIVE=true` als Minimum. | n8n-URL nicht öffentlich zugänglich machen; VPN oder IP-Whitelist |
+| R-12 | **Workflow-Execution-Logs enthalten API-Responses mit Metriken** — n8n speichert Input/Output jedes Nodes. Wer Execution-History einsehen kann, sieht alle KPI-Daten | 🟢 LOW | n8n Execution Data Pruning aktivieren. Retention auf 7–14 Tage begrenzen. | `EXECUTIONS_DATA_PRUNE=true`, `EXECUTIONS_DATA_MAX_AGE=168` (7 Tage) setzen |
 
 ---
 
-## Pflicht-Mitigations (nummeriert)
+## Pflicht-Mitigations
 
-### 1. n8n Absichern (vor Go-Live zwingend)
+Folgende Maßnahmen sind **vor Go-Live zwingend erforderlich**:
+
+### 1. n8n Encryption Key setzen
 
 ```bash
-# .env / docker-compose.yml Umgebungsvariablen
-N8N_BASIC_AUTH_ACTIVE=true
-N8N_BASIC_AUTH_USER=admin
-N8N_BASIC_AUTH_PASSWORD=<starkes-passwort-min-20-zeichen>
+# In .env oder docker-compose.yml
+N8N_ENCRYPTION_KEY=<32+ Zeichen, zufällig generiert>
 
-# Execution-Logs begrenzen
+# Key generieren:
+openssl rand -hex 32
+```
+
+> Ohne diesen Key speichert n8n Credentials im Klartext in der SQLite/Postgres-Datenbank.
+
+### 2. Execution-Logs begrenzen
+
+```bash
+# In .env
 EXECUTIONS_DATA_PRUNE=true
-EXECUTIONS_DATA_MAX_AGE=7
-EXECUTIONS_DATA_PRUNE_MAX_COUNT=1000
-
-# Encryption Key für Credentials (einmalig setzen, niemals ändern)
-N8N_ENCRYPTION_KEY=<random-32-byte-hex>
+EXECUTIONS_DATA_MAX_AGE=168
+# Wert in Stunden: 168 = 7 Tage
 ```
 
-### 2. Service Account minimal berechtigen
+### 3. Service Account Minimal-Rechte verifizieren
 
-Nur diese GA4-Rolle: **Analyst** (Lesezugriff auf Reports, kein Schreibzugriff, kein Nutzer-Management)
-
-Im Google Cloud Console: Service Account darf **keine** weiteren APIs außer `analyticsdata.googleapis.com` haben.
-
-```bash
-# Prüfen welche Rollen der Service Account hat:
-gcloud projects get-iam-policy DEIN-PROJECT-ID \
-  --flatten="bindings[].members" \
-  --filter="bindings.members:n8n-reporting@*"
+```
+GA4 Property Access Management:
+- Service Account Rolle: Analyst (NICHT Editor oder Administrator)
+- Keine weiteren Google Cloud APIs aktiviert für diesen Service Account
+- Service Account Keys-Rotation: alle 90 Tage im Kalender
 ```
 
-### 3. SMTP zwingend mit TLS
-
-Im `Email: Report versenden` Node:
-- Port: **587** (STARTTLS) oder **465** (SSL/TLS)
-- **Niemals Port 25** für ausgehende Reports
-- Empfohlen: Resend.com (TLS by default, DKIM out of the box, kostenlos bis 3k/Monat)
-
-### 4. HTML-Injection verhindern (Code Node)
+### 4. HTML Output Encoding im Code Node
 
 ```javascript
-// Escape-Funktion im "Code: HTML Report bauen" Node hinzufügen
+// Im Code Node: Alle externen String-Werte vor HTML-Einbettung escapen
 function escapeHtml(str) {
   if (typeof str !== 'string') return String(str);
   return str
@@ -79,65 +74,65 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-// Alle GA4-Strings durch escapeHtml() führen bevor sie ins Template
-const pageTitle = escapeHtml(item.pagePath || '');
+// Anwendung auf alle Werte aus Google Sheets:
+const kommentar = escapeHtml($input.item.json.kommentar || '');
 ```
 
-### 5. Empfänger aus Workflow-JSON auslagern
+### 5. Error-Workflow konfigurieren
 
-```bash
-# n8n Env-Var setzen
-N8N_REPORT_RECIPIENTS=chef@firma.de,marketing@firma.de
 ```
-
-Im "Set: Konfiguration" Node, Feld `reportRecipients`:
-```
-{{ $env.N8N_REPORT_RECIPIENTS }}
+n8n Settings > Error Workflow:
+- Eigenen Error-Notification-Workflow erstellen
+- Mindestens: Send Email bei Workflow-Fehler
+- Empfänger: technischer Admin, nicht gesamtes Team
 ```
 
 ---
 
-## Empfohlene Mitigations (Best Practice, nicht zwingend)
+## Empfohlene Mitigations (nicht zwingend, aber stark empfohlen)
 
-- **Google Sheet auf dediziertes Service Account beschränken:** Nicht den GA4-Service-Account für Sheets verwenden — separaten Account anlegen
-- **Meta System User Token statt persönlichem Token:** System User in Meta Business Manager anlegen, Token hat kein User-Expiry-Problem
-- **n8n hinter Fail2Ban:** Bei self-hosted n8n wiederholte Login-Versuche blocken
-- **Workflow-Exports vor Weitergabe sanitizen:** Eigenes Pre-Export-Checklist-Item in Team-Prozess
-- **Error-Workflow aufsetzen:** Separater n8n-Workflow der bei Fehler im Report-Workflow per E-Mail oder Slack alarmiert
+- **Resend.com statt SMTP:** API-Key-basiert, bessere Zustellbarkeit, einfacher rotierbar
+- **Google Sheets Zugriff:** Zweites Sheet für historische Reports anlegen — bei Datenpanne ist Verlauf rekonstruierbar
+- **Meta Token Monitoring:** Separater Weekly-Check-Workflow der Token-Ablaufdatum prüft und 7 Tage vorher warnt
+- **Workflow-Versionierung:** n8n Workflow als JSON in privatem Git-Repo versionieren (`.gitignore` für Credential-Exports)
 
 ---
 
 ## Was AEVUM bei DFY zusätzlich macht
 
-- Reverse Proxy (Nginx/Caddy) mit HTTPS aufsetzen und testen
-- n8n Encryption Key generieren und sicher dokumentieren
-- Service Account Rotation-Reminder im Client-Onboarding-Dokument hinterlegen
-- Error-Workflow als Teil des Setups implementieren (kein extra Aufwand)
-- Google Sheet Zugriffsrechte prüfen und korrigieren
-- SMTP/Resend konfigurieren und Test-Delivery mit DKIM-Verification durchführen
-- HTML-Escape-Funktion im Code Node standardmäßig einbauen
-- Initialer Security-Walkthrough mit Customer (30 Min)
+- `N8N_ENCRYPTION_KEY` wird generiert und sicher übergeben (nicht per Mail)
+- Service Account wird mit Minimal-Rechten angelegt und dokumentiert
+- Error-Workflow wird gemeinsam konfiguriert und getestet
+- HTML Output Encoding wird im Code Node vor Übergabe implementiert
+- SMTP vs. Resend-Entscheidung wird gemeinsam getroffen
+- Execution-Log-Retention wird in der n8n-Konfiguration gesetzt
+- Erstes Security-Review nach 30 Tagen im DFY-Scope
 
 ---
 
 ## Known Limits
 
-- Dieser Workflow hat **keine Authentifizierung am Report selbst** — wer die Mail bekommt, sieht die KPIs. Kein Passwort-Schutz auf dem HTML-Content möglich ohne Frontend-Layer.
-- **n8n self-hosted Security liegt vollständig beim Customer** — AEVUM kann Setup absichern, aber Server-Maintenance, OS-Patches, Firewall-Regeln sind Customer-Verantwortung.
-- **Meta API Access Token Rotation** ist manuell — kein automatisches Refresh implementiert. Beim Token-Ablauf schlägt der Workflow still fehl (siehe Risk #5).
-- GA4 Data API hat **Quota-Limits** (default: 50.000 Tokens/Tag pro Property). Bei wöchentlichem Einzelaufruf kein Problem — bei Mehrfach-Triggering (Testing) aufpassen.
+Diese Security-Maßnahmen adressieren **nicht**:
+
+- Kompromittierung der Google-Cloud-Infrastruktur selbst
+- Angreifer mit legitimem Zugriff auf n8n (Insider-Threat)
+- Datenlecks auf Seite der E-Mail-Empfänger (Weiterleitung, geteilte Inboxen)
+- Compliance-Anforderungen über DSGVO-Grundanforderungen hinaus (ISO 27001, SOC 2 — separates Audit erforderlich)
+- Sicherheit des n8n-Host-Systems selbst (OS-Hardening, Firewall — Infrastruktur-Scope)
 
 ---
 
-## Sign-Off Checkliste Security
+## Sign-Off-Checkliste
 
-- [ ] n8n mit HTTPS und Authentifizierung erreichbar
-- [ ] n8n Encryption Key gesetzt und dokumentiert
-- [ ] Service Account hat nur Analyst-Rolle in GA4, keine weiteren API-Scopes
-- [ ] SMTP/Resend mit TLS konfiguriert, Test-Mail erfolgreich
-- [ ] Empfänger-Array in Env-Var ausgelagert (nicht hardcoded im Workflow)
-- [ ] HTML-Escape im Code Node implementiert
-- [ ] Google Sheet Zugriffsrechte auf "Eingeschränkt" gesetzt
-- [ ] Execution-Log Pruning aktiviert (max. 7 Tage)
-- [ ] Error-Workflow vorhanden oder Monitoring-Prozess dokumentiert
-- [ ] Meta Token-Ablauf-Datum dokumentiert (wenn Meta Ads aktiv)
+| # | Maßnahme | Status |
+|---|---|---|
+| 1 | `N8N_ENCRYPTION_KEY` gesetzt und dokumentiert | [ ] |
+| 2 | Execution-Log-Retention konfiguriert (max. 14 Tage) | [ ] |
+| 3 | Service Account Rolle: nur Analyst (kein Edit-Zugriff) | [ ] |
+| 4 | HTML Escape-Funktion im Code Node implementiert | [ ] |
+| 5 | Error-Workflow aktiv und getestet | [ ] |
+| 6 | n8n-Instanz nicht ohne Auth öffentlich erreichbar | [ ] |
+| 7 | E-Mail-Empfänger-Liste geprüft (kein öffentlicher Zugriff auf Workflow-JSON) | [ ] |
+| 8 | Google Sheets Freigabe auf "Eingeschränkt" | [ ] |
+| 9 | Meta Token Ablaufdatum im Kalender eingetragen (falls genutzt) | [ ] |
+| 10 | Erster Test-Run ohne echte Produktionsdaten durchgeführt | [ ] |

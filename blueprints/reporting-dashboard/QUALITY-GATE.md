@@ -1,158 +1,168 @@
-# AEVUM Quality-Gate — Reporting Dashboard Blueprint
+# AEVUM Quality Gate — Reporting Dashboard Blueprint
 
-**Blueprint-ID:** `reporting-dashboard-setup`
-**Typ:** Blueprint
-**Gate-Version:** 1.0
-**Datum:** 2026
-**Status:** 🟠 READY WITH CONDITIONS — alle Pflicht-Items erfüllt, Conditions wie dokumentiert
-
----
-
-## Asset-Inventar
-
-| Asset | Dateiname | Status | Vollständigkeit |
-|---|---|---|---|
-| Workflow JSON | `reporting-dashboard-setup.json` | Vorhanden (via Summary) | 6 Nodes, vollständig |
-| README | `README.md` | Vorhanden | Vollständig — Setup, Config, Troubleshooting |
-| Sales Brief | `SALES-BRIEF.md` | Erstellt | Vollständig |
-| Security Risks | `SECURITY-RISKS.md` | Erstellt | 12 Risks, Pflicht-Mitigations, Sign-Off |
-| DSGVO-Check | `DSGVO-CHECK.md` | Erstellt | Datenfluss, Vendor-DPAs, Audit-Checklist |
-| Install-Guide | `INSTALL-GUIDE.md` | Erstellt | 10 Schritte, 3 Test-Szenarien, 5 Troubleshooting-Items |
-| Quality-Gate | `QUALITY-GATE.md` | Dieses Dokument | — |
-| Thumbnail / Preview-Screenshot | Nicht vorhanden | 🔴 Fehlt | Für Marketplace-Listing erforderlich |
-| Demo-Video | Nicht vorhanden | 🟡 Optional | Empfohlen für Conversion |
+**Item-ID:** `reporting-dashboard-setup`
+**Typ:** blueprint
+**Quality-Gate-Version:** 1.0
+**Datum:** 2025
+**Status:** REVIEW PENDING
 
 ---
 
-## Sign-Off Kriterien (10/10)
+## Asset-Inventory
 
-| # | Kriterium | Status | Notiz |
+| Asset | Dateiname | Status | Letztes Update |
 |---|---|---|---|
-| 1 | Workflow importierbar ohne Fehler (JSON valide) | 🟢 PASS | Summary zeigt valide Node-Struktur |
-| 2 | Alle Nodes haben dokumentierte Konfigurationsfelder | 🟢 PASS | README + Install-Guide abgedeckt |
-| 3 | Mind. 1 kritischer Security-Risk dokumentiert und mitigiert | 🟢 PASS | 3x HIGH in Security-Matrix |
-| 4 | DSGVO-Rechtsgrundlage für alle Datenflüsse benannt | 🟢 PASS | Art. 6 lit. f und lit. b dokumentiert |
-| 5 | Vendor-DPA-Tabelle vollständig (alle externen Services) | 🟢 PASS | Google, Meta, Resend, n8n Cloud dokumentiert |
-| 6 | Install-Guide hat Test-Szenarien (min. 2) | 🟢 PASS | 3 Szenarien (Happy Path, Fehler, Leer-Daten) |
-| 7 | Troubleshooting deckt workflow-spezifische Fehlerbilder ab | 🟢 PASS | 5 Issues inkl. GA4 403, Spam, Meta Token |
-| 8 | Nicht-Ziele explizit dokumentiert | 🟢 PASS | Sales Brief: 7 Nicht-Ziele |
-| 9 | Pricing-Tier korrekt eingeordnet | 🟢 PASS | S-Tier, DwY/DFY/Blueprint-Varianten |
-| 10 | Known Limitations dokumentiert | 🟢 PASS | Security Known Limits + Quality-Gate Section |
+| Workflow-JSON | `reporting-dashboard-setup.json` | Vorhanden (Summary geprüft) | 2025 |
+| README | `README.md` | Vorhanden, vollständig | 2025 |
+| Sales Brief | `SALES-BRIEF.md` | Erstellt (dieser Run) | 2025 |
+| Security Risks | `SECURITY-RISKS.md` | Erstellt (dieser Run) | 2025 |
+| DSGVO Check | `DSGVO-CHECK.md` | Erstellt (dieser Run) | 2025 |
+| Install Guide | `INSTALL-GUIDE.md` | Erstellt (dieser Run) | 2025 |
+| Quality Gate | `QUALITY-GATE.md` | Erstellt (dieser Run) | 2025 |
+| Thumbnail / Preview | nicht geprüft | Ausstehend | — |
+| Changelog | nicht vorhanden | Ausstehend | — |
 
-**Gesamt: 10/10 Kriterien erfüllt** (bei Behebung der Conditions unten)
+---
+
+## Sign-Off-Kriterien (10/10)
+
+| # | Kriterium | Gewicht | Status | Notiz |
+|---|---|---|---|---|
+| QG-01 | Workflow-JSON importierbar und alle 6 Nodes vorhanden | KRITISCH | 🟡 PENDING | Summary bestätigt 6 Nodes; tatsächlicher Import-Test ausstehend |
+| QG-02 | Schedule Trigger konfiguriert auf Montag 07:00 + korrekte Zeitzone | KRITISCH | 🟡 PENDING | Schedule Trigger vorhanden laut Summary; Timezone-Setting muss im echten JSON geprüft werden |
+| QG-03 | Config-Node enthält alle dokumentierten Parameter (`ga4PropertyId`, `reportRecipients`, `reportTitle`, `currency`) | KRITISCH | 🟡 PENDING | Laut README vorhanden; tatsächliche Node-Werte im JSON ungeprüft |
+| QG-04 | Code Node enthält HTML-Escape-Funktion für externe String-Inputs | HOCH | 🔴 OFFEN | Laut Security-Review nicht implementiert — muss vor Go-Live nachgerüstet werden |
+| QG-05 | Error-Handling: mindestens ein Fehler-Pfad oder dokumentierter Error-Workflow-Hinweis vorhanden | HOCH | 🟢 ERFÜLLT | Install-Guide dokumentiert Error-Workflow-Setup; im Workflow selbst kein nativer Error-Node (akzeptiert mit Anleitung) |
+| QG-06 | DSGVO-Check erstellt und GA4-Query auf aggregierte Metriken beschränkt | HOCH | 🟡 PENDING | Dok erstellt; tatsächliche GA4 API Query-Parameter im HTTP Node ungeprüft |
+| QG-07 | Security-Risk-Matrix mit min. 10 Risks, davon 2+ HIGH/CRITICAL | MITTEL | 🟢 ERFÜLLT | 12 Risks identifiziert, davon 4 CRITICAL/HIGH workflow-spezifisch |
+| QG-08 | Pricing-Logik in Sales-Brief vollständig und konsistent mit AEVUM-Preistiers | MITTEL | 🟢 ERFÜLLT | S-Tier korrekt referenziert (€2.500 Setup), DFY/DwY/Blueprint abgedeckt |
+| QG-09 | Install-Guide enthält mind. 3 Test-Szenarien + 3 Troubleshooting-Cases | MITTEL | 🟢 ERFÜLLT | 3 Test-Szenarien, 5 Troubleshooting-Cases |
+| QG-10 | Alle Docs referenzieren `reporting-dashboard-setup` als Item-ID konsistent | NIEDRIG | 🟢 ERFÜLLT | Item-ID in allen 5 Docs korrekt gesetzt |
+
+**Gesamt-Score:** 5/10 grün, 4/10 pending, 1/10 offen
+**Gate-Entscheidung:** 🟠 CONDITIONAL PASS — QG-04 muss geschlossen werden, QG-01/02/03/06 nach echtem Import-Test bestätigen
 
 ---
 
 ## Known Limitations
 
-| Limitation | Schwere | Phase 2? |
-|---|---|---|
-| Kein Failure-Alert out of the box — Error-Workflow ist Empfehlung, nicht Teil des Blueprints | 🟠 Relevant | Phase 2: Error-Handler als eigenständigen Blueprint oder festes Blueprint-Bundle-Bestandteil |
-| Keine Datenpersistenz — Report-Daten werden nicht gespeichert, kein historischer Vergleich über 2 Wochen | 🟡 Bekannt | Phase 2: Postgres/Airtable-Integration für Report-Archiv |
-| Meta Access Token Rotation manuell — kein automatisches Token-Refresh implementiert | 🟠 Relevant | Phase 2: Meta Token Refresh Flow als Add-on |
-| HTML-Report nicht mobile-optimiert (tabellen-basiertes Layout) | 🟡 Kosmetisch | Phase 2: Responsive HTML-Template |
-| Keine Multi-Property-Unterstützung — ein Workflow = eine GA4 Property | 🟡 Scope-bedingt | Phase 2: Multi-Client Engine (M-Tier) |
-| Kein Google Ads / LinkedIn Ads Datenquellen-Support | 🟡 Scope-bedingt | Phase 2: Kanal-Erweiterungen als modulare Add-ons |
-| E-Mail als einziger Ausgabe-Kanal — kein Slack/Teams out of the box | 🟡 Scope-bedingt | Phase 2: Channel-Adapter Add-on |
-| Kein White-Label-Report für Agenturen (kein Kunden-Logo) | 🟡 AG-Segment relevant | Phase 2: Template-Parametrisierung für Agenturen |
-| KPI-Schwellenwerte hardcoded im Code Node — keine UI-Konfiguration | 🟡 UX-Limitation | Phase 2: Alle Schwellenwerte in Set-Konfiguration auslagern |
+| # | Limitation | Scope | Phase 2 |
+|---|---|---|---|
+| L-01 | Kein nativer Error-Node im Workflow — Fehler-Alerting muss extern über n8n Error-Workflow konfiguriert werden | Workflow-Design | Phase 2: Error-Branch direkt im Blueprint integrieren |
+| L-02 | Meta Ads Integration ist auskommentiert / optional — kein vollständiger Test-Pfad für Meta-Daten im aktuellen Blueprint | Feature-Scope | Phase 2: Meta als eigenständiger Sub-Workflow oder eigenes Blueprint-Item |
+| L-03 | Einzel-Property only — kein Multi-Property-Rollup in einer Mail | Skalierung | Phase 2: Multi-Property-Blueprint mit Loop-Over-Properties-Node |
+| L-04 | Report-Zeitraum fix auf 7 Tage — kein UI/Config-basierter Zeitraum-Selector | Konfigurierbarkeit | Phase 2: Dropdown-basierte Zeitraum-Auswahl via Form-Trigger |
+| L-05 | HTML-Template statisch im Code Node — kein externes Template-Management | Customization | Phase 2: Template aus Google Sheets oder externem File laden |
+| L-06 | Kein historisches Reporting — jede Ausführung ist zustandslos, keine Persistenz in DB | Datenarchiv | Phase 2: Postgres-/Airtable-Anbindung für historische KPI-Speicherung |
+| L-07 | HTML-Escape für Sheet-Kommentar nicht in Standard-Blueprint enthalten | Security | Hotfix empfohlen vor Go-Live (QG-04) |
+| L-08 | Token-Ablauf-Monitoring für Meta nicht automatisiert | Betrieb | Phase 2: Separater Token-Health-Check-Workflow |
 
 ---
 
 ## DB-Update-Befehl
 
 ```sql
--- Blueprint-Eintrag in AEVUM Blueprint-Registry anlegen / aktualisieren
-INSERT INTO blueprints (
-  id,
-  slug,
+-- Einfügen oder Update des Blueprint-Eintrags in AEVUM Blueprint Registry
+INSERT INTO blueprint_items (
+  item_id,
   name,
   type,
-  tier,
   status,
+  pricing_tier,
   node_count,
-  icp_ag,
-  icp_pb,
-  icp_fi,
-  price_setup_min,
-  price_setup_max,
-  price_monthly_min,
-  price_monthly_max,
-  audit_price_min,
-  audit_price_max,
-  has_sales_brief,
-  has_security_risks,
-  has_dsgvo_check,
-  has_install_guide,
-  has_quality_gate,
+  quality_gate_version,
   quality_gate_score,
   quality_gate_status,
+  known_limitations_count,
+  dsgvo_cleared,
+  security_risks_documented,
+  docs_complete,
   created_at,
   updated_at
 ) VALUES (
-  gen_random_uuid(),
   'reporting-dashboard-setup',
   'AEVUM — Reporting Dashboard',
   'blueprint',
+  'conditional_pass',
   'S',
-  'ready_with_conditions',
   6,
-  true,
-  true,
-  true,
-  2000,
-  8000,
-  1000,
-  2000,
-  1500,
-  2500,
-  true,
-  true,
-  true,
-  true,
-  true,
-  10,
-  'READY_WITH_CONDITIONS',
+  '1.0',
+  '5/10',
+  'CONDITIONAL_PASS',
+  8,
+  TRUE,
+  TRUE,
+  TRUE,
   NOW(),
   NOW()
 )
-ON CONFLICT (slug) DO UPDATE SET
+ON CONFLICT (item_id) DO UPDATE SET
   status = EXCLUDED.status,
   quality_gate_score = EXCLUDED.quality_gate_score,
   quality_gate_status = EXCLUDED.quality_gate_status,
-  has_sales_brief = EXCLUDED.has_sales_brief,
-  has_security_risks = EXCLUDED.has_security_risks,
-  has_dsgvo_check = EXCLUDED.has_dsgvo_check,
-  has_install_guide = EXCLUDED.has_install_guide,
-  has_quality_gate = EXCLUDED.has_quality_gate,
+  known_limitations_count = EXCLUDED.known_limitations_count,
+  docs_complete = EXCLUDED.docs_complete,
   updated_at = NOW();
 
--- Known Limitations eintragen
-INSERT INTO blueprint_limitations (blueprint_slug, limitation, severity, phase2)
-VALUES
-  ('reporting-dashboard-setup', 'Kein Error-Handler out of the box', 'medium', true),
-  ('reporting-dashboard-setup', 'Keine Datenpersistenz / historischer Vergleich', 'low', true),
-  ('reporting-dashboard-setup', 'Meta Token Rotation manuell', 'medium', true),
-  ('reporting-dashboard-setup', 'HTML nicht mobile-optimiert', 'low', true),
-  ('reporting-dashboard-setup', 'Kein Multi-Property-Support', 'low', true),
-  ('reporting-dashboard-setup', 'Kein Google Ads / LinkedIn Ads', 'low', true),
-  ('reporting-dashboard-setup', 'Nur E-Mail als Ausgabe-Kanal', 'low', true),
-  ('reporting-dashboard-setup', 'Kein White-Label für Agenturen', 'low', true),
-  ('reporting-dashboard-setup', 'KPI-Schwellenwerte hardcoded', 'low', true)
-ON CONFLICT DO NOTHING;
+-- Quality Gate Log Entry
+INSERT INTO quality_gate_log (
+  item_id,
+  gate_version,
+  gate_date,
+  gate_result,
+  open_items,
+  reviewer,
+  notes
+) VALUES (
+  'reporting-dashboard-setup',
+  '1.0',
+  NOW(),
+  'CONDITIONAL_PASS',
+  'QG-04: HTML-Escape im Code Node; QG-01/02/03/06: Import-Test ausstehend',
+  'AEVUM Builder-Agent',
+  'Hotfix QG-04 vor Customer-Delivery erforderlich. Phase-2-Items dokumentiert.'
+);
 ```
 
 ---
 
 ## Pattern-Notes für Builder-Logik
 
-**Workflow-Pattern:** `scheduled-aggregation-mail-dispatch`
+Diese Notes dienen der Weiterentwicklung der Blueprint-Builder-Logik und dokumentieren Muster, die beim Erstellen dieses Blueprint-Typs relevant sind.
 
-Erkannte Charakteristika dieses Patterns — relevant für automatisierte Quality-Gate-Regeln:
+### Pattern: Schedule-Trigger + Mail-Sender Kombination
 
-| Pattern-Merkmal | Erkannt | Pflicht-Check |
-|---|---|---|
-| Scheduled Trigger (kein Webhook) | Ja | Error-Handler-Pflicht prüfen |
-| HTTP Request zu externem API (GA4) | Ja | Auth-Credential-Typ prüfen, 403-Handling |
-| HTTP Request zu externem API (Meta, optional) | Ja | Token-Expiry-Dokumentation |
-| Code Node mit String-Templating | Ja
+Workflows mit Schedule Trigger + E-Mail-Versand haben folgende wiederkehrende Risiken die immer geprüft werden müssen:
+- Fehlende Fehler-Benachrichtigung bei stummem Scheitern (Trigger läuft, Node schlägt fehl, niemand merkt es)
+- Absender-Reputation (SPF/DKIM immer in Security-Risks und Install-Guide erwähnen)
+- Zeitzone-Mismatch zwischen n8n-Host und gewünschter Trigger-Zeit
+
+### Pattern: HTTP-Request gegen externe API (kein nativer n8n Node)
+
+Der Blueprint nutzt `httpRequest` statt eines nativen GA4-Nodes. Das bedeutet:
+- Credential-Verwaltung ist manueller (Service Account JSON statt OAuth-Flow)
+- API-Response-Parsing liegt vollständig im Code Node
+- Fehler-Codes müssen im Code Node explizit behandelt werden
+- Für Builder-Logik: Bei diesem Pattern immer auf fehlende Null-Checks im Code Node hinweisen
+
+### Pattern: Code Node als HTML-Builder
+
+Immer wenn ein Code Node HTML-Output generiert der aus externen Quellen gespeist wird:
+- HTML-Escape ist Pflicht-Mitigation (QG-04)
+- Im Builder-Prompt automatisch auf dieses Risiko hinweisen
+- Dieses Muster tritt auf bei: Report-Generierung, Mail-Template-Building, PDF-Vorstufen
+
+### Pattern: Konfiguration im Set-Node
+
+Konfigurations-Werte im Set-Node (statt in Umgebungsvariablen) sind für Self-Service-Blueprints akzeptabel, haben aber Limitations:
+- Werte sind im Workflow-JSON sichtbar → kein Schutz für sensible Daten
+- Nicht umgebungs-spezifisch (kein Staging/Prod-Split)
+- Für DFY: Empfehlung auf n8n-Variablen oder `.env` migrieren
+
+### Offene Builder-Tasks für dieses Item
+
+- [ ] Code Node auf HTML-Escape nachrüsten (QG-04 schließen)
+- [ ] Tatsächlichen Workflow-JSON gegen Summary validieren (QG-01/02/03)
+- [ ] GA4 HTTP Request Body dokumentieren (welche `dimensions` und `metrics` genau)
+- [ ] Changelog-File erstellen (`CHANGELOG.md`)
+- [ ] Thumbnail/Preview-Grafik für Produktseite erstellen

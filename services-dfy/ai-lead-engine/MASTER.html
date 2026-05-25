@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-25" />
+  <title>AEVUM DFY: ai-lead-engine</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AEVUM DFY: ai-lead-engine</h1>
+<p class="date">2026-05-25</p>
+</header>
+<h1 id="aevum-done-for-you-ai-lead-engine">AEVUM Done-for-You —
+ai-lead-engine</h1>
+<blockquote>
+<p>Generated 2026-05-25. Combined Master-Doc.</p>
+</blockquote>
+<hr />
+<h1 id="sales-brief">1. Sales-Brief</h1>
+<p><strong>In einem Satz:</strong> Wir bauen dir eine vollautomatische
+Lead-Maschine — von Scraping über Qualifikation bis Outreach und
+Tracking — die täglich qualifizierte Prospects in deine Pipeline spült,
+ohne dass dein Team manuell listet, prüft oder anschreibt.</p>
+<hr />
+<h2 id="wer-das-braucht">Wer das braucht</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th>Konkreter Use-Case</th>
+<th>Fit-Rating</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AG</strong> (Agentur 3-50 MA)</td>
+<td>Agentur will Neukundenakquise skalieren ohne BizDev-Hire. Bisher:
+manuelle LinkedIn-Suche, Excel-Listen, sporadisches Outreach. Ergebnis:
+2-3 Calls/Woche durch Glück, nicht System.</td>
+<td>★★★★★</td>
+</tr>
+<tr class="even">
+<td><strong>PB</strong> (Personal Brand)</td>
+<td>Creator/Berater verkauft Coaching, Retainer oder Produkte. Hat
+Audience, aber kein strukturiertes System um B2B-Leads zu identifizieren
+und zu konvertieren. Outreach passiert nicht weil “keine Zeit”.</td>
+<td>★★★★☆</td>
+</tr>
+<tr class="odd">
+<td><strong>FI</strong> (Mittelstand B2B 10-100 MA)</td>
+<td>B2B-Unternehmen mit Vertriebsteam das zu viel Zeit mit Recherche
+verbringt. Sales-Reps sollen reden, nicht listen. Aktuell: 60% der
+Vertriebszeit geht in Pre-Sales-Recherche.</td>
+<td>★★★★��</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="was-customer-bekommt">Was Customer bekommt</h2>
+<ol type="1">
+<li><strong>Lead-Scraping-Pipeline</strong> — Automatisiertes Targeting
+von definierten ICP-Profilen via LinkedIn, Apollo, Clay oder
+Custom-Source. Täglich neue Prospects ohne manuelle Suche.</li>
+<li><strong>ICP-Qualifikations-Layer</strong> — AI-gestützter
+Scoring-Mechanismus der jeden Lead nach definierten Kriterien bewertet
+(Firmengröße, Technologie-Stack, Wachstumssignale,
+Jobtitel-Hierarchie).</li>
+<li><strong>Enrichment-Workflow</strong> — Automatische Anreicherung mit
+verifizierten E-Mails, LinkedIn-URLs, Company-Daten, News-Triggern
+(Funding, Hiring, etc.).</li>
+<li><strong>Outreach-Sequenzen</strong> — Personalisierte
+Multi-Channel-Sequenzen (E-Mail + LinkedIn) mit AI-generierter
+First-Line-Personalisierung pro Lead. Keine Copy-Paste-Templates.</li>
+<li><strong>Follow-Up-Automation</strong> — Regelbasierte
+Follow-Up-Logik: Wer öffnet aber nicht antwortet bekommt andere Message
+als wer nie öffnet. Kein manuelles Tracking.</li>
+<li><strong>Lead-Tracking-Dashboard</strong> — Zentrales View über alle
+Leads: Status, Öffnungsrate, Reply-Rate, Booked Calls. Echtzeit, nicht
+manuell gepflegt.</li>
+<li><strong>CRM-Integration</strong> — Warme Leads (Reply oder
+Calendly-Click) werden automatisch ins CRM gepusht (HubSpot, Pipedrive,
+Notion oder Airtable — je nach Setup).</li>
+<li><strong>Negative-Signal-Filter</strong> — Blacklist-Logik: Existing
+Customers, Competitors, DNCs werden automatisch rausgefiltert. Kein
+manuelles Pflegen.</li>
+<li><strong>Weekly-Performance-Report</strong> — Automatisierter Report:
+Kontaktiert / Geöffnet / Geantwortet / Gebucht. Mit Trend-Vergleich
+Vorwoche.</li>
+<li><strong>Handover-Dokumentation + Playbook</strong> — Vollständige
+Doku wie das System funktioniert, wie man neue Kampagnen aufsetzt, wie
+man ICP-Parameter anpasst.</li>
+</ol>
+<hr />
+<h2 id="mehrwert-konkret">Mehrwert (konkret)</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Vorher</th>
+<th>Nachher</th>
+<th>Schätzwert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Zeit für Lead-Recherche</strong></td>
+<td>8-15h/Woche manuell</td>
+<td>&lt;1h Review des Dashboards</td>
+<td>~12h/Woche gespart</td>
+</tr>
+<tr class="even">
+<td><strong>Outreach-Volumen</strong></td>
+<td>20-50 manuelle Messages/Woche</td>
+<td>200-500 personalisierte Kontakte/Woche</td>
+<td>10x Volumen ohne zusätzlichen Headcount</td>
+</tr>
+<tr class="odd">
+<td><strong>Reply-Rate</strong></td>
+<td>Generisch: 1-3%</td>
+<td>Personalisiert + getimed: 6-12%</td>
+<td>3-5x höhere Conversion</td>
+</tr>
+<tr class="even">
+<td><strong>Pipeline-Velocity</strong></td>
+<td>Unregelmäßig, abhängig von “Lust”</td>
+<td>Täglich neue Leads, konstante Pipeline</td>
+<td>Planbarkeit statt Zufall</td>
+</tr>
+<tr class="odd">
+<td><strong>Revenue-Lift</strong></td>
+<td>Schwer zu messen ohne System</td>
+<td>2-4 zusätzliche Deals/Monat bei 10% Close-Rate</td>
+<td>Bei Ø 5k Deal-Value: +€10-20k/Mo potenziell</td>
+</tr>
+<tr class="even">
+<td><strong>Sales-Rep-Fokus</strong></td>
+<td>60% Recherche, 40% Gespräche</td>
+<td>10% Recherche, 90% Gespräche</td>
+<td>Sales-Effizienz +150%</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Hinweis:</strong> Zahlen sind Benchmarks aus vergleichbaren
+Setups. Tatsächliche Ergebnisse hängen von ICP-Schärfe, Offer-Qualität
+und Markt-Dynamik ab. Wir bauen das System — die Conversion hängt am
+Offer.</p>
+</blockquote>
+<hr />
+<h2 id="pricing-logic">Pricing-Logic</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Tier M</strong></th>
+<th><strong>Tier L</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Setup</strong></td>
+<td>€8.000 – €14.000</td>
+<td>€18.000 – €35.000</td>
+</tr>
+<tr class="even">
+<td><strong>Monthly Retainer</strong></td>
+<td>€1.800 – €2.800</td>
+<td>€3.000 – €5.000</td>
+</tr>
+<tr class="odd">
+<td><strong>Setup:Retainer-Ratio</strong></td>
+<td>~4:1</td>
+<td>~6:1</td>
+</tr>
+<tr class="even">
+<td><strong>Deliverables-Scope</strong></td>
+<td>1 ICP, 1 Channel-Mix (Email + LinkedIn), 1 CRM-Integration, bis 500
+Leads/Mo</td>
+<td>2-3 ICPs, Multi-Channel (Email + LinkedIn + Custom), 2
+CRM-Integrationen, A/B-Sequenzen, bis 2.000 Leads/Mo</td>
+</tr>
+<tr class="odd">
+<td><strong>Laufzeit Min.</strong></td>
+<td>3 Monate</td>
+<td>6 Monate</td>
+</tr>
+<tr class="even">
+<td><strong>Retainer-Leistungen</strong></td>
+<td>System-Monitoring, Kampagnen-Optimierung, monatlicher
+Report-Call</td>
+<td>Alle M-Leistungen + ICP-Expansion, neue Sequenzen,
+Copywriting-Iterationen, Eskalations-Support</td>
+</tr>
+<tr class="odd">
+<td><strong>Passt für</strong></td>
+<td>AG bis 20 MA, PB, FI mit klarem 1-ICP-Fokus</td>
+<td>AG 20-50 MA, FI mit komplexem Vertrieb, mehrere Zielmärkte</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="timeline">Timeline</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th>Inhalt</th>
+<th>Dauer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Phase 1: Discovery &amp; Setup</strong></td>
+<td>ICP-Definition, Tool-Stack-Entscheidung, Scraping-Source-Setup,
+Domain-Warming-Start</td>
+<td>Woche 1-2</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 2: Pipeline Build</strong></td>
+<td>Qualifikations-Logik, Enrichment-Workflow, Blacklist-Setup,
+CRM-Anbindung</td>
+<td>Woche 2-4</td>
+</tr>
+<tr class="odd">
+<td><strong>Phase 3: Copy &amp; Sequenzen</strong></td>
+<td>Outreach-Copy (3-5 Varianten), Follow-Up-Sequenzen,
+Personalisierungs-Logik</td>
+<td>Woche 3-5</td>
+</tr>
+<tr class="even">
+<td><strong>Phase 4: Test &amp; QA</strong></td>
+<td>Soft-Launch mit 50-100 Leads, Reply-Handling-Test,
+Dashboard-Validierung</td>
+<td>Woche 5-6</td>
+</tr>
+<tr class="odd">
+<td><strong>Phase 5: Go-Live &amp; Handover</strong></td>
+<td>Vollbetrieb, Handover-Call, Playbook-Übergabe, Monitoring-Setup</td>
+<td>Woche 6-8</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer">Voraussetzungen Customer</h2>
+<ul>
+<li>Klar definierter ICP (oder Bereitschaft das im Discovery-Call
+gemeinsam zu erarbeiten — kostet Zeit)</li>
+<li>Zugang zu einer Outreach-Domain (nicht Haupt-Domain — wir richten
+Subdomain ein)</li>
+<li>LinkedIn-Account (Sales Navigator empfohlen — ca. €80/Mo
+Customer-seitig)</li>
+<li>Entscheidung über CRM (HubSpot Free reicht für Start)</li>
+<li>Offer muss stehen — wir bauen den Kanal, nicht das Angebot</li>
+<li>1-2h/Woche Verfügbarkeit des Entscheiders in den ersten 4 Wochen für
+Feedback</li>
+</ul>
+<hr />
+<h2 id="nicht-ziele-explizit-out-of-scope">Nicht-Ziele (explizit
+Out-of-Scope)</h2>
+<ol type="1">
+<li><strong>Offer-Entwicklung</strong> — Wir schreiben keine
+Pitch-Decks, entwickeln keine Pakete, definieren keine
+Pricing-Strategie. Das muss Customer mitbringen.</li>
+<li><strong>Call-Handling / Sales-Execution</strong> — Wir buchen keine
+Calls, führen keine Verkaufsgespräche, kein Closing-Support.</li>
+<li><strong>Content-Produktion</strong> — LinkedIn-Posts,
+Thought-Leadership-Content, Newsletter sind kein Teil dieses
+Systems.</li>
+<li><strong>Ad-Kampagnen</strong> — Paid Ads auf LinkedIn oder Google
+sind separates Thema (→ separater Service).</li>
+<li><strong>Inbound-Funnels</strong> — Landing-Pages, Lead-Magnets,
+Webinar-Funnels sind Out-of-Scope.</li>
+<li><strong>Langfristiger Copy-Service</strong> — Wir liefern initiale
+Sequenzen. Laufende Neuentwicklung von Copy ist Retainer-Leistung und
+nach Aufwand.</li>
+<li><strong>CRM-Aufbau from Scratch</strong> — Wir integrieren in
+bestehendes oder einfaches CRM. Komplexes CRM-Setup ist eigener Service
+(→ sales-os).</li>
+</ol>
+<hr />
+<h2 id="upsell-pfade">Upsell-Pfade</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Trigger</th>
+<th>Next Service</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Pipeline läuft, aber Closing-Rate &lt; 20%</td>
+<td><code>sales-os</code> — AI-Scoring + Strukturierte
+Sales-Pipeline</td>
+</tr>
+<tr class="even">
+<td>Lead-Volumen hoch, aber kein Überblick über gesamtes Business</td>
+<td><code>command-center-dashboard</code> — Cross-Tool-Visibility</td>
+</tr>
+<tr class="odd">
+<td>Customer will Inbound parallel aufbauen</td>
+<td><code>content-engine</code> — Content-Production-Pipeline</td>
+</tr>
+<tr class="even">
+<td>CRM zu simpel, braucht custom Workflow-Logik</td>
+<td><code>website-crm</code> — Custom CRM mit Workflow-Engine</td>
+</tr>
+<tr class="odd">
+<td>System läuft, Customer will strategische Automation-Expansion</td>
+<td><code>automation-audit</code> — 90-Tage-Roadmap</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conversion-story">Conversion-Story</h2>
+<p>Jede Agentur, jeder Berater, jedes B2B-Unternehmen das wächst hat
+dasselbe Problem: Der Vertrieb funktioniert wenn jemand aktiv daran
+arbeitet — und bricht ein sobald der Alltag übernimmt. Outreach passiert
+zwischen den Projekten. Listen werden angelegt und vergessen. Follow-Ups
+fallen durchs Raster. Das ist kein Disziplin-Problem. Das ist ein
+System-Problem.</p>
+<p>Die AI Lead Engine löst genau das. Nicht mit Versprechen über
+“KI-Magie”, sondern mit handwerklich sauberem Engineering: Scraping aus
+den richtigen Quellen, Qualifikation nach deinen Kriterien, Outreach mit
+Personalisierung die sich nicht nach Template anfühlt, Follow-Up-Logik
+die keine Leads fallen lässt — und ein Dashboard das dir täglich zeigt
+was passiert. Das System schläft nicht, vergisst keine Follow-Ups und
+beschwert sich nicht über Akquise-Arbeit.</p>
+<p>Was wir dir damit geben ist keine Maschine die Deals schließt — das
+bist immer noch du. Aber du wirst nie wieder in eine Woche starten ohne
+eine volle Pipeline. Du wirst nie wieder rätseln ob dein Outreach
+funktioniert. Und dein Team verbringt seine Zeit mit Gesprächen, nicht
+mit Recherche. Das ist der Unterschied zwischen einem Unternehmen das
+hofft und einem das plant. </p>
+<h1 id="scope-checklist">2. Scope-Checklist</h1>
+<h2 id="in-scope">In-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Item</th>
+<th>Aufwand-Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Discovery</strong></td>
+<td>ICP-Workshop (1 Session, 90 Min) mit Customer</td>
+<td>2h</td>
+</tr>
+<tr class="even">
+<td><strong>Discovery</strong></td>
+<td>ICP-Dokumentation + Scoring-Kriterien-Definition</td>
+<td>3h</td>
+</tr>
+<tr class="odd">
+<td><strong>Scraping</strong></td>
+<td>Setup einer Scraping-Quelle (Apollo / Clay / LinkedIn Sales
+Nav)</td>
+<td>4-6h</td>
+</tr>
+<tr class="even">
+<td><strong>Scraping</strong></td>
+<td>Filter-Logik nach ICP-Parametern (Firmengröße, Branche, Geo,
+Jobtitel)</td>
+<td>3-4h</td>
+</tr>
+<tr class="odd">
+<td><strong>Scraping</strong></td>
+<td>Deduplizierung + Blacklist-Integration</td>
+<td>2h</td>
+</tr>
+<tr class="even">
+<td><strong>Enrichment</strong></td>
+<td>E-Mail-Verifikations-Workflow (Hunter.io / Apollo / ZeroBounce)</td>
+<td>3h</td>
+</tr>
+<tr class="odd">
+<td><strong>Enrichment</strong></td>
+<td>Company-Daten-Anreicherung (Mitarbeiterzahl, Funding,
+Tech-Stack)</td>
+<td>3-4h</td>
+</tr>
+<tr class="even">
+<td><strong>Enrichment</strong></td>
+<td>News-Trigger-Setup (optional, Hiring / Funding Signals)</td>
+<td>2-3h</td>
+</tr>
+<tr class="odd">
+<td><strong>Qualifikation</strong></td>
+<td>AI-Scoring-Logik (GPT-basiert oder regelbasiert je nach
+Komplexität)</td>
+<td>5-8h</td>
+</tr>
+<tr class="even">
+<td><strong>Qualifikation</strong></td>
+<td>Schwellenwert-Definition: “Hot / Warm / Cold” Leads</td>
+<td>2h</td>
+</tr>
+<tr class="odd">
+<td><strong>Outreach</strong></td>
+<td>Outreach-Domain-Setup + DNS-Konfiguration (SPF, DKIM, DMARC)</td>
+<td>2h</td>
+</tr>
+<tr class="even">
+<td><strong>Outreach</strong></td>
+<td>Domain-Warming-Koordination (2-3 Wochen, Customer muss warten)</td>
+<td>Monitoring</td>
+</tr>
+<tr class="odd">
+<td><strong>Outreach</strong></td>
+<td>Copy für 3-5 Sequenz-Varianten (Email Sequence: 3-4 Steps je)</td>
+<td>6-10h</td>
+</tr>
+<tr class="even">
+<td><strong>Outreach</strong></td>
+<td>LinkedIn-Message-Sequenzen (Connect + 2 Follow-Ups)</td>
+<td>4h</td>
+</tr>
+<tr class="odd">
+<td><strong>Outreach</strong></td>
+<td>AI-First-Line-Personalisierung (Clay oder GPT-Integration)</td>
+<td>4-6h</td>
+</tr>
+<tr class="even">
+<td><strong>Outreach</strong></td>
+<td>Sending-Tool-Setup (Instantly / Lemlist / Smartlead — je nach
+Wahl)</td>
+<td>3h</td>
+</tr>
+<tr class="odd">
+<td><strong>Follow-Up</strong></td>
+<td>Verhaltensbasierte Follow-Up-Logik (Opener vs. Non-Opener)</td>
+<td>4h</td>
+</tr>
+<tr class="even">
+<td><strong>Follow-Up</strong></td>
+<td>Bounce-Handling + Unsubscribe-Management</td>
+<td>2h</td>
+</tr>
+<tr class="odd">
+<td><strong>CRM-Integration</strong></td>
+<td>Webhook / API-Verbindung zu CRM (HubSpot / Pipedrive /
+Airtable)</td>
+<td>4-6h</td>
+</tr>
+<tr class="even">
+<td><strong>CRM-Integration</strong></td>
+<td>Lead-Status-Mapping (Contacted → Replied → Booked)</td>
+<td>2h</td>
+</tr>
+<tr class="odd">
+<td><strong>Dashboard</strong></td>
+<td>Performance-Dashboard (Airtable / Notion / Custom — je nach
+Scope)</td>
+<td>5-8h</td>
+</tr>
+<tr class="even">
+<td><strong>Dashboard</strong></td>
+<td>Weekly-Automated-Report (E-Mail-Zusammenfassung Metriken)</td>
+<td>3h</td>
+</tr>
+<tr class="odd">
+<td><strong>QA</strong></td>
+<td>Soft-Launch mit 50-100 Test-Leads, Monitoring, Bug-Fixing</td>
+<td>6-8h</td>
+</tr>
+<tr class="even">
+<td><strong>Handover</strong></td>
+<td>Playbook-Dokumentation (wie man neue Kampagnen aufsetzt)</td>
+<td>4h</td>
+</tr>
+<tr class="odd">
+<td><strong>Handover</strong></td>
+<td>Handover-Call (60 Min, Loom-Video-Walkthrough)</td>
+<td>2h</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gesamt-Estimate Tier M:</strong> 85-110h Engineering + Setup
+<strong>Gesamt-Estimate Tier L:</strong> 140-200h (multi-ICP, A/B-Setup,
+erweiterte Integrationen)</p>
+<hr />
+<h2 id="out-of-scope">Out-of-Scope</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Was Customer NICHT bekommt</th>
+<th>Warum explizit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Offer-/Pricing-Entwicklung</td>
+<td>Wir bauen Kanal, nicht Angebot. Ohne stehendes Offer kein
+Go-Live.</td>
+</tr>
+<tr class="even">
+<td>Sales-Call-Handling oder Closing-Support</td>
+<td>Kein BizDev-as-a-Service. Nur Infrastruktur.</td>
+</tr>
+<tr class="odd">
+<td>Laufendes Copywriting über Retainer hinaus</td>
+<td>Neue Kampagnen-Copies sind Retainer-Leistung, pauschal 2
+Iterationen/Mo enthalten. Mehr = Change Request.</td>
+</tr>
+<tr class="even">
+<td>CRM-Neuaufbau oder komplexe CRM-Customization</td>
+<td>Setup in bestehendem oder Standard-CRM. Kein
+HubSpot-Consulting.</td>
+</tr>
+<tr class="odd">
+<td>Ad-Kampagnen (Paid Social / Search)</td>
+<td>Komplett separates Thema. Eigener Service.</td>
+</tr>
+<tr class="even">
+<td>Content-Erstellung für LinkedIn-Profil</td>
+<td>Profil-Optimierungshinweise geben wir einmalig. Nicht mehr.</td>
+</tr>
+<tr class="odd">
+<td>Lead-Listen-Kauf oder -Beschaffung via bezahlte Datenbanken</td>
+<td>Customer trägt Kosten für Apollo, Clay, Sales Navigator selbst.</td>
+</tr>
+<tr class="even">
+<td>Rechtliche Beratung zu DSGVO / Cold-Outreach-Compliance</td>
+<td>Wir bauen Best-Practice-Setups. Rechtliche Freigabe ist Sache des
+Customers.</td>
+</tr>
+<tr class="odd">
+<td>Reporting-Analyse oder Strategie-Calls über Retainer hinaus</td>
+<td>Monatlicher Call (45 Min) ist inkludiert. Mehr = extra.</td>
+</tr>
+<tr class="even">
+<td>A/B-Testing-Auswertung in Tier M</td>
+<td>Nur in Tier L enthalten. Tier M bekommt eine Sequenz-Variante.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="voraussetzungen-customer-side">Voraussetzungen
+Customer-Side</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Voraussetzung</th>
+<th>Detail</th>
+<th>Kritisch?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Stehender Offer</strong></td>
+<td>Was wird angeboten, an wen, zu welchem Preis. Ohne das kein
+Copy.</td>
+<td>✅ Blocker</td>
+</tr>
+<tr class="even">
+<td><strong>ICP-Klarheit</strong></td>
+<td>Branche, Firmengröße, Geo, Jobtitel der Entscheider. Kann im
+Workshop erarbeitet werden — braucht aber Customer-Input.</td>
+<td>✅ Blocker</td>
+</tr>
+<tr class="odd">
+<td><strong>Outreach-Domain</strong></td>
+<td>Separate Domain oder Subdomain für Cold-Outreach (nicht
+Haupt-Domain). Customer kauft selbst.</td>
+<td>✅ Blocker</td>
+</tr>
+<tr class="even">
+<td><strong>Tool-Zugang</strong></td>
+<td>Apollo / Clay / Sales Nav Account (Kosten: €80-500/Mo
+Customer-seitig).</td>
+<td>✅ Blocker</td>
+</tr>
+<tr class="odd">
+<td><strong>CRM-Entscheidung</strong></td>
+<td>Welches CRM? Zugang für Integration.</td>
+<td>Hoch</td>
+</tr>
+<tr class="even">
+<td><strong>LinkedIn-Account</strong></td>
+<td>Personlicher Account des Founders/Sales-Reps für LinkedIn-Outreach.
+Sales Navigator empfohlen.</td>
+<td>Hoch</td>
+</tr>
+<tr class="odd">
+<td><strong>E-Mail-Sending-Account</strong></td>
+<td>Google Workspace oder Microsoft 365 (nicht Gmail Gratis). Ca.
+€6/Mo.</td>
+<td>Hoch</td>
+</tr>
+<tr class="even">
+<td><strong>Feedback-Verfügbarkeit</strong></td>
+<td>1-2h/Woche in den ersten 4 Wochen. Danach 45 Min/Mo für
+Retainer-Call.</td>
+<td>Mittel</td>
+</tr>
+<tr class="odd">
+<td><strong>DSGVO-Freigabe intern</strong></td>
+<td>Customer klärt intern ob Cold-Outreach-Prozess rechtlich freigegeben
+ist.</td>
+<td>Mittel</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quality-standards">Quality-Standards</h2>
+<p>AEVUM erklärt das System als “Done” wenn folgende Bedingungen erfüllt
+sind:</p>
+<ol type="1">
+<li>Scraping-Pipeline liefert täglich ≥50 qualifizierte Leads (gemäß
+definiertem ICP-Scoring-Threshold) ohne manuellen Eingriff.</li>
+<li>Enrichment-Rate: ≥85% der gescrapten Leads haben verifizierte
+E-Mail-Adresse.</li>
+<li>Outreach-Sequenz ist live, Domain-Warming abgeschlossen (≥2 Wochen),
+kein Spam-Flag in ersten 100 Sends.</li>
+<li>Erste-Line-Personalisierung ist für ≥90% der Leads ausgefüllt (nicht
+leer oder Fallback-Text).</li>
+<li>Follow-Up-Logik ist korrekt verzweigt: Opener vs. Non-Opener
+erhalten unterschiedliche Messages.</li>
+<li>CRM-Integration: Reply oder Calendly-Click triggert automatisch
+Lead-Erstellung im CRM ohne manuelle Intervention.</li>
+<li>Dashboard zeigt: Kontaktiert / Öffnungsrate / Reply-Rate / Gebuchte
+Calls — aktuell, nicht manuell gepflegt.</li>
+<li>Weekly-Report wird automatisch ausgelöst (kein manuelles
+Anstoßen).</li>
+<li>Blacklist / DNC-Filter funktioniert: Test mit bekannten Exclusions
+bestanden.</li>
+<li>Soft-Launch (50-100 Leads) ohne kritische Fehler abgeschlossen,
+Customer hat abgenommen.</li>
+</ol>
+<hr />
+<h2 id="change-request-policy">Change-Request-Policy</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Vorgehen</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Customer will zweite ICP-Zielgruppe hinzufügen (war nicht im
+Scope)</td>
+<td>Change-Request: €1.500-3.000 Setup + ggf. Retainer-Anpassung</td>
+</tr>
+<tr class="even">
+<td>Customer will andere Sending-Plattform nach Setup-Start</td>
+<td>Möglichkeit prüfen. Wenn Plattformwechsel, 50% des Plattform-Setups
+wird neu berechnet.</td>
+</tr>
+<tr class="odd">
+<td>Customer will zusätzliche CRM-Integration (zweites CRM)</td>
+<td>Flat-Rate: €800-1.500 je nach CRM-Komplexität</td>
+</tr>
+<tr class="even">
+<td>Copy-Runden über 2 Revision-Zyklen hinaus</td>
+<td>€250-500 pro Revision-Runde</td>
+</tr>
+<tr class="odd">
+<td>Neuer Markt / neue Geo-Ausweitung nach Go-Live</td>
+<td>Change-Request: €1.000-2.500</td>
+</tr>
+<tr class="even">
+<td>Feature-Request der nicht in Deliverable-Liste steht</td>
+<td>Discovery-Assessment (1-2h intern), dann Angebot. Nichts
+kostenlos.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Grundregel:</strong> Scope-Creep wird immer schriftlich
+(Slack/E-Mail) bestätigt bevor Arbeit beginnt. Kein “mal schnell” ohne
+CR-Freigabe.</p>
+<hr />
+<h2 id="pricing-variations">Pricing-Variations</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Add-On / Variation</th>
+<th>Preis-Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Zweite ICP-Zielgruppe</td>
+<td>+€2.000-4.000 Setup</td>
+</tr>
+<tr class="even">
+<td>A/B-Testing-Framework (2 Sequenz-Varianten parallel)</td>
+<td>+€1.500 Setup</td>
+</tr>
+<tr class="odd">
+<td>News-Trigger-Enrichment (Funding/Hiring-Signale)</td>
+<td>+€800-1.200 Setup</td>
+</tr>
+<tr class="even">
+<td>LinkedIn-Automation via Phantombuster / Dux-Soup</td>
+<td>+€600-1.000 Setup (Customer trägt Tool-Kosten)</td>
+</tr>
+<tr class="odd">
+<td>Custom Reporting-Dashboard (statt Standard-Airtable)</td>
+<td>+€2.000-4.000 Setup</td>
+</tr>
+<tr class="even">
+<td>Mehrsprachige Sequenzen (DE + EN oder andere Kombination)</td>
+<td>+€1.000-1.500 Setup pro Sprache</td>
+</tr>
+<tr class="odd">
+<td>Onboarding Sales-Rep-Training (Team, nicht nur Founder)</td>
+<td>+€500 pauschal</td>
+</tr>
+<tr class="even">
+<td>Retainer-Erhöhung auf tägliches Monitoring + Reaktion</td>
+<td>+€500-800/Mo</td>
+</tr>
+</tbody>
+</table>
+<h1 id="delivery-plan">3. Delivery-Plan</h1>
+<h2 id="phasen">Phasen</h2>
+<h3 id="phase-1-discovery-icp-definition">Phase 1: Discovery &amp;
+ICP-Definition</h3>
+<p><strong>Dauer:</strong> Woche 1-2 <strong>Ziel:</strong> Glasklarer
+ICP, Tool-Stack fixiert, technische Voraussetzungen bestätigt.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Customer-Input nötig?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ICP-Workshop-Call (90 Min)</td>
+<td>Founder + Customer</td>
+<td>Ja — Customer muss Entscheider dabei haben</td>
+</tr>
+<tr class="even">
+<td>ICP-Dokumentation (1 Seite: Firmogr., Technogr., Psychogr.)</td>
+<td>Eng / Founder</td>
+<td>Review durch Customer</td>
+</tr>
+<tr class="odd">
+<td>Scoring-Kriterien-Definition (Hot / Warm / Cold Logik)</td>
+<td>Eng</td>
+<td>Freigabe Customer</td>
+</tr>
+<tr class="even">
+<td>Tool-Stack-Entscheidung (Scraping / Sending / CRM)</td>
+<td>Founder</td>
+<td>Customer gibt Account-Zugang</td>
+</tr>
+<tr class="odd">
+<td>Domain-Setup + DNS-Konfiguration</td>
+<td>Eng</td>
+<td>Customer kauft Domain</td>
+</tr>
+<tr class="even">
+<td>Domain-Warming-Start (Mailwarm / Warmup Inbox)</td>
+<td>Eng</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Onboarding-Checklist an Customer</td>
+<td>Customer Success</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer-Touchpoint:</strong> Kick-off Call (90 Min) +
+schriftliche ICP-Freigabe bis Ende Woche 2.</p>
+<hr />
+<h3 id="phase-2-pipeline-build-scraping-enrichment-qualifikation">Phase
+2: Pipeline Build (Scraping + Enrichment + Qualifikation)</h3>
+<p><strong>Dauer:</strong> Woche 2-4 <strong>Ziel:</strong>
+Funktionierender Scraping-zu-Scoring-Flow ohne Lücken.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Hinweis</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Scraping-Setup in Apollo / Clay (Filter nach ICP-Params)</td>
+<td>Eng</td>
+<td>Needs Account-Zugang</td>
+</tr>
+<tr class="even">
+<td>Automatischer Deduplizierungs-Layer</td>
+<td>Eng</td>
+<td>Verhindert Doppel-Kontakte</td>
+</tr>
+<tr class="odd">
+<td>Blacklist / DNC-Import (existing customers etc.)</td>
+<td>Eng</td>
+<td>Customer liefert Liste</td>
+</tr>
+<tr class="even">
+<td>Enrichment-Workflow (E-Mail-Verifikation + Company-Daten)</td>
+<td>Eng</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>AI-Scoring-Logik (GPT-Call oder regelbasiert)</td>
+<td>Eng</td>
+<td>ICP-Kriterien aus Phase 1</td>
+</tr>
+<tr class="even">
+<td>Schwellenwert-Kalibrierung (Scoring-Test mit 100 Sample-Leads)</td>
+<td>Eng + Founder</td>
+<td>Internes Review</td>
+</tr>
+<tr class="odd">
+<td>Weekly-Sync-Call #1</td>
+<td>Founder + Customer</td>
+<td>Status-Update, erste Lead-Samples zeigen</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Quality-Gate intern:</strong> Scoring-Test mit 100
+Sample-Leads — mind. 80% werden korrekt kategorisiert (Hot/Warm/Cold).
+Founder reviewed vor Customer-Präsentation.</p>
+<hr />
+<h3 id="phase-3-copy-outreach-setup">Phase 3: Copy &amp;
+Outreach-Setup</h3>
+<p><strong>Dauer:</strong> Woche 3-5 <strong>Ziel:</strong>
+Outreach-Sequenzen live, Personalisierungs-Logik aktiv, Sending-Tool
+konfiguriert.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Hinweis</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cold-Email-Sequenz (3-4 Steps, 3 Varianten Tier L / 1 Tier M)</td>
+<td>Founder / Copywriter</td>
+<td>Customer-Review + max. 2 Revision-Zyklen</td>
+</tr>
+<tr class="even">
+<td>LinkedIn-Message-Sequenz (Connect-Request + 2 Follow-Ups)</td>
+<td>Founder / Copywriter</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>AI-First-Line-Personalisierung (Clay GPT-Spalte oder Workflow)</td>
+<td>Eng</td>
+<td>Test mit 20 Leads</td>
+</tr>
+<tr class="even">
+<td>Verhaltensbasierte Follow-Up-Logik (Opener vs. Non-Opener)</td>
+<td>Eng</td>
+<td>Sending-Tool-Setup</td>
+</tr>
+<tr class="odd">
+<td>Sending-Tool-Setup (Instantly / Smartlead / Lemlist)</td>
+<td>Eng</td>
+<td>Domain-Warming muss ≥2 Wo gelaufen sein</td>
+</tr>
+<tr class="even">
+<td>Bounce-Handling + Unsubscribe-Flow</td>
+<td>Eng</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Copy-Freigabe durch Customer</td>
+<td>Customer Success</td>
+<td>Schriftliche Freigabe nötig vor Go-Live</td>
+</tr>
+<tr class="even">
+<td>Weekly-Sync-Call #2</td>
+<td>Founder + Customer</td>
+<td>Copy-Review, Feedback einarbeiten</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Quality-Gate intern:</strong> First-Line-Personalisierung für
+Test-Batch (20 Leads) — 90% müssen korrekt und nicht leer sein. Kein
+“Fallback-Text” sichtbar.</p>
+<hr />
+<h3 id="phase-4-crm-integration-dashboard">Phase 4: CRM-Integration +
+Dashboard</h3>
+<p><strong>Dauer:</strong> Woche 4-6 <strong>Ziel:</strong> Warme Leads
+landen automatisch im CRM, Dashboard zeigt alle Metriken in
+Echtzeit.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Hinweis</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CRM-Verbindung via Webhook / API / Zapier</td>
+<td>Eng</td>
+<td>Zugang zu CRM benötigt</td>
+</tr>
+<tr class="even">
+<td>Lead-Status-Mapping (Contacted → Replied → Booked)</td>
+<td>Eng</td>
+<td>Customer definiert Stage-Namen</td>
+</tr>
+<tr class="odd">
+<td>Calendly-/Buchungs-Link-Tracking (Click = Warm Lead)</td>
+<td>Eng</td>
+<td>Customer muss Calendly-Zugang geben</td>
+</tr>
+<tr class="even">
+<td>Dashboard-Build (Airtable / Notion / Custom)</td>
+<td>Eng</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Weekly-Automated-Report (Make / Zapier E-Mail-Trigger)</td>
+<td>Eng</td>
+<td>An Customer-E-Mail</td>
+</tr>
+<tr class="even">
+<td>Dashboard-Walkthrough für Customer</td>
+<td>Customer Success</td>
+<td>Loom-Video (10-15 Min)</td>
+</tr>
+<tr class="odd">
+<td>Weekly-Sync-Call #3</td>
+<td>Founder + Customer</td>
+<td>Dashboard-Review, CRM-Test</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Quality-Gate intern:</strong> Live-Test: Test-Lead durch
+gesamte Pipeline schicken — Scraping → Scoring → Outreach → CRM-Eintrag.
+Alles muss ohne manuellen Eingriff funktionieren.</p>
+<hr />
+<h3 id="phase-5-soft-launch-qa">Phase 5: Soft-Launch &amp; QA</h3>
+<p><strong>Dauer:</strong> Woche 5-7 <strong>Ziel:</strong>
+Kontrollierter Launch mit 50-100 realen Leads, Bugs gefixed, Customer
+bereit für Vollbetrieb.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Hinweis</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Soft-Launch: 50-100 Leads werden kontaktiert</td>
+<td>Eng + Founder</td>
+<td>Täglich Monitoring erste 3 Tage</td>
+</tr>
+<tr class="even">
+<td>Bug-Fixing (Reply-Handling, Bounce-Rates, Scoring-Anomalien)</td>
+<td>Eng</td>
+<td>Innerhalb 48h nach Identifikation</td>
+</tr>
+<tr class="odd">
+<td>Spam-Rate-Check (Google Postmaster / Microsoft SNDS)</td>
+<td>Eng</td>
+<td>Muss unter 0.1% bleiben</td>
+</tr>
+<tr class="even">
+<td>Reply-Handling-Test (manuelle Antwort simulieren)</td>
+<td>Eng</td>
+<td>CRM-Trigger muss feuern</td>
+</tr>
+<tr class="odd">
+<td>Milestone-Review-Call</td>
+<td>Founder + Customer</td>
+<td>Soft-Launch-Ergebnisse präsentieren</td>
+</tr>
+<tr class="even">
+<td>Customer-Freigabe für Vollbetrieb</td>
+<td>Customer Success</td>
+<td>Schriftlich</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Quality-Gate intern:</strong> Kein Spam-Flag in ersten 100
+Sends. Bounce-Rate &lt;5%. Mind. 1 organischer Reply im Soft-Launch
+(zeigt dass Zustellung funktioniert).</p>
+<hr />
+<h3 id="phase-6-go-live-handover-retainer-start">Phase 6: Go-Live,
+Handover &amp; Retainer-Start</h3>
+<p><strong>Dauer:</strong> Woche 7-8 <strong>Ziel:</strong> System läuft
+autonom, Customer kann es bedienen, Retainer-Modus aktiv.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deliverable</th>
+<th>Verantwortlich</th>
+<th>Hinweis</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Vollbetrieb-Start (tägliche Pipeline läuft)</td>
+<td>Eng</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Playbook-Dokumentation (Notion: wie neue Kampagnen starten)</td>
+<td>Eng + Customer Success</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Handover-Call (60 Min: Live-Walkthrough aller Systemteile)</td>
+<td>Founder + Customer Success</td>
+<td>Aufgezeichnet</td>
+</tr>
+<tr class="even">
+<td>Loom-Video-Serie (3-5 Videos: Dashboard / Kampagnen / CRM)</td>
+<td>Customer Success</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Retainer-Modus aktivieren (Monitoring-Schedule)</td>
+<td>Eng</td>
+<td>Wöchentliches Health-Check</td>
+</tr>
+<tr class="even">
+<td>Monatlicher Retainer-Call einrichten (45 Min Slot)</td>
+<td>Customer Success</td>
+<td>Recurring Booking</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="team-allocation">Team-Allocation</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rolle</th>
+<th>Phase 1</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+<th>Phase 4</th>
+<th>Phase 5</th>
+<th>Phase 6</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Founder</strong></td>
+<td>Lead (ICP-Workshop, Tool-Entscheidung)</td>
+<td>Review</td>
+<td>Copy-Ownership</td>
+<td>Review</td>
+<td>Milestone-Call</td>
+<td>Handover</td>
+</tr>
+<tr class="even">
+<td><strong>Engineer</strong></td>
+<td>Domain-Setup</td>
+<td>Haupt-Owner</td>
+<td>Personalisierungs-Tech</td>
+<td>Haupt-Owner</td>
+<td>Monitoring + Fixes</td>
+<td>Retainer-Setup</td>
+</tr>
+<tr class="odd">
+<td><strong>Copywriter</strong></td>
+<td>—</td>
+<td>—</td>
+<td>Sequenz-Copy</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td><strong>Customer Success</strong></td>
+<td>Onboarding-Checklist</td>
+<td>Weekly-Sync</td>
+<td>Copy-Koordination</td>
+<td>Dashboard-Loom</td>
+<td>Freigabe-Management</td>
+<td>Retainer-Call-Setup</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2
+id="customer-onboarding-touchpoints">Customer-Onboarding-Touchpoints</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Touchpoint</th>
+<th>Timing</th>
+<th>Format</th>
+<th>Dauer</th>
+<th>Ziel</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Kick-off Call</strong></td>
+<td>Woche 1</td>
+<td>Video Call</td>
+<td>90 Min</td>
+<td>ICP, Erwartungen, Tool-Entscheidungen</td>
+</tr>
+<tr class="even">
+<td><strong>ICP-Freigabe</strong></td>
+<td>Ende Woche 2</td>
+<td>Async (Dokument)</td>
+<td>—</td>
+<td>Scope-Bestätigung schriftlich</td>
+</tr>
+<tr class="odd">
+<td><strong>Weekly Sync #1</strong></td>
+<td>Woche 3</td>
+<td>Video Call</td>
+<td>30 Min</td>
+<td>Scraping-Ergebnisse zeigen, erste Lead-Samples</td>
+</tr>
+<tr class="even">
+<td><strong>Copy-Review</strong></td>
+<td>Woche 4</td>
+<td>Async (Notion/Doc)</td>
+<td>—</td>
+<td>Customer gibt Feedback auf Sequenzen</td>
+</tr>
+<tr class="odd">
+<td><strong>Weekly Sync #2</strong></td>
+<td>Woche 4-5</td>
+<td>Video Call</td>
+<td>30 Min</td>
+<td>Copy-Freigabe, Dashboard-Preview</td>
+</tr>
+<tr class="even">
+<td><strong>Weekly Sync #3</strong></td>
+<td>Woche 5-6</td>
+<td>Video Call</td>
+<td>30 Min</td>
+<td>CRM-Test, Dashboard live</td>
+</tr>
+<tr class="odd">
+<td><strong>Milestone-Review</strong></td>
+<td>Woche 6-7</td>
+<td>Video Call</td>
+<td>45 Min</td>
+<td>Soft-Launch-Ergebnisse, Go-Live-Entscheidung</td>
+</tr>
+<tr class="even">
+<td><strong>Handover-Call</strong></td>
+<td>Woche 7-8</td>
+<td>Video Call</td>
+<td>60 Min</td>
+<td>Vollständige System-Übergabe, Playbook-Walkthrough</td>
+</tr>
+<tr class="odd">
+<td><strong>Retainer-Call (Mo 2+)</strong></td>
+<td>Monatlich</td>
+<td>Video Call</td>
+<td>45 Min</td>
+<td>Performance-Review, Optimierungen</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="risk-register">Risk-Register</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Risiko</th>
+<th>Wahrscheinlichkeit</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>R1</strong></td>
+<td>Domain-Warming dauert länger als geplant (Spam-Reputation)</td>
+<td>Mittel</td>
+<td>Hoch</td>
+<td>Warming ≥3 Wochen einplanen, nie vor 2 Wochen senden. Wenn
+Spam-Flag: sofort pausieren, Domain-Analyse.</td>
+</tr>
+<tr class="even">
+<td><strong>R2</strong></td>
+<td>Customer-ICP zu vage / ändert sich nach Kick-off</td>
+<td>Hoch</td>
+<td>Hoch</td>
+<td>ICP-Dokument wird schriftlich freigegeben. Änderungen nach Freigabe
+= Change Request.</td>
+</tr>
+<tr class="odd">
+<td><strong>R3</strong></td>
+<td>Offer des Customers ist unklar oder zu schwach — Reply-Rate bleibt
+niedrig</td>
+<td>Mittel</td>
+<td>Mittel</td>
+<td>Früh kommunizieren: Wir bauen Kanal, nicht Angebot. Bei &lt;3% Reply
+nach 200 Sends: Offer-Review-Call anbieten (kostenpflichtig).</td>
+</tr>
+<tr class="even">
+<td><strong>R4</strong></td>
+<td>Tool-API-Limits oder Rate-Limits (Apollo, LinkedIn) blockieren
+Pipeline</td>
+<td>Mittel</td>
+<td>Mittel</td>
+<td>Throttling-Logik von Beginn an einbauen. Tagesvolumen-Caps setzen
+(≤200 LinkedIn / ≤500 Email).</td>
+</tr>
+<tr class="odd">
+<td><strong>R5</strong></td>
+<td>Customer gibt kein rechtzeitiges Feedback — Delivery verzögert
+sich</td>
+<td>Hoch</td>
+<td>Mittel</td>
+<td>48h-Feedback-SLA kommunizieren. Nach 48h ohne Rückmeldung:
+Eskalation via Customer Success. Delay ist dann Customer-seitig, nicht
+AEVUM-seitig.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2
+id="quality-gates-intern-abzunehmen-vor-nächster-phase">Quality-Gates
+(intern, abzunehmen vor nächster Phase)</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Gate</th>
+<th>Zeitpunkt</th>
+<th>Abnahme durch</th>
+<th>Kriterium</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>QG-1: ICP-Qualität</strong></td>
+<td>Ende Phase 1</td>
+<td>Founder</td>
+<td>ICP-Dokument hat alle Pflichtfelder, schriftliche Freigabe Customer
+liegt vor</td>
+</tr>
+<tr class="even">
+<td><strong>QG-2: Scoring-Kalibrierung</strong></td>
+<td>Ende Phase 2</td>
+<td>Founder + Eng</td>
+<td>80% der 100 Test-Leads werden korrekt kategorisiert</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-3: Copy-Freigabe</strong></td>
+<td>Ende Phase 3</td>
+<td>Customer + Founder</td>
+<td>Schriftliche Copy-Freigabe, First-Line-Test mit 20 Leads
+bestanden</td>
+</tr>
+<tr class="even">
+<td><strong>QG-4: End-to-End-Pipeline-Test</strong></td>
+<td>Ende Phase 4</td>
+<td>Eng</td>
+<td>Test-Lead läuft vollständig durch: Scraping → Scoring → Outreach →
+CRM. Kein manueller Schritt nötig.</td>
+</tr>
+<tr class="odd">
+<td><strong>QG-5: Soft-Launch-Clearance</strong></td>
+<td>Ende Phase 5</td>
+<td>Founder</td>
+<td>Spam-Rate &lt;0.1%, Bounce &lt;5%, mind. 1 organischer Reply,
+Customer-Freigabe schriftlich</td>
+</tr>
+<tr class="even">
+<td><strong>QG-6: Handover-Vollständigkeit</strong></td>
+<td>Ende Phase 6</td>
+<td>Customer Success</td>
+<td>Alle Handover-Items übergeben (Playbook, Loom-Videos, Zugänge,
+Retainer-Call gebucht)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="handover-package">Handover-Package</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Format</th>
+<th>Übergabe via</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ICP-Dokumentation</td>
+<td>Notion-Seite</td>
+<td>Shared Workspace</td>
+</tr>
+<tr class="even">
+<td>Scoring-Kriterien-Übersicht</td>
+<td>Notion-Tabelle</td>
+<td>Shared Workspace</td>
+</tr>
+<tr class="odd">
+<td>Outreach-Sequenzen (alle Varianten)</td>
+<td>Notion-Dokument</td>
+<td>Shared Workspace</td>
+</tr>
+<tr class="even">
+<td>Campaign-Setup-Playbook</td>
+<td>Notion-Seite (step-by-step)</td>
+<td>Shared Workspace</td>
+</tr>
+<tr class="odd">
+<td>Dashboard-Walkthrough</td>
+<td>Loom-Video (15 Min)</td>
+<td>Link im Notion</td>
+</tr>
+<tr class="even">
+<td>CRM-Integration-Doku</td>
+<td>Notion-Seite</td>
+<td>Shared Workspace</td>
+</tr>
+<tr class="odd">
+<td>Tool-Zugänge-Übersicht</td>
+<td>1Password Vault oder Notion (verschlüsselt)</td>
+<td>Direkt übergeben</td>
+</tr>
+<tr class="even">
+<td>Weekly-Report-Setup-Doku</td>
+<td>Notion</td>
+<td>Shared Workspace</td>
+</tr>
+<tr class="odd">
+<td>Loom-Video: “Neue Kampagne starten”</td>
+<td>Loom (10 Min)</td>
+<td>Link im Notion</td>
+</tr>
+<tr class="even">
+<td>Loom-Video: “Blacklist pflegen”</td>
+<td>Loom (5 Min)</td>
+<td>Link im Notion</td>
+</tr>
+<tr class="odd">
+<td>Loom-Video: “Dashboard lesen”</td>
+<td>Loom (10 Min)</td>
+<td>Link im Notion</td>
+</tr>
+<tr class="even">
+<td>Retainer-Call-Booking-Link</td>
+<td>Calendly</td>
+<td>E-Mail</td>
+</tr>
+</tbody>
+</table>
+<h1 id="quality-gate">4. Quality-Gate</h1>
+<h2 id="asset-inventory">Asset-Inventory</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Asset</th>
+<th>Typ</th>
+<th>Status</th>
+<th>Ablage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>ICP-Dokumentation</td>
+<td>Notion-Seite</td>
+<td>☐</td>
+<td>/aevum-delivery/[customer]/icp</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Scoring-Kriterien-Tabelle</td>
+<td>Notion-Tabelle</td>
+<td>☐</td>
+<td>/aevum-delivery/[customer]/scoring</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Scraping-Pipeline (Apollo/Clay)</td>
+<td>Live-Setup</td>
+<td>☐</td>
+<td>Tool-Account Customer</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Enrichment-Workflow</td>
+<td>Automation (Make/Zapier)</td>
+<td>☐</td>
+<td>Make/Zapier-Workspace</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>AI-Scoring-Logik</td>
+<td>Automation / GPT-Workflow</td>
+<td>☐</td>
+<td>Make/Zapier oder Clay</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Blacklist / DNC-Filter</td>
+<td>Airtable-Tabelle oder Clay-Filter</td>
+<td>☐</td>
+<td>Verknüpft mit Pipeline</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Outreach-Domain + DNS-Config</td>
+<td>Technisch live</td>
+<td>☐</td>
+<td>Registrar-Account Customer</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Sending-Tool-Setup (Instantly/Smartlead/Lemlist)</td>
+<td>Live-Account</td>
+<td>☐</td>
+<td>Customer-Account</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Cold-Email-Sequenz(en)</td>
+<td>Sending-Tool</td>
+<td>☐</td>
+<td>Sending-Tool-Account</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>LinkedIn-Message-Sequenz</td>
+<td>Dokumentiert + ggf. Tool</td>
+<td>☐</td>
+<td>Notion + Tool</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>AI-First-Line-Personalisierung</td>
+<td>Clay-Spalte oder GPT-Workflow</td>
+<td>☐</td>
+<td>Clay / Make</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Follow-Up-Logik (Opener/Non-Opener)</td>
+<td>Sending-Tool-Automation</td>
+<td>☐</td>
+<td>Sending-Tool</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td>CRM-Integration (Webhook/API)</td>
+<td>Live-Verbindung</td>
+<td>☐</td>
+<td>CRM + Make/Zapier</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td>Lead-Status-Mapping</td>
+<td>CRM-Konfiguration</td>
+<td>☐</td>
+<td>CRM-Account Customer</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td>Performance-Dashboard</td>
+<td>Airtable / Notion / Custom</td>
+<td>☐</td>
+<td>Shared mit Customer</td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td>Weekly-Automated-Report</td>
+<td>Make/Zapier-Trigger</td>
+<td>☐</td>
+<td>Make/Zapier-Workspace</td>
+</tr>
+<tr class="odd">
+<td>17</td>
+<td>Campaign-Setup-Playbook</td>
+<td>Notion-Seite</td>
+<td>☐</td>
+<td>Shared Workspace</td>
+</tr>
+<tr class="even">
+<td>18</td>
+<td>Loom-Video: Dashboard-Walkthrough</td>
+<td>Loom</td>
+<td>☐</td>
+<td>Link in Notion</td>
+</tr>
+<tr class="odd">
+<td>19</td>
+<td>Loom-Video: Neue Kampagne starten</td>
+<td>Loom</td>
+<td>☐</td>
+<td>Link in Notion</td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td>Loom-Video: Blacklist pflegen</td>
+<td>Loom</td>
+<td>☐</td>
+<td>Link in Notion</td>
+</tr>
+<tr class="odd">
+<td>21</td>
+<td>Tool-Zugänge-Dokumentation</td>
+<td>Notion (verschlüsselt)</td>
+<td>☐</td>
+<td>Shared Workspace</td>
+</tr>
+<tr class="even">
+<td>22</td>
+<td>Retainer-Call-Booking bestätigt</td>
+<td>Calendly</td>
+<td>☐</td>
+<td>E-Mail-Bestätigung</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-kriterien-alle-10-müssen-sein">Sign-Off-Kriterien (alle
+10 müssen ✅ sein)</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Kriterium</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Scraping-Pipeline liefert täglich ≥50 qualifizierte Leads (nach
+ICP-Scoring-Threshold) ohne manuellen Eingriff — dokumentiert über 3
+aufeinanderfolgende Tage</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Enrichment-Rate ≥85%: Anteil der Leads mit verifizierter
+E-Mail-Adresse gemessen über letzten 200 gescrapten Leads</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Domain-Warming-Status: ≥2 Wochen Warming-Laufzeit, Spam-Rate unter
+0.1% (Google Postmaster / SNDS-Screenshot liegt vor)</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>AI-First-Line-Personalisierung: Test-Batch von 20 Leads geprüft —
+90% korrekt gefüllt, kein leeres Feld, kein sichtbarer
+Fallback-Text</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Follow-Up-Logik korrekt: Opener-Pfad und Non-Opener-Pfad werden
+korrekt ausgelöst — dokumentierter Test mit je 2 simulierten Leads</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>CRM-Integration: Reply + Calendly-Click triggern automatisch
+Lead-Erstellung / Stage-Wechsel im CRM — getesteter End-to-End-Durchlauf
+dokumentiert</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Dashboard zeigt Echtzeit-Metriken (Kontaktiert / Geöffnet / Replied
+/ Booked) ohne manuelle Datenpflege — Customer hat Dashboard-Zugang
+bestätigt</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Weekly-Automated-Report ausgelöst und empfangen: Test-Report wurde
+an Customer-E-Mail gesendet und bestätigt</td>
+<td>☐</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Soft-Launch (50-100 Leads) abgeschlossen ohne kritische Fehler:
+Bounce &lt;5%, Spam-Rate &lt;0.1%, mind. 1 organischer Reply,
+Customer-Freigabe schriftlich vorliegt</td>
+<td>☐</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Handover-Package vollständig: Alle 22 Assets im Inventory auf ✅,
+Playbook übergeben, alle 3 Loom-Videos veröffentlicht, Retainer-Call
+gebucht</td>
+<td>☐</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Freigabe durch:</strong> _______________________
+(Founder-Signatur oder schriftliche Bestätigung) <strong>Datum:</strong>
+_______________________ <strong>Customer-Gegenzeichnung:</strong>
+_______________________ (schriftlich, Slack/E-Mail-Screenshot
+ausreichend)</p>
+<hr />
+<h2
+id="known-limitations-phase-2-items-nicht-in-aktuellem-scope">Known-Limitations
+(Phase-2-Items — nicht in aktuellem Scope)</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Limitation</th>
+<th>Erklärung</th>
+<th>Möglicher Upsell / Roadmap</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Kein A/B-Testing in Tier M</strong></td>
+<td>Tier M erhält eine Sequenz-Variante. Statistische Auswertung
+paralleler Varianten ist nicht Teil des Setups.</td>
+<td>Tier-L-Upgrade oder Add-On (+€1.500)</td>
+</tr>
+<tr class="even">
+<td><strong>Kein Inbound-Lead-Capture</strong></td>
+<td>System ist rein outbound. Eingehende Leads via Website oder Ads sind
+nicht integriert.</td>
+<td><code>website-crm</code>-Service</td>
+</tr>
+<tr class="odd">
+<td><strong>LinkedIn-Automatisierung manuell-limitiert</strong></td>
+<td>LinkedIn-Tool-Limits (100-150 Connections/Tag) können nicht
+technisch überschritten werden ohne Account-Risiko. Kein
+Workaround.</td>
+<td>Diversifikation auf Email als Primärkanal</td>
+</tr>
+<tr class="even">
+<td><strong>Kein Predictive-Scoring (ML-basiert)</strong></td>
+<td>Scoring ist regelbasiert oder GPT-basiert, nicht auf
+Customer-historischen-Daten trainiert. Wird genauer über Zeit — aber
+kein ML-Modell.</td>
+<td>Zukünftiger Service <code>database-system</code> + Custom-ML</td>
+</tr>
+<tr class="odd">
+<td><strong>Copy-Optimierung nicht automatisiert</strong></td>
+<td>Wir testen keine Copy automatisch. Optimierung passiert durch Mensch
+im Retainer-Call.</td>
+<td>Tier-L-Upgrade für gemanagtes A/B-Testing</td>
+</tr>
+<tr class="even">
+<td><strong>Kein Telefon-Outreach-Kanal</strong></td>
+<td>System deckt Email + LinkedIn ab. Cold-Calling-Integration (z.B. via
+Orum, Salesloft) ist Out-of-Scope.</td>
+<td>Separater Service / Retainer-Erweiterung</td>
+</tr>
+<tr class="odd">
+<td><strong>Keine CRM-Automatisierungen beyond Lead-Push</strong></td>
+<td>Wir pushen Leads ins CRM. Pipeline-Management,
+Deal-Stages-Automation, Forecasting sind nicht enthalten.</td>
+<td><code>sales-os</code>-Service</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="db-update-befehl">DB-Update-Befehl</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- AEVUM Service-Catalog: ai-lead-engine Sign-Off</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> service_deliveries</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  status                  <span class="op">=</span> <span class="st">&#39;delivered&#39;</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  sign_off_date           <span class="op">=</span> <span class="fu">CURRENT_DATE</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  tier                    <span class="op">=</span> <span class="st">&#39;M&#39;</span>,                        <span class="co">-- oder &#39;L&#39; anpassen</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  setup_fee_eur           <span class="op">=</span> <span class="dv">11000</span>,                      <span class="co">-- tatsächlich vereinbarter Wert</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  monthly_retainer_eur    <span class="op">=</span> <span class="dv">2200</span>,                       <span class="co">-- tatsächlich vereinbarter Wert</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  implementation_weeks    <span class="op">=</span> <span class="dv">8</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  assets_delivered        <span class="op">=</span> <span class="dv">22</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  quality_gates_passed    <span class="op">=</span> <span class="dv">10</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  known_limitations_count <span class="op">=</span> <span class="dv">7</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  next_review_date        <span class="op">=</span> <span class="fu">CURRENT_DATE</span> <span class="op">+</span> <span class="dt">INTERVAL</span> <span class="st">&#39;30 days&#39;</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  retainer_active         <span class="op">=</span> <span class="kw">TRUE</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  notes                   <span class="op">=</span> <span class="st">&#39;Soft-Launch abgeschlossen. Handover-Package vollständig. Retainer-Call gebucht.&#39;</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  service_slug   <span class="op">=</span> <span class="st">&#39;ai-lead-engine&#39;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">AND</span> customer_id <span class="op">=</span> <span class="st">&#39;[CUSTOMER_ID]&#39;</span>;  <span class="co">-- ersetzen</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">-- Upsell-Tracking anlegen</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> upsell_pipeline (customer_id, source_service, target_service, trigger_condition, created_at)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  (<span class="st">&#39;[CUSTOMER_ID]&#39;</span>, <span class="st">&#39;ai-lead-engine&#39;</span>, <span class="st">&#39;sales-os&#39;</span>,                 <span class="st">&#39;Closing-Rate &lt; 20% nach 60 Tagen&#39;</span>,       <span class="fu">CURRENT_TIMESTAMP</span>),</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  (<span class="st">&#39;[CUSTOMER_ID]&#39;</span>, <span class="st">&#39;ai-lead-engine&#39;</span>, <span class="st">&#39;command-center-dashboard&#39;</span>, <span class="st">&#39;Multi-Tool-Visibility gewünscht&#39;</span>,         <span class="fu">CURRENT_TIMESTAMP</span>),</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  (<span class="st">&#39;[CUSTOMER_ID]&#39;</span>, <span class="st">&#39;ai-lead-engine&#39;</span>, <span class="st">&#39;content-engine&#39;</span>,           <span class="st">&#39;Inbound-Aufbau parallel gewünscht&#39;</span>,       <span class="fu">CURRENT_TIMESTAMP</span>);</span></code></pre></div>
+<hr />
+<h2 id="pattern-notes-für-dfy-builder-pattern">Pattern-Notes für
+DFY-Builder-Pattern</h2>
+<pre><code>PATTERN: ai-lead-engine
+VERSION: 1.0
+ERSTELLT: [DATUM]
+
+KERN-DIFFERENZIERUNG:
+- Einziger DFY-Service mit aktiver Outbound-Sending-Komponente (Domain-Warming als kritischer Pfad)
+- Scoring-Logik ist Customer-ICP-spezifisch — nicht generisch. Kein Template-Scoring.
+- Copy ist Service-Bestandteil — nicht nur Tech. Copywriting-Kapazität muss bei Planung eingeplant werden.
+
+KRITISCHE ABHÄNGIGKEITEN (die anderen Services nicht haben):
+- Domain-Warming: zwingt 2-3 Wochen Vorlaufzeit. Timeline kann nicht komprimiert werden.
+- ICP-Klarheit ist harter Blocker — kein Scraping ohne definierten ICP.
+- Offer-Qualität liegt außerhalb unseres Einflusses. Reply-Rate-Erwartungen früh kalibrieren.
+
+HÄUFIGE SCOPE-CREEP-VEKTOREN:
+- &quot;Können wir auch [zweite Zielgruppe] einbauen?&quot; → immer CR
+- &quot;Schreibt ihr auch unsere LinkedIn-Posts?&quot; → immer Out-of-Scope → content-engine
+- &quot;Könnt ihr auch die Calls übernehmen?&quot; → nie. Klare Linie.
+
+RETAINER-QUALITÄT HÄNGT AB VON:
+- Monatlicher Copy-Iteration-Zyklus (2 Runden inkludiert)
+- Performance-Monitoring muss durch Eng wöchentlich gecheckt werden (nicht nur auf Zuruf)
+- Customer muss Feedback auf Reply-Qualität geben — ohne das kein Optimierungsloop
+
+NÄCHSTE PATTERN-VERSION sollte adressieren:
+- ML-basiertes Scoring als Premium-Add-On dokumentieren
+- Telefon-Outreach-Kanal-Integration als separates Modul ausarbeiten
+- Multi-Sprachen-Setup als Tier-L-Standardoption festschreiben</code></pre>
+</body>
+</html>
