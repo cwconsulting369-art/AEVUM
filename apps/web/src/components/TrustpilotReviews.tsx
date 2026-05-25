@@ -90,17 +90,28 @@ function PlaceholderCard({ slot }: { slot: number }) {
   ];
   return (
     <article
-      className="bg-bg-surface/40 border border-dashed border-white/10 p-6 flex flex-col gap-3"
-      aria-label="Coming-Soon Platzhalter"
+      className="relative bg-bg-surface/30 border border-dashed border-white/10 p-6 flex flex-col gap-3 opacity-85"
+      aria-label="Platzhalter — noch keine echte Review verfügbar"
     >
+      {/* Prominent Coming-Soon Badge — top-right corner */}
+      <span
+        className="absolute -top-2.5 right-4 inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-[0.12em] px-2 py-1 rounded-sm bg-[#e0a458] text-[#1a1a1a] font-semibold shadow-sm"
+        aria-label="Coming Soon"
+      >
+        <Clock size={10} /> Bald verfügbar
+      </span>
+
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-0.5">
+        <div
+          className="flex items-center gap-0.5"
+          aria-label="Noch keine Bewertung"
+        >
           {[1, 2, 3, 4, 5].map((i) => (
             <Star key={i} size={14} className="text-white/10" fill="currentColor" />
           ))}
         </div>
-        <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider text-[#e0a458]/80">
-          <Clock size={10} /> Coming Soon
+        <span className="text-[10px] font-mono uppercase tracking-wider text-[#7a7a85]">
+          Platzhalter
         </span>
       </div>
       <h3 className="text-sm font-medium text-[#e6e6ec]">
@@ -109,6 +120,9 @@ function PlaceholderCard({ slot }: { slot: number }) {
       <p className="text-xs text-[#a4a4ad] leading-relaxed">
         {bodies[slot % bodies.length]}
       </p>
+      <div className="mt-auto pt-3 border-t border-white/5 text-[10px] font-mono uppercase tracking-wider text-[#e0a458]/70">
+        Noch keine echte Review · Pre-Launch
+      </div>
     </article>
   );
 }
@@ -179,14 +193,14 @@ export default function TrustpilotReviews({
   return (
     <div className={className}>
       {/* Mode-Label: Live vs Pre-Launch */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-[#7a7a85]">
             Kundenstimmen
           </span>
           {!hasReal && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[#e0a458]/10 text-[#e0a458] border border-[#e0a458]/20">
-              Beta · Pre-Launch
+            <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[#e0a458]/15 text-[#e0a458] border border-[#e0a458]/30">
+              <Clock size={10} /> Coming Soon · Pre-Launch
             </span>
           )}
         </div>
@@ -200,6 +214,18 @@ export default function TrustpilotReviews({
           <ExternalLink size={11} />
         </a>
       </div>
+
+      {/* Clear Section-Headline when in Pre-Launch mode */}
+      {!hasReal && (
+        <div className="mb-6">
+          <h2 className="text-lg font-medium text-[#e6e6ec]">
+            Trustpilot-Reviews — verfügbar nach Launch
+          </h2>
+          <p className="text-xs text-[#7a7a85] mt-1">
+            Diese Sektion zeigt aktuell Platzhalter. Echte Reviews erscheinen sobald die ersten Customer-Projekte live sind.
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {reviews.map((r) => (
