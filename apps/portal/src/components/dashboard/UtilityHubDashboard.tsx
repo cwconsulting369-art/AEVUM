@@ -7,10 +7,11 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import Spinner from '@/components/Spinner';
+import { useNavigate, useParams } from 'react-router';
 import {
   Building2, Users, Download, Zap, ExternalLink, Search,
   CheckCircle2, Clock, AlertCircle, Building, FileText,
-  Briefcase, Database, BookOpen, KeyRound
+  Briefcase, Database, BookOpen, KeyRound, BarChart3, Phone, Mail, ArrowLeft
 } from 'lucide-react';
 import { stagger } from '@/lib/animations';
 
@@ -206,7 +207,12 @@ function CustomersSection({ slug }: { slug: string }) {
               </thead>
               <tbody>
                 {customers.map((c, i) => (
-                  <tr key={c.id} className="border-b border-white/5 hover:bg-white/[0.02] animate-fade-up" style={stagger(i, 30, 30)}>
+                  <tr
+                    key={c.id}
+                    onClick={() => { window.location.href = `/projects/${slug}?s=customers&id=${c.id}`; }}
+                    className="border-b border-white/5 hover:bg-white/[0.04] cursor-pointer animate-fade-up"
+                    style={stagger(i, 30, 30)}
+                  >
                     <td className="px-4 py-3">
                       <div className="font-medium text-white">{c.full_name}</div>
                       {c.email && <div className="text-xs text-ink-400 mt-0.5">{c.email}</div>}
@@ -655,15 +661,349 @@ function NotionSection({ slug }: { slug: string }) {
   );
 }
 
+// ── Customer-Detail Section ──────────────────────────────────
+
+type CustomerDetail = {
+  customer: Customer | null;
+  identities: Array<{ id: string; identity_type: string; identity_value: string }>;
+  teleson_records: TelesonRecord[];
+  notes: Array<{ id: string; note: string; created_at: string; author?: string }>;
+};
+
+function CustomerDetailSection({ slug, customerId, onBack }: { slug: string; customerId: string; onBack: () => void }) {
+  const [data, setData] = useState<CustomerDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    api<{ ok: boolean } & CustomerDetail>(`/api/me/projects/${slug}/uh/customers/${customerId}`)
+      .then(d => { if (active) setData(d); })
+      .catch(e => toast.error(e?.message || 'Laden fehlgeschlagen'))
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [slug, customerId]);
+
+  if (loading) return <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div>;
+  if (!data?.customer) return (
+    <div className="card-premium p-8">
+      <button onClick={onBack} className="text-xs text-ink-400 hover:text-white mb-4 inline-flex items-center gap-1">
+        <ArrowLeft size={11} /> Zurück zur Liste
+      </button>
+      <div className="text-sm text-ink-400">Lieferstelle nicht gefunden.</div>
+    </div>
+  );
+
+  const c = data.customer;
+  return (
+    <>
+      <button onClick={onBack} className="text-xs text-ink-400 hover:text-white mb-4 inline-flex items-center gap-1">
+        <ArrowLeft size={11} /> Zurück zur Liste
+      </button>
+
+      <div className="card-premium p-6 mb-4">
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div>
+            <h1 className="text-xl font-bold text-white mb-1">{c.full_name}</h1>
+            <div className="text-sm text-ink-300">
+              {c.address}{c.city ? `, ${c.postal_code || ''} ${c.city}` : ''}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 items-end">
+            <span className={statusBadge(c.status)}>{c.status}</span>
+            <span className="badge">{OBJ_LABEL[c.object_type || ''] || c.object_type || '–'}</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          {c.email && <div><span className="text-ink-400 text-xs uppercase tracking-wider">Email</span><div className="text-white">{c.email}</div></div>}
+          {c.phone && <div><span className="text-ink-400 text-xs uppercase tracking-wider">Phone</span><div className="text-white">{c.phone}</div></div>}
+          <div><span className="text-ink-400 text-xs uppercase tracking-wider">Quelle</span><div className="text-white">{c.source || '–'}</div></div>
+          <div><span className="text-ink-400 text-xs uppercase tracking-wider">Angelegt</span><div className="text-white">{new Date(c.created_at).toLocaleDateString('de-DE')}</div></div>
+        </div>
+      </div>
+
+      {data.identities.length > 0 && (
+        <section className="mb-4">
+          <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3">Externe IDs ({data.identities.length})</h2>
+          <div className="card-premium p-4 space-y-2">
+            {data.identities.map(id => (
+              <div key={id.id} className="flex justify-between text-sm">
+                <span className="text-ink-400">{id.identity_type}</span>
+                <span className="font-mono text-white">{id.identity_value}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {data.teleson_records.length > 0 && (
+        <section className="mb-4">
+          <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3">Teleson-Verträge ({data.teleson_records.length})</h2>
+          <div className="card-premium overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[0.7rem] uppercase tracking-wider text-ink-400 border-b border-white/10">
+                  <th className="px-4 py-3">Energie</th><th className="px-4 py-3">Versorger</th><th className="px-4 py-3">AP</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Belieferung</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.teleson_records.map(r => (
+                  <tr key={r.id} className="border-b border-white/5">
+                    <td className="px-4 py-3 font-medium text-white">{r.energie || '–'}</td>
+                    <td className="px-4 py-3 text-ink-200">{r.neuer_versorger || '–'}</td>
+                    <td className="px-4 py-3 text-ink-200">{r.neu_ap || '–'}</td>
+                    <td className="px-4 py-3"><span className={statusBadge(r.status)}>{r.status || '–'}</span></td>
+                    <td className="px-4 py-3 text-xs text-ink-400">{r.belieferungsdatum || '–'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {data.notes.length > 0 && (
+        <section className="mb-4">
+          <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3">Notizen ({data.notes.length})</h2>
+          <div className="card-premium p-4 space-y-3">
+            {data.notes.map(n => (
+              <div key={n.id} className="border-b border-white/5 last:border-0 pb-3 last:pb-0">
+                <div className="text-sm text-ink-200 whitespace-pre-wrap">{n.note}</div>
+                <div className="text-xs text-ink-400 mt-1">{new Date(n.created_at).toLocaleString('de-DE')}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <a href={`https://utility-hub.one/app/customers/${c.id}`} target="_blank" rel="noopener" className="inline-flex items-center gap-1 text-xs text-gold-300 hover:text-gold-200">
+        Im Legacy-UI öffnen <ExternalLink size={11} />
+      </a>
+    </>
+  );
+}
+
+// ── Organizations Section ──────────────────────────────────────
+
+type Organization = { id: string; name: string; kind?: string; created_at: string };
+
+function OrganizationsSection({ slug }: { slug: string }) {
+  const [orgs, setOrgs] = useState<Organization[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    api<{ ok: boolean; organizations: Organization[] }>(`/api/me/projects/${slug}/uh/organizations`)
+      .then(d => { if (active) setOrgs(d.organizations || []); })
+      .catch(() => {})
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [slug]);
+
+  return (
+    <>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center">
+          <Building size={16} className="text-gold-300" />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold text-white">Organisationen</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{orgs.length} Hausverwaltungen / Bestandshalter</p>
+        </div>
+      </div>
+
+      {loading ? <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div> :
+       orgs.length === 0 ? <div className="card-premium p-12 text-center text-sm text-ink-400">Noch keine Orgs.</div> :
+       <div className="space-y-2">
+         {orgs.map((o, i) => (
+           <div key={o.id} className="card-premium p-4 flex items-center justify-between animate-fade-up" style={stagger(i, 40, 40)}>
+             <div>
+               <div className="font-medium text-white">{o.name}</div>
+               <div className="text-xs text-ink-400 mt-0.5">{o.kind || 'Organisation'} · seit {new Date(o.created_at).toLocaleDateString('de-DE')}</div>
+             </div>
+           </div>
+         ))}
+       </div>
+      }
+    </>
+  );
+}
+
+// ── Reports Section ──────────────────────────────────────
+
+type ReportData = {
+  customers_by_object_type: Array<{ label: string; count: number }>;
+  customers_by_status: Array<{ label: string; count: number }>;
+  customers_by_source: Array<{ label: string; count: number }>;
+  teleson_by_energie: Array<{ label: string; count: number }>;
+  teleson_by_status: Array<{ label: string; count: number }>;
+};
+
+function ReportsSection({ slug }: { slug: string }) {
+  const [data, setData] = useState<ReportData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    api<{ ok: boolean } & ReportData>(`/api/me/projects/${slug}/uh/reports`)
+      .then(d => { if (active) setData(d); })
+      .catch(() => {})
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [slug]);
+
+  if (loading) return <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div>;
+  if (!data) return <div className="card-premium p-8 text-sm text-ink-400">Reports nicht ladbar.</div>;
+
+  const groups = [
+    { title: 'Lieferstellen nach Typ', items: data.customers_by_object_type },
+    { title: 'Lieferstellen nach Status', items: data.customers_by_status },
+    { title: 'Lieferstellen nach Quelle', items: data.customers_by_source },
+    { title: 'Teleson nach Energie', items: data.teleson_by_energie },
+    { title: 'Teleson nach Status', items: data.teleson_by_status },
+  ];
+  const totalFor = (items: Array<{ count: number }>) => items.reduce((s, i) => s + i.count, 0);
+
+  return (
+    <>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center">
+          <BarChart3 size={16} className="text-gold-300" />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold text-white">Reports</h1>
+          <p className="text-xs text-ink-400 mt-0.5">Live-Aggregate aus der UH-DB</p>
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-4">
+        {groups.map((g, gi) => {
+          const total = totalFor(g.items);
+          return (
+            <div key={g.title} className="card-premium p-4 animate-fade-up" style={stagger(gi, 60, 60)}>
+              <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3">{g.title}</h2>
+              <div className="space-y-2">
+                {g.items.map(item => {
+                  const pct = total > 0 ? Math.round((item.count / total) * 100) : 0;
+                  return (
+                    <div key={item.label}>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-ink-200">{item.label}</span>
+                        <span className="text-white font-medium">{item.count} <span className="text-xs text-ink-400">({pct}%)</span></span>
+                      </div>
+                      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-gold-400/60" style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+// ── Contacts Section ──────────────────────────────────────
+
+type Contact = { id: string; full_name?: string; email?: string; phone?: string; organization_id?: string; role?: string };
+
+function ContactsSection({ slug }: { slug: string }) {
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    api<{ ok: boolean; contacts: Contact[] }>(`/api/me/projects/${slug}/uh/contacts`)
+      .then(d => { if (active) setContacts(d.contacts || []); })
+      .catch(() => {})
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [slug]);
+
+  return (
+    <>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center">
+          <Users size={16} className="text-gold-300" />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold text-white">Kontakte</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{contacts.length} Ansprechpartner</p>
+        </div>
+      </div>
+      {loading ? <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div> :
+       contacts.length === 0 ? <div className="card-premium p-12 text-center text-sm text-ink-400">Noch keine Kontakte.</div> :
+       <div className="space-y-2">
+         {contacts.map((c, i) => (
+           <div key={c.id} className="card-premium p-4 animate-fade-up" style={stagger(i, 30, 30)}>
+             <div className="font-medium text-white">{c.full_name || '–'}</div>
+             {c.role && <div className="text-xs text-ink-400 mt-0.5">{c.role}</div>}
+             <div className="flex gap-4 mt-2 text-xs">
+               {c.email && <span className="inline-flex items-center gap-1 text-ink-300"><Mail size={11} /> {c.email}</span>}
+               {c.phone && <span className="inline-flex items-center gap-1 text-ink-300"><Phone size={11} /> {c.phone}</span>}
+             </div>
+           </div>
+         ))}
+       </div>
+      }
+    </>
+  );
+}
+
+// ── Coming-Soon Section (Documents/Incentives/Support/Roadmap) ─────────
+
+function ComingSoonSection({ slug, title, desc, legacyPath }: { slug: string; title: string; desc: string; legacyPath: string }) {
+  return (
+    <div className="card-premium p-8">
+      <div className="flex items-center gap-3 mb-4">
+        <FileText size={20} className="text-gold-300" />
+        <h1 className="text-xl font-bold text-white">{title}</h1>
+      </div>
+      <p className="text-sm text-ink-300 mb-6">{desc}</p>
+      <p className="text-xs text-ink-400 mb-4">
+        Diese Section wird aktuell ins AEVUM-Portal portiert. Bis dahin verfügbar im Legacy-UI:
+      </p>
+      <a href={`https://utility-hub.one${legacyPath}`} target="_blank" rel="noopener" className="inline-flex items-center gap-2 btn-gold text-sm">
+        Im UH-Admin öffnen <ExternalLink size={13} />
+      </a>
+    </div>
+  );
+}
+
+// ── Wrapper für Customer-Detail mit URL-Routing ──────────────
+
+function CustomersWrapper({ slug }: { slug: string }) {
+  const navigate = useNavigate();
+  const params = useParams();
+  const detailId = (params as { '*'?: string })['*'] || new URLSearchParams(window.location.search).get('id') || '';
+
+  if (detailId) {
+    return <CustomerDetailSection slug={slug} customerId={detailId} onBack={() => {
+      const params = new URLSearchParams(window.location.search);
+      params.delete('id');
+      navigate(`/projects/${slug}?s=customers${params.toString() ? '&' + params.toString() : ''}`);
+    }} />;
+  }
+  return <CustomersSection slug={slug} />;
+}
+
 // ── Router Switch ──────────────────────────────────────────
 
 export default function UtilityHubDashboard({ slug, section }: { slug: string; section: string }) {
-  if (section === 'customers') return <CustomersSection slug={slug} />;
+  if (section === 'customers') return <CustomersWrapper slug={slug} />;
+  if (section === 'organizations') return <OrganizationsSection slug={slug} />;
+  if (section === 'contacts') return <ContactsSection slug={slug} />;
+  if (section === 'reports') return <ReportsSection slug={slug} />;
   if (section === 'imports') return <ImportsSection slug={slug} />;
   if (section === 'teleson' || section === 'fg-finanz') return <TelesonSection slug={slug} />;
   if (section === 'close') return <CloseSection slug={slug} />;
   if (section === 'airtable') return <AirtableSection slug={slug} />;
   if (section === 'notion') return <NotionSection slug={slug} />;
+  if (section === 'uh-documents') return <ComingSoonSection slug={slug} title="UH-Dokumente" desc="Dokumenten-Verwaltung pro Lieferstelle (Verträge, Rechnungen, Korrespondenz)." legacyPath="/app/documents" />;
+  if (section === 'uh-incentives') return <ComingSoonSection slug={slug} title="Incentives / Provisionen" desc="Provisions-Tracking für Vertriebsmitarbeiter." legacyPath="/app/incentives" />;
+  if (section === 'uh-support') return <ComingSoonSection slug={slug} title="Support" desc="Support-Tickets + Kunden-Anfragen." legacyPath="/app/support" />;
+  if (section === 'uh-roadmap') return <ComingSoonSection slug={slug} title="UH-Roadmap" desc="Produkt-Roadmap und Releases." legacyPath="/app/roadmap" />;
   if (section === 'uh-settings') return <SettingsSection slug={slug} />;
   return <OverviewSection slug={slug} />;
 }
