@@ -76,6 +76,30 @@ const PROJECT_SECTIONS: Record<string, ProjectSection[]> = {
     { s: 'agent',       label: 'Agent',        icon: Bot },
     { s: 'apis',        label: 'API-Keys',     icon: KeyRound },
   ],
+  'utilityhub-platform': [
+    { s: 'overview',    label: 'Übersicht',    icon: LayoutDashboard },
+    { s: 'customers',   label: 'Kunden',       icon: Users },
+    { s: 'imports',     label: 'Imports',      icon: FolderOpen },
+    { s: 'fg-finanz',   label: 'FG Finanz',    icon: DollarSign },
+    { s: 'uh-settings', label: 'Integrations', icon: Globe, dividerBefore: true },
+    { s: 'quicklinks',  label: 'Quicklinks',   icon: LinkIcon },
+    { s: 'docs',        label: 'Dokumente',    icon: FolderOpen },
+    { s: 'activity',    label: 'Aktivität',    icon: Activity },
+    { s: 'agent',       label: 'Agent',        icon: Bot },
+    { s: 'apis',        label: 'API-Keys',     icon: KeyRound },
+  ],
+  utilityhub: [
+    { s: 'overview',    label: 'Übersicht',    icon: LayoutDashboard },
+    { s: 'customers',   label: 'Kunden',       icon: Users },
+    { s: 'imports',     label: 'Imports',      icon: FolderOpen },
+    { s: 'fg-finanz',   label: 'FG Finanz',    icon: DollarSign },
+    { s: 'uh-settings', label: 'Integrations', icon: Globe, dividerBefore: true },
+    { s: 'quicklinks',  label: 'Quicklinks',   icon: LinkIcon },
+    { s: 'docs',        label: 'Dokumente',    icon: FolderOpen },
+    { s: 'activity',    label: 'Aktivität',    icon: Activity },
+    { s: 'agent',       label: 'Agent',        icon: Bot },
+    { s: 'apis',        label: 'API-Keys',     icon: KeyRound },
+  ],
 };
 
 const DEFAULT_PROJECT_SECTIONS: ProjectSection[] = [

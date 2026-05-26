@@ -7,6 +7,7 @@ import Spinner from '@/components/Spinner';
 import { stagger } from '@/lib/animations';
 import CollaGlowDashboard from '@/components/dashboard/CollaGlowDashboard';
 import AEVUMDashboard from '@/components/dashboard/AEVUMDashboard';
+import UtilityHubDashboard from '@/components/dashboard/UtilityHubDashboard';
 import ProjectAgentChat from '@/components/agent/ProjectAgentChat';
 import QuicklinksSection from '@/components/quicklinks/QuicklinksSection';
 import LeadFunnel from '@/pages/dashboards/LeadFunnel';
@@ -53,6 +54,27 @@ export default function ProjectDetail() {
 
   const isCollaGlow = slug === 'collaglow';
   const isClientZero = slug === 'aevum';
+  const isUtilityHub = slug === 'utilityhub-platform' || slug === 'utilityhub';
+
+  // UtilityHub sections — UH-Mirror in AEVUM-Portal (Block C 2026-05-26)
+  if (isUtilityHub) {
+    if (section === 'agent') {
+      return <ProjectAgentChat projectSlug={slug} projectName={project?.name || slug} />;
+    }
+    if (section === 'apis') {
+      return <ApisSection apis={apis} slug={slug} onRefresh={loadApis} />;
+    }
+    if (section === 'quicklinks') {
+      return <QuicklinksSection projectSlug={slug} />;
+    }
+    if (section === 'docs') {
+      return <Documents />;
+    }
+    if (section === 'activity') {
+      return <CustomerActivity />;
+    }
+    return <UtilityHubDashboard slug={slug} section={section} />;
+  }
 
   // CollaGlow sections
   if (isCollaGlow) {
