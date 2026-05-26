@@ -81,7 +81,7 @@ function OverviewSection({ slug }: { slug: string }) {
   if (!data?.ok) return <div className="card-premium p-8 text-sm text-ink-400">UH-Daten nicht erreichbar.</div>;
 
   const cards = [
-    { icon: Building2, label: 'Kunden / Objekte', value: data.kpis.customers_total, color: 'text-blue-300' },
+    { icon: Building2, label: 'Kunden / Lieferstellen', value: data.kpis.customers_total, color: 'text-blue-300' },
     { icon: Building, label: 'Organisationen', value: data.kpis.orgs_total, color: 'text-purple-300' },
     { icon: Zap, label: 'Teleson-Verträge', value: data.kpis.teleson_records_total, color: 'text-yellow-300' },
     { icon: Download, label: 'Imports', value: data.kpis.imports_total, color: 'text-emerald-300' },
@@ -168,7 +168,7 @@ function CustomersSection({ slug }: { slug: string }) {
           <Users size={16} className="text-gold-300" />
         </div>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-white">Kunden / Objekte</h1>
+          <h1 className="text-xl font-bold text-white">Kunden / Lieferstellen</h1>
           <p className="text-xs text-ink-400 mt-0.5">{total !== null ? `${total} Einträge` : 'Lade …'}</p>
         </div>
       </div>
@@ -197,7 +197,7 @@ function CustomersSection({ slug }: { slug: string }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-[0.7rem] uppercase tracking-wider text-ink-400 border-b border-white/10">
-                  <th className="px-4 py-3 font-semibold">Objekt</th>
+                  <th className="px-4 py-3 font-semibold">Lieferstelle</th>
                   <th className="px-4 py-3 font-semibold">Adresse</th>
                   <th className="px-4 py-3 font-semibold">Typ</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
