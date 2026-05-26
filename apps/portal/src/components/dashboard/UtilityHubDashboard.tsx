@@ -9,7 +9,8 @@ import { api } from '@/lib/api';
 import Spinner from '@/components/Spinner';
 import {
   Building2, Users, Download, Zap, ExternalLink, Search,
-  CheckCircle2, Clock, AlertCircle, Building, FileText
+  CheckCircle2, Clock, AlertCircle, Building, FileText,
+  Briefcase, Database, BookOpen, KeyRound
 } from 'lucide-react';
 import { stagger } from '@/lib/animations';
 
@@ -397,12 +398,272 @@ function SettingsSection({ slug }: { slug: string }) {
   );
 }
 
+// ── Close.com Section ──────────────────────────────────────────
+
+type CloseLead = {
+  id: string; name: string; status: string | null;
+  created_at: string; updated_at: string; url: string;
+  contacts: Array<{ name: string; emails: string[]; phones: string[] }>;
+};
+
+function CloseSection({ slug }: { slug: string }) {
+  const [leads, setLeads] = useState<CloseLead[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    api<{ ok: boolean; leads?: CloseLead[]; error?: string; hint?: string; detail?: string }>(`/api/me/projects/${slug}/uh/close/leads?limit=30`)
+      .then(d => {
+        if (!active) return;
+        if (d.ok && d.leads) { setLeads(d.leads); setError(null); }
+        else setError(d.hint || d.detail || d.error || 'Verbindung fehlgeschlagen');
+      })
+      .catch(e => { if (active) setError(e?.message || 'Laden fehlgeschlagen'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [slug]);
+
+  return (
+    <>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center">
+          <Briefcase size={16} className="text-gold-300" />
+        </div>
+        <div className="flex-1">
+          <h1 className="text-xl font-bold text-white">Close.com Leads</h1>
+          <p className="text-xs text-ink-400 mt-0.5">Live-Sync · Read-only · {leads.length} Leads sichtbar</p>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div>
+      ) : error ? (
+        <div className="card-premium p-8">
+          <div className="flex items-center gap-3 mb-4">
+            <AlertCircle size={18} className="text-yellow-300" />
+            <h3 className="font-semibold text-white">Close.com nicht verbunden</h3>
+          </div>
+          <p className="text-sm text-ink-300 mb-4">{error}</p>
+          <a href={`/projects/${slug}?s=apis`} className="inline-flex items-center gap-2 btn-gold text-sm">
+            <KeyRound size={13} /> API-Key einreichen
+          </a>
+        </div>
+      ) : leads.length === 0 ? (
+        <div className="card-premium p-12 text-center text-sm text-ink-400">Keine Leads in Close.com.</div>
+      ) : (
+        <div className="card-premium overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[0.7rem] uppercase tracking-wider text-ink-400 border-b border-white/10">
+                  <th className="px-4 py-3 font-semibold">Lead</th>
+                  <th className="px-4 py-3 font-semibold">Status</th>
+                  <th className="px-4 py-3 font-semibold">Kontakt</th>
+                  <th className="px-4 py-3 font-semibold">Geändert</th>
+                  <th className="px-4 py-3 font-semibold"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {leads.map((l, i) => (
+                  <tr key={l.id} className="border-b border-white/5 hover:bg-white/[0.02] animate-fade-up" style={stagger(i, 30, 30)}>
+                    <td className="px-4 py-3 font-medium text-white">{l.name}</td>
+                    <td className="px-4 py-3"><span className="badge">{l.status || '–'}</span></td>
+                    <td className="px-4 py-3 text-xs text-ink-300">
+                      {l.contacts.slice(0, 1).map((c, j) => (
+                        <div key={j}>
+                          <div>{c.name}</div>
+                          {c.emails[0] && <div className="text-ink-400">{c.emails[0]}</div>}
+                        </div>
+                      ))}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-ink-400">{new Date(l.updated_at).toLocaleDateString('de-DE')}</td>
+                    <td className="px-4 py-3">
+                      <a href={l.url} target="_blank" rel="noopener" className="text-gold-300 hover:text-gold-200">
+                        <ExternalLink size={13} />
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ── Airtable Section ──────────────────────────────────────────
+
+type AirtableRecord = { id: string; fields: Record<string, unknown>; created_at: string };
+
+function AirtableSection({ slug }: { slug: string }) {
+  const [records, setRecords] = useState<AirtableRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [meta, setMeta] = useState<{ base_id: string; table_name: string } | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    api<{ ok: boolean; records?: AirtableRecord[]; base_id?: string; table_name?: string; error?: string; hint?: string; detail?: string }>(`/api/me/projects/${slug}/uh/airtable/records?limit=30`)
+      .then(d => {
+        if (!active) return;
+        if (d.ok && d.records) {
+          setRecords(d.records);
+          setMeta({ base_id: d.base_id || '', table_name: d.table_name || '' });
+          setError(null);
+        } else setError(d.hint || d.detail || d.error || 'Verbindung fehlgeschlagen');
+      })
+      .catch(e => { if (active) setError(e?.message || 'Laden fehlgeschlagen'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [slug]);
+
+  const fieldKeys = records.length > 0 ? Object.keys(records[0].fields).slice(0, 5) : [];
+
+  return (
+    <>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center">
+          <Database size={16} className="text-gold-300" />
+        </div>
+        <div className="flex-1">
+          <h1 className="text-xl font-bold text-white">Airtable Mirror</h1>
+          <p className="text-xs text-ink-400 mt-0.5">
+            {meta ? `${meta.base_id} · ${meta.table_name}` : 'Live-Mirror · Read-only · 1. Spalten sichtbar'}
+          </p>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div>
+      ) : error ? (
+        <div className="card-premium p-8">
+          <div className="flex items-center gap-3 mb-4">
+            <AlertCircle size={18} className="text-yellow-300" />
+            <h3 className="font-semibold text-white">Airtable nicht verbunden</h3>
+          </div>
+          <p className="text-sm text-ink-300 mb-4">{error}</p>
+          <p className="text-xs text-ink-400 mb-4">
+            <strong>Setup:</strong> API-Keys → Service <code className="bg-white/5 px-1 rounded">airtable</code>, Label <code className="bg-white/5 px-1 rounded">appXXX/TableName</code>, Key = Personal Access Token.
+          </p>
+          <a href={`/projects/${slug}?s=apis`} className="inline-flex items-center gap-2 btn-gold text-sm">
+            <KeyRound size={13} /> API-Key einreichen
+          </a>
+        </div>
+      ) : records.length === 0 ? (
+        <div className="card-premium p-12 text-center text-sm text-ink-400">Keine Records in Airtable-Tabelle.</div>
+      ) : (
+        <div className="card-premium overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[0.7rem] uppercase tracking-wider text-ink-400 border-b border-white/10">
+                  {fieldKeys.map(k => <th key={k} className="px-4 py-3 font-semibold">{k}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {records.map((r, i) => (
+                  <tr key={r.id} className="border-b border-white/5 hover:bg-white/[0.02] animate-fade-up" style={stagger(i, 30, 30)}>
+                    {fieldKeys.map(k => {
+                      const v = r.fields[k];
+                      const display = v === null || v === undefined ? '–'
+                        : typeof v === 'object' ? JSON.stringify(v).slice(0, 80)
+                        : String(v).slice(0, 80);
+                      return <td key={k} className="px-4 py-3 text-ink-200 text-xs">{display}</td>;
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ── Notion Section ──────────────────────────────────────────
+
+type NotionDatabase = { id: string; title: string; url: string; created_time: string; last_edited_time: string };
+
+function NotionSection({ slug }: { slug: string }) {
+  const [databases, setDatabases] = useState<NotionDatabase[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    api<{ ok: boolean; databases?: NotionDatabase[]; error?: string; hint?: string; detail?: string }>(`/api/me/projects/${slug}/uh/notion/databases`)
+      .then(d => {
+        if (!active) return;
+        if (d.ok && d.databases) { setDatabases(d.databases); setError(null); }
+        else setError(d.hint || d.detail || d.error || 'Verbindung fehlgeschlagen');
+      })
+      .catch(e => { if (active) setError(e?.message || 'Laden fehlgeschlagen'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [slug]);
+
+  return (
+    <>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center">
+          <BookOpen size={16} className="text-gold-300" />
+        </div>
+        <div className="flex-1">
+          <h1 className="text-xl font-bold text-white">Notion Workspace</h1>
+          <p className="text-xs text-ink-400 mt-0.5">Live-Mirror · {databases.length} Datenbanken sichtbar</p>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div>
+      ) : error ? (
+        <div className="card-premium p-8">
+          <div className="flex items-center gap-3 mb-4">
+            <AlertCircle size={18} className="text-yellow-300" />
+            <h3 className="font-semibold text-white">Notion nicht verbunden</h3>
+          </div>
+          <p className="text-sm text-ink-300 mb-4">{error}</p>
+          <p className="text-xs text-ink-400 mb-4">
+            <strong>Setup:</strong> Notion → Settings → Connections → Internal-Integration anlegen → Token kopieren → hier als API-Key Service <code className="bg-white/5 px-1 rounded">notion</code> einreichen. Dann Notion-Pages für die Integration freigeben.
+          </p>
+          <a href={`/projects/${slug}?s=apis`} className="inline-flex items-center gap-2 btn-gold text-sm">
+            <KeyRound size={13} /> API-Key einreichen
+          </a>
+        </div>
+      ) : databases.length === 0 ? (
+        <div className="card-premium p-12 text-center text-sm text-ink-400">
+          Keine Datenbanken sichtbar. Notion-Pages müssen für die Integration freigegeben werden.
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {databases.map((db, i) => (
+            <a key={db.id} href={db.url} target="_blank" rel="noopener" className="card-premium p-4 flex items-center justify-between hover:bg-white/[0.02] transition animate-fade-up" style={stagger(i, 40, 40)}>
+              <div className="min-w-0">
+                <div className="font-medium text-white">{db.title}</div>
+                <div className="text-xs text-ink-400 mt-1">Geändert: {new Date(db.last_edited_time).toLocaleDateString('de-DE')}</div>
+              </div>
+              <ExternalLink size={13} className="text-gold-300 shrink-0" />
+            </a>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 // ── Router Switch ──────────────────────────────────────────
 
 export default function UtilityHubDashboard({ slug, section }: { slug: string; section: string }) {
   if (section === 'customers') return <CustomersSection slug={slug} />;
   if (section === 'imports') return <ImportsSection slug={slug} />;
   if (section === 'teleson' || section === 'fg-finanz') return <TelesonSection slug={slug} />;
+  if (section === 'close') return <CloseSection slug={slug} />;
+  if (section === 'airtable') return <AirtableSection slug={slug} />;
+  if (section === 'notion') return <NotionSection slug={slug} />;
   if (section === 'uh-settings') return <SettingsSection slug={slug} />;
   return <OverviewSection slug={slug} />;
 }
