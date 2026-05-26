@@ -1,0 +1,9 @@
+{
+  "name": "thailandre-bot",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "description": "Patrick Roth's Personal AEVUM-Agent — Thailand Concierge Personal Assistant",
+  "scripts": { "start": "node index.js" },
+  "dependencies": { "dotenv": "^16.4.5" }
+}

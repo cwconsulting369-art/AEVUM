@@ -52,19 +52,27 @@ function fromAddress(from) {
 // ────────────────────────────────────────────────────────────
 // Core send
 // ────────────────────────────────────────────────────────────
-async function sendMail({ to, subject, html, text, from }) {
+async function sendMail({ to, subject, html, text, from, attachments }) {
   const fromAddr = fromAddress(from);
 
   // 1. Resend (primary)
   const resend = getResend();
   if (resend) {
     try {
+      const resendAttachments = Array.isArray(attachments) && attachments.length
+        ? attachments.map(a => ({
+            filename: a.filename,
+            content: Buffer.isBuffer(a.content) ? a.content.toString('base64') : a.content,
+            contentType: a.contentType
+          }))
+        : undefined;
       const res = await resend.emails.send({
         from: fromAddr,
         to,
         subject,
         html: html || undefined,
-        text: text || undefined
+        text: text || undefined,
+        attachments: resendAttachments
       });
       if (res.error) {
         console.error(`[mailer:resend] send failed: ${res.error.message || JSON.stringify(res.error)}`);
@@ -87,7 +95,8 @@ async function sendMail({ to, subject, html, text, from }) {
         to,
         subject,
         html: html || undefined,
-        text: text || undefined
+        text: text || undefined,
+        attachments: Array.isArray(attachments) && attachments.length ? attachments : undefined
       });
       return { ok: true, id: info.messageId, provider: 'smtp' };
     } catch (err) {
