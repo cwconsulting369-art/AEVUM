@@ -12,6 +12,7 @@ import { api, getAccessToken } from '@/lib/api';
 import Spinner from '@/components/Spinner';
 import { stagger } from '@/lib/animations';
 import { toast } from 'sonner';
+import { BarChart, DonutChart } from '@tremor/react';
 
 type Tab = 'metrics' | 'leads' | 'akquise' | 'spend' | 'content' | 'referrals';
 
@@ -229,25 +230,31 @@ function MetricsSection({ metrics, leadsCount }: { metrics: Metrics; leadsCount:
 
       <section>
         <SectionHeader icon={Users} title="Lead-Tier-Verteilung" sub={`${leadsCount} Leads gesamt`} />
-        <div className="card-premium p-5">
-          <div className="space-y-2.5">
-            {['A','B','C','D','unscored'].map((t) => {
-              const count = metrics.by_tier[t] || 0;
-              const pct = leadsCount ? Math.round((count / leadsCount) * 100) : 0;
-              return (
-                <div key={t} className="flex items-center gap-3">
-                  <span className={`badge ${TIER_BADGE[t]} min-w-[110px]`}>{TIER_LABEL[t]}</span>
-                  <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-gold-400/80 to-gold-300/60"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-ink-300 font-mono min-w-[60px] text-right">{count} ({pct}%)</span>
-                </div>
-              );
-            })}
-          </div>
+        <div className="card-premium p-5 grid lg:grid-cols-2 gap-6">
+          {/* Tremor BarChart — Tier-Verteilung */}
+          <BarChart
+            className="h-56"
+            data={['A','B','C','D','unscored'].map((t) => ({
+              tier: TIER_LABEL[t],
+              Leads: metrics.by_tier[t] || 0,
+            }))}
+            index="tier"
+            categories={['Leads']}
+            colors={['amber']}
+            yAxisWidth={36}
+            showLegend={false}
+          />
+          {/* Tremor DonutChart — Tier-Anteil */}
+          <DonutChart
+            className="h-56"
+            data={['A','B','C','D','unscored']
+              .map((t) => ({ name: TIER_LABEL[t], value: metrics.by_tier[t] || 0 }))
+              .filter((d) => d.value > 0)}
+            category="value"
+            index="name"
+            colors={['amber','yellow','orange','rose','slate']}
+            variant="donut"
+          />
         </div>
       </section>
 
