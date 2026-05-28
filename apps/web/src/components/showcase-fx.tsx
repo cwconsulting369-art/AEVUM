@@ -33,10 +33,10 @@ export function GlobalSpotlight() {
 
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-[55] mix-blend-soft-light"
+      className="pointer-events-none fixed inset-0 z-[40]"
       style={{
-        background: `radial-gradient(550px circle at ${pos.x}px ${pos.y}px, rgba(224,164,88,0.18), transparent 60%)`,
-        transition: "background 80ms linear",
+        background: `radial-gradient(600px circle at ${pos.x}px ${pos.y}px, rgba(224,164,88,0.12), transparent 55%)`,
+        transition: "background 60ms linear",
       }}
     />
   );
@@ -244,14 +244,8 @@ export function TiltCard({
   const sry = useSpring(ry, { stiffness: 200, damping: 20 });
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      style={{
-        rotateX: srx,
-        rotateY: sry,
-        transformStyle: "preserve-3d",
-        perspective: 1200,
-      }}
       onMouseMove={(e) => {
         const rect = ref.current?.getBoundingClientRect();
         if (!rect) return;
@@ -264,10 +258,19 @@ export function TiltCard({
         rx.set(0);
         ry.set(0);
       }}
+      style={{ perspective: "1200px" }}
       className={className}
     >
-      {children}
-    </motion.div>
+      <motion.div
+        style={{
+          rotateX: srx,
+          rotateY: sry,
+          transformStyle: "preserve-3d",
+        }}
+      >
+        {children}
+      </motion.div>
+    </div>
   );
 }
 
