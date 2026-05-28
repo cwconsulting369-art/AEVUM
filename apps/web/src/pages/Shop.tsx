@@ -32,6 +32,7 @@ import { usePageSeo } from '@/hooks/use-page-seo';
 import { track } from '@/lib/shop-track';
 import { useAevumConfig } from '@/hooks/use-config';
 import MaintenancePill from '@/components/MaintenancePill';
+import { TiltCard, Magnetic, GradientBorder, Reveal } from '@/components/showcase-fx';
 
 /* ──────────────────────── Types ──────────────────────── */
 
@@ -641,6 +642,7 @@ function BlueprintCard({
   const paused = config?.payments_paused === true;
 
   return (
+    <TiltCard intensity={8}>
     <motion.div
       ref={ref}
       custom={index}
@@ -731,6 +733,7 @@ function BlueprintCard({
         </a>
       </div>
     </motion.div>
+    </TiltCard>
   );
 }
 

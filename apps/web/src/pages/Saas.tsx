@@ -22,6 +22,7 @@ import {
 import { usePageSeo } from '@/hooks/use-page-seo';
 import { track } from '@/lib/shop-track';
 import { listSaasTools, CREDIT_PACKAGES, type SaasTool, type SaasSecurityLevel } from '@/data/saas-tools';
+import { TiltCard, GradientBorder, NumberCounter, Magnetic, Spotlight } from '@/components/showcase-fx';
 
 function SecurityBadge({ level }: { level: SaasSecurityLevel }) {
   const map = {
@@ -68,6 +69,7 @@ function ToolCard({ tool, idx }: { tool: SaasTool; idx: number }) {
   const href = `#/saas/${tool.slug}`;
 
   return (
+    <TiltCard intensity={7} className="block">
     <motion.a
       href={href}
       onClick={() => track('saas_card_click', { tool: tool.slug, status: tool.status })}
@@ -122,6 +124,7 @@ function ToolCard({ tool, idx }: { tool: SaasTool; idx: number }) {
         <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-[#e0a458]/5 via-transparent to-transparent" />
       )}
     </motion.a>
+    </TiltCard>
   );
 }
 

@@ -9,6 +9,7 @@ import {
 import CONTACT from '../config/contact';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import PathThreeCard from '@/components/ctas/PathThreeCard';
+import { TiltCard } from '@/components/showcase-fx';
 
 /* ──────────────────────── Types ──────────────────────── */
 
@@ -76,6 +77,7 @@ function CaseCard({ caseData, index }: { caseData: CaseSummary; index: number })
   const serviceCount = services.length;
 
   return (
+    <TiltCard intensity={6} className="block">
     <motion.a
       ref={ref}
       href={`/#/cases/${caseData.slug}`}
@@ -128,6 +130,7 @@ function CaseCard({ caseData, index }: { caseData: CaseSummary; index: number })
         )}
       </div>
     </motion.a>
+    </TiltCard>
   );
 }
 

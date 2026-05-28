@@ -21,6 +21,7 @@ import CONTACT from '@/config/contact';
 import { track } from '@/lib/shop-track';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import TrustpilotWidget from '@/components/TrustpilotWidget';
+import { MouseGlow, NumberCounter, GradientBorder, Magnetic } from '@/components/showcase-fx';
 
 /* ------------------------------------------------------------------ */
 /*  TYPES                                                             */
@@ -333,6 +334,7 @@ function AuditHeroSection() {
 
   return (
     <section className="relative overflow-hidden pt-24 pb-20 sm:pt-32 sm:pb-28">
+      <MouseGlow />
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full opacity-[0.12] blur-[120px]"
@@ -364,6 +366,28 @@ function AuditHeroSection() {
             <TrustpilotWidget />
           </div>
 
+          {/* Animated stats strip */}
+          <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-10">
+            <div className="text-center">
+              <div className="text-4xl sm:text-5xl font-bold text-[#e0a458] mb-1">
+                <NumberCounter to={48} suffix="h" />
+              </div>
+              <div className="text-xs text-[#a4a4ad] uppercase tracking-wider">Auto-Plan-PDF</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl sm:text-5xl font-bold text-[#e0a458] mb-1">
+                <NumberCounter to={100} suffix="%" />
+              </div>
+              <div className="text-xs text-[#a4a4ad] uppercase tracking-wider">DSGVO-konform</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl sm:text-5xl font-bold text-[#e0a458] mb-1">
+                <NumberCounter to={0} suffix="€" />
+              </div>
+              <div className="text-xs text-[#a4a4ad] uppercase tracking-wider">Audit-Kosten</div>
+            </div>
+          </div>
+
           {/* Trust badges */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10">
             {TRUST_BADGES.map(b => (
@@ -382,12 +406,14 @@ function AuditHeroSection() {
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <Magnetic strength={0.25}>
             <Button
               onClick={() => scrollToId('form')}
               className="h-13 px-8 text-base font-semibold rounded-lg"
               style={{ background: '#e0a458', color: '#0B0C10', height: '52px' }}>
               <Sparkles className="w-4 h-4 mr-2" />Kostenloses Audit starten
             </Button>
+            </Magnetic>
             <Button
               variant="outline"
               onClick={() => scrollToId('vergleich')}
