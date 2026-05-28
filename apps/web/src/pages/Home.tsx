@@ -26,6 +26,7 @@ import { usePageSeo } from '@/hooks/use-page-seo';
 import PathThreeCard from '@/components/ctas/PathThreeCard';
 import TrustpilotWidget from '@/components/TrustpilotWidget';
 import TrustpilotReviews from '@/components/TrustpilotReviews';
+import { AuroraBg, TiltCard, Magnetic, NumberCounter, Spotlight } from '@/components/showcase-fx';
 import {
   Accordion,
   AccordionItem,
@@ -1006,13 +1007,13 @@ function CasesSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {mockCases.map((c, i) => (
+            <TiltCard key={c.name} intensity={6}>
             <motion.div
-              key={c.name}
               custom={i}
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-bg-surface p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
+              className="bg-bg-surface p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#e0a458] to-[#a86d27] flex items-center justify-center text-black font-bold text-lg">
@@ -1044,6 +1045,7 @@ function CasesSection() {
                 </p>
               )}
             </motion.div>
+            </TiltCard>
           ))}
         </div>
 
@@ -1352,6 +1354,7 @@ function FinalCTASection() {
       className="min-h-[60vh] flex items-center justify-center px-6 relative"
       ref={ref}
     >
+      <AuroraBg />
       <div className="absolute inset-0 opacity-30">
         <ParticleCanvas />
       </div>

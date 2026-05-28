@@ -24,6 +24,7 @@ import CONTACT from '../config/contact';
 import PathThreeCard from '@/components/ctas/PathThreeCard';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import TrustpilotWidget from '@/components/TrustpilotWidget';
+import { MouseGlow } from '@/components/showcase-fx';
 
 /* ──────────────────────── Animation helpers ──────────────────────── */
 
@@ -40,7 +41,8 @@ const fadeUp = {
 
 function HeroSection() {
   return (
-    <section className="relative min-h-[45vh] flex items-center justify-center px-6 pt-20 pb-12">
+    <section className="relative min-h-[45vh] flex items-center justify-center px-6 pt-20 pb-12 overflow-hidden">
+      <MouseGlow />
       <div className="absolute inset-0 pointer-events-none">
         <div
           className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[350px] rounded-full opacity-[0.10] blur-[120px]"
