@@ -24,6 +24,7 @@ const Saas = lazy(() => import('./pages/Saas'));
 const SaasTool = lazy(() => import('./pages/SaasTool'));
 const SaasScriptFactory = lazy(() => import('./pages/SaasScriptFactory'));
 const Waitlist = lazy(() => import('./pages/Waitlist'));
+const LabMotion = lazy(() => import('./pages/LabMotion'));
 
 function LoadingFallback() {
   return (
@@ -55,6 +56,7 @@ const routeComponents: Record<string, React.ComponentType> = {
   '/lead-magnets/eu-ai-act': LeadMagnetEuAiAct,
   '/saas': Saas,
   '/waitlist': Waitlist,
+  '/lab/motion': LabMotion,
 };
 
 export default function App() {
