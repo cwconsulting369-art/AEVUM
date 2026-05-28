@@ -14,6 +14,34 @@ import {
   animate,
 } from "framer-motion";
 
+/* ──────────────── Global Spotlight (cursor follower, full viewport) ──────────────── */
+export function GlobalSpotlight() {
+  const [enabled, setEnabled] = useState(false);
+  const [pos, setPos] = useState({ x: -1000, y: -1000 });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const fine = window.matchMedia?.("(pointer: fine)").matches;
+    if (!fine) return;
+    setEnabled(true);
+    const move = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
+    window.addEventListener("mousemove", move, { passive: true });
+    return () => window.removeEventListener("mousemove", move);
+  }, []);
+
+  if (!enabled) return null;
+
+  return (
+    <div
+      className="pointer-events-none fixed inset-0 z-[55] mix-blend-soft-light"
+      style={{
+        background: `radial-gradient(550px circle at ${pos.x}px ${pos.y}px, rgba(224,164,88,0.18), transparent 60%)`,
+        transition: "background 80ms linear",
+      }}
+    />
+  );
+}
+
 /* ──────────────── Custom Cursor with Light-Cone (global) ──────────────── */
 export function CustomCursorGlow() {
   const x = useMotionValue(-200);
