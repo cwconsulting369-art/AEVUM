@@ -14,6 +14,96 @@ import {
   animate,
 } from "framer-motion";
 
+/* ──────────────── Custom Cursor with Light-Cone (global) ──────────────── */
+export function CustomCursorGlow() {
+  const x = useMotionValue(-200);
+  const y = useMotionValue(-200);
+  const dotX = useSpring(x, { stiffness: 600, damping: 30, mass: 0.4 });
+  const dotY = useSpring(y, { stiffness: 600, damping: 30, mass: 0.4 });
+  const ringX = useSpring(x, { stiffness: 220, damping: 22, mass: 0.7 });
+  const ringY = useSpring(y, { stiffness: 220, damping: 22, mass: 0.7 });
+  const glowX = useSpring(x, { stiffness: 90, damping: 25, mass: 1 });
+  const glowY = useSpring(y, { stiffness: 90, damping: 25, mass: 1 });
+  const [variant, setVariant] = useState<"default" | "hover">("default");
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const fine = window.matchMedia?.("(pointer: fine)").matches;
+    if (!fine) return;
+    setEnabled(true);
+
+    const move = (e: MouseEvent) => {
+      x.set(e.clientX);
+      y.set(e.clientY);
+    };
+    const over = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (t?.closest("a, button, [data-cursor-hover], input, textarea, select, label")) {
+        setVariant("hover");
+      } else {
+        setVariant("default");
+      }
+    };
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseover", over);
+    return () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseover", over);
+    };
+  }, [x, y]);
+
+  if (!enabled) return null;
+
+  return (
+    <>
+      <style>{`
+        body, body * { cursor: none !important; }
+        input, textarea { caret-color: #e0a458; }
+      `}</style>
+      {/* Light cone — soft radial */}
+      <motion.div
+        style={{ translateX: glowX, translateY: glowY }}
+        className="pointer-events-none fixed top-0 left-0 z-[58] -translate-x-1/2 -translate-y-1/2"
+      >
+        <motion.div
+          animate={{ scale: variant === "hover" ? 1.4 : 1, opacity: variant === "hover" ? 0.9 : 0.55 }}
+          transition={{ duration: 0.4 }}
+          className="w-[320px] h-[320px] rounded-full bg-gradient-radial from-[#e0a458]/22 via-[#e0a458]/8 to-transparent blur-2xl"
+        />
+      </motion.div>
+      {/* Outer ring */}
+      <motion.div
+        style={{ translateX: ringX, translateY: ringY }}
+        className="pointer-events-none fixed top-0 left-0 z-[59] -translate-x-1/2 -translate-y-1/2"
+      >
+        <motion.div
+          animate={{
+            scale: variant === "hover" ? 2.4 : 1,
+            borderColor: variant === "hover" ? "rgba(224,164,88,1)" : "rgba(255,255,255,0.45)",
+          }}
+          transition={{ duration: 0.25 }}
+          className="w-9 h-9 rounded-full border"
+        />
+      </motion.div>
+      {/* Inner dot */}
+      <motion.div
+        style={{ translateX: dotX, translateY: dotY }}
+        className="pointer-events-none fixed top-0 left-0 z-[60] -translate-x-1/2 -translate-y-1/2"
+      >
+        <motion.div
+          animate={{
+            scale: variant === "hover" ? 1.8 : 1,
+            backgroundColor: variant === "hover" ? "#e0a458" : "#ffffff",
+          }}
+          transition={{ duration: 0.2 }}
+          className="w-1.5 h-1.5 rounded-full"
+        />
+      </motion.div>
+    </>
+  );
+}
+
 /* ──────────────── Scroll Progress (global) ──────────────── */
 export function ScrollProgress() {
   const { scrollYProgress } = useScroll();

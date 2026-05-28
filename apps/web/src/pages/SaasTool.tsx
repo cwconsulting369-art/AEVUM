@@ -32,6 +32,7 @@ import {
 import { usePageSeo } from '@/hooks/use-page-seo';
 import { track } from '@/lib/shop-track';
 import { getSaasTool, CREDIT_PACKAGES, type SaasSecurityLevel } from '@/data/saas-tools';
+import { TiltCard, Magnetic } from '@/components/showcase-fx';
 import SignupFlow from '@/components/saas/SignupFlow';
 
 const PORTAL_BASE = 'https://app.aevum-system.de';
@@ -212,12 +213,14 @@ export default function SaasTool({ slug }: Props) {
             {/* Primary CTAs */}
             {!isComingSoon && (
               <div className="flex flex-wrap items-center gap-3">
+                <Magnetic strength={0.25}>
                 <button
                   onClick={() => openSignup()}
                   className="inline-flex items-center gap-2 px-5 py-3 bg-[#e0a458] text-black text-sm font-medium rounded hover:bg-[#e6b170] transition"
                 >
                   <Sparkles size={15} /> Account anlegen + nutzen
                 </button>
+                </Magnetic>
                 {tool.demoOutput && (
                   <button
                     onClick={() => {
@@ -293,13 +296,13 @@ export default function SaasTool({ slug }: Props) {
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tool.whatItDoes.map((s) => (
+              <TiltCard key={s.step} intensity={8}>
               <motion.div
-                key={s.step}
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.35, delay: s.step * 0.04 }}
-                className="bg-bg-primary border border-white/8 rounded-lg p-5"
+                className="bg-bg-primary border border-white/8 rounded-lg p-5 h-full"
               >
                 <div className="flex items-center gap-2 mb-2">
                   <span className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-[#e0a458]/30 bg-[#e0a458]/8 text-[#e0a458] font-mono text-xs">
@@ -309,6 +312,7 @@ export default function SaasTool({ slug }: Props) {
                 </div>
                 <p className="text-xs text-text-primary/55 leading-relaxed">{s.detail}</p>
               </motion.div>
+              </TiltCard>
             ))}
           </div>
         </div>

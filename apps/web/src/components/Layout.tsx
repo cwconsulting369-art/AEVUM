@@ -5,7 +5,7 @@ import CookieBanner from './CookieBanner';
 import MaintenanceBanner from './MaintenanceBanner';
 import MaintenanceModal from './MaintenanceModal';
 import { closeMaintenanceModal, useMaintenanceModalState } from '@/lib/maintenance-bus';
-import { ScrollProgress } from './showcase-fx';
+import { ScrollProgress, CustomCursorGlow } from './showcase-fx';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -22,6 +22,7 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-bg-primary text-[#F9FAFB]">
+      <CustomCursorGlow />
       <ScrollProgress />
       <MaintenanceBanner />
       <Navbar />

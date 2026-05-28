@@ -32,6 +32,7 @@ import { track } from '@/lib/shop-track';
 import { getShopItem } from '@/data/shop-items';
 import type { ShopItemContent, ShopItemType, SecurityLevel } from '@/data/shop-items/types';
 import { usePageSeo } from '@/hooks/use-page-seo';
+import { TiltCard, Magnetic } from '@/components/showcase-fx';
 
 /* ──────────────────── Backend-Status-Shape ──────────────────── */
 
@@ -375,7 +376,8 @@ function InstallOptionSection({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Self-Install Card */}
-            <div className="bg-bg-surface border border-white/10 p-6 md:p-7 flex flex-col">
+            <TiltCard intensity={7}>
+            <div className="bg-bg-surface border border-white/10 p-6 md:p-7 flex flex-col h-full">
               <div className="flex items-center justify-between mb-4">
                 <span className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-[#a4a4ad] bg-white/5 border border-white/10 px-2.5 py-1 rounded">
                   <Download size={11} />
@@ -405,6 +407,7 @@ function InstallOptionSection({
                 </li>
               </ul>
 
+              <Magnetic strength={0.2}>
               <button
                 onClick={() => onBuy(false)}
                 disabled={isBuying}
@@ -422,10 +425,13 @@ function InstallOptionSection({
                   </>
                 )}
               </button>
+              </Magnetic>
             </div>
+            </TiltCard>
 
             {/* AEVUM-Install Card (Featured) */}
-            <div className="relative bg-gradient-to-br from-[#15110a] via-[#111116] to-[#0c0c10] border border-[#e0a458]/35 p-6 md:p-7 flex flex-col overflow-hidden">
+            <TiltCard intensity={7}>
+            <div className="relative bg-gradient-to-br from-[#15110a] via-[#111116] to-[#0c0c10] border border-[#e0a458]/35 p-6 md:p-7 flex flex-col overflow-hidden h-full">
               <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-[#e0a458]/8 blur-3xl pointer-events-none" />
               <div className="relative flex flex-col flex-1">
                 <div className="flex items-center justify-between mb-4">
@@ -464,6 +470,7 @@ function InstallOptionSection({
                   </li>
                 </ul>
 
+                <Magnetic strength={0.2}>
                 <a
                   href={`/#/audit?service=${item.slug}&type=installation`}
                   className="inline-flex items-center justify-center gap-2 text-sm font-medium text-[#08080a] bg-[#e0a458] hover:bg-[#f0b468] px-5 py-2.5 transition-all w-full"
@@ -471,8 +478,10 @@ function InstallOptionSection({
                   Setup anfragen
                   <ArrowRight size={13} />
                 </a>
+                </Magnetic>
               </div>
             </div>
+            </TiltCard>
           </div>
         </motion.div>
       </div>
