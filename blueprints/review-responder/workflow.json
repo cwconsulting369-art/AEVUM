@@ -1,0 +1,647 @@
+{
+  "name": "AEVUM – Review-Responder",
+  "nodes": [
+    {
+      "id": "node-trigger-trustpilot",
+      "name": "Trustpilot Review Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "trustpilot-review-incoming",
+        "responseMode": "onReceived",
+        "responseData": "firstEntryJson",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-trigger-schedule",
+      "name": "Daily Sentiment Report Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 600],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-trigger-approve",
+      "name": "Approve Gate Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 900],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "{{INDIVIDUELL: APPROVE_WEBHOOK_PATH}}",
+        "responseMode": "onReceived",
+        "responseData": "firstEntryJson",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-extract-review",
+      "name": "Extract & Normalize Review",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [260, 300],
+      "parameters": {
+        "mode": "manual",
+        "fields": {
+          "values": [
+            {
+              "name": "reviewId",
+              "value": "={{ $json.body.id ?? $json.id ?? 'unknown-' + Date.now() }}"
+            },
+            {
+              "name": "platform",
+              "value": "trustpilot"
+            },
+            {
+              "name": "reviewerName",
+              "value": "={{ $json.body.consumer?.displayName ?? $json.consumer?.displayName ?? 'Anonym' }}"
+            },
+            {
+              "name": "rating",
+              "value": "={{ $json.body.stars ?? $json.stars ?? 0 }}"
+            },
+            {
+              "name": "reviewText",
+              "value": "={{ $json.body.text ?? $json.text ?? '' }}"
+            },
+            {
+              "name": "reviewTitle",
+              "value": "={{ $json.body.title ?? $json.title ?? '' }}"
+            },
+            {
+              "name": "reviewDate",
+              "value": "={{ $json.body.createdAt ?? $json.createdAt ?? new Date().toISOString() }}"
+            },
+            {
+              "name": "businessUnitId",
+              "value": "{{INDIVIDUELL: TRUSTPILOT_BUSINESS_UNIT_ID}}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "node-ai-sentiment-response",
+      "name": "AI: Sentiment + Antwort generieren",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1,
+      "position": [520, 300],
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "options": {
+          "maxTokens": 1024,
+          "temperature": 0.4,
+          "systemMessage": "Du bist der Review-Manager von {{INDIVIDUELL: BRAND_NAME}}. Dein Markenton: {{INDIVIDUELL: BRAND_VOICE_PROMPT}}\n\nDu erhältst eine Kundenbewertung und analysierst sie in zwei Schritten:\n1. SENTIMENT: Klassifiziere als 'positiv', 'neutral' oder 'negativ'. Vergib einen Score von 1 (sehr negativ) bis 10 (sehr positiv).\n2. ANTWORT: Schreibe eine professionelle, brand-konforme Antwort auf die Bewertung. Die Antwort soll:\n- Namentlich auf den Reviewer eingehen wenn möglich\n- Bei positiven Reviews: Dankbarkeit und Freude ausdrücken\n- Bei neutralen Reviews: Danken und auf Verbesserungspotenziale eingehen\n- Bei negativen Reviews: Empathisch, lösungsorientiert, keine Rechtfertigungen, Kontaktangebot\n- Maximal 150 Wörter\n- Auf Deutsch (außer der Original-Review ist auf Englisch, dann auf Englisch)\n\nAntworte NUR als valides JSON in diesem Format:\n{\n  \"sentiment\": \"positiv|neutral|negativ\",\n  \"sentimentScore\": <1-10>,\n  \"reasoning\": \"<kurze Begründung>\",\n  \"suggestedResponse\": \"<die Antwort>\"\n}"
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "=Bitte analysiere und beantworte diese Bewertung:\n\nBewertung von: {{ $json.reviewerName }}\nSterne: {{ $json.rating }}/5\nTitel: {{ $json.reviewTitle }}\nText: {{ $json.reviewText }}\nDatum: {{ $json.reviewDate }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "{{INDIVIDUELL: ANTHROPIC_API_KEY_CREDENTIAL}}",
+          "name": "{{INDIVIDUELL: ANTHROPIC_API_KEY_CREDENTIAL}}"
+        }
+      }
+    },
+    {
+      "id": "node-parse-ai-output",
+      "name": "Parse AI Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [780, 300],
+      "parameters": {
+        "jsCode": "const aiRaw = $input.first().json.content?.[0]?.text ?? $input.first().json.text ?? '';\n\nlet parsed;\ntry {\n  // Extract JSON from potential markdown code blocks\n  const jsonMatch = aiRaw.match(/```json\\n?([\\s\\S]*?)\\n?```/) || aiRaw.match(/({[\\s\\S]*})/);\n  const jsonString = jsonMatch ? jsonMatch[1] ?? jsonMatch[0] : aiRaw;\n  parsed = JSON.parse(jsonString.trim());\n} catch (e) {\n  parsed = {\n    sentiment: 'neutral',\n    sentimentScore: 5,\n    reasoning: 'Parse-Fehler: ' + e.message,\n    suggestedResponse: 'Vielen Dank für Ihre Bewertung. Wir werden uns schnellstmöglich darum kümmern.'\n  };\n}\n\nconst prevData = $('Extract & Normalize Review').first().json;\n\nreturn [{\n  json: {\n    ...prevData,\n    sentiment: parsed.sentiment ?? 'neutral',\n    sentimentScore: parsed.sentimentScore ?? 5,\n    aiReasoning: parsed.reasoning ?? '',\n    suggestedResponse: parsed.suggestedResponse ?? '',\n    processedAt: new Date().toISOString(),\n    status: 'pending_approval'\n  }\n}];"
+      }
+    },
+    {
+      "id": "node-log-to-sheets",
+      "name": "Log Review to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1040, 300],
+      "parameters": {
+        "operation": "append",
+        "documentId": "{{INDIVIDUELL: GOOGLE_SHEETS_ID}}",
+        "sheetName": "Reviews",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $json.processedAt }}",
+            "platform": "={{ $json.platform }}",
+            "review_id": "={{ $json.reviewId }}",
+            "reviewer": "={{ $json.reviewerName }}",
+            "rating": "={{ $json.rating }}",
+            "review_text": "={{ $json.reviewText }}",
+            "sentiment": "={{ $json.sentiment }}",
+            "sentiment_score": "={{ $json.sentimentScore }}",
+            "ai_response": "={{ $json.suggestedResponse }}",
+            "status": "={{ $json.status }}",
+            "published_at": ""
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{INDIVIDUELL: GOOGLE_SHEETS_CREDENTIAL}}",
+          "name": "{{INDIVIDUELL: GOOGLE_SHEETS_CREDENTIAL}}"
+        }
+      }
+    },
+    {
+      "id": "node-send-approval-email",
+      "name": "Send Approval Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1040, 120],
+      "parameters": {
+        "fromEmail": "reviews@{{INDIVIDUELL: deine-brand-domain.de}}",
+        "toEmail": "{{INDIVIDUELL: APPROVE_EMAIL_ADDRESS}}",
+        "subject": "=[Review-Freigabe] {{ $json.sentiment.toUpperCase() }} – {{ $json.rating }}⭐ von {{ $json.reviewerName }} (Trustpilot)",
+        "emailType": "html",
+        "message": "=<html><body style=\"font-family: Arial, sans-serif; max-width: 700px; margin: auto;\">\n<h2>🔔 Neue Review – Freigabe erforderlich</h2>\n<table style=\"width:100%; border-collapse:collapse;\">\n<tr><td style=\"padding:8px; background:#f5f5f5; font-weight:bold;\">Plattform</td><td style=\"padding:8px;\">Trustpilot</td></tr>\n<tr><td style=\"padding:8px; background:#f5f5f5; font-weight:bold;\">Reviewer</td><td style=\"padding:8px;\">{{ $json.reviewerName }}</td></tr>\n<tr><td style=\"padding:8px; background:#f5f5f5; font-weight:bold;\">Bewertung</td><td style=\"padding:8px;\">{{ $json.rating }}/5 Sterne</td></tr>\n<tr><td style=\"padding:8px; background:#f5f5f5; font-weight:bold;\">Sentiment</td><td style=\"padding:8px;\">{{ $json.sentiment }} (Score: {{ $json.sentimentScore }}/10)</td></tr>\n<tr><td style=\"padding:8px; background:#f5f5f5; font-weight:bold;\">Review-Text</td><td style=\"padding:8px;\">{{ $json.reviewText }}</td></tr>\n</table>\n<h3>📝 Vorgeschlagene Antwort:</h3>\n<div style=\"background:#eef7ff; padding:16px; border-left:4px solid #0066cc; border-radius:4px;\">\n{{ $json.suggestedResponse }}\n</div>\n<br/>\n<p><strong>Aktion erforderlich:</strong></p>\n<a href=\"{{ $env.WEBHOOK_URL }}/webhook/{{INDIVIDUELL: APPROVE_WEBHOOK_PATH}}?action=approve&reviewId={{ $json.reviewId }}&platform={{ $json.platform }}\" style=\"background:#28a745; color:white; padding:12px 24px; text-decoration:none; border-radius:4px; margin-right:12px;\">✅ FREIGEBEN &amp; VERÖFFENTLICHEN</a>\n<a href=\"{{ $env.WEBHOOK_URL }}/webhook/{{INDIVIDUELL: APPROVE_WEBHOOK_PATH}}?action=reject&reviewId={{ $json.reviewId }}&platform={{ $json.platform }}\" style=\"background:#dc3545; color:white; padding:12px 24px; text-decoration:none; border-radius:4px;\">❌ ABLEHNEN</a>\n<br/><br/>\n<p style=\"color:#888; font-size:12px;\">Review ID: {{ $json.reviewId }} | Verarbeitet: {{ $json.processedAt }}</p>\n</body></html>",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": {
+          "id": "{{INDIVIDUELL: SMTP_CREDENTIAL}}",
+          "name": "{{INDIVIDUELL: SMTP_CREDENTIAL}}"
+        }
+      }
+    },
+    {
+      "id": "node-check-approve-action",
+      "name": "Approve oder Reject?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [260, 900],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-approve",
+              "leftValue": "={{ $json.query.action }}",
+              "rightValue": "approve",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "node-get-review-data",
+      "name": "Hole Review-Daten aus Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [520, 820],
+      "parameters": {
+        "operation": "read",
+        "documentId": "{{INDIVIDUELL: GOOGLE_SHEETS_ID}}",
+        "sheetName": "Reviews",
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "review_id",
+              "lookupValue": "={{ $json.query.reviewId }}"
+            }
+          ]
+        },
+        "options": {
+          "returnAllMatches": false
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{INDIVIDUELL: GOOGLE_SHEETS_CREDENTIAL}}",
+          "name": "{{INDIVIDUELL: GOOGLE_SHEETS_CREDENTIAL}}"
+        }
+      }
+    },
+    {
+      "id": "node-post-trustpilot-reply",
+      "name": "Post Reply to Trustpilot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [780, 760],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.trustpilot.com/v1/private/business-units/{{INDIVIDUELL: TRUSTPILOT_BUSINESS_UNIT_ID}}/reviews/{{ $json.review_id }}/reply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "{{INDIVIDUELL: TRUSTPILOT_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\n  \"message\": \"{{ $json.ai_response }}\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "node-update-sheet-approved",
+      "name": "Update Sheet: Approved + Published",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1040, 760],
+      "parameters": {
+        "operation": "update",
+        "documentId": "{{INDIVIDUELL: GOOGLE_SHEETS_ID}}",
+        "sheetName": "Reviews",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "published",
+            "published_at": "={{ new Date().toISOString() }}"
+          }
+        },
+        "where": {
+          "values": [
+            {
+              "column": "review_id",
+              "value": "={{ $('Hole Review-Daten aus Sheets').first().json.review_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{INDIVIDUELL: GOOGLE_SHEETS_CREDENTIAL}}",
+          "name": "{{INDIVIDUELL: GOOGLE_SHEETS_CREDENTIAL}}"
+        }
+      }
+    },
+    {
+      "id": "node-update-sheet-rejected",
+      "name": "Update Sheet: Rejected",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [780, 980],
+      "parameters": {
+        "operation": "update",
+        "documentId": "{{INDIVIDUELL: GOOGLE_SHEETS_ID}}",
+        "sheetName": "Reviews",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "rejected"
+          }
+        },
+        "where": {
+          "values": [
+            {
+              "column": "review_id",
+              "value": "={{ $('Approve Gate Webhook').first().json.query.reviewId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{INDIVIDUELL: GOOGLE_SHEETS_CREDENTIAL}}",
+          "name": "{{INDIVIDUELL: GOOGLE_SHEETS_CREDENTIAL}}"
+        }
+      }
+    },
+    {
+      "id": "node-fetch-sheet-for-report",
+      "name": "Fetch All Reviews for Report",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [260, 600],
+      "parameters": {
+        "operation": "read",
+        "documentId": "{{INDIVIDUELL: GOOGLE_SHEETS_ID}}",
+        "sheetName": "Reviews",
+        "options": {
+          "returnAllMatches": true
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{INDIVIDUELL: GOOGLE_SHEETS_CREDENTIAL}}",
+          "name": "{{INDIVIDUELL: GOOGLE_SHEETS_CREDENTIAL}}"
+        }
+      }
+    },
+    {
+      "id": "node-build-report",
+      "name": "Build Sentiment Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 600],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst today = new Date();\nconst last7 = new Date(today);\nlast7.setDate(today.getDate() - 7);\n\nconst recent = items.filter(i => {\n  const ts = new Date(i.json.timestamp);\n  return ts >= last7;\n});\n\nif (recent.length === 0) {\n  return [{ json: { reportHtml: '<p>Keine Reviews in den letzten 7 Tagen.</p>', totalReviews: 0 } }];\n}\n\nconst scores = recent.map(i => parseFloat(i.json.sentiment_score) || 5);\nconst avgScore = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);\nconst ratings = recent.map(i => parseFloat(i.json.rating) || 3);\nconst avgRating = (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1);\n\nconst positive = recent.filter(i => i.json.sentiment === 'positiv').length;\nconst neutral = recent.filter(i => i.json.sentiment === 'neutral').length;\nconst negative = recent.filter(i => i.json.sentiment === 'negativ').length;\n\nconst published = recent.filter(i => i.json.status === 'published').length;\nconst pending = recent.filter(i => i.json.status === 'pending_approval').length;\nconst rejected = recent.filter(i => i.json.status === 'rejected').length;\n\nconst negativeReviews = recent\n  .filter(i => i.json.sentiment === 'negativ')\n  .map(i => `<li><strong>${i.json.reviewer}</strong> (${i.json.rating}⭐): ${(i.json.review_text || '').substring(0, 100)}...</li>`)\n  .join('');\n\nconst reportHtml = `\n<html><body style=\"font-family: Arial, sans-serif; max-width: 700px; margin: auto; color: #333;\">\n<h1>📊 Sentiment Report – Letzte 7 Tage</h1>\n<p>Zeitraum: ${last7.toLocaleDateString('de-DE')} – ${today.toLocaleDateString('de-DE')}</p>\n\n<h2>Übersicht</h2>\n<table style=\"width:100%; border-collapse:collapse; margin-bottom:20px;\">\n<tr style=\"background:#f0f0f0;\"><td style=\"padding:10px; border:1px solid #ddd;\"><strong>Gesamt Reviews</strong></td><td style=\"padding:10px; border:1px solid #ddd;\">${recent.length}</td></tr>\n<tr><td style=\"padding:10px; border:1px solid #ddd;\"><strong>Ø Sterne</strong></td><td style=\"padding:10px; border:1px solid #ddd;\">${avgRating}/5</td></tr>\n<tr style=\"background:#f0f0f0;\"><td style=\"padding:10px; border:1px solid #ddd;\"><strong>Ø Sentiment-Score</strong></td><td style=\"padding:10px; border:1px solid #ddd;\">${avgScore}/10</td></tr>\n</table>\n\n<h2>Sentiment-Verteilung</h2>\n<table style=\"width:100%; border-collapse:collapse; margin-bottom:20px;\">\n<tr><td style=\"padding:10px; border:1px solid #ddd; background:#d4edda;\">✅ Positiv</td><td style=\"padding:10px; border:1px solid #ddd;\">${positive} (${((positive/recent.length)*100).toFixed(0)}%)</td></tr>\n<tr><td style=\"padding:10px; border:1px solid #ddd; background:#fff3cd;\">⚠️ Neutral</td><td style=\"padding:10px; border:1px solid #ddd;\">${neutral} (${((neutral/recent.length)*100).toFixed(0)}%)</td></tr>\n<tr><td style=\"padding:10px; border:1px solid #ddd; background:#f8d7da;\">❌ Negativ</td><td style=\"padding:10px; border:1px solid #ddd;\">${negative} (${((negative/recent.length)*100).toFixed(0)}%)</td></tr>\n</table>\n\n<h2>Response-Status</h2>\n<table style=\"width:100%; border-collapse:collapse; margin-bottom:20px;\">\n<tr><td style=\"padding:10px; border:1px solid #ddd;\">✅ Veröffentlicht</td><td style=\"padding:10px; border:1px solid #ddd;\">${published}</td></tr>\n<tr><td style=\"padding:10px; border:1px solid #ddd;\">⏳ Ausstehend</td><td style=\"padding:10px; border:1px solid #ddd;\">${pending}</td></tr>\n<tr><td style=\"padding:10px; border:1px solid #ddd;\">❌ Abgelehnt</td><td style=\"padding:10px; border:1px solid #ddd;\">${rejected}</td></tr>\n</table>\n\n${negative > 0 ? `<h2>⚠️ Negative Reviews (Handlungsbedarf)</h2><ul>${negativeReviews}</ul>` : '<h2>✅ Keine negativen Reviews – Gut gemacht!</h2>'}\n\n<p style=\"color:#888; font-size:12px; margin-top:30px;\">Automatisch generiert von AEVUM Review-Responder | ${today.toISOString()}</p>\n</body></html>`;\n\nreturn [{ json: { reportHtml, totalReviews: recent.length, avgScore, avgRating, positive, neutral, negative } }];"
+      }
+    },
+    {
+      "id": "node-send-report-email",
+      "name": "Send Daily Report Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [780, 600],
+      "parameters": {
+        "fromEmail": "reviews@{{INDIVIDUELL: deine-brand-domain.de}}",
+        "toEmail": "{{INDIVIDUELL: REPORT_EMAIL_ADDRESS}}",
+        "subject": "=[📊 Review-Report] {{ $json.totalReviews }} Reviews | Ø {{ $json.avgScore }}/10 Sentiment | {{ new Date().toLocaleDateString('de-DE') }}",
+        "emailType": "html",
+        "message": "={{ $json.reportHtml }}",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": {
+          "id": "{{INDIVIDUELL: SMTP_CREDENTIAL}}",
+          "name": "{{INDIVIDUELL: SMTP_CREDENTIAL}}"
+        }
+      }
+    },
+    {
+      "id": "node-error-handler",
+      "name": "Error Alert to Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "{{INDIVIDUELL: SLACK_WEBHOOK_URL}}",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\n  \"text\": \"🚨 *Review-Responder Fehler*\",\n  \"attachments\": [\n    {\n      \"color\": \"danger\",\n      \"fields\": [\n        { \"title\": \"Workflow\", \"value\": \"AEVUM Review-Responder\", \"short\": true },\n        { \"title\": \"Zeitpunkt\", \"value\": \"{{ new Date().toISOString() }}\", \"short\": true },\n        { \"title\": \"Fehler\", \"value\": \"{{ $json.message ?? 'Unbekannter Fehler' }}\", \"short\": false },\n        { \"title\": \"Node\", \"value\": \"{{ $json.node?.name ?? 'Unbekannt' }}\", \"short\": true }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-check-sentiment-alert",
+      "name": "Negatives Review? Sofort-Alert",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1040, 480],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-negative",
+              "leftValue": "={{ $('Parse AI Output').first().json.sentiment }}",
+              "rightValue": "negativ",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "node-negative-alert-slack",
+      "name": "Sofort-Alert: Negative Review",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, 480],
+      "parameters": {
+        "method": "POST",
+        "url": "{{INDIVIDUELL: SLACK_WEBHOOK_URL}}",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\n  \"text\": \"⚠️ *Neue NEGATIVE Review – Sofortiger Handlungsbedarf!*\",\n  \"attachments\": [\n    {\n      \"color\": \"danger\",\n      \"fields\": [\n        { \"title\": \"Reviewer\", \"value\": \"{{ $('Parse AI Output').first().json.reviewerName }}\", \"short\": true },\n        { \"title\": \"Sterne\", \"value\": \"{{ $('Parse AI Output').first().json.rating }}/5\", \"short\": true },\n        { \"title\": \"Sentiment Score\", \"value\": \"{{ $('Parse AI Output').first().json.sentimentScore }}/10\", \"short\": true },\n        { \"title\": \"Plattform\", \"value\": \"Trustpilot\", \"short\": true },\n        { \"title\": \"Review\", \"value\": \"{{ $('Parse AI Output').first().json.reviewText.substring(0, 200) }}\", \"short\": false }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Trustpilot Review Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract & Normalize Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract & Normalize Review": {
+      "main": [
+        [
+          {
+            "node": "AI: Sentiment + Antwort generieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Sentiment + Antwort generieren": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Output": {
+      "main": [
+        [
+          {
+            "node": "Log Review to Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Approval Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Negatives Review? Sofort-Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Review to Google Sheets": {
+      "main": [
+        []
+      ]
+    },
+    "Send Approval Email": {
+      "main": [
+        []
+      ]
+    },
+    "Negatives Review? Sofort-Alert": {
+      "main": [
+        [
+          {
+            "node": "Sofort-Alert: Negative Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Daily Sentiment Report Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch All Reviews for Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All Reviews for Report": {
+      "main": [
+        [
+          {
+            "node": "Build Sentiment Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Sentiment Report": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Report Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approve Gate Webhook": {
+      "main": [
+        [
+          {
+            "node": "Approve oder Reject?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approve oder Reject?": {
+      "main": [
+        [
+          {
+            "node": "Hole Review-Daten aus Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Sheet: Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hole Review-Daten aus Sheets": {
+      "main": [
+        [
+          {
+            "node": "Post Reply to Trustpilot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Reply to Trustpilot": {
+      "main": [
+        [
+          {
+            "node": "Update Sheet: Approved + Published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "active": false,
+  "tags": [
+    {
+      "name": "AEVUM"
+    },
+    {
+      "name": "review-management"
+    },
+    {
+      "name": "reputation"
+    },
+    {
+      "name": "ai-automation"
+    }
+  ]
+}
