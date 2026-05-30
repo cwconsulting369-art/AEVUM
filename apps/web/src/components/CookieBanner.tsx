@@ -10,7 +10,7 @@
 // Custom-First: kein Cookie-Bot, kein Vendor-Lock-in, kein Tracking durch
 // den Banner selbst (Status nur in localStorage, keine Cookies).
 //
-// Stand: 2026-05-22 · Version: cookie-banner-v1
+// Stand: 2026-05-30 · Version: cookie-banner-v1 · theme-aware + centered
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -50,7 +50,7 @@ export default function CookieBanner() {
         JSON.stringify({
           v: 1,
           ts: new Date().toISOString(),
-          version: 'cookie-banner-v1-2026-05-22',
+          version: 'cookie-banner-v1-2026-05-30',
         })
       );
     } catch {
@@ -70,19 +70,16 @@ export default function CookieBanner() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="fixed bottom-4 left-4 right-4 md:left-6 md:right-6 lg:bottom-6 z-[100] max-w-3xl mx-auto"
+          className="fixed inset-x-0 bottom-0 z-[100] px-4 pb-4 lg:pb-6 pointer-events-none"
+          style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
         >
           <div
-            className="rounded-xl border border-white/10 shadow-2xl backdrop-blur-md p-5 md:p-6"
-            style={{
-              background: 'rgba(15, 16, 20, 0.92)',
-              boxShadow:
-                '0 20px 50px -10px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04)',
-            }}
+            className="pointer-events-auto mx-auto w-full max-w-3xl rounded-xl border border-theme-border bg-bg-elevated/95 backdrop-blur-md p-5 md:p-6"
+            style={{ boxShadow: 'var(--shadow-lg)' }}
           >
             <div className="flex flex-col md:flex-row md:items-start gap-4">
-              <div className="flex-1 text-sm text-[#a4a4ad] leading-relaxed">
-                <p className="text-[#F8FAFC] font-medium mb-2">
+              <div className="flex-1 text-sm text-text-secondary leading-relaxed">
+                <p className="text-text-primary font-medium mb-2">
                   Hinweis zu Cookies und Datenverarbeitung
                 </p>
                 <p>
@@ -94,7 +91,7 @@ export default function CookieBanner() {
                   unserer{' '}
                   <a
                     href="#/datenschutz"
-                    className="text-[#e0a458] hover:underline whitespace-nowrap"
+                    className="text-theme-accent hover:underline whitespace-nowrap"
                   >
                     Datenschutzerklärung
                   </a>
@@ -105,14 +102,14 @@ export default function CookieBanner() {
                 <button
                   type="button"
                   onClick={acknowledge}
-                  className="w-full md:w-auto px-5 py-2.5 rounded-lg bg-[#e0a458] hover:bg-[#f5d68d] text-[#0B0C10] text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#e0a458] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
+                  className="btn-primary w-full md:w-auto text-sm px-5 py-2.5"
                 >
                   Verstanden
                 </button>
                 <a
                   href="#/datenschutz"
                   onClick={acknowledge}
-                  className="w-full md:w-auto text-center px-5 py-2 rounded-lg border border-white/10 hover:border-white/20 text-[#a4a4ad] hover:text-[#F8FAFC] text-sm transition-colors"
+                  className="w-full md:w-auto text-center px-5 py-2 rounded-lg border border-theme-border hover:border-theme-border-strong text-text-secondary hover:text-text-primary text-sm transition-colors"
                 >
                   Details ansehen
                 </a>

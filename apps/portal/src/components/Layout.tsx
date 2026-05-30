@@ -11,6 +11,7 @@ import {
 import { Link } from 'react-router';
 import Footer from './Footer';
 import Brand from './Brand';
+import { getManifestByProjectSlug } from '@/lib/manifests';
 
 // ── Generic portal nav ────────────────────────────────────────
 // Power-User-Whitelist via env (config in apps/portal/.env or Vercel-env: VITE_POWER_USER_EMAILS as comma-separated list)
@@ -153,6 +154,42 @@ export default function Layout() {
   const currentLabel = inProject
     ? (sections?.find(s => s.s === currentSection)?.label ?? 'Übersicht')
     : portalNav.find(n => loc.pathname.startsWith(n.to))?.label;
+
+  // War-Room CommandShell-Projekte bringen ihre EIGENE linke Nav (cmd-nav) mit.
+  // Für sie die generische Portal-Sidebar weglassen → genau EINE übersichtliche
+  // linke Menüleiste statt zwei nebeneinander.
+  const hasManifest = !!(slug && getManifestByProjectSlug(slug));
+  if (hasManifest) {
+    return (
+      <div className="min-h-screen bg-ink-950 text-ink-100">
+        <div aria-hidden className="fixed inset-0 pointer-events-none bg-gold-radial opacity-50 z-0" />
+        <div className="relative z-10 flex flex-col min-h-screen">
+          <div className="flex items-center justify-between px-4 md:px-6 xl:px-8 pt-4">
+            <Link
+              to="/projects"
+              className="inline-flex items-center gap-2 text-xs text-ink-400 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/5 transition"
+            >
+              <ChevronLeft size={13} /> Projekte
+            </Link>
+            <div className="flex items-center gap-3">
+              <span className="text-[0.65rem] text-ink-500 hidden sm:block">{me?.account.email}</span>
+              <button
+                onClick={logout}
+                className="inline-flex items-center gap-1.5 text-xs text-ink-400 hover:text-rose-300 transition px-3 py-1.5 rounded-lg hover:bg-white/5"
+                title="Abmelden"
+              >
+                <LogOut size={13} /> <span className="hidden sm:inline">Abmelden</span>
+              </button>
+            </div>
+          </div>
+          <main className="flex-1 px-4 md:px-6 xl:px-8 py-5 w-full pb-16" key={loc.pathname}>
+            <div className="animate-fade-up"><Outlet /></div>
+          </main>
+          <Footer />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-ink-950 text-ink-100">
