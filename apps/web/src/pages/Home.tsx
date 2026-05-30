@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   MessageCircle,
@@ -430,9 +430,9 @@ const ACCOUNT_FEATURES = [
 ];
 
 const TIER_HEADERS = [
-  { key: 'gast', label: 'Gast', sub: 'ohne Account' },
-  { key: 'shop', label: 'Shop-Account', sub: 'kostenlos' },
-  { key: 'saas', label: 'SaaS-Account', sub: 'kostenlos' },
+  { key: 'gast', label: 'Gast', sub: 'ohne Account', highlight: false },
+  { key: 'shop', label: 'Shop-Account', sub: 'kostenlos', highlight: false },
+  { key: 'saas', label: 'SaaS-Account', sub: 'kostenlos', highlight: false },
   { key: 'full', label: 'Full-Partnership', sub: 'nach Audit', highlight: true },
 ] as const;
 

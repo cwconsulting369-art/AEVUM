@@ -989,7 +989,7 @@ function AuditForm() {
   ) => {
     setFormState(prev => ({
       ...prev,
-      [key]: { ...(prev[key] as Record<string, unknown>), [field]: value },
+      [key]: { ...(prev[key] as unknown as Record<string, unknown>), [field]: value },
     }));
   }, []);
 
@@ -1663,7 +1663,7 @@ interface StepContactProps {
   files: File[];
   fileError: string | null;
   dragOver: boolean;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
   onDragOver: (e: React.DragEvent) => void;
   onDragLeave: () => void;
   onDrop: (e: React.DragEvent) => void;

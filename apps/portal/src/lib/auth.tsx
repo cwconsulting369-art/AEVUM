@@ -13,6 +13,7 @@ export type Me = {
     client_zero: boolean;
     account_type?: AccountType;
     has_agent_access?: boolean;
+    contact_data?: Record<string, any> | null;
   };
   profile: any;
   permissions: any;

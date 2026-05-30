@@ -15,7 +15,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'https://api.aevum-system.
  */
 export class PaymentsPausedError extends Error {
   readonly code = 'payments_paused';
-  constructor(public readonly message: string = 'Käufe pausiert — Wartungsmodus') {
+  constructor(message: string = 'Käufe pausiert — Wartungsmodus') {
     super(message);
     this.name = 'PaymentsPausedError';
   }

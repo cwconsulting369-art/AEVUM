@@ -100,7 +100,7 @@ export default function App() {
   // SaaS-Tool-Detail-Routes: /saas/<slug>
   const saasToolMatch = route.match(/^\/saas\/([a-z0-9-]+)$/);
   const Page = shopDetailMatch
-    ? () => <ShopItemDetail variant={shopDetailMatch[1] as 'blueprint' | 'dfy' | 'saas' | 'bundle'} slug={shopDetailMatch[2]} />
+    ? () => <ShopItemDetail type={shopDetailMatch[1] as 'blueprint' | 'dfy' | 'saas' | 'bundle'} />
     : caseDetailMatch
       ? () => <CaseDetail slug={caseDetailMatch[1]} />
       : saasToolMatch

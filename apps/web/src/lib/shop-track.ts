@@ -49,7 +49,20 @@ type EventType =
   | 'addtocart'
   | 'shop_open'
   | 'audit_start'
-  | 'audit_submit';
+  | 'audit_submit'
+  | 'launch_waitlist_view'
+  | 'launch_waitlist_submit'
+  | 'saas_card_click'
+  | 'saas_signup_open'
+  | 'saas_signup_step'
+  | 'saas_signup_checkout_redirect'
+  | 'saas_signup_google'
+  | 'saas_tool_view'
+  | 'saas_tool_signup_open'
+  | 'saas_tool_login_click'
+  | 'saas_demo_open'
+  | 'saas_demo_reveal'
+  | 'shop_tab_switch';
 
 interface TrackPayload {
   session_id: string;
@@ -69,6 +82,7 @@ interface ExtraData {
   package_tier?: string;
   value_cents?: number;
   meta?: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 export function track(event_type: EventType, data: ExtraData = {}): void {

@@ -99,7 +99,6 @@ function detectCtas(text: string): { audit: boolean; call: boolean } {
 // a prominent CTA-Card matching the route.
 const HANDOFF_MARKER_RE = /<aevum-handoff>([\s\S]*?)<\/aevum-handoff>/i;
 const AUDIT_PREFILL_KEY = 'aevum_audit_prefill';
-const API_BASE_URL = API_BASE; // alias for nested components
 
 const VALID_BLUEPRINT_SLUGS = new Set([
   'content-factory',
@@ -110,19 +109,6 @@ const VALID_BLUEPRINT_SLUGS = new Set([
   'cold-outreach-system',
 ]);
 const VALID_SAAS_TOOLS = new Set(['script-factory', 'dsgvo-factory', 'lead-factory']);
-const SAAS_TOOL_LABELS: Record<string, string> = {
-  'script-factory': 'Script-Factory',
-  'dsgvo-factory': 'DSGVO-Factory',
-  'lead-factory': 'Lead-Factory',
-};
-const BLUEPRINT_LABELS: Record<string, string> = {
-  'content-factory': 'Content-Factory',
-  'lead-qualifier-pro': 'Lead-Qualifier Pro',
-  'reporting-dashboard-setup': 'Reporting Dashboard',
-  'onboarding-autopilot': 'Onboarding Autopilot',
-  'newsletter-growth-machine': 'Newsletter Growth Machine',
-  'cold-outreach-system': 'Cold Outreach System',
-};
 
 type HandoffAction =
   | { to: 'audit' }
@@ -638,7 +624,7 @@ export default function Helpbot() {
                     key={i}
                     msg={m}
                     onCta={goToHash}
-                    onHandoff={handoffToAudit}
+                    onHandoff={() => handoffDispatch({ to: 'audit' })}
                     isLast={i === session.messages.length - 1}
                   />
                 ))}
@@ -703,9 +689,10 @@ function MessageBubble({ msg, onCta, onHandoff, isLast }: BubbleProps) {
   // Parse the optional <aevum-handoff>…</aevum-handoff> marker.  The marker is
   // ALWAYS stripped from the visible bubble (even mid-stream) so the user never
   // sees raw XML; if the JSON validates, we surface a prominent CTA instead.
-  const { stripped, hasHandoff } = !isUser && msg.content
+  const { stripped, action: handoffAction } = !isUser && msg.content
     ? parseHandoff(msg.content)
-    : { stripped: msg.content, hasHandoff: false };
+    : { stripped: msg.content, action: null };
+  const hasHandoff = handoffAction !== null;
 
   const displayContent = stripped || msg.content;
   const ctas = !isUser && displayContent ? detectCtas(displayContent) : { audit: false, call: false };

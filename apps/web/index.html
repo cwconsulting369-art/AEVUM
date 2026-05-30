@@ -53,22 +53,19 @@
     <meta name="msapplication-TileColor" content="#0B0C10" />
     <link rel="manifest" href="/manifest.webmanifest" />
 
-    <!-- Performance hints — preconnect + non-blocking font load (Wave I7) -->
+    <!-- Performance hints — preconnect + CSP-safe font load (Wave I7) -->
+    <!-- CSP-safe: plain stylesheet link. The previous preload+inline-onload trick
+         (onload="this.rel='stylesheet'") violated the CSP (script-src without
+         'unsafe-inline') and threw a console error on every page. A normal
+         stylesheet link needs no inline handler; font-display:swap (critical CSS
+         below) keeps text visible during the minimal render-blocking window. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Trim font palette to actually-used weights to reduce CSS-payload + reflow -->
     <link
-      rel="preload"
-      as="style"
+      rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-      onload="this.onload=null;this.rel='stylesheet'"
     />
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-      />
-    </noscript>
 
     <!-- Critical-CSS inline — sub-1s LCP, no FOUC before bundle parses -->
     <style>
