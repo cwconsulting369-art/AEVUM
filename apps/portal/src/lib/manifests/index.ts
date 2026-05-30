@@ -36,3 +36,8 @@ export function resolveCustomerOptions(me: MeLike): CustomerOption[] {
 export function getManifest(slug: string): DashboardManifest | null {
   return MANIFESTS[slug] ?? null;
 }
+
+/** Lookup per DB-Projekt-Slug (ProjectDetail kennt nur den Projekt-Slug, nicht den Account). */
+export function getManifestByProjectSlug(projectSlug: string): DashboardManifest | null {
+  return Object.values(MANIFESTS).find((m) => m.project.slug === projectSlug) ?? null;
+}
