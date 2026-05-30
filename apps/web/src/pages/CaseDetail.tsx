@@ -167,7 +167,7 @@ function Services({ services }: { services: ActivatedService[] }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ delay: i * 0.06, duration: 0.5 }}
-            className="bg-bg-surface border border-theme-border hover:border-theme-border-accent transition-colors p-5"
+            className="flex h-full flex-col bg-bg-surface border border-theme-border hover:border-theme-border-accent transition-colors p-5"
           >
             <div className="flex items-start gap-3">
               <div className="w-9 h-9 rounded bg-theme-accent-soft border border-theme-border-accent flex items-center justify-center flex-shrink-0">
@@ -206,7 +206,7 @@ function Kpis({ kpis }: { kpis: LiveKpi[] }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ delay: i * 0.06, duration: 0.5 }}
-            className="bg-bg-surface border border-theme-border p-5"
+            className="flex h-full flex-col bg-bg-surface border border-theme-border p-5"
           >
             <p className="text-[10px] font-mono uppercase tracking-wider text-text-muted mb-1.5 break-words">
               {k.label}

@@ -382,7 +382,7 @@ function ThreePathsSection() {
                 initial={{ opacity: 0, y: 24 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: i * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className={`group relative bg-bg-surface border ${s.border} p-6 sm:p-7 md:p-8 transition-all flex flex-col hover:-translate-y-1`}
+                className={`group relative bg-bg-surface border ${s.border} p-6 sm:p-7 md:p-8 transition-all flex h-full flex-col hover:-translate-y-1`}
               >
                 {s.badge && (
                   <span className="absolute top-4 right-4 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-2 py-0.5">
@@ -764,7 +764,7 @@ function PillarsSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-bg-primary p-6 sm:p-8 lg:p-10 border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1"
+              className="bg-bg-primary p-6 sm:p-8 lg:p-10 border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1 flex h-full flex-col"
             >
               <p.icon size={32} className="text-theme-accent mb-6" />
               <h3 className="font-mono text-sm uppercase tracking-[0.1em] text-theme-accent mb-3">
@@ -854,7 +854,7 @@ function ModulesSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-bg-surface p-6 sm:p-8 border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1 group"
+              className="bg-bg-surface p-6 sm:p-8 border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1 group flex h-full flex-col"
             >
               <m.icon
                 size={28}
@@ -929,7 +929,7 @@ function ServicesSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-bg-primary p-6 sm:p-8 lg:p-10 border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1 flex flex-col"
+              className="bg-bg-primary p-6 sm:p-8 lg:p-10 border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1 flex h-full flex-col"
             >
               <s.icon size={32} className="text-theme-accent mb-6" />
               <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-text-muted mb-3 block">
@@ -1007,13 +1007,13 @@ function CasesSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {mockCases.map((c, i) => (
-            <TiltCard key={c.name} intensity={6}>
+            <TiltCard key={c.name} intensity={6} className="h-full">
             <motion.div
               custom={i}
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-bg-surface p-6 sm:p-8 border border-theme-border hover:border-theme-border-accent transition-all"
+              className="bg-bg-surface p-6 sm:p-8 border border-theme-border hover:border-theme-border-accent transition-all h-full flex flex-col"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#e0a458] to-[#a86d27] flex items-center justify-center text-black font-bold text-lg shrink-0">
@@ -1156,7 +1156,7 @@ function PricingSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="flex items-center gap-3 bg-bg-primary border border-theme-border px-5 py-4"
+              className="flex h-full items-center gap-3 bg-bg-primary border border-theme-border px-5 py-4"
             >
               <t.icon size={16} className="text-theme-accent shrink-0" />
               <span className="text-sm text-text-secondary">{t.text}</span>
@@ -1205,7 +1205,7 @@ function TrustSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-bg-surface p-6 sm:p-8 border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1 text-center"
+              className="bg-bg-surface p-6 sm:p-8 border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1 text-center flex h-full flex-col"
             >
               <b.icon size={32} className="text-theme-accent mx-auto mb-4" />
               <p className="text-sm text-text-secondary leading-relaxed">{b.text}</p>

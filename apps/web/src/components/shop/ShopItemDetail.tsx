@@ -302,9 +302,9 @@ function DownloadsSection({ status }: { status: BuildStatus }) {
         Nach erfolgreichem Kauf bekommst du direkten Download-Link zu allen Files. Diese Preview zeigt
         was im Paket enthalten ist:
       </p>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 items-stretch">
         {status.n8n_export_url && (
-          <div className="border border-theme-border bg-bg-surface p-4 rounded-lg flex items-center gap-3">
+          <div className="border border-theme-border bg-bg-surface p-4 rounded-lg flex h-full items-center gap-3">
             <FileJson size={20} className="text-theme-accent flex-shrink-0" />
             <div className="flex-1">
               <span className="block text-sm font-medium text-text-primary">n8n-Workflow JSON</span>
@@ -314,7 +314,7 @@ function DownloadsSection({ status }: { status: BuildStatus }) {
           </div>
         )}
         {status.pdf_url && (
-          <div className="border border-theme-border bg-bg-surface p-4 rounded-lg flex items-center gap-3">
+          <div className="border border-theme-border bg-bg-surface p-4 rounded-lg flex h-full items-center gap-3">
             <FileText size={20} className="text-theme-accent flex-shrink-0" />
             <div className="flex-1">
               <span className="block text-sm font-medium text-text-primary">Setup-Anleitung PDF</span>

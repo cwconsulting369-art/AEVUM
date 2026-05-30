@@ -388,7 +388,7 @@ export default function SaasTool({ slug }: Props) {
             {CREDIT_PACKAGES.map((pkg) => (
               <div
                 key={pkg.slug}
-                className={`relative bg-bg-elevated border rounded-lg p-6 flex flex-col ${
+                className={`relative flex h-full flex-col bg-bg-elevated border rounded-lg p-6 ${
                   pkg.featured ? 'border-theme-border-accent' : 'border-theme-border'
                 }`}
               >

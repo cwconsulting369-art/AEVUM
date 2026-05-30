@@ -77,14 +77,14 @@ function CaseCard({ caseData, index }: { caseData: CaseSummary; index: number })
   const serviceCount = services.length;
 
   return (
-    <TiltCard intensity={6} className="block">
+    <TiltCard intensity={6} className="block h-full">
     <motion.a
       ref={ref}
       href={`/#/cases/${caseData.slug}`}
       initial={{ opacity: 0, y: 40 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: index * 0.08, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="block bg-bg-surface border border-theme-border p-6 md:p-8 hover:border-theme-border-accent hover:bg-bg-elevated transition-all group"
+      className="flex h-full flex-col bg-bg-surface border border-theme-border p-6 md:p-8 hover:border-theme-border-accent hover:bg-bg-elevated transition-all group"
     >
       <div className="flex items-start justify-between gap-3 mb-5">
         <div className="flex items-center gap-3 min-w-0">
@@ -106,7 +106,7 @@ function CaseCard({ caseData, index }: { caseData: CaseSummary; index: number })
         />
       </div>
 
-      <div className="mt-4 pt-4 border-t border-theme-border flex flex-wrap items-center justify-between gap-3">
+      <div className="mt-auto pt-4 border-t border-theme-border flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-1.5">
           {services.slice(0, 3).map((s, i) => (
             <span
@@ -214,7 +214,7 @@ function CasesGridSection() {
             {[0, 1, 2, 3].map(i => (
               <div
                 key={i}
-                className="bg-bg-surface border border-theme-border p-6 md:p-8 animate-pulse"
+                className="bg-bg-surface border border-theme-border p-6 md:p-8 animate-pulse h-full"
                 aria-hidden="true"
               >
                 <div className="flex items-start gap-3">

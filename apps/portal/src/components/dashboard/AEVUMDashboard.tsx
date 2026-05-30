@@ -110,9 +110,9 @@ function SectionOverview({ data }: { data: DashboardData }) {
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
       {/* Hero KPI Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-stretch">
         {topKpis.map(({ label, value, sub, trend, icon: Icon }) => (
-          <div key={label} className="card-premium p-4 sm:p-5">
+          <div key={label} className="card-premium p-4 sm:p-5 h-full flex flex-col">
             <div className="flex items-start justify-between mb-3">
               <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center">
                 <Icon size={15} className="text-gold-300" />
@@ -121,7 +121,7 @@ function SectionOverview({ data }: { data: DashboardData }) {
               {trend === 'down' && <ArrowDownRight size={14} className="text-rose-400" />}
               {trend === 'flat' && <Minus size={14} className="text-ink-500" />}
             </div>
-            <div className="text-2xl font-bold text-white tabular-nums">{value}</div>
+            <div className="mt-auto text-2xl font-bold text-white tabular-nums">{value}</div>
             <div className="text-[0.65rem] text-ink-400 mt-0.5">{label}</div>
             <div className="text-[0.6rem] text-ink-500 mt-1">{sub}</div>
           </div>
@@ -184,9 +184,9 @@ function SectionPipeline({ data }: { data: DashboardData }) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 items-stretch">
         {convRates.map(({ label, value, icon: Icon }) => (
-          <div key={label} className="card-premium p-4 sm:p-5 text-center">
+          <div key={label} className="card-premium p-4 sm:p-5 text-center h-full flex flex-col">
             <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center mx-auto mb-3">
               <Icon size={16} className="text-gold-300" />
             </div>
@@ -230,13 +230,13 @@ function SectionRevenue({ data }: { data: DashboardData }) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-stretch">
         {items.map(({ label, value, icon: Icon, highlight }) => (
-          <div key={label} className={`card-premium p-4 sm:p-5 ${highlight ? 'border-gold-400/30' : ''}`}>
+          <div key={label} className={`card-premium p-4 sm:p-5 h-full flex flex-col ${highlight ? 'border-gold-400/30' : ''}`}>
             <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center mb-3">
               <Icon size={15} className="text-gold-300" />
             </div>
-            <div className={`text-2xl font-bold tabular-nums ${highlight ? 'text-gold-300' : 'text-white'}`}>{value}</div>
+            <div className={`mt-auto text-2xl font-bold tabular-nums ${highlight ? 'text-gold-300' : 'text-white'}`}>{value}</div>
             <div className="text-[0.65rem] text-ink-400 mt-1">{label}</div>
           </div>
         ))}
@@ -260,13 +260,13 @@ function SectionKunden({ data }: { data: DashboardData }) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 items-stretch">
         {[
           { label: 'Gesamt', value: total, icon: Users },
           { label: 'Aktiv',  value: active, icon: CheckCircle2 },
           { label: 'Inaktiv',value: total - active, icon: Clock },
         ].map(({ label, value, icon: Icon }) => (
-          <div key={label} className="card-premium p-4 sm:p-5 text-center">
+          <div key={label} className="card-premium p-4 sm:p-5 text-center h-full flex flex-col">
             <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center mx-auto mb-3">
               <Icon size={15} className="text-gold-300" />
             </div>
@@ -314,9 +314,9 @@ function SectionContent({ data }: { data: DashboardData }) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 items-stretch">
         {stats.map(({ label, value, icon: Icon }) => (
-          <div key={label} className="card-premium p-4 sm:p-5 text-center">
+          <div key={label} className="card-premium p-4 sm:p-5 text-center h-full flex flex-col">
             <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center mx-auto mb-3">
               <Icon size={15} className="text-gold-300" />
             </div>
@@ -336,13 +336,13 @@ function SectionContent({ data }: { data: DashboardData }) {
 
       <div className="card-premium p-4 sm:p-6">
         <h3 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-4">Content-Strategie</h3>
-        <div className="grid sm:grid-cols-3 gap-4 text-xs">
+        <div className="grid sm:grid-cols-3 gap-4 text-xs items-stretch">
           {[
             { title: 'LinkedIn', desc: '3-5 Posts/Woche. Transparenz + Cases + AI-Insights. Organic-first.', color: 'text-blue-300' },
             { title: 'Netzwerk', desc: 'Referrals aus dem bestehenden DACH-Netzwerk. Warm Intros über Partner und Bestandskunden.', color: 'text-emerald-300' },
             { title: 'Ads als Booster', desc: 'Posts die organisch performen → €50-200 Boost. Kein Cold-Ad-Traffic.', color: 'text-gold-300' },
           ].map(({ title, desc, color }) => (
-            <div key={title} className="bg-white/[0.02] rounded-lg p-4 border border-white/5">
+            <div key={title} className="bg-white/[0.02] rounded-lg p-4 border border-white/5 h-full flex flex-col">
               <div className={`font-semibold ${color} mb-2`}>{title}</div>
               <div className="text-ink-400 leading-relaxed">{desc}</div>
             </div>

@@ -94,7 +94,7 @@ function fmtVal(kpi: KPIItem) {
 function KPICard({ kpi, delay }: { kpi: KPIItem; delay: number }) {
   const val = fmtVal(kpi);
   return (
-    <div className="card-premium p-4 sm:p-5 animate-fade-up flex flex-col gap-3" style={{ animationDelay: `${delay}ms` }}>
+    <div className="card-premium p-4 sm:p-5 animate-fade-up flex flex-col gap-3 h-full" style={{ animationDelay: `${delay}ms` }}>
       <div className="flex items-center justify-between gap-2">
         <span className="text-[0.65rem] uppercase tracking-wider text-ink-400 font-semibold truncate">{kpi.label}</span>
         {kpi.live
@@ -152,7 +152,7 @@ function SectionOverview({ data }: { data: DashboardPayload }) {
       {/* KPI Strip */}
       <section>
         <div className="text-[0.65rem] uppercase tracking-widest text-ink-500 font-semibold mb-3">Performance-KPIs</div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 items-stretch">
           {data.kpis.map((kpi, i) => <KPICard key={kpi.id} kpi={kpi} delay={40 + i * 50} />)}
         </div>
       </section>
@@ -212,7 +212,7 @@ function SectionAds({ data }: { data: DashboardPayload }) {
           </span>
         </div>
         {metaKpis.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 items-stretch">
             {metaKpis.map((kpi, i) => <KPICard key={kpi.id} kpi={kpi} delay={40 + i * 50} />)}
           </div>
         ) : (
@@ -230,7 +230,7 @@ function SectionAds({ data }: { data: DashboardPayload }) {
           </span>
         </div>
         {googleKpis.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 items-stretch">
             {googleKpis.map((kpi, i) => <KPICard key={kpi.id} kpi={kpi} delay={40 + i * 50} />)}
           </div>
         ) : (
@@ -258,7 +258,7 @@ function SectionSpend({ data }: { data: DashboardPayload }) {
       <section>
         <div className="text-[0.65rem] uppercase tracking-widest text-ink-500 font-semibold mb-3">Alle Ad-KPIs</div>
         {anyConnected ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 items-stretch">
             {[...metaKpis, ...googleKpis].map((kpi, i) => <KPICard key={kpi.id} kpi={kpi} delay={40 + i * 50} />)}
           </div>
         ) : (
@@ -311,7 +311,7 @@ function SectionEmail({ data }: { data: DashboardPayload }) {
         </span>
       </div>
       {kpis.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 items-stretch">
           {kpis.map((kpi, i) => <KPICard key={kpi.id} kpi={kpi} delay={40 + i * 50} />)}
         </div>
       ) : (
@@ -357,7 +357,7 @@ function SectionShop({ data }: { data: DashboardPayload }) {
         </span>
       </div>
       {kpis.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 items-stretch">
           {kpis.map((kpi, i) => <KPICard key={kpi.id} kpi={kpi} delay={40 + i * 50} />)}
         </div>
       ) : (
@@ -434,14 +434,14 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
       )}
 
       {/* Score Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-stretch">
         {[
           { label: 'SEO', score: seo ?? 0 },
           { label: 'Speed', score: spd ?? 0 },
           { label: 'Copy', score: cpy ?? 0 },
           { label: 'Workflow', score: wfl ?? 0 },
         ].map(({ label, score }) => (
-          <div key={label} className="card-premium p-4 sm:p-5 flex flex-col items-center gap-2">
+          <div key={label} className="card-premium p-4 sm:p-5 flex flex-col items-center justify-center gap-2 h-full">
             <ScoreRing score={score} label={label} />
           </div>
         ))}

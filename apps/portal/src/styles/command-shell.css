@@ -129,14 +129,14 @@
 .cmd-main__desc { font-size: 12.5px; color: var(--text-muted); width: 100%; margin-top: -4px; }
 
 /* ---------- Bento grid + tiles ---------- */
-.cc-bento { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.cc-bento { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; align-items: stretch; }
 @media (max-width: 767px) { .cc-bento { grid-template-columns: 1fr; gap: 12px; } }
 @media (min-width: 2000px) { .cc-bento { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; } }
 .cc-span-2 { grid-column: span 2; }
 @media (max-width: 760px) { .cc-span-2 { grid-column: span 1; } }
 
 .cc-tile {
-  position: relative; border-radius: 16px; border: 1px solid var(--border);
+  position: relative; height: 100%; border-radius: 16px; border: 1px solid var(--border);
   background: linear-gradient(180deg, rgba(28,19,15,0.6) 0%, rgba(18,12,11,0.92) 100%);
   box-shadow: var(--shadow-md);
   padding: 16px 18px 18px;
@@ -166,15 +166,16 @@
 .cc-tile__open { color: var(--text-faint); opacity: 0; transform: translate(-3px,3px); transition: all 200ms ease; }
 .cc-tile--clickable:hover .cc-tile__open { opacity: 1; transform: translate(0,0); color: rgb(var(--tile-rgb)); }
 .cc-tile__err { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--status-danger); font-weight: 700; }
-.cc-tile__body { display: flex; flex-direction: column; gap: 14px; }
+.cc-tile__body { display: flex; flex-direction: column; gap: 14px; flex: 1 1 auto; min-height: 0; }
 .cc-badge-dim { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-faint); font-weight: 600; }
 
 /* ---------- Stats ---------- */
-.cc-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.cc-row-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.cc-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: stretch; }
+.cc-row-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; align-items: stretch; }
 @media (max-width: 480px) {
   .cc-row-2, .cc-row-3 { grid-template-columns: 1fr; gap: 10px; }
 }
+.cc-row-2 > .cc-stat, .cc-row-3 > .cc-stat { height: 100%; }
 .cc-stat { display: flex; flex-direction: column; gap: 4px; }
 .cc-stat__label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); font-weight: 600; }
 .cc-stat__value { font-size: 26px; font-weight: 700; line-height: 1; color: var(--text); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }

@@ -69,7 +69,7 @@ function ToolCard({ tool, idx }: { tool: SaasTool; idx: number }) {
   const href = `#/saas/${tool.slug}`;
 
   return (
-    <TiltCard intensity={7} className="block">
+    <TiltCard intensity={7} className="block h-full">
     <motion.a
       href={href}
       onClick={() => track('saas_card_click', { tool: tool.slug, status: tool.status })}
@@ -77,7 +77,7 @@ function ToolCard({ tool, idx }: { tool: SaasTool; idx: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.45, delay: idx * 0.06 }}
-      className={`group relative block bg-bg-surface border rounded-lg p-5 sm:p-6 transition-all overflow-hidden ${
+      className={`group relative flex h-full flex-col bg-bg-surface border rounded-lg p-5 sm:p-6 transition-all overflow-hidden ${
         dimmed
           ? 'border-theme-border hover:border-theme-border-strong opacity-70'
           : 'border-theme-border-accent hover:border-theme-accent/60 hover:bg-bg-elevated'
@@ -109,7 +109,7 @@ function ToolCard({ tool, idx }: { tool: SaasTool; idx: number }) {
       </div>
 
       {/* CTA */}
-      <div className="flex items-center justify-between border-t border-theme-border pt-4">
+      <div className="mt-auto flex items-center justify-between border-t border-theme-border pt-4">
         <span className={`text-xs font-mono uppercase tracking-wider ${dimmed ? 'text-text-muted' : 'text-text-secondary group-hover:text-theme-accent'} transition-colors`}>
           {tool.status === 'coming-soon' ? 'Details' : 'Jetzt nutzen'}
         </span>
@@ -148,7 +148,7 @@ function PackagesStrip() {
           {CREDIT_PACKAGES.map((pkg) => (
             <div
               key={pkg.slug}
-              className={`relative bg-bg-surface border rounded-lg p-6 ${
+              className={`relative flex h-full flex-col bg-bg-surface border rounded-lg p-6 ${
                 pkg.featured ? 'border-theme-border-accent' : 'border-theme-border'
               }`}
             >
@@ -198,8 +198,8 @@ function HowItWorks() {
         </div>
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
           {steps.map((s) => (
-            <div key={s.n} className="text-center">
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-theme-border-accent bg-theme-accent-soft text-theme-accent font-mono text-sm mb-3">
+            <div key={s.n} className="flex h-full flex-col text-center">
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-theme-border-accent bg-theme-accent-soft text-theme-accent font-mono text-sm mb-3 mx-auto">
                 {s.n}
               </div>
               <h3 className="text-sm text-text-primary mb-1.5 font-medium">{s.title}</h3>

@@ -70,7 +70,7 @@ function Card({ variant, href, onClick, title, subtitle, index }: CardProps) {
     </>
   );
 
-  const baseClass = `block w-full text-left bg-bg-surface border p-6 transition-all group ${s.border}`;
+  const baseClass = `flex flex-col h-full w-full text-left bg-bg-surface border p-6 transition-all group ${s.border}`;
 
   return (
     <motion.div
@@ -78,6 +78,7 @@ function Card({ variant, href, onClick, title, subtitle, index }: CardProps) {
       initial={{ opacity: 0, y: 24 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: index * 0.08, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      className="h-full"
     >
       {href ? (
         <a href={href} className={baseClass}>

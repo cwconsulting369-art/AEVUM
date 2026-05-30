@@ -334,7 +334,7 @@ export default function LeadMagnetEuAiAct() {
             {COMING_SOON.map((item) => (
               <div
                 key={item.title}
-                className="p-5 rounded-lg border border-theme-border bg-bg-elevated opacity-70"
+                className="flex h-full flex-col p-5 rounded-lg border border-theme-border bg-bg-elevated opacity-70"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="font-medium text-text-primary">{item.title}</div>

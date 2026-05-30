@@ -100,14 +100,14 @@ function OverviewSection({ slug }: { slug: string }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 items-stretch">
         {cards.map((c, i) => (
-          <div key={c.label} className="card-premium p-5 animate-fade-up" style={stagger(i, 60, 60)}>
+          <div key={c.label} className="card-premium p-5 animate-fade-up h-full flex flex-col" style={stagger(i, 60, 60)}>
             <div className="flex items-center justify-between mb-3">
               <span className="text-[0.65rem] uppercase tracking-wider text-ink-400 font-semibold">{c.label}</span>
               <c.icon size={14} className={c.color} />
             </div>
-            <div className="text-3xl font-bold text-white">{c.value.toLocaleString('de-DE')}</div>
+            <div className="mt-auto text-3xl font-bold text-white">{c.value.toLocaleString('de-DE')}</div>
           </div>
         ))}
       </div>
@@ -381,17 +381,17 @@ function SettingsSection({ slug }: { slug: string }) {
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4 mb-6">
+      <div className="grid sm:grid-cols-2 gap-4 mb-6 items-stretch">
         {[
           { name: 'Close.com', desc: 'Read-only Leads-Sync (alle 15 min)', status: 'Bald verfügbar' },
           { name: 'Airtable', desc: 'Live-Mirror Records', status: 'Bald verfügbar' },
           { name: 'Notion', desc: 'Pages + DBs Live-Mirror', status: 'Bald verfügbar' },
           { name: 'Teleson', desc: 'CSV-Import-Pipeline', status: 'Aktiv' },
         ].map(int => (
-          <div key={int.name} className="card-premium p-4">
+          <div key={int.name} className="card-premium p-4 h-full flex flex-col">
             <div className="font-medium text-white text-sm">{int.name}</div>
             <div className="text-xs text-ink-400 mt-1 mb-3">{int.desc}</div>
-            <span className={`badge ${int.status === 'Aktiv' ? 'badge-gold' : ''}`}>{int.status}</span>
+            <span className={`badge mt-auto self-start ${int.status === 'Aktiv' ? 'badge-gold' : ''}`}>{int.status}</span>
           </div>
         ))}
       </div>

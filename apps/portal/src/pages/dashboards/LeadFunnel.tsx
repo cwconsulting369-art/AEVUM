@@ -218,7 +218,7 @@ function MetricsSection({ metrics, leadsCount }: { metrics: Metrics; leadsCount:
 
       <section>
         <SectionHeader icon={TrendingUp} title="Target vs. Actual (90 Tage)" sub="aus project.marketing_thesis.targets_90d" />
-        <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)]">
+        <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)] items-stretch">
           <ProgressCard label="Leads pro Monat" current={metrics.leads_30d} targetLabel={metrics.target_leads_per_month} pct={leadsTrack} />
           <ProgressCard label="A-Leads pro Monat" current={aLeads} targetLabel={metrics.target_a_leads_per_month} pct={aLeadsTrack} />
           <ProgressCard label="CPL (€ max)" current={null} targetLabel={`< ${metrics.target_cpl_max_eur} €`} pct={null} muted="Coming Soon — Ads-Integration" />
@@ -260,11 +260,11 @@ function MetricsSection({ metrics, leadsCount }: { metrics: Metrics; leadsCount:
 
       <section>
         <SectionHeader icon={Activity} title="Pipeline-Status" sub="Lead-Lifecycle Verteilung" />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-[var(--dashboard-gap)]">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-[var(--dashboard-gap)] items-stretch">
           {Object.entries(metrics.by_status).map(([s, n], i) => (
-            <div key={s} className="card-premium card-compact animate-fade-up" style={stagger(i, 40, 40)}>
+            <div key={s} className="card-premium card-compact animate-fade-up h-full flex flex-col" style={stagger(i, 40, 40)}>
               <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">{STATUS_LABEL[s] || s}</div>
-              <div className="text-2xl font-bold text-white mt-1">{n}</div>
+              <div className="mt-auto text-2xl font-bold text-white pt-1">{n}</div>
             </div>
           ))}
         </div>
@@ -826,9 +826,9 @@ function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
 
       <section>
         <SectionHeader icon={FileText} title="Content-Pillars (geplant)" sub="aus LINKEDIN-STRATEGIE-MASTER" />
-        <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)]">
+        <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)] items-stretch">
           {content.planned_pillars.map((p, i) => (
-            <div key={p.id} className="card-premium p-4 animate-fade-up opacity-70" style={stagger(i, 40, 40)}>
+            <div key={p.id} className="card-premium p-4 animate-fade-up opacity-70 h-full flex flex-col" style={stagger(i, 40, 40)}>
               <div className="flex items-center justify-between mb-1">
                 <span className="font-medium text-white text-sm">{p.label}</span>
                 <span className="badge">{p.frequency_per_week}×/Wo</span>
@@ -992,7 +992,7 @@ function ReferralsSection({
 
 // ─── Reusable Sub-Components ───────────────────────────────────
 function KpiGrid({ children }: { children: React.ReactNode }) {
-  return <div className="grid grid-cols-2 lg:grid-cols-4 gap-[var(--dashboard-gap)]">{children}</div>;
+  return <div className="grid grid-cols-2 lg:grid-cols-4 gap-[var(--dashboard-gap)] items-stretch">{children}</div>;
 }
 
 function KpiCard({
@@ -1006,12 +1006,12 @@ function KpiCard({
   highlight?: boolean;
 }) {
   return (
-    <div className="card-premium card-compact animate-fade-up" style={stagger(i, 60, 60)}>
+    <div className="card-premium card-compact animate-fade-up h-full flex flex-col" style={stagger(i, 60, 60)}>
       <div className="flex items-center justify-between mb-2">
         <Icon size={16} className={accent ? 'text-gold-300' : 'text-ink-400'} strokeWidth={1.8} />
         <span className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">{label}</span>
       </div>
-      <div className={`text-xl sm:text-2xl xl:text-2xl font-bold tracking-tight ${highlight ? 'text-gold-gradient' : 'text-white'}`}>
+      <div className={`mt-auto text-xl sm:text-2xl xl:text-2xl font-bold tracking-tight ${highlight ? 'text-gold-gradient' : 'text-white'}`}>
         {value}
       </div>
     </div>
@@ -1038,7 +1038,7 @@ function ProgressCard({
   muted?: string;
 }) {
   return (
-    <div className="card-premium p-4">
+    <div className="card-premium p-4 h-full flex flex-col">
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-medium text-ink-200">{label}</span>
         <span className="text-xs text-ink-400">Ziel: {targetLabel}</span>

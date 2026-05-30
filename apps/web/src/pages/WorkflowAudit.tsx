@@ -584,7 +584,7 @@ function NextStepsSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="relative text-center p-8 bg-bg-primary border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1 rounded-xl"
+              className="relative flex h-full flex-col text-center p-8 bg-bg-primary border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1 rounded-xl"
             >
               <div className="w-16 h-16 bg-bg-surface border border-theme-border-accent flex items-center justify-center mx-auto mb-6 rounded-lg">
                 <step.icon size={28} className="text-theme-accent" />

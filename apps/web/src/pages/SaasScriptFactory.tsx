@@ -164,7 +164,7 @@ export default function SaasScriptFactory() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.4, delay: i * 0.06 }}
-                  className="relative bg-bg-elevated border border-theme-border rounded-lg p-5"
+                  className="relative flex h-full flex-col bg-bg-elevated border border-theme-border rounded-lg p-5"
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-9 h-9 rounded-lg bg-theme-accent-soft border border-theme-border-accent flex items-center justify-center text-theme-accent flex-shrink-0">
@@ -205,7 +205,7 @@ export default function SaasScriptFactory() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.35, delay: i * 0.03 }}
-                  className="bg-bg-surface border border-theme-border rounded-lg p-5 hover:border-theme-accent/40 transition-colors"
+                  className="flex h-full flex-col bg-bg-surface border border-theme-border rounded-lg p-5 hover:border-theme-accent/40 transition-colors"
                 >
                   <div className="w-9 h-9 rounded-lg bg-bg-elevated border border-theme-border flex items-center justify-center text-theme-accent mb-3">
                     <Icon size={16} />
@@ -296,7 +296,7 @@ export default function SaasScriptFactory() {
             {CREDIT_PACKAGES.map((pkg) => (
               <div
                 key={pkg.slug}
-                className={`relative bg-bg-surface border rounded-lg p-6 flex flex-col ${
+                className={`relative flex h-full flex-col bg-bg-surface border rounded-lg p-6 ${
                   pkg.featured ? 'border-theme-border-accent' : 'border-theme-border'
                 }`}
               >
@@ -353,7 +353,7 @@ export default function SaasScriptFactory() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.35, delay: i * 0.04 }}
-                  className="bg-bg-elevated border border-theme-border rounded-lg p-5"
+                  className="flex h-full flex-col bg-bg-elevated border border-theme-border rounded-lg p-5"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="w-9 h-9 rounded-lg bg-bg-surface border border-theme-border flex items-center justify-center text-theme-accent flex-shrink-0">

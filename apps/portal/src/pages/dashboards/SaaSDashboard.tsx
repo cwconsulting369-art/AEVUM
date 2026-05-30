@@ -150,7 +150,7 @@ export default function SaaSDashboard() {
               <p className="text-xs text-ink-400 mt-0.5">Tools, die du jetzt direkt nutzen kannst.</p>
             </div>
           </div>
-          <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)]">
+          <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)] items-stretch">
             {AVAILABLE.map((slot, i) => (
               <FactoryCard key={slot.key} slot={slot} i={i} />
             ))}
@@ -164,7 +164,7 @@ export default function SaaSDashboard() {
               <p className="text-xs text-ink-400 mt-0.5">Factory-Slots in Planung & Konzept.</p>
             </div>
           </div>
-          <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)]">
+          <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)] items-stretch">
             {COMING_SOON.map((slot, i) => (
               <FactoryCard
                 key={slot.key}
@@ -256,7 +256,7 @@ function FactoryCard({
       </div>
       <div className="text-base font-semibold text-white mb-1.5">{slot.title}</div>
       <div className="text-[0.72rem] text-ink-400 leading-relaxed pr-20">{slot.desc}</div>
-      <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
+      <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between">
         <span className="text-[0.65rem] text-ink-500 inline-flex items-center gap-1">
           <Zap size={11} className={isLive ? 'text-gold-300' : ''} />
           {slot.credits != null ? `${slot.credits} Credits / Run` : 'Self-Service-SaaS'}
@@ -266,7 +266,7 @@ function FactoryCard({
     </>
   );
 
-  const baseCls = 'text-left card-premium p-5 group transition animate-fade-up relative overflow-hidden block';
+  const baseCls = 'text-left card-premium p-5 group transition animate-fade-up relative overflow-hidden flex flex-col h-full';
   const liveCls = 'hover:border-gold-400/40';
   const dimCls = 'opacity-60 hover:opacity-80';
   const style: React.CSSProperties = {

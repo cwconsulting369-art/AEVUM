@@ -90,13 +90,13 @@ export default function BusinessDashboard({ slug }: Props) {
       </section>
 
       {/* Section 4 + 5: Customers + Helpbot side-by-side */}
-      <section className="grid lg:grid-cols-2 gap-4">
+      <section className="grid lg:grid-cols-2 gap-4 items-stretch">
         <CustomerHealthCard customers={data.customers} />
         <HelpbotInsightsCard insights={data.helpbot_insights} />
       </section>
 
       {/* Section 6 + 7: Marketing + Finance side-by-side */}
-      <section className="grid lg:grid-cols-2 gap-4">
+      <section className="grid lg:grid-cols-2 gap-4 items-stretch">
         <MarketingCard marketing={data.marketing} />
         <FinanceCard finance={data.finance} />
       </section>

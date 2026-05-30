@@ -706,7 +706,7 @@ function WhyAuditSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className="rounded-xl p-6"
+              className="flex h-full flex-col rounded-xl p-6"
               style={{
                 background: 'var(--bg-surface)',
                 border: '1px solid var(--theme-border)',
@@ -794,7 +794,7 @@ function AuditTimelineSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className="relative rounded-xl p-5"
+              className="relative flex h-full flex-col rounded-xl p-5"
               style={{
                 background: 'var(--bg-surface)',
                 border: '1px solid var(--theme-border)',
@@ -1608,13 +1608,13 @@ function StepBudget({ data, onChange }: { data: BudgetData; onChange: (f: keyof 
         <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
           Wie viel kannst du einmalig in den Aufbau investieren? Hilft uns, das passende Paket vorzuschlagen.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
           {BUDGET_SETUP_OPTIONS.map(opt => (
             <button
               key={opt.value}
               type="button"
               onClick={() => onChange('setup', opt.value)}
-              className="rounded-lg px-4 py-4 text-sm text-left transition-all duration-150"
+              className="flex h-full flex-col rounded-lg px-4 py-4 text-sm text-left transition-all duration-150"
               style={{
                 background: data.setup === opt.value ? 'var(--theme-accent-soft)' : 'var(--bg-elevated)',
                 border: `1.5px solid ${data.setup === opt.value ? 'var(--theme-accent)' : 'var(--theme-border)'}`,
@@ -1633,13 +1633,13 @@ function StepBudget({ data, onChange }: { data: BudgetData; onChange: (f: keyof 
         <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
           Wie viel ist dir laufende Optimierung + Support pro Monat wert?
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
           {BUDGET_RETAINER_OPTIONS.map(opt => (
             <button
               key={opt.value}
               type="button"
               onClick={() => onChange('retainer', opt.value)}
-              className="rounded-lg px-4 py-4 text-sm text-left transition-all duration-150"
+              className="flex h-full flex-col rounded-lg px-4 py-4 text-sm text-left transition-all duration-150"
               style={{
                 background: data.retainer === opt.value ? 'var(--theme-accent-soft)' : 'var(--bg-elevated)',
                 border: `1.5px solid ${data.retainer === opt.value ? 'var(--theme-accent)' : 'var(--theme-border)'}`,

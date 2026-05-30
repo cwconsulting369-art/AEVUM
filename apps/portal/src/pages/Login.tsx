@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
 import Brand from '@/components/Brand';
 import MeshBackground from '@/components/MeshBackground';
+import { requestMagicLink } from '@/lib/api';
 
-const BOT_USERNAME = import.meta.env.VITE_AEVUM_BOT_USERNAME || 'aevumsystem_bot';
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.aevum-system.de';
 
 function GoogleLogo() {
@@ -17,6 +18,33 @@ function GoogleLogo() {
 }
 
 export default function Login() {
+  // Self-serve Email-Login (Magic-Link) für Shop/SaaS-Nutzer ohne Google-Account.
+  // Telegram-Login bewusst NICHT angeboten — der ist nur für Vollkunden (customer/
+  // full-audit) und läuft über deren persönliche Magic-Link-Mail bzw. Customer-Bot.
+  const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  async function handleEmailLogin(e: React.FormEvent) {
+    e.preventDefault();
+    if (!emailValid || submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      await requestMagicLink(email, 'login');
+      // Anti-enumeration: backend antwortet immer ok:true. Wir zeigen generischen
+      // "geprüft + ggf. gesendet"-State, egal ob Account existiert.
+      setSent(true);
+    } catch {
+      setError('Konnte den Login-Link nicht anfordern. Bitte später erneut versuchen.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <div className="relative min-h-screen flex flex-col bg-ink-950 text-ink-100 overflow-hidden">
       <MeshBackground variant="login" />
@@ -51,23 +79,53 @@ export default function Login() {
 
             <div className="flex items-center gap-3 my-5">
               <div className="flex-1 h-px bg-white/10" />
-              <span className="text-[10px] font-mono uppercase tracking-widest text-ink-500">oder</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-ink-500">oder mit Email</span>
               <div className="flex-1 h-px bg-white/10" />
             </div>
 
-            {/* Secondary: Telegram (Vollkunden) */}
-            <a
-              href={`https://t.me/${BOT_USERNAME}?start=login`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-gold w-full py-3.5 block text-sm tracking-widest no-underline"
-            >
-              Zugang über Telegram
-            </a>
+            {/* Secondary: Email Magic-Link — self-serve für Shop/SaaS-Nutzer.
+                KEIN Telegram hier (nur Vollkunden, separater Kanal). */}
+            {sent ? (
+              <div className="text-left rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3.5">
+                <div className="text-sm font-medium text-emerald-300">Login-Link unterwegs</div>
+                <p className="text-[0.7rem] text-ink-300 mt-1 leading-relaxed">
+                  Falls ein Account mit <span className="text-white break-all">{email}</span> existiert,
+                  haben wir dir einen Login-Link per Email geschickt. Prüf dein Postfach (auch Spam).
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { setSent(false); setEmail(''); }}
+                  className="mt-2 text-[0.65rem] text-gold-400/80 hover:text-gold-300 transition"
+                >
+                  Andere Email verwenden
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleEmailLogin} className="space-y-2.5 text-left">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setError(null); }}
+                  placeholder="du@firma.de"
+                  autoComplete="email"
+                  className="w-full px-4 py-3 rounded bg-ink-900/60 border border-white/10 text-sm text-white placeholder:text-ink-500 focus:outline-none focus:border-gold-400/40 transition"
+                />
+                <button
+                  type="submit"
+                  disabled={!emailValid || submitting}
+                  className="btn-gold w-full py-3.5 block text-sm tracking-widest disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {submitting ? 'Sende…' : 'Login-Link per Email'}
+                </button>
+                {error && (
+                  <p className="text-[0.7rem] text-rose-400 pt-0.5">{error}</p>
+                )}
+              </form>
+            )}
 
             <p className="mt-6 text-[0.65rem] text-ink-400 leading-relaxed">
-              Google: 1-Klick-Login für SaaS- und Shop-Nutzer.<br />
-              Telegram: persönlicher Zugang für Vollkunden.
+              Google oder Email-Login für SaaS- und Shop-Nutzer.<br />
+              Vollkunden erhalten ihren persönlichen Zugangs-Link per Email.
             </p>
 
             <p className="mt-6 text-[0.62rem] text-ink-600">

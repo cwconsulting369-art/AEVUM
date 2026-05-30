@@ -7,7 +7,7 @@ type Props = { finance: DashboardData['finance'] };
 export default function FinanceCard({ finance }: Props) {
   const isVirgin = finance.stripe_mrr_eur === 0 && finance.pending_invoices_count === 0 && finance.setup_fees_collected_month_eur === 0;
   return (
-    <div className="card-premium p-6">
+    <div className="card-premium p-6 h-full flex flex-col">
       <header className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-white flex items-center gap-2">
           <CreditCard size={14} className="text-gold-300" />
@@ -35,7 +35,7 @@ export default function FinanceCard({ finance }: Props) {
           <div className="text-xs text-ink-400 mt-1">{finance.note || 'STRIPE_SECRET_KEY fehlt im API.'}</div>
         </div>
       ) : (
-        <dl className="grid grid-cols-2 gap-3">
+        <dl className="grid grid-cols-2 gap-3 items-stretch">
           <Cell label="MRR (Subs)" value={fmtEur(finance.stripe_mrr_eur)} accent="emerald" />
           <Cell label="Setup-Fees Monat" value={fmtEur(finance.setup_fees_collected_month_eur)} />
           <Cell
@@ -64,12 +64,12 @@ function Cell({
 }) {
   const color = accent === 'emerald' ? 'text-emerald-300' : accent === 'warn' ? 'text-amber-300' : 'text-white';
   return (
-    <div className="border border-white/[0.06] rounded-md p-3 bg-white/[0.02]">
+    <div className="border border-white/[0.06] rounded-md p-3 bg-white/[0.02] h-full flex flex-col">
       <div className="text-[0.6rem] uppercase tracking-wider text-ink-400 font-semibold mb-1 flex items-center gap-1">
         {icon}
         {label}
       </div>
-      <div className={`text-lg font-bold font-mono tabular-nums ${color}`}>{value}</div>
+      <div className={`mt-auto text-lg font-bold font-mono tabular-nums ${color}`}>{value}</div>
     </div>
   );
 }

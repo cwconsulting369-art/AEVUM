@@ -642,14 +642,14 @@ function BlueprintCard({
   const paused = config?.payments_paused === true;
 
   return (
-    <TiltCard intensity={8}>
+    <TiltCard intensity={8} className="h-full">
     <motion.div
       ref={ref}
       custom={index}
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className={`relative bg-bg-surface border border-theme-border p-6 sm:p-7 flex flex-col hover:border-theme-accent/40 transition-all group ${paused ? 'opacity-90' : ''}`}
+      className={`relative h-full bg-bg-surface border border-theme-border p-6 sm:p-7 flex flex-col hover:border-theme-accent/40 transition-all group ${paused ? 'opacity-90' : ''}`}
     >
       {blueprint.tag && (
         <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-2 py-0.5">
@@ -998,7 +998,7 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className="relative bg-bg-surface border border-theme-border p-6 sm:p-7 flex flex-col hover:border-theme-accent/40 transition-all group"
+      className="relative h-full bg-bg-surface border border-theme-border p-6 sm:p-7 flex flex-col hover:border-theme-accent/40 transition-all group"
     >
       {service.tag && (
         <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-2 py-0.5">
@@ -1309,7 +1309,7 @@ function AuditFeaturedSection() {
             { label: 'Mindestlaufzeit', value: '3 Monate' },
             { label: 'Daten-Hoheit', value: 'Bleibt bei dir' },
           ].map((t) => (
-            <div key={t.label} className="bg-bg-surface border border-theme-border px-5 py-4">
+            <div key={t.label} className="flex h-full flex-col bg-bg-surface border border-theme-border px-5 py-4">
               <span className="block font-mono text-[10px] uppercase tracking-widest text-text-muted mb-1">
                 {t.label}
               </span>
@@ -1375,7 +1375,7 @@ function EcosystemSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-bg-elevated border border-theme-border p-6 sm:p-7 flex flex-col gap-4 hover:border-theme-accent/40 transition-all"
+              className="bg-bg-elevated border border-theme-border p-6 sm:p-7 flex h-full flex-col gap-4 hover:border-theme-accent/40 transition-all"
             >
               <div className="w-11 h-11 rounded-lg bg-theme-accent-soft flex items-center justify-center flex-shrink-0">
                 <p.icon size={20} className="text-theme-accent" />

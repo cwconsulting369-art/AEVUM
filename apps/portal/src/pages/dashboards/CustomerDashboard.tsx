@@ -42,7 +42,7 @@ export default function CustomerDashboard() {
       </header>
 
       {/* KPI Strip — dense grid auf Desktop */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-[var(--dashboard-gap)]">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-[var(--dashboard-gap)] items-stretch">
         <KpiCard
           i={0}
           icon={FolderGit2}
@@ -161,14 +161,14 @@ function KpiCard({
 }) {
   return (
     <div
-      className="card-premium card-compact animate-fade-up"
+      className="card-premium card-compact animate-fade-up h-full flex flex-col"
       style={stagger(i, 60, 60)}
     >
       <div className="flex items-center justify-between mb-2">
         <Icon size={16} className={accent ? 'text-gold-300' : 'text-ink-400'} strokeWidth={1.8} />
         <span className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">{label}</span>
       </div>
-      <div className={`text-xl sm:text-2xl xl:text-2xl font-bold tracking-tight ${highlight ? 'text-gold-gradient' : 'text-white'}`}>
+      <div className={`mt-auto text-xl sm:text-2xl xl:text-2xl font-bold tracking-tight ${highlight ? 'text-gold-gradient' : 'text-white'}`}>
         {value}
       </div>
     </div>

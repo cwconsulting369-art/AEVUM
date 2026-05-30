@@ -324,7 +324,7 @@ function PillarCard({ pillar, index }: { pillar: PillarData; index: number }) {
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className="bg-bg-surface border border-theme-border p-6 sm:p-8 md:p-10 hover:border-theme-border-accent transition-all"
+      className="bg-bg-surface border border-theme-border p-6 sm:p-8 md:p-10 hover:border-theme-border-accent transition-all flex h-full flex-col"
     >
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-xl bg-theme-accent-soft flex items-center justify-center shrink-0">

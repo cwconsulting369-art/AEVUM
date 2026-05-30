@@ -72,11 +72,11 @@ export default function KPIStrip({ kpis, weekly }: Props) {
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 items-stretch">
       {cells.map((c, i) => (
         <div
           key={c.label}
-          className="card-premium p-4 animate-fade-up"
+          className="card-premium p-4 animate-fade-up flex flex-col h-full"
           style={{ animationDelay: `${40 + i * 50}ms` }}
         >
           <div className="text-[0.65rem] uppercase tracking-wider text-ink-400 font-semibold mb-1.5">{c.label}</div>
@@ -84,7 +84,7 @@ export default function KPIStrip({ kpis, weekly }: Props) {
             <div className="text-2xl font-bold text-white font-mono tabular-nums leading-none">{c.value}</div>
             {c.sparkline ? <Sparkline data={c.sparkline} width={60} height={20} /> : null}
           </div>
-          <div className="mt-2">{c.meta}</div>
+          <div className="mt-auto pt-2">{c.meta}</div>
         </div>
       ))}
     </div>

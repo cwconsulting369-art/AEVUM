@@ -19,7 +19,7 @@ export default function HelpbotInsightsCard({ insights }: Props) {
   const noData = insights.recent.length === 0 && insights.top_pains.length === 0;
 
   return (
-    <div className="card-premium p-6">
+    <div className="card-premium p-6 h-full flex flex-col">
       <header className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-white flex items-center gap-2">
           <MessageCircle size={14} className="text-gold-300" />

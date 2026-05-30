@@ -74,7 +74,7 @@ export default function ShopDashboard() {
       </header>
 
       {/* KPI Strip */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-[var(--dashboard-gap)]">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-[var(--dashboard-gap)] items-stretch">
         <KpiCard
           i={0}
           icon={ShoppingBag}
@@ -175,7 +175,7 @@ export default function ShopDashboard() {
           </div>
           <div className="dashboard-grid">
             {paidOrders.map((o, i) => (
-              <div key={o.id} className="card-premium card-compact animate-fade-up" style={stagger(i, 60, 60)}>
+              <div key={o.id} className="card-premium card-compact animate-fade-up h-full flex flex-col" style={stagger(i, 60, 60)}>
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="min-w-0">
                     <div className="font-semibold text-white truncate">{o.package_name || o.package_tier || 'Bestellung'}</div>
@@ -188,7 +188,7 @@ export default function ShopDashboard() {
                   <DownloadButton label="Implementierungs-PDF" icon={FileText} disabled />
                   <DownloadButton label="Walkthrough-Video" icon={ExternalLink} disabled />
                 </div>
-                <div className="text-[0.65rem] text-ink-500 mt-3">
+                <div className="text-[0.65rem] text-ink-500 mt-auto pt-3">
                   Downloads werden in Kürze freigeschaltet. Bei Fragen → Helpbot.
                 </div>
               </div>
@@ -243,12 +243,12 @@ function KpiCard({
   highlight?: boolean;
 }) {
   return (
-    <div className="card-premium card-compact animate-fade-up" style={stagger(i, 60, 60)}>
+    <div className="card-premium card-compact animate-fade-up h-full flex flex-col" style={stagger(i, 60, 60)}>
       <div className="flex items-center justify-between mb-2">
         <Icon size={16} className={accent ? 'text-gold-300' : 'text-ink-400'} strokeWidth={1.8} />
         <span className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">{label}</span>
       </div>
-      <div className={`text-xl sm:text-2xl xl:text-2xl font-bold tracking-tight ${highlight ? 'text-gold-gradient' : 'text-white'}`}>
+      <div className={`mt-auto text-xl sm:text-2xl xl:text-2xl font-bold tracking-tight ${highlight ? 'text-gold-gradient' : 'text-white'}`}>
         {value}
       </div>
     </div>
