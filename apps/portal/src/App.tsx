@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import AuthVerify from './pages/AuthVerify';
 import AuthToken from './pages/AuthToken';
 import Dashboard from './pages/Dashboard';
+import CommandPreview from './pages/CommandPreview';
 import Profile from './pages/Profile';
 import Permissions from './pages/Permissions';
 import Testimonial from './pages/Testimonial';
@@ -61,6 +62,7 @@ export default function App() {
         <Route path="/agb" element={<AGB />} />
         <Route element={<RequireAuth><Layout /></RequireAuth>}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/cmd" element={<CommandPreview />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/permissions" element={<Permissions />} />
           <Route path="/testimonial" element={<Testimonial />} />
