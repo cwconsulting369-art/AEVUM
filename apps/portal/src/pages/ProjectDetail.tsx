@@ -13,6 +13,8 @@ import QuicklinksSection from '@/components/quicklinks/QuicklinksSection';
 import LeadFunnel from '@/pages/dashboards/LeadFunnel';
 import Documents from '@/pages/Documents';
 import CustomerActivity from '@/components/CustomerActivity';
+import CommandShell from '@/components/dashboard/CommandShell';
+import { getManifestByProjectSlug } from '@/lib/manifests';
 
 type ApiRow = { id: string; service: string; key_label: string | null; scope: string; health: string; added_at: string; last_used_at: string | null };
 type MeProject = { id: string; slug: string; name: string };
@@ -50,6 +52,14 @@ export default function ProjectDetail() {
 
   if (loading) {
     return <div className="card-premium p-16 flex justify-center"><Spinner size="md" /></div>;
+  }
+
+  // War-Room CommandShell (ADR-002): wenn ein Manifest für dieses Projekt existiert,
+  // übernimmt die config-driven Shell die ganze Ansicht (eigene 3-Achsen-Nav).
+  // Admin-Parität: gleicher Projekt-Slug → gleiches Manifest, egal welcher Account.
+  const manifest = getManifestByProjectSlug(slug);
+  if (manifest) {
+    return <CommandShell manifest={manifest} ctx={{ leadFunnel: { slug, name: project?.name || manifest.project.label } }} />;
   }
 
   const isCollaGlow = slug === 'collaglow';

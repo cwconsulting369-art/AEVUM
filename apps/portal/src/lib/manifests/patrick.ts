@@ -5,7 +5,8 @@
 import type { DashboardManifest } from '@/lib/dashboard-manifest';
 
 export const patrickManifest: DashboardManifest = {
-  project: { slug: 'thailand-re', label: 'Thailand RE', tagline: 'Patrick Roth · Real Estate Concierge · Pattaya/Rayong' },
+  // project.slug = DB-Projekt-Slug (für /api/me/projects/:slug/lead-funnel + ProjectDetail-Routing)
+  project: { slug: 'thailand-re-leadfunnel', label: 'Thailand RE', tagline: 'Patrick Roth · Real Estate Concierge · Pattaya/Rayong' },
 
   areas: [
     // ── Bereich: Website ───────────────────────────────────
