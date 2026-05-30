@@ -29,7 +29,8 @@ export default function Navbar() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll);
+    onScroll(); // sync initial state (deep-link / reload mid-page)
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
@@ -42,21 +43,27 @@ export default function Navbar() {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
+  // Lock body scroll while the mobile menu is open (prevents background scroll jank).
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
+
   return (
     <nav
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-bg-primary/80 backdrop-blur-xl border-b border-white/10'
-          : 'bg-transparent'
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+        scrolled || mobileOpen
+          ? 'bg-bg-primary/80 backdrop-blur-xl border-b border-theme-border'
+          : 'bg-transparent border-b border-transparent'
       }`}
     >
-      <div className="max-w-[1440px] mx-auto flex items-center justify-between px-6 lg:px-16 h-16">
+      <div className="max-w-[1440px] mx-auto flex items-center justify-between px-5 sm:px-6 lg:px-16 h-16">
         {/* Logo */}
-        <a href="#/" className="flex items-center gap-1.5 group">
+        <a href="#/" className="flex items-center gap-1.5 group shrink-0">
           <span className="text-xl font-bold tracking-tight text-gold-gradient">
             AEVUM
           </span>
-          <span className="w-2 h-2 rounded-full bg-[#e0a458] shadow-[0_0_8px_rgba(224,164,88,0.6)] group-hover:scale-125 transition-transform" />
+          <span className="w-2 h-2 rounded-full bg-theme-accent shadow-glow group-hover:scale-125 transition-transform" />
         </a>
 
         {/* Desktop Links */}
@@ -67,8 +74,8 @@ export default function Navbar() {
               href={"#" + link.path}
               className={`text-sm font-medium transition-colors ${
                 isActive(link.path, currentPath)
-                  ? 'text-[#e0a458]'
-                  : 'text-[#a4a4ad] hover:text-[#F9FAFB]'
+                  ? 'text-theme-accent'
+                  : 'text-text-secondary hover:text-text-primary'
               }`}
             >
               {link.label}
@@ -83,7 +90,7 @@ export default function Navbar() {
             href="https://app.aevum-system.de"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-[#7a7a85] hover:text-[#e0a458] transition-colors mr-2"
+            className="text-sm text-text-muted hover:text-theme-accent transition-colors mr-2"
           >
             Login &rarr;
           </a>
@@ -91,7 +98,7 @@ export default function Navbar() {
             href={CONTACT.whatsapp}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 rounded-full border border-white/10 text-[#a4a4ad] hover:text-[#e0a458] hover:border-[#e0a458]/30 transition-all"
+            className="p-2 rounded-full border border-theme-border text-text-secondary hover:text-theme-accent hover:border-theme-border-accent transition-all"
             aria-label="WhatsApp"
           >
             <MessageCircle size={18} />
@@ -108,9 +115,10 @@ export default function Navbar() {
 
         {/* Mobile Hamburger */}
         <button
-          className="md:hidden text-[#F9FAFB]"
+          className="md:hidden -mr-2 p-2 text-text-primary"
           onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
+          aria-label="Menü öffnen/schließen"
+          aria-expanded={mobileOpen}
         >
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -118,16 +126,16 @@ export default function Navbar() {
 
       {/* Mobile Overlay */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 top-16 bg-bg-primary/98 backdrop-blur-xl z-40">
-          <div className="flex flex-col items-center justify-center gap-8 pt-20">
+        <div className="md:hidden fixed inset-0 top-16 bg-bg-primary/98 backdrop-blur-xl z-40 overflow-y-auto overscroll-contain">
+          <div className="flex flex-col items-center justify-start gap-7 px-6 pt-12 pb-16 min-h-full">
             {navLinks.map((link) => (
               <a
                 key={link.path}
                 href={"#" + link.path}
                 className={`text-2xl font-medium ${
                   isActive(link.path, currentPath)
-                    ? 'text-[#e0a458]'
-                    : 'text-[#a4a4ad]'
+                    ? 'text-theme-accent'
+                    : 'text-text-secondary'
                 }`}
                 onClick={() => setMobileOpen(false)}
               >
@@ -138,17 +146,18 @@ export default function Navbar() {
               href="https://app.aevum-system.de"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-lg text-[#7a7a85] hover:text-[#e0a458] transition-colors"
+              className="text-lg text-text-muted hover:text-theme-accent transition-colors"
+              onClick={() => setMobileOpen(false)}
             >
               Login &rarr; app.aevum-system.de
             </a>
-            <div className="flex flex-col items-center gap-4 mt-8">
+            <div className="flex flex-col items-center gap-5 mt-4">
               <ThemeToggle />
               <a
                 href={CONTACT.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-[#a4a4ad] hover:text-[#e0a458]"
+                className="flex items-center gap-2 text-text-secondary hover:text-theme-accent"
               >
                 <MessageCircle size={20} />
                 <span>WhatsApp</span>
@@ -158,6 +167,7 @@ export default function Navbar() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary px-8 py-3"
+                onClick={() => setMobileOpen(false)}
               >
                 Call buchen
               </a>
