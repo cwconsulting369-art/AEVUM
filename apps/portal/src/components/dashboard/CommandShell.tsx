@@ -10,8 +10,14 @@ import {
   Clock, FolderGit2,
 } from 'lucide-react';
 import DomainTile, { Stat, Pill } from './cc/DomainTile';
+import LeadFunnel from '@/pages/dashboards/LeadFunnel';
 import type { DashboardManifest, IconKey, PaneSpec, ZoneSpec } from '@/lib/dashboard-manifest';
 import '@/styles/command-shell.css';
+
+/** Daten-Kontext für Custom-Panes (z.B. LeadFunnel braucht den Projekt-Slug). */
+export interface ShellContext {
+  leadFunnel?: { slug: string; name: string };
+}
 
 const ICONS: Record<IconKey, LucideIcon> = {
   globe: Globe, megaphone: Megaphone, facebook: Facebook, linkedin: Linkedin,
@@ -61,7 +67,23 @@ function Zone({ z }: { z: ZoneSpec }) {
   );
 }
 
-function PaneView({ pane }: { pane: PaneSpec }) {
+/** Custom-Pane: rendert eine echte Daten-Komponente statt Bento-Zonen (ADR R4). */
+function CustomPane({ pane, ctx }: { pane: PaneSpec; ctx: ShellContext }) {
+  if (pane.custom === 'lead-funnel') {
+    if (ctx.leadFunnel) {
+      return <LeadFunnel projectSlug={ctx.leadFunnel.slug} projectName={ctx.leadFunnel.name} />;
+    }
+    return (
+      <div className="cc-placeholder">
+        <div className="cc-placeholder__title">Lead-Funnel nicht verfügbar</div>
+        <div className="cc-placeholder__hint">Kein Projekt-Kontext für diesen Account.</div>
+      </div>
+    );
+  }
+  return null;
+}
+
+function PaneView({ pane, ctx }: { pane: PaneSpec; ctx: ShellContext }) {
   return (
     <div className="cmd-main">
       <div className="cmd-main__head">
@@ -74,7 +96,9 @@ function PaneView({ pane }: { pane: PaneSpec }) {
           <span className="cc-placeholder__hint" style={{ margin: 0, textAlign: 'left' }}>{pane.gatedNote}</span>
         </div>
       )}
-      {pane.zones.length > 0 ? (
+      {pane.custom ? (
+        <CustomPane pane={pane} ctx={ctx} />
+      ) : pane.zones.length > 0 ? (
         <div className="cc-bento">{pane.zones.map((z) => <Zone key={z.key} z={z} />)}</div>
       ) : (
         <div className="cc-placeholder">
@@ -86,7 +110,7 @@ function PaneView({ pane }: { pane: PaneSpec }) {
   );
 }
 
-export default function CommandShell({ manifest }: { manifest: DashboardManifest }) {
+export default function CommandShell({ manifest, ctx = {} }: { manifest: DashboardManifest; ctx?: ShellContext }) {
   const [sel, setSel] = useState<Selection>(manifest.areas[0]?.slug ?? 'agent');
 
   // Resolve current pane from selection
@@ -158,7 +182,7 @@ export default function CommandShell({ manifest }: { manifest: DashboardManifest
         </nav>
 
         {/* ===== Main ===== */}
-        <PaneView pane={pane} />
+        <PaneView pane={pane} ctx={ctx} />
 
         {/* ===== Right rail ===== */}
         <aside className="cmd-rail">

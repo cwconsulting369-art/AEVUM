@@ -37,12 +37,17 @@ export interface ZoneSpec {
   note?: string;
 }
 
+/** Custom-Pane-Keys (Escape-Hatch, ADR-002 R4) — echte Komponente statt Zonen. */
+export type CustomPaneKey = 'lead-funnel';
+
 /** Inhalts-Pane eines Bereichs (Bento aus Zonen). Leer → Placeholder. */
 export interface PaneSpec {
   title: string;
   description?: string;
   /** Backlog-Hinweis wenn Inhalt noch von Spec abhängt (gated) */
   gatedNote?: string;
+  /** Escape-Hatch: rendert eine echte Komponente (z.B. bestehender LeadFunnel) statt Zonen. */
+  custom?: CustomPaneKey;
   zones: ZoneSpec[];
 }
 
