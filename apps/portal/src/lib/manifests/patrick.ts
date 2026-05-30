@@ -36,9 +36,9 @@ export const patrickManifest: DashboardManifest = {
       label: 'Lead-Funnel',
       icon: 'target',
       pane: {
-        title: 'Lead-Funnel · Übersicht',
-        description: 'Alle Kanäle zusammengeführt — echte Live-Daten.',
-        // Escape-Hatch: rendert den bestehenden LeadFunnel (echte Daten), kein Platzhalter.
+        title: 'Lead-Funnel · Cockpit',
+        description: 'Vollständig editierbar: Leads, Content, Kanäle & Zielgruppe — echte Live-Daten.',
+        // Escape-Hatch: rendert das volle LeadFunnel-Cockpit (Metriken/Leads/Content/Kanäle/Zielgruppe), kein Platzhalter.
         custom: 'lead-funnel',
         zones: [],
       },
@@ -48,7 +48,7 @@ export const patrickManifest: DashboardManifest = {
           pane: {
             title: 'Facebook-Funnel',
             description: 'Meta-Kampagnen → Leads → Qualifizierung.',
-            gatedNote: 'Ad-Metriken (CPL, Reichweite, Creatives) + Lead-Mapping aus Patrick-Session.',
+            gatedNote: 'Account-Verbindung & organische Posts steuerst du im Cockpit (Tabs „Kanäle“ + „Content“). Hier folgen die bezahlten Ad-Metriken (CPL, Reichweite, Creatives), sobald die Meta-Ads-Schnittstelle freigeschaltet ist.',
             zones: [
               { key: 'fb-spend', label: 'Ad-Performance', icon: 'megaphone', color: 'info', status: 'soon',
                 stats: [{ label: 'Spend 30d', value: '—' }, { label: 'CPL', value: '—' }] },
@@ -62,7 +62,7 @@ export const patrickManifest: DashboardManifest = {
           pane: {
             title: 'LinkedIn-Funnel',
             description: 'Organisch + Outreach → Investoren-Leads.',
-            gatedNote: 'SSI, Outreach-Sequenzen, Reply-Raten aus Patrick-Session.',
+            gatedNote: 'Account-Verbindung & organische Posts steuerst du im Cockpit (Tabs „Kanäle“ + „Content“). Hier folgen SSI, Outreach-Sequenzen & Reply-Raten, sobald die LinkedIn-Schnittstelle freigeschaltet ist.',
             zones: [
               { key: 'li-reach', label: 'Reichweite', icon: 'trendingUp', color: 'info', status: 'soon',
                 stats: [{ label: 'SSI', value: '—' }, { label: 'Impressions', value: '—' }] },
@@ -108,8 +108,8 @@ export const patrickManifest: DashboardManifest = {
   },
 
   feed: [
-    { time: 'jetzt', text: 'CommandShell-Skelett deployed (ADR-002 Etappe A).' },
+    { time: 'jetzt', text: 'Lead-Funnel-Cockpit live: Content, Leads, Kanäle & Zielgruppe editierbar.' },
     { time: 'heute', text: 'Lead-Funnel-Repair production-verified — Pipeline läuft A/B/C/D.' },
-    { time: 'gated', text: 'Funnel-Detail-Panes warten auf Patrick-Session-Spec.' },
+    { time: 'gated', text: 'Bezahlte Ad-Metriken (Meta/LinkedIn Ads) folgen mit der API-Freischaltung.' },
   ],
 };

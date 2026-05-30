@@ -6,7 +6,8 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   Activity, TrendingUp, Users, DollarSign, FileText, Gift,
   ChevronRight, Sparkles, Award, AlertCircle, ExternalLink,
-  Mail, Phone, Send, Upload, Play, Check, Pause, X, Edit3
+  Mail, Phone, Send, Upload, Check, X, Edit3,
+  Target, Link2, Plug, Trash2, Plus, Linkedin, Facebook
 } from 'lucide-react';
 import { api, getAccessToken } from '@/lib/api';
 import Spinner from '@/components/Spinner';
@@ -14,7 +15,7 @@ import { stagger } from '@/lib/animations';
 import { toast } from 'sonner';
 import { BarChart, DonutChart } from '@tremor/react';
 
-type Tab = 'metrics' | 'leads' | 'akquise' | 'spend' | 'content' | 'referrals';
+type Tab = 'metrics' | 'leads' | 'akquise' | 'spend' | 'content' | 'channels' | 'audience' | 'referrals';
 
 type Metrics = {
   leads_total: number;
@@ -117,7 +118,87 @@ const STATUS_LABEL: Record<string, string> = {
   closed_won: 'Gewonnen', closed_lost: 'Verloren', nurturing: 'Nurturing'
 };
 
-type Tab = 'metrics' | 'leads' | 'akquise' | 'spend' | 'content' | 'referrals';
+const LEAD_STATUS_OPTIONS = [
+  'new', 'contacted', 'qualified', 'meeting_booked', 'proposal_sent', 'closed_won', 'closed_lost', 'nurturing'
+] as const;
+
+// ─── Content-Cockpit Types (Customer-JWT /api/me/funnel/*) ─────
+type ContentPiece = {
+  id: string;
+  title: string | null;
+  body: string | null;
+  platform: string | null;          // facebook | linkedin | ...
+  segment: string | null;           // auswanderer | investor | ...
+  awareness_stage: string | null;
+  status: string;                    // draft | approved | scheduled | published | archived
+  scheduled_at: string | null;
+  published_at: string | null;
+  approved_at: string | null;
+  topic_id: string | null;
+  created_at: string;
+};
+
+type Channel = {
+  platform: string;                  // facebook | linkedin
+  connected: boolean;
+  enabled: boolean;
+  display_name: string | null;
+  external_id: string | null;
+  status?: string | null;
+};
+
+type IcpProfile = {
+  segment: string;
+  label?: string | null;
+  pains: string[];
+  desires: string[];
+  objections: string[];
+  awareness_default: string | null;
+  language_notes: string | null;
+};
+
+type BrandVoice = {
+  tone: string | null;
+  dos: string[];
+  donts: string[];
+  examples: string[];
+};
+
+type Topic = {
+  id: string;
+  title: string;
+  segment: string | null;
+  status: string;                    // active | parked | done
+  notes: string | null;
+};
+
+const PIECE_STATUS_LABEL: Record<string, string> = {
+  draft: 'Entwurf', approved: 'Freigegeben', scheduled: 'Geplant',
+  published: 'Veröffentlicht', archived: 'Archiviert',
+};
+const PIECE_STATUS_BADGE: Record<string, string> = {
+  draft: 'badge', approved: 'badge-emerald', scheduled: 'badge-gold',
+  published: 'badge-emerald', archived: 'badge-rose',
+};
+const PLATFORM_LABEL: Record<string, string> = {
+  facebook: 'Facebook', linkedin: 'LinkedIn',
+};
+const PLATFORM_ICON: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  facebook: Facebook, linkedin: Linkedin,
+};
+const SEGMENT_OPTIONS = ['auswanderer', 'investor'] as const;
+const AWARENESS_OPTIONS = ['unaware', 'problem_aware', 'solution_aware', 'product_aware', 'most_aware'] as const;
+
+/** True if an API error carries the given HTTP status code (api() throws `API <code>: ...`). */
+function errHasStatus(e: unknown, code: number): boolean {
+  return e instanceof Error && e.message.startsWith(`API ${code}`);
+}
+/** Heuristik: gated / Schnittstelle-nicht-konfiguriert. */
+function isGatedErr(e: unknown): boolean {
+  if (!(e instanceof Error)) return false;
+  return errHasStatus(e, 503) || errHasStatus(e, 409) ||
+    /gated|oauth_not_configured|not[_ ]configured/i.test(e.message);
+}
 
 export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: string; projectName: string }) {
   const [tab, setTab] = useState<Tab>('metrics');
@@ -162,12 +243,14 @@ export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: 
       {/* Sub-Tab Navigation */}
       <nav className="flex gap-1 border-b border-white/5 -mb-2 overflow-x-auto">
         {[
-          { id: 'metrics' as const,   label: 'Metriken',  icon: TrendingUp },
-          { id: 'leads' as const,     label: 'Leads',     icon: Users },
-          { id: 'akquise' as const,   label: 'Akquise',   icon: Upload },
-          { id: 'spend' as const,     label: 'Spend',     icon: DollarSign },
-          { id: 'content' as const,   label: 'Content',   icon: FileText },
-          { id: 'referrals' as const, label: 'Referrals', icon: Gift }
+          { id: 'metrics' as const,   label: 'Metriken',   icon: TrendingUp },
+          { id: 'leads' as const,     label: 'Leads',      icon: Users },
+          { id: 'content' as const,   label: 'Content',    icon: FileText },
+          { id: 'channels' as const,  label: 'Kanäle',     icon: Plug },
+          { id: 'audience' as const,  label: 'Zielgruppe', icon: Target },
+          { id: 'akquise' as const,   label: 'Akquise',    icon: Upload },
+          { id: 'spend' as const,     label: 'Spend',      icon: DollarSign },
+          { id: 'referrals' as const, label: 'Referrals',  icon: Gift }
         ].map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -185,10 +268,12 @@ export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: 
       </nav>
 
       {tab === 'metrics' && <MetricsSection metrics={data.metrics} leadsCount={data.leads.length} />}
-      {tab === 'leads' && <LeadsSection leads={data.leads} />}
+      {tab === 'leads' && <LeadsSection leads={data.leads} onRefresh={load} />}
+      {tab === 'content' && <ContentSection content={data.content} />}
+      {tab === 'channels' && <ChannelsSection />}
+      {tab === 'audience' && <AudienceSection />}
       {tab === 'akquise' && <AkquiseSection onRefresh={load} />}
       {tab === 'spend' && <SpendSection spend={data.spend} />}
-      {tab === 'content' && <ContentSection content={data.content} />}
       {tab === 'referrals' && <ReferralsSection
         programs={data.referrals.programs}
         stats={data.referrals.stats}
@@ -676,7 +761,7 @@ function LeadPitchRow({ lead, onAction }: { lead: AkquiseLeadDetail; onAction: (
   );
 }
 
-function LeadsSection({ leads }: { leads: Lead[] }) {
+function LeadsSection({ leads, onRefresh }: { leads: Lead[]; onRefresh: () => void }) {
   const [filter, setFilter] = useState<'all' | 'A' | 'B' | 'new' | 'qualified'>('all');
   const filtered = useMemo(() => {
     if (filter === 'all') return leads;
@@ -722,40 +807,86 @@ function LeadsSection({ leads }: { leads: Lead[] }) {
       ) : (
         <div className="space-y-2">
           {filtered.map((l, i) => (
-            <div key={l.id} className="card-premium p-4 animate-fade-up" style={stagger(i, 30, 30)}>
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-white text-sm">{l.name || l.email}</span>
-                    {l.lead_tier && (
-                      <span className={`badge ${TIER_BADGE[l.lead_tier] || 'badge'}`}>
-                        {l.lead_tier}{l.score_total !== null ? ` · ${l.score_total}P` : ''}
-                      </span>
-                    )}
-                    <span className="badge">{STATUS_LABEL[l.status] || l.status}</span>
-                    {l.referral_code && (
-                      <span className="badge badge-emerald">
-                        <Gift size={10} className="inline mr-1" />
-                        {l.referral_code}
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-xs text-ink-400 mt-1.5 flex items-center gap-3 flex-wrap">
-                    <span className="inline-flex items-center gap-1"><Mail size={11} /> {l.email}</span>
-                    {l.phone && <span className="inline-flex items-center gap-1"><Phone size={11} /> {l.phone}</span>}
-                    {l.source && (
-                      <span>· Quelle: <span className="text-ink-200">{l.source}{l.source_detail ? `/${l.source_detail}` : ''}</span></span>
-                    )}
-                    <span>· {new Date(l.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' })}</span>
-                  </div>
-                  {l.notes && <p className="text-xs text-ink-300 mt-2 italic">„{l.notes}"</p>}
-                </div>
-              </div>
-            </div>
+            <LeadRow key={l.id} lead={l} index={i} onRefresh={onRefresh} />
           ))}
         </div>
       )}
     </>
+  );
+}
+
+function LeadRow({ lead, index, onRefresh }: { lead: Lead; index: number; onRefresh: () => void }) {
+  const [status, setStatus] = useState(lead.status);
+  const [saving, setSaving] = useState(false);
+  // nurture_step is provided by some lead shapes — read defensively without widening the Lead type.
+  const nurtureStep = (lead as unknown as { nurture_step?: number | string | null }).nurture_step;
+
+  const changeStatus = async (next: string) => {
+    if (next === status) return;
+    const prev = status;
+    setStatus(next);
+    setSaving(true);
+    try {
+      await api(`/api/me/leads/${lead.id}`, { method: 'PATCH', body: JSON.stringify({ status: next }) });
+      toast.success(`Status → ${STATUS_LABEL[next] || next}`);
+      onRefresh();
+    } catch (e) {
+      setStatus(prev);
+      toast.error(e instanceof Error ? e.message : 'Status-Update fehlgeschlagen');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="card-premium p-4 animate-fade-up" style={stagger(index, 30, 30)}>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-medium text-white text-sm">{lead.name || lead.email}</span>
+            {lead.lead_tier && (
+              <span className={`badge ${TIER_BADGE[lead.lead_tier] || 'badge'}`}>
+                {lead.lead_tier}{lead.score_total !== null ? ` · ${lead.score_total}P` : ''}
+              </span>
+            )}
+            {lead.referral_code && (
+              <span className="badge badge-emerald">
+                <Gift size={10} className="inline mr-1" />
+                {lead.referral_code}
+              </span>
+            )}
+            {(nurtureStep !== undefined && nurtureStep !== null) && (
+              <span className="badge">Nurture-Step {String(nurtureStep)}</span>
+            )}
+          </div>
+          <div className="text-xs text-ink-400 mt-1.5 flex items-center gap-3 flex-wrap">
+            <span className="inline-flex items-center gap-1"><Mail size={11} /> {lead.email}</span>
+            {lead.phone && <span className="inline-flex items-center gap-1"><Phone size={11} /> {lead.phone}</span>}
+            {lead.source && (
+              <span>· Quelle: <span className="text-ink-200">{lead.source}{lead.source_detail ? `/${lead.source_detail}` : ''}</span></span>
+            )}
+            <span>· {new Date(lead.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' })}</span>
+          </div>
+          {lead.notes && <p className="text-xs text-ink-300 mt-2 italic">„{lead.notes}"</p>}
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <select
+            value={status}
+            disabled={saving}
+            onChange={e => changeStatus(e.target.value)}
+            className="input-premium text-xs py-1.5 pr-7 disabled:opacity-50"
+            aria-label="Lead-Status"
+          >
+            {LEAD_STATUS_OPTIONS.map(s => (
+              <option key={s} value={s}>{STATUS_LABEL[s] || s}</option>
+            ))}
+            {!LEAD_STATUS_OPTIONS.includes(status as typeof LEAD_STATUS_OPTIONS[number]) && (
+              <option value={status}>{STATUS_LABEL[status] || status}</option>
+            )}
+          </select>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -811,40 +942,871 @@ function SpendSection({ spend }: { spend: LeadFunnelData['spend'] }) {
   );
 }
 
-// ─── Content Section ───────────────────────────────────────────
+// ─── Content Section (Cockpit: Pieces + Generate + Edit + Publish) ──
 function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
+  const [pieces, setPieces] = useState<ContentPiece[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [platformFilter, setPlatformFilter] = useState<string>('all');
+  const [showGen, setShowGen] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const qs = new URLSearchParams();
+      if (statusFilter !== 'all') qs.set('status', statusFilter);
+      if (platformFilter !== 'all') qs.set('platform', platformFilter);
+      const q = qs.toString();
+      const r = await api<{ ok?: boolean; pieces?: ContentPiece[] } | ContentPiece[]>(`/api/me/funnel/pieces${q ? `?${q}` : ''}`);
+      const list = Array.isArray(r) ? r : (r.pieces ?? []);
+      setPieces(list);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Content laden fehlgeschlagen');
+      setPieces([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [statusFilter, platformFilter]);
+
+  const counts = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const p of pieces) c[p.status] = (c[p.status] || 0) + 1;
+    return c;
+  }, [pieces]);
+
   return (
     <>
-      <SectionHeader icon={FileText} title="Content Pipeline" sub="Posts-Scheduler (LinkedIn + Facebook)" />
+      <SectionHeader icon={FileText} title="Content Pipeline" sub="Pieces erstellen, generieren, freigeben & veröffentlichen (LinkedIn + Facebook)" />
 
       <KpiGrid>
         <KpiCard i={0} icon={FileText} label="Veröffentlicht (30d)" value={String(content.posts_published_30d)} />
-        <KpiCard i={1} icon={Activity} label="Geplant" value={String(content.posts_scheduled)} />
-        <KpiCard i={2} icon={ChevronRight} label="Drafts" value={String(content.posts_drafts)} />
-        <KpiCard i={3} icon={TrendingUp} label="Pillars aktiv" value={String(content.planned_pillars.length)} />
+        <KpiCard i={1} icon={Activity} label="Geplant" value={String((counts.scheduled || 0))} />
+        <KpiCard i={2} icon={ChevronRight} label="Entwürfe" value={String((counts.draft || 0))} />
+        <KpiCard i={3} icon={Check} label="Freigegeben" value={String((counts.approved || 0))} />
       </KpiGrid>
 
-      <section>
-        <SectionHeader icon={FileText} title="Content-Pillars (geplant)" sub="aus LINKEDIN-STRATEGIE-MASTER" />
-        <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)]">
-          {content.planned_pillars.map((p, i) => (
-            <div key={p.id} className="card-premium p-4 animate-fade-up opacity-70" style={stagger(i, 40, 40)}>
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-medium text-white text-sm">{p.label}</span>
-                <span className="badge">{p.frequency_per_week}×/Wo</span>
-              </div>
-              <div className="text-xs text-ink-400">Pillar-ID: <code>{p.id}</code></div>
-            </div>
+      {/* Generate-Toggle */}
+      <div className="card-premium p-5">
+        <div className="flex items-start gap-3 mb-3">
+          <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center shrink-0">
+            <Sparkles size={16} className="text-gold-300" />
+          </div>
+          <div className="flex-1">
+            <div className="font-semibold text-white text-sm">Content in deiner Voice generieren</div>
+            <p className="text-xs text-ink-300 mt-1 leading-relaxed">
+              Wähle Segment, Plattform und Awareness-Stufe — die KI erstellt einen Entwurf auf Basis deiner
+              Zielgruppen- & Brand-Voice-Einstellungen. Jeden Entwurf bearbeitest, gibst du frei, planst oder archivierst du.
+            </p>
+          </div>
+        </div>
+        <button onClick={() => setShowGen(s => !s)} className="btn-gold text-sm">
+          {showGen ? <><X size={13} /> Abbrechen</> : <><Sparkles size={13} /> Content generieren</>}
+        </button>
+      </div>
+
+      {showGen && <GeneratePieceForm onDone={() => { setShowGen(false); load(); }} />}
+
+      {/* Filters */}
+      <div className="flex gap-2 flex-wrap items-center">
+        <FilterChips
+          label="Status"
+          value={statusFilter}
+          options={[['all', 'Alle'], ['draft', 'Entwurf'], ['approved', 'Freigegeben'], ['scheduled', 'Geplant'], ['published', 'Veröffentlicht'], ['archived', 'Archiviert']]}
+          onChange={setStatusFilter}
+        />
+        <FilterChips
+          label="Plattform"
+          value={platformFilter}
+          options={[['all', 'Alle'], ['linkedin', 'LinkedIn'], ['facebook', 'Facebook']]}
+          onChange={setPlatformFilter}
+        />
+      </div>
+
+      {/* Pieces list */}
+      {loading ? (
+        <div className="card-premium p-10 flex justify-center"><Spinner size="md" /></div>
+      ) : pieces.length === 0 ? (
+        <div className="card-premium p-10 text-center">
+          <FileText size={28} className="mx-auto text-ink-400 mb-3" />
+          <p className="text-sm text-ink-400">Noch kein Content in dieser Auswahl.</p>
+          <p className="text-xs text-ink-400 mt-2">Klick oben „Content generieren" für deinen ersten Entwurf.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {pieces.map((p, i) => (
+            <PieceCard key={p.id} piece={p} index={i} onRefresh={load} />
           ))}
         </div>
+      )}
+    </>
+  );
+}
+
+function GeneratePieceForm({ onDone }: { onDone: () => void }) {
+  const [segment, setSegment] = useState<string>('auswanderer');
+  const [platform, setPlatform] = useState<string>('linkedin');
+  const [awareness, setAwareness] = useState<string>('problem_aware');
+  const [n, setN] = useState(1);
+  const [running, setRunning] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRunning(true);
+    try {
+      await api('/api/me/funnel/pieces/generate', {
+        method: 'POST',
+        body: JSON.stringify({ segment, platform, awareness_stage: awareness, n }),
+      });
+      toast.success(`${n} Entwurf${n > 1 ? 'e' : ''} wird generiert — erscheint gleich in der Liste`);
+      onDone();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Generierung fehlgeschlagen');
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="card-premium p-5 space-y-4 animate-slide-up">
+      <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+        <Sparkles size={14} className="text-gold-300" />
+        <h3 className="text-xs font-semibold text-ink-100 uppercase tracking-wider">Content generieren</h3>
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <Field label="Segment">
+          <select value={segment} onChange={e => setSegment(e.target.value)} className="input-premium">
+            {SEGMENT_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </Field>
+        <Field label="Plattform">
+          <select value={platform} onChange={e => setPlatform(e.target.value)} className="input-premium">
+            <option value="linkedin">LinkedIn</option>
+            <option value="facebook">Facebook</option>
+          </select>
+        </Field>
+        <Field label="Awareness-Stufe">
+          <select value={awareness} onChange={e => setAwareness(e.target.value)} className="input-premium">
+            {AWARENESS_OPTIONS.map(a => <option key={a} value={a}>{a}</option>)}
+          </select>
+        </Field>
+        <Field label="Anzahl">
+          <input type="number" min={1} max={5} value={n} onChange={e => setN(Math.max(1, Math.min(5, Number(e.target.value) || 1)))} className="input-premium" />
+        </Field>
+      </div>
+      <button disabled={running} className="btn-gold text-sm">
+        {running ? 'Generiere…' : <><Sparkles size={13} /> Entwurf erstellen</>}
+      </button>
+    </form>
+  );
+}
+
+function PieceCard({ piece, index, onRefresh }: { piece: ContentPiece; index: number; onRefresh: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [title, setTitle] = useState(piece.title || '');
+  const [body, setBody] = useState(piece.body || '');
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduleAt, setScheduleAt] = useState('');
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const PlatIcon = (piece.platform && PLATFORM_ICON[piece.platform]) || FileText;
+
+  const patch = async (partial: Record<string, unknown>, okMsg: string, key: string) => {
+    setBusy(key);
+    try {
+      await api(`/api/me/funnel/pieces/${piece.id}`, { method: 'PATCH', body: JSON.stringify(partial) });
+      toast.success(okMsg);
+      setEditing(false);
+      setScheduleOpen(false);
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Aktion fehlgeschlagen');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const publish = async () => {
+    setBusy('publish');
+    try {
+      await api(`/api/me/funnel/pieces/${piece.id}/publish`, { method: 'POST' });
+      toast.success('Veröffentlicht');
+      onRefresh();
+    } catch (e) {
+      if (isGatedErr(e)) {
+        toast.error('Veröffentlichen noch nicht möglich — verbinde zuerst deinen ' +
+          (piece.platform ? (PLATFORM_LABEL[piece.platform] || piece.platform) : 'Social') + '-Account im Tab „Kanäle“.');
+      } else {
+        toast.error(e instanceof Error ? e.message : 'Veröffentlichen fehlgeschlagen');
+      }
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <div className="card-premium p-4 animate-fade-up" style={stagger(index, 30, 30)}>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <PlatIcon size={13} className="text-gold-300" />
+            <span className="font-medium text-white text-sm">{piece.title || '(ohne Titel)'}</span>
+            <span className={`badge ${PIECE_STATUS_BADGE[piece.status] || 'badge'}`}>{PIECE_STATUS_LABEL[piece.status] || piece.status}</span>
+            {piece.segment && <span className="badge">{piece.segment}</span>}
+            {piece.awareness_stage && <span className="badge">{piece.awareness_stage}</span>}
+          </div>
+          <div className="text-[0.65rem] text-ink-400 mt-1 flex items-center gap-3 flex-wrap">
+            {piece.platform && <span>{PLATFORM_LABEL[piece.platform] || piece.platform}</span>}
+            {piece.scheduled_at && <span>· geplant: {new Date(piece.scheduled_at).toLocaleString('de-DE')}</span>}
+            {piece.published_at && <span>· veröffentlicht: {new Date(piece.published_at).toLocaleString('de-DE')}</span>}
+            <span>· erstellt: {new Date(piece.created_at).toLocaleDateString('de-DE')}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Body / Edit */}
+      <div className="mt-3 pt-3 border-t border-white/5">
+        {editing ? (
+          <div className="space-y-2">
+            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Titel" className="input-premium text-xs" />
+            <textarea value={body} onChange={e => setBody(e.target.value)} rows={6} placeholder="Body" className="input-premium text-xs resize-none" />
+          </div>
+        ) : (
+          piece.body ? <div className="text-xs text-ink-200 whitespace-pre-wrap leading-relaxed">{piece.body}</div>
+            : <div className="text-xs text-ink-400 italic">Kein Text — generieren oder editieren.</div>
+        )}
+      </div>
+
+      {/* Schedule input */}
+      {scheduleOpen && (
+        <div className="mt-3 flex items-center gap-2 flex-wrap">
+          <input type="datetime-local" value={scheduleAt} onChange={e => setScheduleAt(e.target.value)} className="input-premium text-xs" />
+          <button
+            disabled={busy === 'schedule' || !scheduleAt}
+            onClick={() => patch({ status: 'scheduled', scheduled_at: new Date(scheduleAt).toISOString() }, 'Geplant', 'schedule')}
+            className="btn-gold text-xs"
+          >
+            {busy === 'schedule' ? 'Speichere…' : 'Termin setzen'}
+          </button>
+          <button onClick={() => setScheduleOpen(false)} className="text-xs text-ink-400 hover:text-white px-2 py-1">Abbrechen</button>
+        </div>
+      )}
+
+      {/* Actions */}
+      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/5 flex-wrap">
+        {editing ? (
+          <>
+            <button disabled={busy === 'save'} onClick={() => patch({ title, body }, 'Gespeichert', 'save')} className="btn-gold text-xs">
+              <Check size={11} /> Speichern
+            </button>
+            <button onClick={() => { setEditing(false); setTitle(piece.title || ''); setBody(piece.body || ''); }} className="text-xs text-ink-400 hover:text-white px-2 py-1">Abbrechen</button>
+          </>
+        ) : (
+          <>
+            <button onClick={() => setEditing(true)} className="text-xs text-ink-300 hover:text-gold-300 px-2 py-1 inline-flex items-center gap-1">
+              <Edit3 size={10} /> Editieren
+            </button>
+            {piece.status !== 'approved' && piece.status !== 'published' && (
+              <button disabled={busy === 'approve'} onClick={() => patch({ status: 'approved' }, 'Freigegeben', 'approve')} className="text-xs text-emerald-300 hover:text-emerald-200 px-2 py-1 inline-flex items-center gap-1">
+                <Check size={10} /> Freigeben
+              </button>
+            )}
+            {piece.status !== 'published' && (
+              <button onClick={() => setScheduleOpen(s => !s)} className="text-xs text-ink-300 hover:text-gold-300 px-2 py-1 inline-flex items-center gap-1">
+                <Activity size={10} /> Planen
+              </button>
+            )}
+            {piece.status !== 'archived' && piece.status !== 'published' && (
+              <button disabled={busy === 'archive'} onClick={() => patch({ status: 'archived' }, 'Archiviert', 'archive')} className="text-xs text-rose-300 hover:text-rose-200 px-2 py-1 inline-flex items-center gap-1">
+                <X size={10} /> Archivieren
+              </button>
+            )}
+            {(piece.status === 'approved' || piece.status === 'scheduled') && (
+              <button disabled={busy === 'publish'} onClick={publish} className="btn-gold text-xs ml-auto">
+                <Send size={11} /> {busy === 'publish' ? 'Sende…' : 'Veröffentlichen'}
+              </button>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Channels Section (FB + LinkedIn connect/disconnect/enable/first-post) ──
+function ChannelsSection() {
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [pieces, setPieces] = useState<ContentPiece[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const PLATFORMS: Array<{ platform: string; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = [
+    { platform: 'facebook', label: 'Facebook', icon: Facebook },
+    { platform: 'linkedin', label: 'LinkedIn', icon: Linkedin },
+  ];
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const [chRes, pcRes] = await Promise.allSettled([
+        api<{ ok?: boolean; channels?: Channel[] } | Channel[]>('/api/me/funnel/channels'),
+        api<{ ok?: boolean; pieces?: ContentPiece[] } | ContentPiece[]>('/api/me/funnel/pieces?status=approved'),
+      ]);
+      if (chRes.status === 'fulfilled') {
+        const v = chRes.value;
+        setChannels(Array.isArray(v) ? v : (v.channels ?? []));
+      } else { setChannels([]); }
+      if (pcRes.status === 'fulfilled') {
+        const v = pcRes.value;
+        setPieces(Array.isArray(v) ? v : (v.pieces ?? []));
+      } else { setPieces([]); }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const byPlatform = (p: string) => channels.find(c => c.platform === p);
+
+  return (
+    <>
+      <SectionHeader icon={Plug} title="Kanäle" sub="Verbinde Facebook & LinkedIn — danach kannst du Content direkt veröffentlichen" />
+
+      {loading ? (
+        <div className="card-premium p-10 flex justify-center"><Spinner size="md" /></div>
+      ) : (
+        <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)] items-stretch">
+          {PLATFORMS.map((p, i) => (
+            <ChannelCard
+              key={p.platform}
+              platform={p.platform}
+              label={p.label}
+              icon={p.icon}
+              channel={byPlatform(p.platform)}
+              approvedPieces={pieces.filter(pc => pc.platform === p.platform)}
+              index={i}
+              onRefresh={load}
+            />
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+function ChannelCard({ platform, label, icon: Icon, channel, approvedPieces, index, onRefresh }: {
+  platform: string;
+  label: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  channel?: Channel;
+  approvedPieces: ContentPiece[];
+  index: number;
+  onRefresh: () => void;
+}) {
+  const [busy, setBusy] = useState<string | null>(null);
+  const [notConfigured, setNotConfigured] = useState(false);
+  const [firstPostId, setFirstPostId] = useState('');
+  const connected = !!channel?.connected;
+
+  const connect = async () => {
+    setBusy('connect');
+    setNotConfigured(false);
+    try {
+      const r = await api<{ ok?: boolean; authorize_url?: string }>(`/api/me/funnel/channels/${platform}/connect/start`, { method: 'POST' });
+      if (r.authorize_url) { window.location.href = r.authorize_url; return; }
+      // No URL but 200 → treat as not yet configured
+      setNotConfigured(true);
+    } catch (e) {
+      if (isGatedErr(e)) setNotConfigured(true);
+      else toast.error(e instanceof Error ? e.message : 'Verbinden fehlgeschlagen');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const disconnect = async () => {
+    if (!confirm(`${label}-Verbindung wirklich trennen?`)) return;
+    setBusy('disconnect');
+    try {
+      await api(`/api/me/funnel/channels/${platform}/disconnect`, { method: 'POST' });
+      toast.success(`${label} getrennt`);
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Trennen fehlgeschlagen');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const toggleEnabled = async () => {
+    setBusy('toggle');
+    try {
+      await api(`/api/me/funnel/channels/${platform}`, { method: 'PATCH', body: JSON.stringify({ enabled: !channel?.enabled }) });
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Umschalten fehlgeschlagen');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const publishFirst = async () => {
+    if (!firstPostId) return;
+    setBusy('first');
+    try {
+      await api(`/api/me/funnel/pieces/${firstPostId}/publish`, { method: 'POST' });
+      toast.success('Veröffentlicht');
+      setFirstPostId('');
+      onRefresh();
+    } catch (e) {
+      if (isGatedErr(e)) toast.error('Veröffentlichen noch nicht möglich — Schnittstelle noch nicht konfiguriert.');
+      else toast.error(e instanceof Error ? e.message : 'Veröffentlichen fehlgeschlagen');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <div className="card-premium p-5 h-full flex flex-col animate-fade-up" style={stagger(index, 40, 40)}>
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-10 h-10 rounded-xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center">
+            <Icon size={18} className="text-gold-300" />
+          </div>
+          <div>
+            <div className="font-semibold text-white text-sm">{label}</div>
+            <div className="text-xs text-ink-400">{channel?.display_name || (connected ? 'Verbunden' : 'Nicht verbunden')}</div>
+          </div>
+        </div>
+        <span className={`badge ${connected ? 'badge-emerald' : ''}`}>{connected ? 'verbunden' : 'getrennt'}</span>
+      </div>
+
+      {notConfigured && (
+        <div className="mb-3 text-xs text-ink-300 bg-white/[0.03] border border-white/5 rounded-lg p-3 leading-relaxed">
+          <AlertCircle size={12} className="inline mr-1 text-gold-300" />
+          Schnittstelle noch nicht konfiguriert — hier verbindest du später deinen {label}-Account.
+          Sobald die {label}-Anbindung freigeschaltet ist, läuft das Verbinden mit einem Klick.
+        </div>
+      )}
+
+      <div className="mt-auto space-y-3">
+        {/* Connect / Disconnect + enable toggle */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {connected ? (
+            <>
+              <button disabled={busy === 'disconnect'} onClick={disconnect} className="text-xs text-rose-300 hover:text-rose-200 px-3 py-1.5 rounded-md border border-white/10 inline-flex items-center gap-1.5">
+                <Plug size={11} /> Trennen
+              </button>
+              <label className="text-xs text-ink-300 inline-flex items-center gap-2 cursor-pointer ml-auto">
+                <input type="checkbox" checked={!!channel?.enabled} disabled={busy === 'toggle'} onChange={toggleEnabled} className="accent-gold-400" />
+                Aktiv
+              </label>
+            </>
+          ) : (
+            <button disabled={busy === 'connect'} onClick={connect} className="btn-gold text-xs">
+              <Link2 size={12} /> {busy === 'connect' ? 'Verbinde…' : `${label} verbinden`}
+            </button>
+          )}
+        </div>
+
+        {/* First post */}
+        {connected && (
+          <div className="pt-3 border-t border-white/5">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mb-1.5">Erster Post</div>
+            {approvedPieces.length === 0 ? (
+              <p className="text-xs text-ink-400 italic">Kein freigegebener {label}-Content. Erst im Content-Tab freigeben.</p>
+            ) : (
+              <div className="flex items-center gap-2 flex-wrap">
+                <select value={firstPostId} onChange={e => setFirstPostId(e.target.value)} className="input-premium text-xs flex-1 min-w-[160px]">
+                  <option value="">Freigegebenen Post wählen…</option>
+                  {approvedPieces.map(pc => <option key={pc.id} value={pc.id}>{pc.title || '(ohne Titel)'}</option>)}
+                </select>
+                <button disabled={busy === 'first' || !firstPostId} onClick={publishFirst} className="btn-gold text-xs">
+                  <Send size={11} /> Posten
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Audience Section (ICP + Brand-Voice + Topics) ─────────────
+function AudienceSection() {
+  const [icp, setIcp] = useState<IcpProfile[]>([]);
+  const [voice, setVoice] = useState<BrandVoice | null>(null);
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    setLoading(true);
+    const [icpRes, voiceRes, topicsRes] = await Promise.allSettled([
+      api<{ ok?: boolean; profiles?: IcpProfile[]; icp?: IcpProfile[] } | IcpProfile[]>('/api/me/funnel/icp'),
+      api<{ ok?: boolean; brand_voice?: BrandVoice } | BrandVoice>('/api/me/funnel/brand-voice'),
+      api<{ ok?: boolean; topics?: Topic[] } | Topic[]>('/api/me/funnel/topics'),
+    ]);
+    if (icpRes.status === 'fulfilled') {
+      const v = icpRes.value;
+      setIcp(Array.isArray(v) ? v : (v.profiles ?? v.icp ?? []));
+    }
+    if (voiceRes.status === 'fulfilled') {
+      const v = voiceRes.value as { brand_voice?: BrandVoice } & Partial<BrandVoice>;
+      setVoice(v.brand_voice ?? (('tone' in v) ? (v as BrandVoice) : null));
+    }
+    if (topicsRes.status === 'fulfilled') {
+      const v = topicsRes.value;
+      setTopics(Array.isArray(v) ? v : (v.topics ?? []));
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  if (loading) return <div className="card-premium p-10 flex justify-center"><Spinner size="md" /></div>;
+
+  return (
+    <>
+      <SectionHeader icon={Target} title="Zielgruppe & Voice" sub="Research-vorbefüllt — von dir editierbar. Steuert die Content-Generierung." />
+
+      {/* ICP per segment */}
+      <section>
+        <SectionHeader icon={Users} title="Ideale Zielgruppe (ICP)" sub="je Segment" />
+        {icp.length === 0 ? (
+          <div className="card-premium p-8 text-center text-sm text-ink-400">Keine ICP-Profile hinterlegt.</div>
+        ) : (
+          <div className="space-y-3">
+            {icp.map((profile, i) => <IcpCard key={profile.segment} profile={profile} index={i} onRefresh={load} />)}
+          </div>
+        )}
       </section>
 
-      <ComingSoonCard
-        icon={FileText}
-        title="Posts-Scheduler & Auto-Drafts"
-        body="LLM-Drafts in Patrick-Voice, Schedule-Rules, Approval-Flow via Thailand-RE-Bot (/posts, /approve) + Auto-Publish via LinkedIn & Meta Graph APIs. Wird in Lead-Engine Phase B3+B4+B6 implementiert."
-      />
+      {/* Brand voice */}
+      <section>
+        <SectionHeader icon={Sparkles} title="Brand-Voice" sub="Tonalität & Leitplanken" />
+        <BrandVoiceCard voice={voice} onRefresh={load} />
+      </section>
+
+      {/* Topics */}
+      <section>
+        <SectionHeader icon={FileText} title="Themen" sub="Content-Ideen-Pool" />
+        <TopicsEditor topics={topics} onRefresh={load} />
+      </section>
     </>
+  );
+}
+
+function ListEditor({ label, items, onChange }: { label: string; items: string[]; onChange: (next: string[]) => void }) {
+  const [draft, setDraft] = useState('');
+  return (
+    <div>
+      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mb-1.5">{label}</div>
+      <div className="space-y-1.5">
+        {items.map((it, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <input value={it} onChange={e => { const next = [...items]; next[i] = e.target.value; onChange(next); }} className="input-premium text-xs flex-1" />
+            <button type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} className="text-rose-300 hover:text-rose-200 p-1"><Trash2 size={12} /></button>
+          </div>
+        ))}
+        <div className="flex items-center gap-2">
+          <input value={draft} onChange={e => setDraft(e.target.value)} placeholder={`${label} hinzufügen…`} className="input-premium text-xs flex-1"
+            onKeyDown={e => { if (e.key === 'Enter' && draft.trim()) { e.preventDefault(); onChange([...items, draft.trim()]); setDraft(''); } }} />
+          <button type="button" onClick={() => { if (draft.trim()) { onChange([...items, draft.trim()]); setDraft(''); } }} className="text-gold-300 hover:text-gold-200 p-1"><Plus size={14} /></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function IcpCard({ profile, index, onRefresh }: { profile: IcpProfile; index: number; onRefresh: () => void }) {
+  const [edit, setEdit] = useState(false);
+  const [pains, setPains] = useState<string[]>(profile.pains || []);
+  const [desires, setDesires] = useState<string[]>(profile.desires || []);
+  const [objections, setObjections] = useState<string[]>(profile.objections || []);
+  const [awareness, setAwareness] = useState(profile.awareness_default || '');
+  const [langNotes, setLangNotes] = useState(profile.language_notes || '');
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await api(`/api/me/funnel/icp/${profile.segment}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ pains, desires, objections, awareness_default: awareness || null, language_notes: langNotes || null }),
+      });
+      toast.success('Zielgruppe gespeichert');
+      setEdit(false);
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Speichern fehlgeschlagen');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="card-premium p-5 animate-fade-up" style={stagger(index, 40, 40)}>
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="font-semibold text-white text-sm">{profile.label || profile.segment}</div>
+        {!edit && <button onClick={() => setEdit(true)} className="text-xs text-ink-300 hover:text-gold-300 inline-flex items-center gap-1"><Edit3 size={11} /> Editieren</button>}
+      </div>
+
+      {edit ? (
+        <div className="space-y-4">
+          <div className="grid sm:grid-cols-3 gap-4">
+            <ListEditor label="Pains" items={pains} onChange={setPains} />
+            <ListEditor label="Desires" items={desires} onChange={setDesires} />
+            <ListEditor label="Objections" items={objections} onChange={setObjections} />
+          </div>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <Field label="Awareness-Default">
+              <select value={awareness} onChange={e => setAwareness(e.target.value)} className="input-premium">
+                <option value="">— keine —</option>
+                {AWARENESS_OPTIONS.map(a => <option key={a} value={a}>{a}</option>)}
+              </select>
+            </Field>
+            <Field label="Sprach-Notizen">
+              <input value={langNotes} onChange={e => setLangNotes(e.target.value)} className="input-premium" placeholder="z.B. Du-Form, kein Fachjargon" />
+            </Field>
+          </div>
+          <div className="flex items-center gap-2">
+            <button disabled={saving} onClick={save} className="btn-gold text-xs"><Check size={11} /> Speichern</button>
+            <button onClick={() => setEdit(false)} className="text-xs text-ink-400 hover:text-white px-2 py-1">Abbrechen</button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-3 gap-4 text-xs">
+          <PreviewList label="Pains" items={profile.pains} />
+          <PreviewList label="Desires" items={profile.desires} />
+          <PreviewList label="Objections" items={profile.objections} />
+          {(profile.awareness_default || profile.language_notes) && (
+            <div className="sm:col-span-3 pt-2 border-t border-white/5 text-ink-400">
+              {profile.awareness_default && <span>Awareness: <span className="text-ink-200">{profile.awareness_default}</span></span>}
+              {profile.language_notes && <span className="ml-3">Sprache: <span className="text-ink-200">{profile.language_notes}</span></span>}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PreviewList({ label, items }: { label: string; items: string[] }) {
+  return (
+    <div>
+      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mb-1.5">{label}</div>
+      {(!items || items.length === 0) ? (
+        <p className="text-ink-400 italic">—</p>
+      ) : (
+        <ul className="space-y-1 list-disc list-inside text-ink-200">{items.map((it, i) => <li key={i}>{it}</li>)}</ul>
+      )}
+    </div>
+  );
+}
+
+function BrandVoiceCard({ voice, onRefresh }: { voice: BrandVoice | null; onRefresh: () => void }) {
+  const [edit, setEdit] = useState(false);
+  const [tone, setTone] = useState(voice?.tone || '');
+  const [dos, setDos] = useState<string[]>(voice?.dos || []);
+  const [donts, setDonts] = useState<string[]>(voice?.donts || []);
+  const [examples, setExamples] = useState<string[]>(voice?.examples || []);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setTone(voice?.tone || '');
+    setDos(voice?.dos || []);
+    setDonts(voice?.donts || []);
+    setExamples(voice?.examples || []);
+  }, [voice]);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await api('/api/me/funnel/brand-voice', {
+        method: 'PATCH',
+        body: JSON.stringify({ tone: tone || null, dos, donts, examples }),
+      });
+      toast.success('Brand-Voice gespeichert');
+      setEdit(false);
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Speichern fehlgeschlagen');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="card-premium p-5">
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="text-xs text-ink-300">Tonalität: <span className="text-white font-medium">{voice?.tone || '—'}</span></div>
+        {!edit && <button onClick={() => setEdit(true)} className="text-xs text-ink-300 hover:text-gold-300 inline-flex items-center gap-1"><Edit3 size={11} /> Editieren</button>}
+      </div>
+      {edit ? (
+        <div className="space-y-4">
+          <Field label="Tonalität">
+            <input value={tone} onChange={e => setTone(e.target.value)} className="input-premium" placeholder="z.B. nahbar, ehrlich, vertrauensbildend" />
+          </Field>
+          <div className="grid sm:grid-cols-3 gap-4">
+            <ListEditor label="Do's" items={dos} onChange={setDos} />
+            <ListEditor label="Don'ts" items={donts} onChange={setDonts} />
+            <ListEditor label="Beispiele" items={examples} onChange={setExamples} />
+          </div>
+          <div className="flex items-center gap-2">
+            <button disabled={saving} onClick={save} className="btn-gold text-xs"><Check size={11} /> Speichern</button>
+            <button onClick={() => setEdit(false)} className="text-xs text-ink-400 hover:text-white px-2 py-1">Abbrechen</button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-3 gap-4 text-xs">
+          <PreviewList label="Do's" items={voice?.dos || []} />
+          <PreviewList label="Don'ts" items={voice?.donts || []} />
+          <PreviewList label="Beispiele" items={voice?.examples || []} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TopicsEditor({ topics, onRefresh }: { topics: Topic[]; onRefresh: () => void }) {
+  const [showAdd, setShowAdd] = useState(false);
+  const [title, setTitle] = useState('');
+  const [segment, setSegment] = useState<string>('');
+  const [busy, setBusy] = useState(false);
+
+  const add = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    setBusy(true);
+    try {
+      await api('/api/me/funnel/topics', { method: 'POST', body: JSON.stringify({ title: title.trim(), segment: segment || null }) });
+      toast.success('Thema hinzugefügt');
+      setTitle(''); setSegment(''); setShowAdd(false);
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Hinzufügen fehlgeschlagen');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <button onClick={() => setShowAdd(s => !s)} className="btn-gold text-xs">
+        {showAdd ? <><X size={12} /> Abbrechen</> : <><Plus size={13} /> Thema hinzufügen</>}
+      </button>
+
+      {showAdd && (
+        <form onSubmit={add} className="card-premium p-4 space-y-3 animate-slide-up">
+          <div className="grid sm:grid-cols-2 gap-3">
+            <Field label="Titel *">
+              <input required value={title} onChange={e => setTitle(e.target.value)} className="input-premium" placeholder="z.B. Lebenshaltungskosten Pattaya" />
+            </Field>
+            <Field label="Segment (optional)">
+              <select value={segment} onChange={e => setSegment(e.target.value)} className="input-premium">
+                <option value="">— alle —</option>
+                {SEGMENT_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </Field>
+          </div>
+          <button disabled={busy || !title.trim()} className="btn-gold text-xs"><Plus size={13} /> Hinzufügen</button>
+        </form>
+      )}
+
+      {topics.length === 0 ? (
+        <div className="card-premium p-8 text-center text-sm text-ink-400">Noch keine Themen.</div>
+      ) : (
+        <div className="space-y-2">
+          {topics.map((t, i) => <TopicRow key={t.id} topic={t} index={i} onRefresh={onRefresh} />)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TopicRow({ topic, index, onRefresh }: { topic: Topic; index: number; onRefresh: () => void }) {
+  const [edit, setEdit] = useState(false);
+  const [title, setTitle] = useState(topic.title);
+  const [status, setStatus] = useState(topic.status);
+  const [busy, setBusy] = useState(false);
+
+  const save = async () => {
+    setBusy(true);
+    try {
+      await api(`/api/me/funnel/topics/${topic.id}`, { method: 'PATCH', body: JSON.stringify({ title, status }) });
+      toast.success('Thema gespeichert');
+      setEdit(false);
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Speichern fehlgeschlagen');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const remove = async () => {
+    if (!confirm('Thema löschen?')) return;
+    setBusy(true);
+    try {
+      await api(`/api/me/funnel/topics/${topic.id}`, { method: 'DELETE' });
+      toast.success('Thema gelöscht');
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Löschen fehlgeschlagen');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="card-premium p-3 flex items-center gap-3 flex-wrap animate-fade-up" style={stagger(index, 25, 25)}>
+      {edit ? (
+        <>
+          <input value={title} onChange={e => setTitle(e.target.value)} className="input-premium text-xs flex-1 min-w-[140px]" />
+          <select value={status} onChange={e => setStatus(e.target.value)} className="input-premium text-xs">
+            <option value="active">aktiv</option>
+            <option value="parked">geparkt</option>
+            <option value="done">erledigt</option>
+          </select>
+          <button disabled={busy} onClick={save} className="btn-gold text-xs"><Check size={11} /></button>
+          <button onClick={() => { setEdit(false); setTitle(topic.title); setStatus(topic.status); }} className="text-xs text-ink-400 hover:text-white px-2">Abbrechen</button>
+        </>
+      ) : (
+        <>
+          <span className="text-sm text-white flex-1 min-w-0 truncate">{topic.title}</span>
+          {topic.segment && <span className="badge">{topic.segment}</span>}
+          <span className={`badge ${topic.status === 'active' ? 'badge-emerald' : topic.status === 'done' ? 'badge-gold' : ''}`}>{topic.status}</span>
+          <button onClick={() => setEdit(true)} className="text-xs text-ink-300 hover:text-gold-300 p-1"><Edit3 size={12} /></button>
+          <button disabled={busy} onClick={remove} className="text-xs text-rose-300 hover:text-rose-200 p-1"><Trash2 size={12} /></button>
+        </>
+      )}
+    </div>
+  );
+}
+
+function FilterChips({ label, value, options, onChange }: {
+  label: string;
+  value: string;
+  options: Array<[string, string]>;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="flex gap-2 items-center flex-wrap">
+      <span className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">{label}</span>
+      {options.map(([id, lbl]) => (
+        <button
+          key={id}
+          onClick={() => onChange(id)}
+          className={`text-xs px-3 py-1.5 rounded-full border transition ${
+            value === id ? 'border-gold-400/50 bg-gold-400/10 text-gold-200' : 'border-white/10 text-ink-400 hover:text-white hover:border-white/20'
+          }`}
+        >
+          {lbl}
+        </button>
+      ))}
+    </div>
   );
 }
 
