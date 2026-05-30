@@ -134,7 +134,9 @@ async function runV1(req, res, account_id) {
     }
   }
 
-  const spend = await spendCredits(account_id, SCRIPT_FACTORY_COST_CREDITS, 'script-factory-run');
+  // Tim-Premium: kostenlose Nutzung (kein Credit-Abzug)
+  const free = await isTimAccount(account_id);
+  const spend = free ? { ok: true } : await spendCredits(account_id, SCRIPT_FACTORY_COST_CREDITS, 'script-factory-run');
   if (!spend.ok) {
     return res.status(402).json({
       ok: false, error: spend.error || 'insufficient_credits',
@@ -153,13 +155,13 @@ async function runV1(req, res, account_id) {
     status: 'pending'
   });
   if (!insertRes.ok) {
-    await spendCredits(account_id, -SCRIPT_FACTORY_COST_CREDITS, 'script-factory-refund-create-fail');
+    if (!free) await spendCredits(account_id, -SCRIPT_FACTORY_COST_CREDITS, 'script-factory-refund-create-fail');
     return res.status(500).json({ ok: false, error: 'create_run_failed' });
   }
   const runRow = Array.isArray(insertRes.data) ? insertRes.data[0] : insertRes.data;
   const runId = runRow?.id;
   if (!runId) {
-    await spendCredits(account_id, -SCRIPT_FACTORY_COST_CREDITS, 'script-factory-refund-no-id');
+    if (!free) await spendCredits(account_id, -SCRIPT_FACTORY_COST_CREDITS, 'script-factory-refund-no-id');
     return res.status(500).json({ ok: false, error: 'no_run_id_returned' });
   }
 
@@ -170,12 +172,12 @@ async function runV1(req, res, account_id) {
       finished_at: new Date().toISOString(),
       error_message: String(err.message || err).slice(0, 500)
     });
-    await spendCredits(account_id, -SCRIPT_FACTORY_COST_CREDITS, 'script-factory-refund-fail');
+    if (!free) await spendCredits(account_id, -SCRIPT_FACTORY_COST_CREDITS, 'script-factory-refund-fail');
   });
 
   return res.json({
     ok: true, run_id: runId, status: 'pending',
-    credits_spent: SCRIPT_FACTORY_COST_CREDITS, estimated_duration_sec: 60, version: 'v1'
+    credits_spent: free ? 0 : SCRIPT_FACTORY_COST_CREDITS, estimated_duration_sec: 60, version: 'v1'
   });
 }
 
@@ -218,7 +220,9 @@ async function runV2(req, res, account_id) {
     }
   }
 
-  const spend = await spendCredits(account_id, SCRIPT_FACTORY_V2_COST_CREDITS, 'script-factory-v2-run');
+  // Tim-Premium: kostenlose Nutzung (kein Credit-Abzug)
+  const free = await isTimAccount(account_id);
+  const spend = free ? { ok: true } : await spendCredits(account_id, SCRIPT_FACTORY_V2_COST_CREDITS, 'script-factory-v2-run');
   if (!spend.ok) {
     return res.status(402).json({
       ok: false, error: spend.error || 'insufficient_credits',
@@ -237,13 +241,13 @@ async function runV2(req, res, account_id) {
     status: 'pending'
   });
   if (!insertRes.ok) {
-    await spendCredits(account_id, -SCRIPT_FACTORY_V2_COST_CREDITS, 'script-factory-v2-refund-create-fail');
+    if (!free) await spendCredits(account_id, -SCRIPT_FACTORY_V2_COST_CREDITS, 'script-factory-v2-refund-create-fail');
     return res.status(500).json({ ok: false, error: 'create_run_failed', details: insertRes.error });
   }
   const runRow = Array.isArray(insertRes.data) ? insertRes.data[0] : insertRes.data;
   const runId = runRow?.id;
   if (!runId) {
-    await spendCredits(account_id, -SCRIPT_FACTORY_V2_COST_CREDITS, 'script-factory-v2-refund-no-id');
+    if (!free) await spendCredits(account_id, -SCRIPT_FACTORY_V2_COST_CREDITS, 'script-factory-v2-refund-no-id');
     return res.status(500).json({ ok: false, error: 'no_run_id_returned' });
   }
 
@@ -254,12 +258,12 @@ async function runV2(req, res, account_id) {
       finished_at: new Date().toISOString(),
       error_message: String(err.message || err).slice(0, 500)
     });
-    await spendCredits(account_id, -SCRIPT_FACTORY_V2_COST_CREDITS, 'script-factory-v2-refund-fail');
+    if (!free) await spendCredits(account_id, -SCRIPT_FACTORY_V2_COST_CREDITS, 'script-factory-v2-refund-fail');
   });
 
   return res.json({
     ok: true, run_id: runId, status: 'pending',
-    credits_spent: SCRIPT_FACTORY_V2_COST_CREDITS, estimated_duration_sec: 90, version: 'v2'
+    credits_spent: free ? 0 : SCRIPT_FACTORY_V2_COST_CREDITS, estimated_duration_sec: 90, version: 'v2'
   });
 }
 
