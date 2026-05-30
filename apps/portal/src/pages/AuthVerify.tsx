@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { verifyMagicLink, clearTokens } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -14,8 +14,15 @@ export default function AuthVerify() {
   const [errorMsg, setErrorMsg] = useState('');
   const nav = useNavigate();
   const { refresh } = useAuth();
+  // GUARD: Effect darf nur EINMAL laufen. Ohne Guard feuert er erneut, sobald
+  // refresh() /api/me lädt → setMe re-rendert AuthProvider → neue refresh-Ref →
+  // dep-change → re-run → clearTokens() löscht den gerade gesetzten Token →
+  // Dashboard-Calls scheitern mit no_bearer_token. (StrictMode double-invoke ebenso.)
+  const ranRef = useRef(false);
 
   useEffect(() => {
+    if (ranRef.current) return;
+    ranRef.current = true;
     // Token kann im Fragment (#token=... oder #t=...) ODER Query (?token=...) sein.
     const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
     const hashParams = new URLSearchParams(hash);
