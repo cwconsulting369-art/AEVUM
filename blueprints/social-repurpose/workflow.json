@@ -1,0 +1,539 @@
+{
+  "name": "AEVUM — Social-Repurpose",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule: Werktags 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 380],
+      "notes": "Pollt werktags 08:00 nach neuem Long-Form-Asset. Alternativ Webhook-Trigger (siehe deaktivierter Node unten)."
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "social-repurpose-asset",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-asset-in",
+      "name": "Webhook: Asset-Eingang (alternativ)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 600],
+      "webhookId": "social-repurpose-asset-webhook",
+      "disabled": true,
+      "notes": "Optionaler Push-Trigger: CMS/Make/Zapier POSTet { title, body, url, contentType } an diese URL. Wenn aktiv, Schedule-Trigger deaktivieren."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "brand-name",
+              "name": "brandName",
+              "value": "{{INDIVIDUELL: Dein Marken- oder Personenname, z.B. 'AEVUM' oder 'Carlos Wrusch'}}",
+              "type": "string"
+            },
+            {
+              "id": "brand-voice",
+              "name": "brandVoice",
+              "value": "{{INDIVIDUELL: Brand-Voice in 2-3 Sätzen, z.B. 'Direkt, brutal-ehrlich, kein Buzzword-Bingo. Wir reden auf Augenhöhe, technisch fundiert, ohne Hype.'}}",
+              "type": "string"
+            },
+            {
+              "id": "target-audience",
+              "name": "targetAudience",
+              "value": "{{INDIVIDUELL: Zielgruppe, z.B. 'Agentur-Inhaber und B2B-SaaS-Gründer, 5-50 MA'}}",
+              "type": "string"
+            },
+            {
+              "id": "cta-default",
+              "name": "ctaDefault",
+              "value": "{{INDIVIDUELL: Standard-Call-to-Action, z.B. 'Ganzen Artikel lesen: '}}",
+              "type": "string"
+            },
+            {
+              "id": "platforms",
+              "name": "platforms",
+              "value": "linkedin,twitter,instagram",
+              "type": "string"
+            },
+            {
+              "id": "source-api-url",
+              "name": "sourceApiUrl",
+              "value": "{{INDIVIDUELL: API/Feed-URL die das neueste Long-Form-Asset liefert, z.B. 'https://deincms.de/api/posts?status=published&limit=1' oder ein RSS-to-JSON-Endpoint}}",
+              "type": "string"
+            },
+            {
+              "id": "draft-store-url",
+              "name": "draftStoreUrl",
+              "value": "{{INDIVIDUELL: Ziel für generierte Drafts, z.B. Airtable-Table-URL 'https://api.airtable.com/v0/<BASE_ID>/social_drafts' oder Notion-Database-API}}",
+              "type": "string"
+            },
+            {
+              "id": "approval-email",
+              "name": "approvalEmail",
+              "value": "{{INDIVIDUELL: Mail-Adresse für den Freigabe-Digest, z.B. 'social@deinefirma.de'}}",
+              "type": "string"
+            },
+            {
+              "id": "sender-email",
+              "name": "senderEmail",
+              "value": "{{INDIVIDUELL: Absender-Mail für Benachrichtigungen, z.B. 'no-reply@deinefirma.de'}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-brand-config",
+      "name": "Set: Brand-Konfiguration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [480, 380]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.sourceApiUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 20000
+        }
+      },
+      "id": "http-fetch-asset",
+      "name": "HTTP: Long-Form-Asset laden",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, 380],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "source-api-auth",
+          "name": "Source-CMS API Auth"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Lädt das neueste Long-Form-Asset. Erwartetes Feld-Mapping wird im nächsten Code-Node normalisiert. Bei Fehler → Error-Pfad (rechter Ausgang)."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalisiert + bereinigt das eingehende Long-Form-Asset.\n// Erwartet ein Item aus der Quelle (CMS/RSS/Webhook). Feldnamen ggf. anpassen!\nconst src = $input.first().json;\nconst cfg = $('Set: Brand-Konfiguration').first().json;\n\n// Quelle kann {items:[...]} ODER direkt das Asset liefern — beides abfangen.\nconst asset = Array.isArray(src.items) ? src.items[0]\n  : Array.isArray(src) ? src[0]\n  : (src.data && Array.isArray(src.data) ? src.data[0] : src);\n\nif (!asset) {\n  throw new Error('Kein Long-Form-Asset in der Antwort gefunden. Prüfe sourceApiUrl + Feld-Mapping.');\n}\n\n// === INDIVIDUELL: Feld-Mapping an deine Quelle anpassen ===\nconst title = asset.title || asset.name || asset.headline || '';\nconst rawBody = asset.body || asset.content || asset.description || asset.text || '';\nconst url = asset.url || asset.link || asset.permalink || '';\nconst contentType = asset.contentType || asset.type || 'blog';\n\n// HTML-Tags grob entfernen + Whitespace normalisieren\nconst plain = String(rawBody)\n  .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')\n  .replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')\n  .replace(/<[^>]+>/g, ' ')\n  .replace(/&nbsp;/g, ' ')\n  .replace(/&amp;/g, '&')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nif (!title || plain.length < 200) {\n  throw new Error(`Asset zu kurz oder Titel fehlt (title='${title}', bodyLen=${plain.length}). Mindestens 200 Zeichen Body nötig.`);\n}\n\n// Auf ~6000 Zeichen kürzen (Token-Budget + Kosten-Schutz)\nconst clipped = plain.length > 6000 ? plain.slice(0, 6000) + ' …' : plain;\n\nreturn [{\n  json: {\n    assetTitle: title,\n    assetBody: clipped,\n    assetUrl: url,\n    assetContentType: contentType,\n    assetHash: require('crypto').createHash('sha1').update(title + url).digest('hex').slice(0, 12),\n    brandName: cfg.brandName,\n    brandVoice: cfg.brandVoice,\n    targetAudience: cfg.targetAudience,\n    ctaDefault: cfg.ctaDefault,\n    platforms: cfg.platforms,\n    draftStoreUrl: cfg.draftStoreUrl,\n    approvalEmail: cfg.approvalEmail,\n    senderEmail: cfg.senderEmail\n  }\n}];"
+      },
+      "id": "code-normalize",
+      "name": "Code: Asset bereinigen & normalisieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "https://aevum-system.de"
+            },
+            {
+              "name": "X-Title",
+              "value": "AEVUM Social-Repurpose"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"anthropic/claude-3.5-sonnet\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist Social-Media-Redakteur für die Marke '{{ $json.brandName }}'. Brand-Voice: {{ $json.brandVoice }}. Zielgruppe: {{ $json.targetAudience }}.\\n\\nAufgabe: Wandle das gelieferte Long-Form-Asset in 5 plattformspezifische Posts um. Plattformen: 1x LinkedIn (max 1300 Zeichen, professionell, Hook in Zeile 1, 1 Leerzeile zwischen Absätzen, 3-5 Hashtags am Ende), 2x Twitter/X (max 270 Zeichen je, einer als Single-Tweet-Hook, einer als Listicle-Tweet), 1x Instagram-Caption (max 2200 Zeichen, story-getrieben, 5-10 Hashtags), 1x LinkedIn-Carousel-Outline (5-7 Slide-Bullets als Array).\\n\\nHARTE REGELN:\\n- Erfinde KEINE Fakten, Zahlen oder Zitate die nicht im Asset stehen.\\n- Bleibe strikt in der Brand-Voice. Kein generisches Marketing-Gewäsch, kein Clickbait, keine falsche Dringlichkeit.\\n- Jeder Post muss eigenständig Sinn ergeben (kein 'siehe oben').\\n- CTA wo sinnvoll mit dieser URL: {{ $json.assetUrl }}\\n- Sprache: Deutsch (sofern Asset deutsch ist, sonst Asset-Sprache übernehmen).\\n\\nAntworte AUSSCHLIESSLICH mit validem JSON, keine Code-Fences, kein Text davor/danach. Schema:\\n{\\\"posts\\\":[{\\\"platform\\\":\\\"linkedin\\\",\\\"format\\\":\\\"text\\\",\\\"body\\\":\\\"...\\\",\\\"hashtags\\\":[\\\"#...\\\"]},{\\\"platform\\\":\\\"twitter\\\",\\\"format\\\":\\\"hook\\\",\\\"body\\\":\\\"...\\\"},{\\\"platform\\\":\\\"twitter\\\",\\\"format\\\":\\\"listicle\\\",\\\"body\\\":\\\"...\\\"},{\\\"platform\\\":\\\"instagram\\\",\\\"format\\\":\\\"caption\\\",\\\"body\\\":\\\"...\\\",\\\"hashtags\\\":[\\\"#...\\\"]},{\\\"platform\\\":\\\"linkedin\\\",\\\"format\\\":\\\"carousel\\\",\\\"slides\\\":[\\\"...\\\"]}]}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"TITEL: {{ $json.assetTitle }}\\nTYP: {{ $json.assetContentType }}\\nURL: {{ $json.assetUrl }}\\n\\nINHALT:\\n{{ $json.assetBody }}\"\n    }\n  ],\n  \"max_tokens\": 2000,\n  \"temperature\": 0.7,\n  \"response_format\": { \"type\": \"json_object\" }\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 60000
+        }
+      },
+      "id": "http-repurpose-llm",
+      "name": "HTTP: KI-Repurpose (OpenRouter)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1200, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "openrouter-api",
+          "name": "OpenRouter API"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Generiert 5+ Plattform-Posts als JSON. Modell + temperature anpassbar. Token NUR im Credential-Store. Bei Fehler → Error-Pfad."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parst die LLM-JSON-Antwort, validiert, splittet jeden Post in ein eigenes Item.\nconst resp = $input.first().json;\nconst ctx = $('Code: Asset bereinigen & normalisieren').first().json;\n\nlet content = '';\ntry {\n  content = resp.choices[0].message.content;\n} catch (e) {\n  throw new Error('Unerwartete OpenRouter-Antwortstruktur: ' + JSON.stringify(resp).slice(0, 300));\n}\n\n// Defensive: evtl. doch Code-Fences entfernen\ncontent = String(content).replace(/^```(json)?/i, '').replace(/```$/i, '').trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(content);\n} catch (e) {\n  throw new Error('LLM-Output war kein valides JSON. Roh: ' + content.slice(0, 300));\n}\n\nconst posts = Array.isArray(parsed.posts) ? parsed.posts : [];\nif (posts.length < 5) {\n  throw new Error(`Erwartet >=5 Posts, erhalten ${posts.length}. Prompt/Modell prüfen.`);\n}\n\n// Plattform-Längen-Limits zur Validierung\nconst LIMITS = { linkedin: 3000, twitter: 280, instagram: 2200 };\n\nconst items = posts.map((p, i) => {\n  const platform = (p.platform || 'unknown').toLowerCase();\n  const body = p.format === 'carousel'\n    ? (Array.isArray(p.slides) ? p.slides.map((s, n) => `${n + 1}. ${s}`).join('\\n') : '')\n    : (p.body || '');\n  const limit = LIMITS[platform] || 99999;\n  const overLimit = body.length > limit;\n  return {\n    json: {\n      idx: i + 1,\n      platform,\n      format: p.format || 'text',\n      body,\n      hashtags: Array.isArray(p.hashtags) ? p.hashtags : [],\n      charCount: body.length,\n      overLimit,\n      status: overLimit ? 'needs_review' : 'draft',\n      assetTitle: ctx.assetTitle,\n      assetUrl: ctx.assetUrl,\n      assetHash: ctx.assetHash,\n      brandName: ctx.brandName,\n      draftStoreUrl: ctx.draftStoreUrl,\n      approvalEmail: ctx.approvalEmail,\n      senderEmail: ctx.senderEmail,\n      createdAt: new Date().toISOString()\n    }\n  };\n});\n\nreturn items;"
+      },
+      "id": "code-parse-split",
+      "name": "Code: Posts parsen & aufteilen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1440, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "over-limit-check",
+              "leftValue": "={{ $json.overLimit }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-over-limit",
+      "name": "IF: Über Zeichen-Limit?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1660, 300],
+      "notes": "Trennt Posts die das Plattform-Limit reißen (→ needs_review) von sauberen Drafts."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.draftStoreUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": {\n    \"platform\": \"{{ $json.platform }}\",\n    \"format\": \"{{ $json.format }}\",\n    \"body\": {{ JSON.stringify($json.body) }},\n    \"hashtags\": {{ JSON.stringify(($json.hashtags || []).join(' ')) }},\n    \"charCount\": {{ $json.charCount }},\n    \"status\": \"{{ $json.status }}\",\n    \"sourceTitle\": {{ JSON.stringify($json.assetTitle) }},\n    \"sourceUrl\": \"{{ $json.assetUrl }}\",\n    \"assetHash\": \"{{ $json.assetHash }}\",\n    \"createdAt\": \"{{ $json.createdAt }}\"\n  }\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-store-draft",
+      "name": "HTTP: Draft speichern",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1900, 380],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "draft-store-auth",
+          "name": "Draft-Store API Auth"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Schreibt jeden sauberen Draft in den Draft-Store (Airtable/Notion/Supabase). Body-Schema ggf. an Ziel anpassen."
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-drafts",
+      "name": "Merge: Drafts sammeln",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [2140, 340],
+      "notes": "Sammelt gespeicherte Drafts + Review-Flags wieder zu einem Stream für den Digest."
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "aggregate-summary",
+      "name": "Aggregate: Digest-Daten",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [2360, 340]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Baut den HTML-Freigabe-Digest aus allen Posts.\nconst rows = $input.first().json.data || [];\nif (!rows.length) {\n  return [{ json: { skip: true } }];\n}\nconst first = rows[0];\nconst title = first.assetTitle || 'Asset';\nconst url = first.assetUrl || '';\nconst approvalEmail = first.approvalEmail;\nconst senderEmail = first.senderEmail;\nconst brandName = first.brandName || '';\n\nconst esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n\nconst cards = rows.map(r => {\n  const flag = r.overLimit ? '<span style=\"color:#b91c1c;font-weight:600;\">⚠ über Limit</span>' : '<span style=\"color:#15803d;\">✓ ok</span>';\n  return `<div style=\"border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin:10px 0;\">\n    <div style=\"font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;\">${esc(r.platform)} · ${esc(r.format)} · ${r.charCount} Zeichen · ${flag}</div>\n    <pre style=\"white-space:pre-wrap;font-family:inherit;font-size:14px;color:#111827;margin:8px 0 0;\">${esc(r.body)}</pre>\n    ${(r.hashtags && r.hashtags.length) ? `<div style=\"color:#2563eb;font-size:13px;margin-top:6px;\">${esc(r.hashtags.join(' '))}</div>` : ''}\n  </div>`;\n}).join('');\n\nconst html = `<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#111827;\">\n<h2 style=\"margin-bottom:2px;\">${esc(brandName)} — ${rows.length} Social-Posts zur Freigabe</h2>\n<p style=\"color:#6b7280;margin-top:0;\">Quelle: <a href=\"${esc(url)}\">${esc(title)}</a></p>\n${cards}\n<hr style=\"border:none;border-top:1px solid #eee;margin:18px 0;\">\n<p style=\"font-size:12px;color:#9ca3af;\">Automatisch generiert von AEVUM Social-Repurpose. Diese Posts sind Entwürfe — vor Veröffentlichung prüfen. KI-gestützt erstellt.</p>\n</body></html>`;\n\nreturn [{ json: { html, approvalEmail, senderEmail, postCount: rows.length, assetTitle: title } }];"
+      },
+      "id": "code-build-digest",
+      "name": "Code: Freigabe-Digest bauen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2580, 340]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.senderEmail }}",
+        "toEmail": "={{ $json.approvalEmail }}",
+        "subject": "=[Social-Repurpose] {{ $json.postCount }} Posts zur Freigabe: {{ $json.assetTitle }}",
+        "emailFormat": "html",
+        "html": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "email-digest",
+      "name": "Email: Freigabe-Digest",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2800, 340],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Sammelt Fehler aus den Error-Pfaden (HTTP-Fetch / LLM / Store) zu einer Alert-Nachricht.\nconst err = $input.first().json;\nconst stage = err._stage || 'unbekannt';\nconst msg = (err.error && (err.error.message || err.error)) || err.message || JSON.stringify(err).slice(0, 300);\nreturn [{\n  json: {\n    alertSubject: `[Social-Repurpose] FEHLER in Stufe: ${stage}`,\n    alertBody: `Der Social-Repurpose-Workflow ist fehlgeschlagen.\\n\\nStufe: ${stage}\\nFehler: ${msg}\\nZeit: ${new Date().toISOString()}\\n\\nKein Post wurde generiert. Bitte prüfen.`,\n    senderEmail: '{{INDIVIDUELL: Absender-Mail für Fehler-Alerts, z.B. no-reply@deinefirma.de}}',\n    alertEmail: '{{INDIVIDUELL: Mail-Adresse für Fehler-Alerts, z.B. ops@deinefirma.de}}'\n  }\n}];"
+      },
+      "id": "code-error-handler",
+      "name": "Code: Fehler aufbereiten",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1440, 620]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.senderEmail }}",
+        "toEmail": "={{ $json.alertEmail }}",
+        "subject": "={{ $json.alertSubject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.alertBody }}",
+        "options": {}
+      },
+      "id": "email-error-alert",
+      "name": "Email: Fehler-Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1660, 620],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule: Werktags 08:00": {
+      "main": [
+        [
+          {
+            "node": "Set: Brand-Konfiguration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Asset-Eingang (alternativ)": {
+      "main": [
+        [
+          {
+            "node": "Set: Brand-Konfiguration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Brand-Konfiguration": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Long-Form-Asset laden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Long-Form-Asset laden": {
+      "main": [
+        [
+          {
+            "node": "Code: Asset bereinigen & normalisieren",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code: Fehler aufbereiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Asset bereinigen & normalisieren": {
+      "main": [
+        [
+          {
+            "node": "HTTP: KI-Repurpose (OpenRouter)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: KI-Repurpose (OpenRouter)": {
+      "main": [
+        [
+          {
+            "node": "Code: Posts parsen & aufteilen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code: Fehler aufbereiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Posts parsen & aufteilen": {
+      "main": [
+        [
+          {
+            "node": "IF: Über Zeichen-Limit?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Über Zeichen-Limit?": {
+      "main": [
+        [
+          {
+            "node": "Merge: Drafts sammeln",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "HTTP: Draft speichern",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Draft speichern": {
+      "main": [
+        [
+          {
+            "node": "Merge: Drafts sammeln",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code: Fehler aufbereiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: Drafts sammeln": {
+      "main": [
+        [
+          {
+            "node": "Aggregate: Digest-Daten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate: Digest-Daten": {
+      "main": [
+        [
+          {
+            "node": "Code: Freigabe-Digest bauen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Freigabe-Digest bauen": {
+      "main": [
+        [
+          {
+            "node": "Email: Freigabe-Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Fehler aufbereiten": {
+      "main": [
+        [
+          {
+            "node": "Email: Fehler-Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "staticData": null,
+  "meta": {
+    "instanceId": "aevum-blueprint"
+  },
+  "tags": [
+    {
+      "name": "AEVUM Social"
+    }
+  ],
+  "versionId": "1.0.0",
+  "id": "social-repurpose-v1",
+  "active": false
+}

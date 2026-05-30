@@ -1,0 +1,512 @@
+{
+  "name": "AEVUM — Proposal-Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "proposal-generator-intake",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-intake",
+      "name": "Webhook: Discovery-Intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 360],
+      "webhookId": "proposal-generator-intake-webhook",
+      "notes": "Empfaengt Discovery-Notizen als POST-JSON: { clientName, clientCompany, clientEmail, notes (Freitext aus Discovery-Call), requestedScope?, budgetHint?, deadline? }. Quelle = internes Formular / Fireflies-Transcript-Webhook / CRM / manuelles Trigger-Tool."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-vendor-name",
+              "name": "vendorName",
+              "value": "{{INDIVIDUELL: Dein/Firmen-Name fuer das Angebot, z.B. Carlos Wrusch / AEVUM}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-vendor-company",
+              "name": "vendorCompany",
+              "value": "{{INDIVIDUELL: Rechtsform + Firmenname, z.B. AEVUM (Einzelunternehmen)}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-vendor-address",
+              "name": "vendorAddress",
+              "value": "{{INDIVIDUELL: Vollstaendige Anschrift fuer Angebots-Footer, z.B. Federteilstr. 2e, 86517 Wehringen}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-vendor-email",
+              "name": "vendorEmail",
+              "value": "{{INDIVIDUELL: Absender/Reply-To, z.B. angebote@deine-domain.de}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-service-catalog",
+              "name": "serviceCatalog",
+              "value": "={{ {\n  \"setup_blueprint\": { \"label\": \"Blueprint-Setup (DIY-Lieferung)\", \"basePrice\": 490, \"unit\": \"einmalig\" },\n  \"setup_dfy\": { \"label\": \"Done-for-You Implementierung\", \"basePrice\": 1490, \"unit\": \"einmalig\" },\n  \"workshop\": { \"label\": \"Discovery- & Strategie-Workshop\", \"basePrice\": 890, \"unit\": \"einmalig\" },\n  \"retainer\": { \"label\": \"Monatliche Betreuung / Wartung\", \"basePrice\": 390, \"unit\": \"pro Monat\" },\n  \"integration\": { \"label\": \"Zusatz-Integration je System\", \"basePrice\": 290, \"unit\": \"pro Integration\" }\n} }}",
+              "type": "object"
+            },
+            {
+              "id": "cfg-pricing-rules",
+              "name": "pricingRules",
+              "value": "={{ {\n  \"currency\": \"EUR\",\n  \"vatRate\": 0,\n  \"vatNote\": \"Gemaess Paragraf 19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmer). {{INDIVIDUELL: anpassen falls regelbesteuert: vatRate auf 0.19 setzen + Note loeschen}}\",\n  \"rushSurchargePct\": 0.20,\n  \"rushThresholdDays\": 14,\n  \"volumeDiscountPct\": 0.10,\n  \"volumeDiscountThreshold\": 3000,\n  \"validityDays\": 14,\n  \"depositPct\": 0.50\n} }}",
+              "type": "object"
+            },
+            {
+              "id": "cfg-notify-email",
+              "name": "notifyEmail",
+              "value": "{{INDIVIDUELL: interne Sales-Adresse fuer Angebots-Review, z.B. sales@deine-domain.de}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-llm-render-url",
+              "name": "pdfRenderUrl",
+              "value": "{{INDIVIDUELL: HTML-zu-PDF-API Endpoint, z.B. https://api.pdfshift.io/v3/convert/pdf ODER https://api.html2pdf.app/v1/generate ODER self-hosted gotenberg /forms/chromium/convert/html}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-store-url",
+              "name": "proposalStoreUrl",
+              "value": "{{INDIVIDUELL: CRM/Sheet/Drive-Sink fuer Angebots-Log, z.B. https://api.airtable.com/v0/<BASE_ID>/proposals}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-send-mode",
+              "name": "sendMode",
+              "value": "internal_review",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-config",
+      "name": "Set: Angebots-Konfiguration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 360],
+      "notes": "sendMode: 'internal_review' = Angebot geht zuerst an internes Sales-Postfach (Default, sicher). 'direct_client' = Angebot geht direkt an Kunden (NUR nach Freigabe-Prozess nutzen)."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Discovery-Input normalisieren + validieren. Niemals throw -> Fehler-Flag statt Crash.\nconst cfg = $input.first().json;\nconst body = cfg.body ?? cfg;\n\nconst clean = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');\n\nconst clientName = clean(body.clientName, 120);\nconst clientCompany = clean(body.clientCompany, 200);\nconst clientEmail = clean(body.clientEmail, 200).toLowerCase();\nconst notes = clean(body.notes, 6000);\nconst requestedScope = clean(body.requestedScope, 1000);\nconst budgetHint = body.budgetHint != null ? Number(body.budgetHint) || null : null;\nconst deadline = clean(body.deadline, 40);\n\n// Tage bis Deadline (fuer Rush-Surcharge); null wenn unparsbar\nlet daysToDeadline = null;\nif (deadline) {\n  const d = new Date(deadline);\n  if (!isNaN(d.getTime())) {\n    daysToDeadline = Math.ceil((d.getTime() - Date.now()) / 86400000);\n  }\n}\n\nconst emailOk = /^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(clientEmail);\nconst notesOk = notes.length >= 40; // genug Substanz fuer ein Angebot\nconst valid = !!clientName && !!clientCompany && emailOk && notesOk;\n\nconst reasons = [];\nif (!clientName) reasons.push('clientName fehlt');\nif (!clientCompany) reasons.push('clientCompany fehlt');\nif (!emailOk) reasons.push('clientEmail ungueltig');\nif (!notesOk) reasons.push('Discovery-Notizen zu kurz (<40 Zeichen)');\n\nreturn [{\n  json: {\n    valid,\n    invalidReasons: reasons,\n    clientName,\n    clientCompany,\n    clientEmail,\n    notes,\n    requestedScope,\n    budgetHint,\n    deadline,\n    daysToDeadline,\n    receivedAt: new Date().toISOString(),\n    config: {\n      vendorName: cfg.vendorName,\n      vendorCompany: cfg.vendorCompany,\n      vendorAddress: cfg.vendorAddress,\n      vendorEmail: cfg.vendorEmail,\n      serviceCatalog: cfg.serviceCatalog,\n      pricingRules: cfg.pricingRules,\n      notifyEmail: cfg.notifyEmail,\n      pdfRenderUrl: cfg.pdfRenderUrl,\n      proposalStoreUrl: cfg.proposalStoreUrl,\n      sendMode: cfg.sendMode\n    }\n  }\n}];"
+      },
+      "id": "code-normalize",
+      "name": "Code: Discovery normalisieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 360]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-valid",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-valid",
+      "name": "IF: Discovery verwertbar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 360]
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "options": {
+          "maxTokensToSample": 1500,
+          "temperature": 0.3
+        }
+      },
+      "id": "lm-anthropic",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [1120, 560],
+      "credentials": {
+        "anthropicApi": {
+          "id": "anthropic-api",
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Du strukturierst Discovery-Notizen in ein verkaufsfertiges Angebot. Antworte AUSSCHLIESSLICH mit gueltigem JSON, keine Erklaerung davor/danach.\n\nKunde: {{ $json.clientName }} ({{ $json.clientCompany }})\nGewuenschter Scope (optional): {{ $json.requestedScope || 'nicht angegeben' }}\nBudget-Hinweis (optional): {{ $json.budgetHint || 'nicht angegeben' }}\nDeadline (optional): {{ $json.deadline || 'nicht angegeben' }}\n\nVerfuegbarer Leistungs-Katalog (NUR aus diesen Keys waehlen):\n{{ JSON.stringify($json.config.serviceCatalog) }}\n\nDiscovery-Notizen (Roh):\n{{ $json.notes }}\n\nAufgabe:\n1. Extrahiere die Kern-Probleme/Ziele des Kunden aus den Notizen (NICHTS erfinden, nur aus Notizen ableiten).\n2. Waehle passende Katalog-Positionen (lineItems) anhand der Probleme. Nutze AUSSCHLIESSLICH vorhandene Katalog-Keys.\n3. Bestimme je Position die quantity (>=1, sinnvoll aus Notizen abgeleitet, z.B. Anzahl Integrationen).\n4. Schreibe eine kurze, kundenspezifische Zusammenfassung (summary, 2-4 Saetze) und 3-6 konkrete Liefer-Ergebnisse (deliverables).\n\nRegeln:\n- Erfinde KEINE Fakten/Zahlen die nicht aus den Notizen stammen.\n- Wenn Information fehlt: in dataGaps benennen statt raten.\n- lineItems[].key MUSS ein existierender Katalog-Key sein, sonst weglassen.\n- Keine Preise hier berechnen (das macht ein separater Schritt).\n\nAntwortformat (exakt):\n{\"summary\": \"...\", \"identifiedNeeds\": [\"...\"], \"lineItems\": [{\"key\": \"<catalog_key>\", \"quantity\": <int>, \"justification\": \"...\"}], \"deliverables\": [\"...\"], \"recommendedScope\": \"<knapp|standard|umfassend>\", \"dataGaps\": [\"...\"]}",
+        "options": {
+          "systemMessage": "Du bist ein praeziser B2B-Angebots-Architekt. Du erfindest keine Anforderungen, Preise oder Referenzen. Fehlende Informationen benennst du als Datenluecke, statt zu spekulieren. Du gibst ausschliesslich valides JSON zurueck und waehlst Positionen nur aus dem gegebenen Katalog."
+        }
+      },
+      "id": "agent-structure",
+      "name": "AI Agent: Angebot strukturieren",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1120, 360]
+    },
+    {
+      "parameters": {
+        "jsCode": "// LLM-JSON robust parsen + deterministische Pricing-Logik anwenden. Niemals throw.\nconst base = $('Code: Discovery normalisieren').item.json;\nconst cfg = base.config;\nconst catalog = cfg.serviceCatalog || {};\nconst rules = cfg.pricingRules || {};\nconst raw = $input.first().json;\nconst text = raw.output ?? raw.text ?? raw.response ?? JSON.stringify(raw);\n\nlet parsed = { summary: '', identifiedNeeds: [], lineItems: [], deliverables: [], recommendedScope: 'standard', dataGaps: ['llm_parse_failed'] };\ntry {\n  const m = (typeof text === 'string' ? text : JSON.stringify(text)).match(/\\{[\\s\\S]*\\}/);\n  if (m) parsed = { ...parsed, ...JSON.parse(m[0]) };\n} catch (e) {\n  parsed.dataGaps = ['llm_parse_error: ' + e.message];\n}\n\n// Nur Positionen mit gueltigem Katalog-Key behalten\nconst rawItems = Array.isArray(parsed.lineItems) ? parsed.lineItems : [];\nconst lineItems = rawItems\n  .filter(li => li && catalog[li.key])\n  .map(li => {\n    const cat = catalog[li.key];\n    const qty = Math.max(1, parseInt(li.quantity, 10) || 1);\n    const lineTotal = cat.basePrice * qty;\n    return { key: li.key, label: cat.label, unit: cat.unit, unitPrice: cat.basePrice, quantity: qty, justification: li.justification || '', lineTotal };\n  });\n\n// Fallback: wenn LLM keine gueltige Position lieferte -> Workshop als Mindest-Angebot\nif (lineItems.length === 0 && catalog.workshop) {\n  lineItems.push({ key: 'workshop', label: catalog.workshop.label, unit: catalog.workshop.unit, unitPrice: catalog.workshop.basePrice, quantity: 1, justification: 'Automatischer Fallback: Scope unklar, Discovery-Workshop empfohlen.', lineTotal: catalog.workshop.basePrice });\n  parsed.dataGaps = [...(parsed.dataGaps || []), 'no_valid_line_items_from_llm'];\n}\n\nconst subtotal = lineItems.reduce((s, li) => s + li.lineTotal, 0);\n\n// Volumen-Rabatt\nlet volumeDiscount = 0;\nif (rules.volumeDiscountThreshold && subtotal >= rules.volumeDiscountThreshold) {\n  volumeDiscount = Math.round(subtotal * (rules.volumeDiscountPct || 0));\n}\n\n// Rush-Surcharge bei knapper Deadline\nlet rushSurcharge = 0;\nconst rushApplies = base.daysToDeadline != null && rules.rushThresholdDays && base.daysToDeadline >= 0 && base.daysToDeadline <= rules.rushThresholdDays;\nif (rushApplies) {\n  rushSurcharge = Math.round((subtotal - volumeDiscount) * (rules.rushSurchargePct || 0));\n}\n\nconst netTotal = Math.max(0, subtotal - volumeDiscount + rushSurcharge);\nconst vatRate = rules.vatRate || 0;\nconst vatAmount = Math.round(netTotal * vatRate);\nconst grossTotal = netTotal + vatAmount;\nconst deposit = Math.round(grossTotal * (rules.depositPct || 0));\n\n// Budget-Flag: Angebot deutlich ueber genanntem Budget?\nconst budgetWarning = base.budgetHint && grossTotal > base.budgetHint * 1.15;\n\nconst proposalId = 'AG-' + new Date().getFullYear() + '-' + Date.now().toString().slice(-6);\nconst validUntil = new Date(Date.now() + (rules.validityDays || 14) * 86400000).toISOString().slice(0, 10);\n\nreturn [{\n  json: {\n    proposalId,\n    clientName: base.clientName,\n    clientCompany: base.clientCompany,\n    clientEmail: base.clientEmail,\n    summary: parsed.summary,\n    identifiedNeeds: parsed.identifiedNeeds || [],\n    deliverables: parsed.deliverables || [],\n    recommendedScope: parsed.recommendedScope || 'standard',\n    lineItems,\n    pricing: {\n      currency: rules.currency || 'EUR',\n      subtotal,\n      volumeDiscount,\n      rushSurcharge,\n      rushApplied: !!rushApplies,\n      netTotal,\n      vatRate,\n      vatAmount,\n      vatNote: rules.vatNote || '',\n      grossTotal,\n      deposit,\n      depositPct: rules.depositPct || 0\n    },\n    budgetWarning: !!budgetWarning,\n    validUntil,\n    dataGaps: parsed.dataGaps || [],\n    receivedAt: base.receivedAt,\n    generatedAt: new Date().toISOString(),\n    config: cfg\n  }\n}];"
+      },
+      "id": "code-pricing",
+      "name": "Code: Pricing-Logik anwenden",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 360]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Angebots-HTML rendern (deterministisch, kein LLM). Liefert html + plaintext fuer PDF + Mail.\nconst p = $input.first().json;\nconst cfg = p.config;\nconst fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: p.pricing.currency }).format(n);\nconst esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n\nconst rows = p.lineItems.map(li =>\n  `<tr><td style=\"padding:8px;border-bottom:1px solid #eee;\">${esc(li.label)}<br><span style=\"font-size:11px;color:#888;\">${esc(li.justification)}</span></td>` +\n  `<td style=\"padding:8px;border-bottom:1px solid #eee;text-align:center;\">${li.quantity} ${esc(li.unit)}</td>` +\n  `<td style=\"padding:8px;border-bottom:1px solid #eee;text-align:right;\">${fmt(li.unitPrice)}</td>` +\n  `<td style=\"padding:8px;border-bottom:1px solid #eee;text-align:right;\">${fmt(li.lineTotal)}</td></tr>`\n).join('');\n\nconst pr = p.pricing;\nconst adjustmentRows = [];\nif (pr.volumeDiscount > 0) adjustmentRows.push(`<tr><td colspan=\"3\" style=\"padding:4px 8px;text-align:right;color:#2ea043;\">Mengenrabatt</td><td style=\"padding:4px 8px;text-align:right;color:#2ea043;\">- ${fmt(pr.volumeDiscount)}</td></tr>`);\nif (pr.rushSurcharge > 0) adjustmentRows.push(`<tr><td colspan=\"3\" style=\"padding:4px 8px;text-align:right;color:#cf6b22;\">Express-Zuschlag</td><td style=\"padding:4px 8px;text-align:right;color:#cf6b22;\">+ ${fmt(pr.rushSurcharge)}</td></tr>`);\nif (pr.vatAmount > 0) adjustmentRows.push(`<tr><td colspan=\"3\" style=\"padding:4px 8px;text-align:right;color:#666;\">USt (${Math.round(pr.vatRate*100)}%)</td><td style=\"padding:4px 8px;text-align:right;color:#666;\">${fmt(pr.vatAmount)}</td></tr>`);\n\nconst needs = (p.identifiedNeeds || []).map(n => `<li>${esc(n)}</li>`).join('');\nconst delis = (p.deliverables || []).map(d => `<li>${esc(d)}</li>`).join('');\n\nconst html = `<!DOCTYPE html><html lang=\"de\"><head><meta charset=\"utf-8\"><style>body{font-family:Arial,Helvetica,sans-serif;color:#222;max-width:720px;margin:0 auto;padding:32px;line-height:1.55;}h1{font-size:22px;margin:0 0 4px;}h2{font-size:15px;margin:24px 0 8px;border-bottom:2px solid #1f6feb;padding-bottom:4px;}table{border-collapse:collapse;width:100%;font-size:13px;}.muted{color:#888;font-size:12px;}.total{font-size:18px;font-weight:bold;}</style></head><body>` +\n`<div style=\"display:flex;justify-content:space-between;align-items:flex-start;\"><div><h1>Angebot</h1><p class=\"muted\">Nr. ${esc(p.proposalId)} &middot; ${new Date(p.generatedAt).toLocaleDateString('de-DE')}</p></div>` +\n`<div style=\"text-align:right;\"><strong>${esc(cfg.vendorCompany)}</strong><br><span class=\"muted\">${esc(cfg.vendorAddress)}<br>${esc(cfg.vendorEmail)}</span></div></div>` +\n`<h2>Fuer</h2><p><strong>${esc(p.clientCompany)}</strong><br>${esc(p.clientName)} &middot; ${esc(p.clientEmail)}</p>` +\n`<h2>Ausgangslage</h2><p>${esc(p.summary)}</p>` +\n(needs ? `<ul>${needs}</ul>` : '') +\n`<h2>Leistungen & Investition</h2><table><thead><tr style=\"text-align:left;color:#666;font-size:12px;\"><th style=\"padding:8px;\">Position</th><th style=\"padding:8px;text-align:center;\">Menge</th><th style=\"padding:8px;text-align:right;\">Einzel</th><th style=\"padding:8px;text-align:right;\">Summe</th></tr></thead><tbody>${rows}` +\n`<tr><td colspan=\"3\" style=\"padding:8px;text-align:right;\">Zwischensumme</td><td style=\"padding:8px;text-align:right;\">${fmt(pr.subtotal)}</td></tr>${adjustmentRows.join('')}` +\n`<tr><td colspan=\"3\" style=\"padding:12px 8px;text-align:right;\" class=\"total\">Gesamt</td><td style=\"padding:12px 8px;text-align:right;\" class=\"total\">${fmt(pr.grossTotal)}</td></tr></tbody></table>` +\n(pr.vatNote ? `<p class=\"muted\">${esc(pr.vatNote)}</p>` : '') +\n`<p class=\"muted\">Anzahlung bei Auftragserteilung: ${fmt(pr.deposit)} (${Math.round(pr.depositPct*100)}%).</p>` +\n`<h2>Liefer-Ergebnisse</h2><ul>${delis}</ul>` +\n`<h2>Konditionen</h2><p class=\"muted\">Angebot gueltig bis ${esc(p.validUntil)}. Preise in ${esc(pr.currency)}. Dieses Angebot wurde KI-gestuetzt aus den Discovery-Notizen erstellt und vor Versand geprueft.</p>` +\n`<hr style=\"border:none;border-top:1px solid #eee;margin:24px 0;\"><p class=\"muted\">${esc(cfg.vendorName)} &middot; ${esc(cfg.vendorCompany)} &middot; ${esc(cfg.vendorAddress)} &middot; ${esc(cfg.vendorEmail)}</p>` +\n`</body></html>`;\n\nconst plaintext = `Angebot ${p.proposalId}\\nFuer: ${p.clientCompany} (${p.clientName})\\n\\nAusgangslage:\\n${p.summary}\\n\\nLeistungen:\\n` +\n  p.lineItems.map(li => `- ${li.label} x${li.quantity}: ${fmt(li.lineTotal)}`).join('\\n') +\n  `\\n\\nGesamt: ${fmt(pr.grossTotal)}\\nAnzahlung: ${fmt(pr.deposit)}\\nGueltig bis: ${p.validUntil}`;\n\nreturn [{ json: { ...p, html, plaintext } }];"
+      },
+      "id": "code-render-html",
+      "name": "Code: Angebots-HTML rendern",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 360]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.config.pdfRenderUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"source\": {{ JSON.stringify($json.html) }},\n  \"landscape\": false,\n  \"format\": \"A4\",\n  \"filename\": \"{{ $json.proposalId }}.pdf\"\n}",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-pdf",
+      "name": "HTTP: PDF generieren",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1780, 360],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pdf-render-api",
+          "name": "PDF-Render API"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "HTML-zu-PDF via Render-API. JSON-Body-Felder je nach Provider anpassen (PDFShift: 'source'; html2pdf.app: 'html'; Gotenberg: multipart-form). Bei Fehler -> Error-Output (zweiter Ausgang) -> Fehler-Alert. Antwort enthaelt PDF-URL oder Base64 je nach Provider."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.config.proposalStoreUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": {\n    \"proposalId\": \"{{ $json.proposalId }}\",\n    \"clientCompany\": \"{{ $json.clientCompany }}\",\n    \"clientName\": \"{{ $json.clientName }}\",\n    \"clientEmail\": \"{{ $json.clientEmail }}\",\n    \"grossTotal\": {{ $json.pricing.grossTotal }},\n    \"deposit\": {{ $json.pricing.deposit }},\n    \"currency\": \"{{ $json.pricing.currency }}\",\n    \"recommendedScope\": \"{{ $json.recommendedScope }}\",\n    \"validUntil\": \"{{ $json.validUntil }}\",\n    \"budgetWarning\": {{ $json.budgetWarning }},\n    \"status\": \"draft\",\n    \"generatedAt\": \"{{ $json.generatedAt }}\"\n  }\n}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "http-store",
+      "name": "HTTP: Angebot ins CRM loggen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2000, 360],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "proposal-store-api",
+          "name": "Proposal-Store API"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Loggt jedes generierte Angebot (Metadaten, NICHT PDF-Inhalt) ins CRM/Sheet zur Nachverfolgung. Error-Output (zweiter Ausgang) -> Fehler-Alert."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-send-mode",
+              "leftValue": "={{ $json.config.sendMode }}",
+              "rightValue": "direct_client",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-send-mode",
+      "name": "IF: Direkt an Kunden?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2220, 360],
+      "notes": "Gatekeeper: nur bei sendMode='direct_client' geht das Angebot direkt an den Kunden. Default 'internal_review' -> internes Sales-Postfach (sicher gegen versehentlichen Fehl-Versand)."
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.config.vendorEmail }}",
+        "toEmail": "={{ $json.clientEmail }}",
+        "subject": "=Ihr Angebot {{ $json.proposalId }} — {{ $json.clientCompany }}",
+        "emailFormat": "html",
+        "message": "={{ $json.html }}",
+        "options": {
+          "replyTo": "={{ $json.config.vendorEmail }}"
+        }
+      },
+      "id": "email-client",
+      "name": "Email: Angebot an Kunden",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2440, 240],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      },
+      "notes": "Versendet das Angebot direkt an den Kunden (nur sendMode='direct_client'). PDF-Anhang-Anbindung optional: aus HTTP-PDF-Antwort (URL/Base64) als attachment einfuegen."
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.config.vendorEmail }}",
+        "toEmail": "={{ $json.config.notifyEmail }}",
+        "subject": "=[REVIEW] Angebot {{ $json.proposalId }} fuer {{ $json.clientCompany }} — {{ $json.pricing.currency }} {{ $json.pricing.grossTotal }}",
+        "emailFormat": "html",
+        "message": "=<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:720px;color:#222;\">\n<p style=\"background:#fff8e1;padding:10px;border-left:4px solid #d29922;font-size:13px;\">Entwurf zur internen Pruefung. {{ $json.budgetWarning ? '⚠️ Angebot liegt deutlich ueber genanntem Budget-Hinweis.' : '' }} {{ ($json.dataGaps && $json.dataGaps.length) ? 'Datenluecken: ' + $json.dataGaps.join(', ') : 'Keine Datenluecken.' }}</p>\n<p style=\"font-size:13px;color:#666;\">Empfohlener Scope: <strong>{{ $json.recommendedScope }}</strong> &middot; Gueltig bis {{ $json.validUntil }} &middot; Anzahlung {{ $json.pricing.currency }} {{ $json.pricing.deposit }}</p>\n<hr>\n{{ $json.html }}\n</body></html>",
+        "options": {}
+      },
+      "id": "email-review",
+      "name": "Email: Angebot zur Review (intern)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2440, 440],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      },
+      "notes": "Default-Pfad: Angebot geht zur internen Freigabe ans Sales-Postfach inkl. Budget-/Datenluecken-Hinweis. Nach Pruefung manuell oder per Folge-Workflow an Kunden."
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.config?.vendorEmail || $json.vendorEmail }}",
+        "toEmail": "={{ $json.config?.notifyEmail || $json.notifyEmail }}",
+        "subject": "=[FEHLER] Proposal-Generator — {{ $json.clientCompany || 'unbekannt' }}",
+        "emailFormat": "html",
+        "message": "=<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:640px;color:#222;\">\n<h2 style=\"color:#cf222e;margin:0 0 8px;\">Proposal-Generator: Verarbeitung fehlgeschlagen</h2>\n<p style=\"font-size:13px;\">Kunde: <strong>{{ $json.clientCompany || 'unbekannt' }}</strong> ({{ $json.clientName || '–' }} / {{ $json.clientEmail || '–' }})</p>\n<p style=\"font-size:13px;\">Grund: {{ ($json.invalidReasons && $json.invalidReasons.join(', ')) || $json.error?.message || 'PDF-Generierung oder CRM-Logging fehlgeschlagen' }}</p>\n<p style=\"font-size:12px;color:#888;\">Zeitpunkt: {{ $now }}. Bitte Discovery-Input pruefen bzw. PDF-/CRM-Endpoint kontrollieren. Es wurde KEIN Angebot an den Kunden versendet.</p>\n</body></html>",
+        "options": {}
+      },
+      "id": "email-error",
+      "name": "Email: Fehler-Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1340, 620],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      },
+      "notes": "Sammel-Fehlerpfad: ungueltige Discovery (IF false), PDF-Fehler, CRM-Write-Fehler. Niemals geht hier ein Angebot an den Kunden raus."
+    }
+  ],
+  "connections": {
+    "Webhook: Discovery-Intake": {
+      "main": [
+        [
+          {
+            "node": "Set: Angebots-Konfiguration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Angebots-Konfiguration": {
+      "main": [
+        [
+          {
+            "node": "Code: Discovery normalisieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Discovery normalisieren": {
+      "main": [
+        [
+          {
+            "node": "IF: Discovery verwertbar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Discovery verwertbar?": {
+      "main": [
+        [
+          {
+            "node": "AI Agent: Angebot strukturieren",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email: Fehler-Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent: Angebot strukturieren",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent: Angebot strukturieren": {
+      "main": [
+        [
+          {
+            "node": "Code: Pricing-Logik anwenden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Pricing-Logik anwenden": {
+      "main": [
+        [
+          {
+            "node": "Code: Angebots-HTML rendern",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Angebots-HTML rendern": {
+      "main": [
+        [
+          {
+            "node": "HTTP: PDF generieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: PDF generieren": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Angebot ins CRM loggen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email: Fehler-Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Angebot ins CRM loggen": {
+      "main": [
+        [
+          {
+            "node": "IF: Direkt an Kunden?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email: Fehler-Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Direkt an Kunden?": {
+      "main": [
+        [
+          {
+            "node": "Email: Angebot an Kunden",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email: Angebot zur Review (intern)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "staticData": null,
+  "meta": {
+    "instanceId": "aevum-blueprint"
+  },
+  "tags": [
+    {
+      "name": "AEVUM Proposal-Generator"
+    }
+  ],
+  "versionId": "1.0.0",
+  "id": "proposal-generator-v1",
+  "active": false
+}
