@@ -1,0 +1,474 @@
+{
+  "name": "Invoice-Automation (AEVUM Blueprint)",
+  "nodes": [
+    {
+      "id": "node-001",
+      "name": "Webhook: Rechnungseingang",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "{{INDIVIDUELL: deine-webhook-url-path}}",
+        "responseMode": "responseNode",
+        "options": {
+          "binaryData": true,
+          "rawBody": false
+        }
+      }
+    },
+    {
+      "id": "node-002",
+      "name": "Set: Eingangsmetadaten",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [220, 300],
+      "parameters": {
+        "mode": "manual",
+        "fields": {
+          "values": [
+            {
+              "name": "empfangen_am",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            },
+            {
+              "name": "workflow_id",
+              "type": "string",
+              "value": "={{ 'INV-' + $now.toFormat('yyyyMMdd') + '-' + Math.floor(Math.random()*9000+1000) }}"
+            },
+            {
+              "name": "quelle",
+              "type": "string",
+              "value": "webhook"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "node-003",
+      "name": "HTTP: PDF-Daten vorbereiten (Base64)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Extrahiert Binary-Daten aus dem Webhook-Upload und wandelt sie in base64 um\n// Unterstützt sowohl direkten Binary-Upload als auch base64-codierten Body\n\nconst item = $input.item;\nlet pdfBase64 = '';\nlet fileName = 'rechnung.pdf';\n\ntry {\n  // Prüfe ob Binary-Daten vorhanden sind (Standard-Webhook-Upload)\n  const binaryKeys = Object.keys(item.binary || {});\n  if (binaryKeys.length > 0) {\n    const binaryKey = binaryKeys[0];\n    const binaryData = item.binary[binaryKey];\n    pdfBase64 = binaryData.data;\n    fileName = binaryData.fileName || 'rechnung.pdf';\n  } else if (item.json.pdf_base64) {\n    // Fallback: base64 direkt im JSON-Body\n    pdfBase64 = item.json.pdf_base64;\n    fileName = item.json.dateiname || 'rechnung.pdf';\n  } else {\n    throw new Error('Kein PDF-Anhang gefunden. Bitte PDF als Datei-Upload oder base64 im Feld pdf_base64 senden.');\n  }\n} catch (e) {\n  throw new Error('PDF-Verarbeitung fehlgeschlagen: ' + e.message);\n}\n\nreturn {\n  json: {\n    ...item.json,\n    pdf_base64: pdfBase64,\n    dateiname: fileName,\n    pdf_groesse_kb: Math.round(pdfBase64.length * 0.75 / 1024)\n  }\n};"
+      }
+    },
+    {
+      "id": "node-004",
+      "name": "Claude: Rechnungsdaten extrahieren",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [660, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "{{INDIVIDUELL: anthropic-api-key}}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-3-haiku-20240307\",\n  \"max_tokens\": 1024,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"document\",\n          \"source\": {\n            \"type\": \"base64\",\n            \"media_type\": \"application/pdf\",\n            \"data\": \"{{ $json.pdf_base64 }}\"\n          }\n        },\n        {\n          \"type\": \"text\",\n          \"text\": \"Extrahiere aus dieser Rechnung folgende Felder als valides JSON-Objekt. Gib NUR das JSON zurück, keinen anderen Text.\\n\\nFelder:\\n- lieferant_name: string (Firmenname des Rechnungsstellers)\\n- lieferant_adresse: string (vollständige Adresse)\\n- lieferant_ustid: string (USt-IdNr, falls vorhanden, sonst null)\\n- rechnungsnummer: string\\n- rechnungsdatum: string (Format: YYYY-MM-DD)\\n- faelligkeitsdatum: string (Format: YYYY-MM-DD, falls nicht angegeben: 30 Tage nach Rechnungsdatum)\\n- nettobetrag: number (Zahl ohne Währungssymbol)\\n- mwst_satz: number (z.B. 19 oder 7, als Zahl)\\n- mwst_betrag: number\\n- bruttobetrag: number\\n- waehrung: string (z.B. EUR)\\n- iban: string (falls angegeben, sonst null)\\n- bic: string (falls angegeben, sonst null)\\n- verwendungszweck: string (Rechnungsnummer oder Beschreibung für Überweisung)\\n- leistungsbeschreibung: string (kurze Zusammenfassung was berechnet wird)\\n- empfaenger_name: string (an wen die Rechnung adressiert ist)\\n\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {
+          "timeout": 30000
+        }
+      }
+    },
+    {
+      "id": "node-005",
+      "name": "Code: Extraktion parsen & validieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 300],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item;\nconst anthropicResponse = item.json;\n\n// Claude-Antwort parsen\nlet extrahiert = {};\nlet parseError = null;\n\ntry {\n  const content = anthropicResponse.content[0].text;\n  // JSON aus der Antwort extrahieren (robuster Parser)\n  const jsonMatch = content.match(/\\{[\\s\\S]*\\}/);\n  if (!jsonMatch) throw new Error('Kein JSON in Claude-Antwort gefunden');\n  extrahiert = JSON.parse(jsonMatch[0]);\n} catch (e) {\n  parseError = 'LLM-Parse-Fehler: ' + e.message;\n}\n\n// Validierungslogik\nconst fehler = [];\nconst warnungen = [];\n\nif (parseError) {\n  fehler.push(parseError);\n} else {\n  // Pflichtfelder\n  if (!extrahiert.lieferant_name) fehler.push('Lieferant nicht erkannt');\n  if (!extrahiert.rechnungsnummer) fehler.push('Rechnungsnummer fehlt');\n  if (!extrahiert.rechnungsdatum) fehler.push('Rechnungsdatum fehlt');\n  if (!extrahiert.bruttobetrag || extrahiert.bruttobetrag <= 0) fehler.push('Bruttobetrag ungültig oder null');\n  if (!extrahiert.nettobetrag || extrahiert.nettobetrag <= 0) fehler.push('Nettobetrag ungültig oder null');\n\n  // Plausibilitätsprüfung: Brutto = Netto * (1 + MwSt/100)\n  if (extrahiert.nettobetrag && extrahiert.mwst_satz !== null && extrahiert.bruttobetrag) {\n    const berechnetesBrutto = Math.round(extrahiert.nettobetrag * (1 + extrahiert.mwst_satz / 100) * 100) / 100;\n    const differenz = Math.abs(berechnetesBrutto - extrahiert.bruttobetrag);\n    if (differenz > 0.05) {\n      warnungen.push(`Brutto-Plausibilität: Erwartet ${berechnetesBrutto}, gefunden ${extrahiert.bruttobetrag} (Diff: ${differenz.toFixed(2)})`);\n    }\n  }\n\n  // Datum-Prüfung\n  if (extrahiert.rechnungsdatum) {\n    const rechnungsDate = new Date(extrahiert.rechnungsdatum);\n    const heute = new Date();\n    const diffTage = (heute - rechnungsDate) / (1000 * 60 * 60 * 24);\n    if (diffTage > 180) warnungen.push(`Rechnungsdatum liegt ${Math.round(diffTage)} Tage zurück – bitte prüfen`);\n    if (rechnungsDate > heute) warnungen.push('Rechnungsdatum liegt in der Zukunft');\n  }\n\n  // IBAN-Format-Check (einfach)\n  if (extrahiert.iban && !/^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$/.test(extrahiert.iban.replace(/\\s/g, ''))) {\n    warnungen.push('IBAN-Format ungewöhnlich – bitte manuell prüfen');\n  }\n}\n\nconst status = fehler.length > 0 ? 'FEHLER' : warnungen.length > 0 ? 'WARNUNG' : 'OK';\n\nreturn {\n  json: {\n    ...item.json,\n    // Metadaten aus vorherigen Schritten erhalten\n    workflow_id: $('Set: Eingangsmetadaten').item.json.workflow_id,\n    empfangen_am: $('Set: Eingangsmetadaten').item.json.empfangen_am,\n    dateiname: $('HTTP: PDF-Daten vorbereiten (Base64)').item.json.dateiname,\n    // Extrahierte Daten\n    rechnung: extrahiert,\n    validierung: {\n      status: status,\n      fehler: fehler,\n      warnungen: warnungen,\n      geprueft_am: new Date().toISOString()\n    }\n  }\n};"
+      }
+    },
+    {
+      "id": "node-006",
+      "name": "IF: Validierung OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1100, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-001",
+              "leftValue": "={{ $json.validierung.status }}",
+              "rightValue": "FEHLER",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "node-007",
+      "name": "Code: DATEV-CSV erzeugen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 160],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// DATEV Buchungsstapel v700 – CSV-Format\n// Dokumentation: DATEV-Schnittstellen-Beschreibung Buchungsdatentransfer\n\nconst item = $input.item;\nconst r = item.json.rechnung;\n\n// Hilfsfunktion: Datum von YYYY-MM-DD zu DDMM (DATEV-Format)\nfunction toDatevDatum(isoDate) {\n  if (!isoDate) return '';\n  const parts = isoDate.split('-');\n  if (parts.length !== 3) return '';\n  return parts[2] + parts[1]; // TTMM\n}\n\n// Konto-Logik (vereinfacht – mit Steuerberater abstimmen)\nconst mwstSatz = r.mwst_satz || 19;\nlet steuerSchluessel = '9'; // 9 = Vorsteuer 19%\nif (mwstSatz === 7) steuerSchluessel = '8'; // 8 = Vorsteuer 7%\nif (mwstSatz === 0) steuerSchluessel = '0';\n\n// DATEV-Header (Zeile 1 + Zeile 2 sind Pflicht)\nconst header1 = '\"EXTF\";700;21;\"Buchungsstapel\";7;\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\"';\nconst header2 = 'Umsatz (ohne Soll/Haben-Kz);Soll/Haben-Kennzeichen;WKZ Umsatz;Kurs;Basis-Umsatz;WKZ Basis-Umsatz;Konto;Gegenkonto (ohne BU-Schlüssel);BU-Schlüssel;Belegdatum;Belegfeld 1;Belegfeld 2;Skonto;Buchungstext;Postensperre;Diverse Adressnummer;Geschäftspartnerbank;Sachverhalt;Zinssperre;Beleglink;Beleginfo - Art 1;Beleginfo - Inhalt 1;KOST1 - Kostenstelle;KOST2 - Kostenstelle;Kost-Menge;EU-Land u. UStID;EU-Steuersatz;Abw. Versteuerungsart;Sachverhalt L+L;Funktionsergänzung;BU 49 Hauptfunktionstyp;BU 49 Hauptfunktionsnummer;BU 49 Funktionsergänzung;Zusatzinformation - Art 1;Zusatzinformation- Inhalt 1;Stück;Gewicht;Zahlweise;Forderungsart;Veranlagungsjahr;Zugeordnete Fälligkeit;Skontotyp;Auftragsnummer;Buchungstyp;USt-Schlüssel (Anzahlungen);EU-Land (Anzahlungen);Sachverhalt (Anzahlungen);EU-Steuersatz (Anzahlungen);Erlöskonto (Anzahlungen);Herkunft-Kz;Buchungs GUID;KOST-Datum;SEPA-Mandatsreferenz;Skontosperre;Gesellschaftername;Beteiligtennummer;Identifikationsnummer;Zeichnernummer;Postensperre bis;Bezeichnung SoBil-Sachverhalt;Kennzeichen SoBil-Buchung;Festschreibung;Leistungsdatum;Leistungsdatum Ende';\n\n// Betrag formatieren (DATEV: Komma als Dezimalzeichen, kein Tausendertrennzeichen)\nconst betrag = r.nettobetrag ? r.nettobetrag.toFixed(2).replace('.', ',') : '0,00';\nconst buchungstext = `${r.lieferant_name || 'Unbekannt'} ${r.rechnungsnummer || ''}`.substring(0, 60);\nconst belegdatum = toDatevDatum(r.rechnungsdatum);\nconst belegfeld1 = (r.rechnungsnummer || '').substring(0, 36);\nconst debitorKonto = '{{INDIVIDUELL: datev-konto-debitor}}';\nconst gegenkonto = '{{INDIVIDUELL: datev-gegenkonto-vorsteuer}}';\n\n// Buchungszeile\nconst buchungszeile = [\n  betrag,           // Umsatz\n  'S',              // Soll/Haben\n  'EUR',            // Währung\n  '',               // Kurs\n  '',               // Basis-Umsatz\n  '',               // WKZ Basis-Umsatz\n  debitorKonto,     // Konto\n  gegenkonto,       // Gegenkonto\n  steuerSchluessel, // BU-Schlüssel\n  belegdatum,       // Belegdatum TTMM\n  belegfeld1,       // Belegfeld 1 (Rechnungsnummer)\n  '',               // Belegfeld 2\n  '',               // Skonto\n  `\"${buchungstext}\"`, // Buchungstext\n  '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''\n].join(';');\n\nconst csvContent = [header1, header2, buchungszeile].join('\\n');\n\nreturn {\n  json: {\n    ...item.json,\n    datev_csv: csvContent,\n    datev_dateiname: `DATEV_${item.json.workflow_id}_${r.rechnungsnummer || 'unbekannt'}.csv`\n  }\n};"
+      }
+    },
+    {
+      "id": "node-008",
+      "name": "Google Sheets: Rechnung protokollieren",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1540, 160],
+      "parameters": {
+        "operation": "append",
+        "documentId": "{{INDIVIDUELL: google-spreadsheet-id}}",
+        "sheetName": "={{\"{{INDIVIDUELL: google-sheet-name}}\"}}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Zeitstempel": "={{ $json.empfangen_am }}",
+            "Workflow-ID": "={{ $json.workflow_id }}",
+            "Dateiname": "={{ $json.dateiname }}",
+            "Lieferant": "={{ $json.rechnung.lieferant_name }}",
+            "Rechnungsnummer": "={{ $json.rechnung.rechnungsnummer }}",
+            "Rechnungsdatum": "={{ $json.rechnung.rechnungsdatum }}",
+            "Fälligkeitsdatum": "={{ $json.rechnung.faelligkeitsdatum }}",
+            "Netto (EUR)": "={{ $json.rechnung.nettobetrag }}",
+            "MwSt %": "={{ $json.rechnung.mwst_satz }}",
+            "Brutto (EUR)": "={{ $json.rechnung.bruttobetrag }}",
+            "IBAN": "={{ $json.rechnung.iban }}",
+            "Leistung": "={{ $json.rechnung.leistungsbeschreibung }}",
+            "Status": "={{ $json.validierung.status }}",
+            "Warnungen": "={{ $json.validierung.warnungen.join(', ') }}",
+            "DATEV-Export": "={{ $json.datev_dateiname }}"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{INDIVIDUELL: google-sheets-credential-name}}",
+          "name": "{{INDIVIDUELL: google-sheets-credential-name}}"
+        }
+      }
+    },
+    {
+      "id": "node-009",
+      "name": "E-Mail: Export-Summary an Buchhaltung",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1760, 160],
+      "parameters": {
+        "fromEmail": "{{INDIVIDUELL: absender-email}}",
+        "toEmail": "{{INDIVIDUELL: buchhaltung-email}}",
+        "subject": "=✅ Rechnung verarbeitet: {{ $json.rechnung.lieferant_name }} – {{ $json.rechnung.rechnungsnummer }}",
+        "message": "=<h2>Eingangsrechnung automatisch verarbeitet</h2>\n<table style='border-collapse:collapse;font-family:sans-serif;'>\n  <tr><td style='padding:6px 12px;font-weight:bold;'>Workflow-ID</td><td style='padding:6px 12px;'>{{ $json.workflow_id }}</td></tr>\n  <tr><td style='padding:6px 12px;font-weight:bold;'>Lieferant</td><td style='padding:6px 12px;'>{{ $json.rechnung.lieferant_name }}</td></tr>\n  <tr><td style='padding:6px 12px;font-weight:bold;'>Rechnungsnummer</td><td style='padding:6px 12px;'>{{ $json.rechnung.rechnungsnummer }}</td></tr>\n  <tr><td style='padding:6px 12px;font-weight:bold;'>Rechnungsdatum</td><td style='padding:6px 12px;'>{{ $json.rechnung.rechnungsdatum }}</td></tr>\n  <tr><td style='padding:6px 12px;font-weight:bold;'>Fälligkeit</td><td style='padding:6px 12px;'>{{ $json.rechnung.faelligkeitsdatum }}</td></tr>\n  <tr><td style='padding:6px 12px;font-weight:bold;'>Netto</td><td style='padding:6px 12px;'>{{ $json.rechnung.nettobetrag }} {{ $json.rechnung.waehrung }}</td></tr>\n  <tr><td style='padding:6px 12px;font-weight:bold;'>MwSt</td><td style='padding:6px 12px;'>{{ $json.rechnung.mwst_satz }}% ({{ $json.rechnung.mwst_betrag }} {{ $json.rechnung.waehrung }})</td></tr>\n  <tr><td style='padding:6px 12px;font-weight:bold;background:#f0f9ff;'>Brutto</td><td style='padding:6px 12px;background:#f0f9ff;font-weight:bold;'>{{ $json.rechnung.bruttobetrag }} {{ $json.rechnung.waehrung }}</td></tr>\n  <tr><td style='padding:6px 12px;font-weight:bold;'>IBAN</td><td style='padding:6px 12px;'>{{ $json.rechnung.iban }}</td></tr>\n  <tr><td style='padding:6px 12px;font-weight:bold;'>Leistung</td><td style='padding:6px 12px;'>{{ $json.rechnung.leistungsbeschreibung }}</td></tr>\n  <tr><td style='padding:6px 12px;font-weight:bold;'>Status</td><td style='padding:6px 12px;'>{{ $json.validierung.status }}</td></tr>\n  {{ $json.validierung.warnungen.length > 0 ? '<tr><td style=\"padding:6px 12px;font-weight:bold;color:#d97706;\">Warnungen</td><td style=\"padding:6px 12px;color:#d97706;\">' + $json.validierung.warnungen.join('<br>') + '</td></tr>' : '' }}\n  <tr><td style='padding:6px 12px;font-weight:bold;'>DATEV-Datei</td><td style='padding:6px 12px;'>{{ $json.datev_dateiname }}</td></tr>\n</table>\n<p style='margin-top:16px;font-size:12px;color:#6b7280;'>DATEV-CSV ist im Anhang. Bitte in DATEV importieren.</p>",
+        "options": {
+          "attachments": "={{ [{ 'name': $json.datev_dateiname, 'content': Buffer.from($json.datev_csv).toString('base64'), 'mimeType': 'text/csv; charset=utf-8', 'encoding': 'base64' }] }}"
+        }
+      },
+      "credentials": {
+        "smtp": {
+          "id": "{{INDIVIDUELL: smtp-credential-name}}",
+          "name": "{{INDIVIDUELL: smtp-credential-name}}"
+        }
+      }
+    },
+    {
+      "id": "node-010",
+      "name": "Webhook Response: Erfolg",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1980, 160],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, workflow_id: $json.workflow_id, status: $json.validierung.status, lieferant: $json.rechnung.lieferant_name, rechnungsnummer: $json.rechnung.rechnungsnummer, brutto: $json.rechnung.bruttobetrag, message: 'Rechnung erfolgreich verarbeitet und an Buchhaltung übermittelt' }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "node-011",
+      "name": "Slack: Alert – manuelle Prüfung nötig",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1320, 440],
+      "parameters": {
+        "operation": "message",
+        "channel": "{{INDIVIDUELL: slack-channel-id}}",
+        "text": "=⚠️ *Eingangsrechnung – Manuelle Prüfung erforderlich*\n\n*Workflow-ID:* `{{ $json.workflow_id }}`\n*Datei:* {{ $json.dateiname }}\n*Erkannter Lieferant:* {{ $json.rechnung.lieferant_name || '_nicht erkannt_' }}\n*Rechnungsnummer:* {{ $json.rechnung.rechnungsnummer || '_nicht erkannt_' }}\n*Brutto:* {{ $json.rechnung.bruttobetrag || '_nicht erkannt_' }} EUR\n\n*Validierungsfehler:*\n{{ $json.validierung.fehler.map(f => '• ' + f).join('\\n') }}\n\n{{ $json.validierung.warnungen.length > 0 ? '*Warnungen:*\\n' + $json.validierung.warnungen.map(w => '• ' + w).join('\\n') + '\\n' : '' }}\n🔗 *Freigabe-Link:* {{INDIVIDUELL: freigabe-basis-url}}/form/invoice-manual-review?id={{ $json.workflow_id }}\n\n_Bitte Rechnung manuell prüfen und freigeben oder ablehnen._",
+        "otherOptions": {
+          "mrkdwn": true
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "{{INDIVIDUELL: slack-credential-name}}",
+          "name": "{{INDIVIDUELL: slack-credential-name}}"
+        }
+      }
+    },
+    {
+      "id": "node-012",
+      "name": "Google Sheets: Fehler protokollieren",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1540, 440],
+      "parameters": {
+        "operation": "append",
+        "documentId": "{{INDIVIDUELL: google-spreadsheet-id}}",
+        "sheetName": "={{\"{{INDIVIDUELL: google-sheet-name}}\"}}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Zeitstempel": "={{ $json.empfangen_am }}",
+            "Workflow-ID": "={{ $json.workflow_id }}",
+            "Dateiname": "={{ $json.dateiname }}",
+            "Lieferant": "={{ $json.rechnung.lieferant_name || 'NICHT ERKANNT' }}",
+            "Rechnungsnummer": "={{ $json.rechnung.rechnungsnummer || 'NICHT ERKANNT' }}",
+            "Rechnungsdatum": "={{ $json.rechnung.rechnungsdatum }}",
+            "Fälligkeitsdatum": "={{ $json.rechnung.faelligkeitsdatum }}",
+            "Netto (EUR)": "={{ $json.rechnung.nettobetrag }}",
+            "MwSt %": "={{ $json.rechnung.mwst_satz }}",
+            "Brutto (EUR)": "={{ $json.rechnung.bruttobetrag }}",
+            "IBAN": "={{ $json.rechnung.iban }}",
+            "Leistung": "={{ $json.rechnung.leistungsbeschreibung }}",
+            "Status": "=FEHLER – MANUELLE PRÜFUNG",
+            "Warnungen": "={{ $json.validierung.fehler.concat($json.validierung.warnungen).join('; ') }}",
+            "DATEV-Export": "AUSSTEHEND"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{INDIVIDUELL: google-sheets-credential-name}}",
+          "name": "{{INDIVIDUELL: google-sheets-credential-name}}"
+        }
+      }
+    },
+    {
+      "id": "node-013",
+      "name": "Webhook Response: Manuell prüfen",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1760, 440],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: false, workflow_id: $json.workflow_id, status: 'MANUELLE_PRUEFUNG', fehler: $json.validierung.fehler, warnungen: $json.validierung.warnungen, message: 'Rechnung konnte nicht automatisch verarbeitet werden – manuelle Prüfung angefordert' }) }}",
+        "options": {
+          "responseCode": 422
+        }
+      }
+    },
+    {
+      "id": "node-014",
+      "name": "Error Handler: Kritischer Fehler",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [880, 560],
+      "parameters": {
+        "operation": "message",
+        "channel": "{{INDIVIDUELL: slack-channel-id}}",
+        "text": "=🔴 *KRITISCHER FEHLER – Invoice-Automation*\n\n*Fehler:* {{ $json.error?.message || 'Unbekannter Fehler' }}\n*Node:* {{ $json.error?.node?.name || 'Unbekannt' }}\n*Zeitstempel:* {{ $now.toISO() }}\n\nBitte n8n-Logs prüfen. Rechnung wurde NICHT verarbeitet.",
+        "otherOptions": {
+          "mrkdwn": true
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "{{INDIVIDUELL: slack-credential-name}}",
+          "name": "{{INDIVIDUELL: slack-credential-name}}"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook: Rechnungseingang": {
+      "main": [
+        [
+          {
+            "node": "Set: Eingangsmetadaten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Eingangsmetadaten": {
+      "main": [
+        [
+          {
+            "node": "HTTP: PDF-Daten vorbereiten (Base64)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: PDF-Daten vorbereiten (Base64)": {
+      "main": [
+        [
+          {
+            "node": "Claude: Rechnungsdaten extrahieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude: Rechnungsdaten extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Code: Extraktion parsen & validieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Extraktion parsen & validieren": {
+      "main": [
+        [
+          {
+            "node": "IF: Validierung OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Validierung OK?": {
+      "main": [
+        [
+          {
+            "node": "Code: DATEV-CSV erzeugen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack: Alert – manuelle Prüfung nötig",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: DATEV-CSV erzeugen": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets: Rechnung protokollieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets: Rechnung protokollieren": {
+      "main": [
+        [
+          {
+            "node": "E-Mail: Export-Summary an Buchhaltung",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "E-Mail: Export-Summary an Buchhaltung": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response: Erfolg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Alert – manuelle Prüfung nötig": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets: Fehler protokollieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets: Fehler protokollieren": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response: Manuell prüfen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": true,
+    "timezone": "Europe/Berlin"
+  },
+  "active": false,
+  "tags": [
+    {
+      "name": "AEVUM"
+    },
+    {
+      "name": "invoice-automation"
+    },
+    {
+      "name": "buchhaltung"
+    },
+    {
+      "name": "datev"
+    }
+  ]
+}
