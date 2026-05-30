@@ -36,19 +36,10 @@ export const patrickManifest: DashboardManifest = {
       icon: 'target',
       pane: {
         title: 'Lead-Funnel · Übersicht',
-        description: 'Alle Kanäle zusammengeführt. Detail je Kanal links im Menü.',
-        gatedNote: 'Scoring-Contract (A/B/C/D) + Lead-Felder + Stufen aus Patrick-Session.',
-        zones: [
-          { key: 'funnel-total', label: 'Leads gesamt', icon: 'target', color: 'gold', status: 'wip',
-            stats: [{ label: 'Neu 30d', value: '—' }, { label: 'A-Leads', value: '—', accent: 'var(--status-success)' }] },
-          { key: 'funnel-stages', label: 'Pipeline-Stufen', icon: 'layers', color: 'amber', status: 'soon',
-            bars: [
-              { label: 'Neu', pct: 0 }, { label: 'Qualifiziert', pct: 0 },
-              { label: 'Gespräch', pct: 0 }, { label: 'Deal', pct: 0 },
-            ] },
-          { key: 'channels', label: 'Kanal-Split', icon: 'activity', color: 'info', status: 'soon',
-            chips: ['Facebook', 'LinkedIn', 'Website', 'Referral'] },
-        ],
+        description: 'Alle Kanäle zusammengeführt — echte Live-Daten.',
+        // Escape-Hatch: rendert den bestehenden LeadFunnel (echte Daten), kein Platzhalter.
+        custom: 'lead-funnel',
+        zones: [],
       },
       children: [
         {
