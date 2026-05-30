@@ -199,7 +199,7 @@ export default function ShopDashboard() {
 
       {/* Upgrade-CTA */}
       <section className="animate-fade-up" style={{ animationDelay: '460ms' }}>
-        <div className="relative overflow-hidden card-premium p-6 xl:p-8">
+        <div className="relative overflow-hidden card-premium p-4 sm:p-6 xl:p-8">
           <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-gold-400/10 blur-3xl pointer-events-none" />
           <div className="relative max-w-2xl">
             <div className="flex items-center gap-2 text-xs text-gold-300 mb-2 uppercase tracking-wider font-semibold">
@@ -259,7 +259,7 @@ function OrderRow({ order, i }: { order: Order; i: number }) {
   const total = (order.total_cents / 100).toLocaleString('de-DE', { style: 'currency', currency: order.currency || 'EUR' });
   const date = order.paid_at || order.created_at;
   return (
-    <div className="flex items-center gap-4 px-5 py-4 animate-fade-up" style={stagger(i, 40, 50)}>
+    <div className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-4 animate-fade-up" style={stagger(i, 40, 50)}>
       <div className="w-9 h-9 rounded-xl bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center shrink-0">
         <CheckCircle2 size={16} className="text-emerald-300" />
       </div>

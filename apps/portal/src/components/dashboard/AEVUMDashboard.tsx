@@ -108,11 +108,11 @@ function SectionOverview({ data }: { data: DashboardData }) {
   ];
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in">
       {/* Hero KPI Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {topKpis.map(({ label, value, sub, trend, icon: Icon }) => (
-          <div key={label} className="card-premium p-5">
+          <div key={label} className="card-premium p-4 sm:p-5">
             <div className="flex items-start justify-between mb-3">
               <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center">
                 <Icon size={15} className="text-gold-300" />
@@ -129,12 +129,12 @@ function SectionOverview({ data }: { data: DashboardData }) {
       </div>
 
       {/* Funnel + Audits */}
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
         <div className="lg:col-span-2">
           <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
             <Filter size={12} className="text-gold-300" /> Pipeline-Funnel
           </h2>
-          <div className="card-premium p-6">
+          <div className="card-premium p-4 sm:p-6">
             <FunnelChart stages={data.funnel} />
           </div>
         </div>
@@ -184,9 +184,9 @@ function SectionPipeline({ data }: { data: DashboardData }) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         {convRates.map(({ label, value, icon: Icon }) => (
-          <div key={label} className="card-premium p-5 text-center">
+          <div key={label} className="card-premium p-4 sm:p-5 text-center">
             <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center mx-auto mb-3">
               <Icon size={16} className="text-gold-300" />
             </div>
@@ -200,7 +200,7 @@ function SectionPipeline({ data }: { data: DashboardData }) {
         <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
           <BarChart2 size={12} className="text-gold-300" /> Funnel-Visualisierung
         </h2>
-        <div className="card-premium p-6">
+        <div className="card-premium p-4 sm:p-6">
           <FunnelChart stages={data.funnel} />
         </div>
       </section>
@@ -230,9 +230,9 @@ function SectionRevenue({ data }: { data: DashboardData }) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {items.map(({ label, value, icon: Icon, highlight }) => (
-          <div key={label} className={`card-premium p-5 ${highlight ? 'border-gold-400/30' : ''}`}>
+          <div key={label} className={`card-premium p-4 sm:p-5 ${highlight ? 'border-gold-400/30' : ''}`}>
             <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center mb-3">
               <Icon size={15} className="text-gold-300" />
             </div>
@@ -260,13 +260,13 @@ function SectionKunden({ data }: { data: DashboardData }) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         {[
           { label: 'Gesamt', value: total, icon: Users },
           { label: 'Aktiv',  value: active, icon: CheckCircle2 },
           { label: 'Inaktiv',value: total - active, icon: Clock },
         ].map(({ label, value, icon: Icon }) => (
-          <div key={label} className="card-premium p-5 text-center">
+          <div key={label} className="card-premium p-4 sm:p-5 text-center">
             <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center mx-auto mb-3">
               <Icon size={15} className="text-gold-300" />
             </div>
@@ -314,9 +314,9 @@ function SectionContent({ data }: { data: DashboardData }) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         {stats.map(({ label, value, icon: Icon }) => (
-          <div key={label} className="card-premium p-5 text-center">
+          <div key={label} className="card-premium p-4 sm:p-5 text-center">
             <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center mx-auto mb-3">
               <Icon size={15} className="text-gold-300" />
             </div>
@@ -334,7 +334,7 @@ function SectionContent({ data }: { data: DashboardData }) {
         </div>
       )}
 
-      <div className="card-premium p-6">
+      <div className="card-premium p-4 sm:p-6">
         <h3 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-4">Content-Strategie</h3>
         <div className="grid sm:grid-cols-3 gap-4 text-xs">
           {[

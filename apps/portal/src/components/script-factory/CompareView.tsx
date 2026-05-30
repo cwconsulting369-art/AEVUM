@@ -49,9 +49,9 @@ function Column({ side, data, label }: { side: 'before' | 'after'; data: ScriptS
   };
 
   return (
-    <div className={`card-premium p-5 border ${accent}`}>
-      <div className="flex items-center justify-between mb-4">
-        <div>
+    <div className={`card-premium p-4 sm:p-5 border min-w-0 ${accent}`}>
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="min-w-0">
           <div className="text-[0.65rem] uppercase tracking-widest text-ink-500 font-semibold">{label}</div>
           <div className="text-base font-semibold text-white mt-0.5">
             {side === 'after' ? 'Optimiert' : 'Original'}
@@ -110,7 +110,7 @@ function Column({ side, data, label }: { side: 'before' | 'after'; data: ScriptS
             {copied ? <Check size={11} /> : <Copy size={11} />} {copied ? 'Kopiert!' : 'Kopieren'}
           </button>
         </div>
-        <div className="bg-ink-950/60 border border-white/5 rounded-lg p-3 max-h-96 overflow-y-auto">
+        <div className="bg-ink-950/60 border border-white/5 rounded-lg p-3 max-h-96 overflow-y-auto overflow-x-auto">
           {data.text ? (
             <MarkdownViewer content={data.text} variant="portal" />
           ) : (

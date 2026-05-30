@@ -127,6 +127,9 @@ export function MarkdownViewer({ content, variant = 'portal' }: Props) {
           line-height: 1.55;
         }
         .aevum-md pre code { padding: 0; background: none; border: none; color: inherit; }
+        .aevum-md code { word-break: break-word; }
+
+        .aevum-md img { max-width: 100%; height: auto; border-radius: 8px; }
 
         .aevum-md hr {
           margin: 36px 0;
@@ -177,7 +180,7 @@ export function MarkdownViewer({ content, variant = 'portal' }: Props) {
 
         .aevum-md-table-wrap { overflow-x: auto; }
       `}</style>
-      <div className={`aevum-md ${variant === 'public' ? 'is-public' : ''}`}>
+      <div className={`aevum-md max-w-full ${variant === 'public' ? 'is-public' : ''}`}>
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{

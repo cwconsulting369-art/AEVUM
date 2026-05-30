@@ -51,7 +51,7 @@ function loadTrustpilotScript(): Promise<void> {
 function TrustpilotPlaceholder({ className = '' }: { className?: string }) {
   return (
     <div
-      className={`inline-flex items-center gap-3 px-5 py-3 bg-bg-surface border border-white/10 rounded-md ${className}`}
+      className={`inline-flex max-w-full flex-wrap items-center gap-3 px-5 py-3 bg-bg-surface border border-theme-border rounded-md ${className}`}
       role="status"
       aria-label="Trustpilot-Reviews kommen bald"
     >
@@ -60,12 +60,12 @@ function TrustpilotPlaceholder({ className = '' }: { className?: string }) {
           <Star
             key={i}
             size={14}
-            className="text-[#7a7a85]/50"
+            className="text-text-muted/50"
             fill="currentColor"
           />
         ))}
       </div>
-      <span className="text-xs font-mono uppercase tracking-wider text-[#7a7a85]">
+      <span className="text-xs font-mono uppercase tracking-wider text-text-muted">
         Trustpilot-Reviews bald verfügbar
       </span>
     </div>
@@ -130,7 +130,7 @@ export default function TrustpilotWidget({
         href={`https://www.trustpilot.com/review/aevum-system.de`}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-xs font-mono uppercase tracking-wider text-[#7a7a85] hover:text-[#e0a458] transition-colors"
+        className="text-xs font-mono uppercase tracking-wider text-text-muted hover:text-theme-accent transition-colors"
       >
         Trustpilot-Reviews lesen →
       </a>

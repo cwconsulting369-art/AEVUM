@@ -23,16 +23,16 @@ module.exports = {
         'theme-border-accent': 'var(--theme-border-accent)',
         'text-on-accent': 'var(--text-on-accent)',
         gold: {
-          50:  '#fdf6e7',
-          100: '#fbecc8',
-          200: '#f5d68d',
-          300: '#eebe5a',
-          400: '#e0a458',
-          500: '#cf8c3a',
-          600: '#a86d27',
-          700: '#7a4f1c',
-          800: '#553715',
-          900: '#33200d',
+          50:  '#faf2e6',
+          100: '#f3e2c6',
+          200: '#e8c08a',
+          300: '#d9a866',
+          400: '#c0894a',
+          500: '#a8723a',
+          600: '#7a5326',
+          700: '#654322',
+          800: '#46301a',
+          900: '#2a1d10',
         },
         ink: {
           950: '#08080a',
@@ -101,7 +101,7 @@ module.exports = {
       },
       boxShadow: {
         xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-        'glow-gold': '0 0 0 1px rgba(212,176,72,0.4), 0 0 24px -4px rgba(212,176,72,0.35)',
+        'glow-gold': '0 0 0 1px rgba(192,137,74,0.4), 0 0 24px -4px rgba(192,137,74,0.35)',
         'glass': '0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 32px -8px rgba(0,0,0,0.6)',
         'theme-sm': 'var(--shadow-sm)',
         'theme-md': 'var(--shadow-md)',
@@ -115,8 +115,8 @@ module.exports = {
         '30': '7.5rem',
       },
       backgroundImage: {
-        'gold-gradient': 'linear-gradient(135deg, #f5d68d 0%, #e0a458 45%, #a86d27 100%)',
-        'gold-radial': 'radial-gradient(circle at 30% 20%, rgba(224,164,88,0.18), transparent 60%)',
+        'gold-gradient': 'linear-gradient(135deg, #e8c08a 0%, #c0894a 45%, #7a5326 100%)',
+        'gold-radial': 'radial-gradient(circle at 30% 20%, rgba(192,137,74,0.18), transparent 60%)',
       },
       keyframes: {
         "accordion-down": {

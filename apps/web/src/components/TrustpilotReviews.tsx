@@ -39,7 +39,7 @@ function StarRow({ rating, size = 14 }: { rating: number; size?: number }) {
         <Star
           key={i}
           size={size}
-          className={i <= rating ? 'text-[#00b67a]' : 'text-white/15'}
+          className={i <= rating ? 'text-[#00b67a]' : 'text-theme-border-strong'}
           fill="currentColor"
         />
       ))}
@@ -59,18 +59,18 @@ function formatDate(iso: string | null): string {
 
 function ReviewCard({ r }: { r: TrustpilotReview }) {
   return (
-    <article className="bg-bg-surface border border-white/10 hover:border-[#00b67a]/30 transition-colors p-6 flex flex-col gap-3">
+    <article className="bg-bg-surface border border-theme-border hover:border-[#00b67a]/30 transition-colors p-6 flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <StarRow rating={r.star_rating} />
-        <span className="text-[10px] font-mono uppercase tracking-wider text-[#7a7a85]">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-text-muted">
           {formatDate(r.created_ts)}
         </span>
       </div>
-      <Quote size={18} className="text-[#e0a458]/60" />
-      <p className="text-sm text-[#d4d4dc] leading-relaxed line-clamp-6">
+      <Quote size={18} className="text-theme-accent/60" />
+      <p className="text-sm text-text-secondary leading-relaxed line-clamp-6">
         {r.text || '—'}
       </p>
-      <div className="mt-auto pt-3 border-t border-white/5 text-xs text-[#a4a4ad]">
+      <div className="mt-auto pt-3 border-t border-theme-border text-xs text-text-secondary">
         {r.author_name || 'Verifizierter Kunde'}
       </div>
     </article>
@@ -90,12 +90,12 @@ function PlaceholderCard({ slot }: { slot: number }) {
   ];
   return (
     <article
-      className="relative bg-bg-surface/30 border border-dashed border-white/10 p-6 flex flex-col gap-3 opacity-85"
+      className="relative bg-bg-surface/30 border border-dashed border-theme-border p-6 flex flex-col gap-3 opacity-85"
       aria-label="Platzhalter — noch keine echte Review verfügbar"
     >
       {/* Prominent Coming-Soon Badge — top-right corner */}
       <span
-        className="absolute -top-2.5 right-4 inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-[0.12em] px-2 py-1 rounded-sm bg-[#e0a458] text-[#1a1a1a] font-semibold shadow-sm"
+        className="absolute -top-2.5 right-4 inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-[0.12em] px-2 py-1 rounded-sm bg-theme-accent text-text-on-accent font-semibold shadow-sm"
         aria-label="Coming Soon"
       >
         <Clock size={10} /> Bald verfügbar
@@ -107,20 +107,20 @@ function PlaceholderCard({ slot }: { slot: number }) {
           aria-label="Noch keine Bewertung"
         >
           {[1, 2, 3, 4, 5].map((i) => (
-            <Star key={i} size={14} className="text-white/10" fill="currentColor" />
+            <Star key={i} size={14} className="text-theme-border-strong" fill="currentColor" />
           ))}
         </div>
-        <span className="text-[10px] font-mono uppercase tracking-wider text-[#7a7a85]">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-text-muted">
           Platzhalter
         </span>
       </div>
-      <h3 className="text-sm font-medium text-[#e6e6ec]">
+      <h3 className="text-sm font-medium text-text-primary">
         {headlines[slot % headlines.length]}
       </h3>
-      <p className="text-xs text-[#a4a4ad] leading-relaxed">
+      <p className="text-xs text-text-secondary leading-relaxed">
         {bodies[slot % bodies.length]}
       </p>
-      <div className="mt-auto pt-3 border-t border-white/5 text-[10px] font-mono uppercase tracking-wider text-[#e0a458]/70">
+      <div className="mt-auto pt-3 border-t border-theme-border text-[10px] font-mono uppercase tracking-wider text-theme-accent/70">
         Noch keine echte Review · Pre-Launch
       </div>
     </article>
@@ -178,7 +178,7 @@ export default function TrustpilotReviews({
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="bg-bg-surface/40 border border-white/5 p-6 h-48 animate-pulse"
+            className="bg-bg-surface/40 border border-theme-border p-6 h-48 animate-pulse"
           />
         ))}
       </div>
@@ -195,11 +195,11 @@ export default function TrustpilotReviews({
       {/* Mode-Label: Live vs Pre-Launch */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-[#7a7a85]">
+          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-text-muted">
             Kundenstimmen
           </span>
           {!hasReal && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[#e0a458]/15 text-[#e0a458] border border-[#e0a458]/30">
+            <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-theme-accent/15 text-theme-accent border border-theme-border-accent">
               <Clock size={10} /> Coming Soon · Pre-Launch
             </span>
           )}
@@ -208,7 +208,7 @@ export default function TrustpilotReviews({
           href="https://www.trustpilot.com/review/aevum-system.de"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs font-mono uppercase tracking-wider text-[#7a7a85] hover:text-[#e0a458] transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-mono uppercase tracking-wider text-text-muted hover:text-theme-accent transition-colors"
         >
           Trustpilot
           <ExternalLink size={11} />
@@ -218,10 +218,10 @@ export default function TrustpilotReviews({
       {/* Clear Section-Headline when in Pre-Launch mode */}
       {!hasReal && (
         <div className="mb-6">
-          <h2 className="text-lg font-medium text-[#e6e6ec]">
+          <h2 className="text-lg font-medium text-text-primary">
             Trustpilot-Reviews — verfügbar nach Launch
           </h2>
-          <p className="text-xs text-[#7a7a85] mt-1">
+          <p className="text-xs text-text-muted mt-1">
             Diese Sektion zeigt aktuell Platzhalter. Echte Reviews erscheinen sobald die ersten Customer-Projekte live sind.
           </p>
         </div>
@@ -239,7 +239,7 @@ export default function TrustpilotReviews({
 
       {!hasReal && showPlaceholders && (
         <div className="mt-6 text-center">
-          <p className="text-xs text-[#7a7a85] max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xs text-text-muted max-w-2xl mx-auto leading-relaxed">
             Wir veröffentlichen keine erfundenen Testimonials. Echte Trustpilot-Reviews
             erscheinen hier sobald die ersten Customer-Projekte abgeschlossen und freigegeben
             sind — voraussichtlich zum Public-Launch im Sommer 2026.

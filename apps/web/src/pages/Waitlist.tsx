@@ -61,13 +61,13 @@ const FAQ = [
 function HeroBlock() {
   return (
     <section className="relative px-6 lg:px-16 pt-28 pb-16 md:pt-32 md:pb-20 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#e0a458]/[0.04] via-transparent to-transparent pointer-events-none" aria-hidden />
+      <div className="absolute inset-0 bg-gradient-to-b from-theme-accent-soft via-transparent to-transparent pointer-events-none" aria-hidden />
       <div className="max-w-3xl mx-auto text-center relative z-10">
         <motion.span
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-[#e0a458] mb-6 border border-[#e0a458]/30 bg-[#e0a458]/[0.06] px-3 py-1.5"
+          className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-theme-accent mb-6 border border-theme-border-accent bg-theme-accent-soft px-3 py-1.5"
         >
           <Sparkles size={12} />
           Pre-Launch · Foundation Window
@@ -85,7 +85,7 @@ function HeroBlock() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="text-base md:text-lg text-[#a4a4ad] leading-relaxed mb-10 max-w-2xl mx-auto"
+          className="text-base md:text-lg text-text-secondary leading-relaxed mb-10 max-w-2xl mx-auto"
         >
           Aktuell Foundation-Bau, nicht Sales-Hustle. Wenn du dabei sein willst wenn Shop + SaaS scharf gehen — trag dich auf die Pre-Launch-Liste ein. Erste Welle bekommt Early-Access und einen Setup-Discount.
         </motion.p>
@@ -94,7 +94,7 @@ function HeroBlock() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
-          className="bg-bg-surface border border-white/10 p-6 md:p-8 text-left max-w-2xl mx-auto"
+          className="bg-bg-surface border border-theme-border p-6 md:p-8 text-left max-w-2xl mx-auto rounded-xl"
         >
           <WaitlistForm source="page-/waitlist" />
         </motion.div>
@@ -103,11 +103,11 @@ function HeroBlock() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-[#7a7a85] font-mono mt-6"
+          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-text-muted font-mono mt-6"
         >
-          <span className="flex items-center gap-1.5"><ShieldCheck size={11} className="text-[#e0a458]" /> DSGVO-konform</span>
+          <span className="flex items-center gap-1.5"><ShieldCheck size={11} className="text-theme-accent" /> DSGVO-konform</span>
           <span>·</span>
-          <span className="flex items-center gap-1.5"><Mail size={11} className="text-[#e0a458]" /> 2-3 Updates max</span>
+          <span className="flex items-center gap-1.5"><Mail size={11} className="text-theme-accent" /> 2-3 Updates max</span>
           <span>·</span>
           <span>1-Klick-Abmelden</span>
         </motion.div>
@@ -129,7 +129,7 @@ function TimelineSection() {
           transition={{ duration: 0.6 }}
           className="mb-12"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-3 block">
+          <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block">
             Timeline
           </span>
           <h2 className="text-2xl md:text-3xl font-light tracking-tight">
@@ -144,16 +144,16 @@ function TimelineSection() {
               initial={{ opacity: 0, x: -16 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ delay: 0.1 + i * 0.1, duration: 0.6 }}
-              className="bg-bg-primary border border-white/10 p-6 md:p-7 grid grid-cols-[120px_1fr] gap-5 items-start"
+              className="bg-bg-primary border border-theme-border p-6 md:p-7 grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-2 sm:gap-5 items-start rounded-xl"
             >
               <div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#e0a458] mb-1">
+                <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-theme-accent mb-1">
                   <Clock size={11} className="inline mr-1 -mt-0.5" /> {t.when}
                 </div>
               </div>
               <div>
-                <h3 className="text-base font-medium text-[#F9FAFB] mb-2">{t.label}</h3>
-                <p className="text-sm text-[#a4a4ad] leading-relaxed">{t.desc}</p>
+                <h3 className="text-base font-medium text-text-primary mb-2">{t.label}</h3>
+                <p className="text-sm text-text-secondary leading-relaxed">{t.desc}</p>
               </div>
             </motion.div>
           ))}
@@ -176,7 +176,7 @@ function FAQSection() {
           transition={{ duration: 0.6 }}
           className="mb-10"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-3 block">
+          <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block">
             Häufige Fragen
           </span>
           <h2 className="text-2xl md:text-3xl font-light tracking-tight">
@@ -189,12 +189,12 @@ function FAQSection() {
             <AccordionItem
               key={i}
               value={`q-${i}`}
-              className="bg-bg-surface border border-white/10 px-5"
+              className="bg-bg-surface border border-theme-border px-5 rounded-xl"
             >
-              <AccordionTrigger className="text-left text-sm font-medium py-4 hover:no-underline">
+              <AccordionTrigger className="text-left text-sm font-medium py-4 hover:no-underline text-text-primary">
                 {f.q}
               </AccordionTrigger>
-              <AccordionContent className="text-sm text-[#a4a4ad] leading-relaxed pb-4">
+              <AccordionContent className="text-sm text-text-secondary leading-relaxed pb-4">
                 {f.a}
               </AccordionContent>
             </AccordionItem>

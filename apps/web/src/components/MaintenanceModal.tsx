@@ -118,12 +118,12 @@ export default function MaintenanceModal({
             type="button"
             aria-label="Schließen"
             onClick={onClose}
-            className="absolute inset-0 bg-[#04040680]/90 backdrop-blur-md"
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
           />
 
           {/* Card */}
           <motion.div
-            className="relative w-full max-w-lg bg-[#0c0c10] border border-[#e0a458]/30 shadow-[0_24px_80px_rgba(0,0,0,0.6)]"
+            className="relative w-[calc(100%-2rem)] sm:w-full max-w-lg mx-auto max-h-[calc(100dvh-2rem)] overflow-y-auto bg-bg-elevated border border-theme-border-accent shadow-theme-lg"
             initial={{ opacity: 0, y: 24, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.98 }}
@@ -132,19 +132,19 @@ export default function MaintenanceModal({
             aria-modal="true"
             aria-labelledby="maintenance-title"
           >
-            <div className="absolute -top-12 right-1/2 translate-x-1/2 w-48 h-48 rounded-full bg-[#e0a458]/8 blur-3xl pointer-events-none" />
+            <div className="absolute -top-12 right-1/2 translate-x-1/2 w-48 h-48 rounded-full bg-theme-accent/[0.08] blur-3xl pointer-events-none" />
 
             <button
               type="button"
               onClick={onClose}
               aria-label="Schließen"
-              className="absolute top-4 right-4 text-[#7a7a85] hover:text-[#F9FAFB] transition-colors z-10"
+              className="absolute top-4 right-4 text-text-muted hover:text-text-primary transition-colors z-10"
             >
               <X size={18} />
             </button>
 
             <div className="relative p-7 sm:p-9">
-              <div className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-[#e0a458] bg-[#e0a458]/10 border border-[#e0a458]/25 px-3 py-1 rounded-full mb-5">
+              <div className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-theme-accent bg-theme-accent/10 border border-theme-border-accent px-3 py-1 rounded-full mb-5">
                 <Sparkles size={11} />
                 Launch-Vorbereitung
               </div>
@@ -153,21 +153,21 @@ export default function MaintenanceModal({
                 <>
                   <h2
                     id="maintenance-title"
-                    className="text-2xl sm:text-[26px] font-light tracking-tight leading-[1.15] mb-3 text-[#F9FAFB]"
+                    className="text-2xl sm:text-[26px] font-light tracking-tight leading-[1.15] mb-3 text-text-primary"
                   >
                     {title}
                   </h2>
-                  <p className="text-sm text-[#a4a4ad] leading-relaxed mb-6">
+                  <p className="text-sm text-text-secondary leading-relaxed mb-6">
                     {body}
                   </p>
 
                   <form onSubmit={submit} className="space-y-3">
                     <label className="block">
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-[#7a7a85] mb-1.5 block">
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-text-muted mb-1.5 block">
                         Deine E-Mail
                       </span>
                       <div className="relative">
-                        <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a7a85]" />
+                        <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted z-10" />
                         <input
                           type="email"
                           required
@@ -177,7 +177,7 @@ export default function MaintenanceModal({
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="du@firma.de"
-                          className="w-full bg-[#08080a] border border-white/10 px-9 py-2.5 text-sm text-[#F9FAFB] placeholder:text-[#5a5a65] focus:outline-none focus:border-[#e0a458]/50 focus:ring-1 focus:ring-[#e0a458]/30 transition-all"
+                          className="input-base pl-9"
                         />
                       </div>
                     </label>
@@ -192,7 +192,7 @@ export default function MaintenanceModal({
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="w-full inline-flex items-center justify-center gap-2 text-sm font-medium bg-[#e0a458] text-[#08080a] hover:bg-[#f0b468] disabled:opacity-60 disabled:cursor-not-allowed px-5 py-3 transition-all"
+                      className="w-full inline-flex items-center justify-center gap-2 text-sm font-medium bg-theme-accent text-text-on-accent hover:bg-theme-accent-hover disabled:opacity-60 disabled:cursor-not-allowed px-5 py-3 rounded-md transition-all"
                     >
                       {submitting ? (
                         <>
@@ -206,7 +206,7 @@ export default function MaintenanceModal({
                       )}
                     </button>
 
-                    <p className="text-[11px] text-[#5a5a65] font-mono leading-relaxed pt-1">
+                    <p className="text-[11px] text-text-muted font-mono leading-relaxed pt-1">
                       Eine Mail beim Go-Live. Kein Newsletter. Jederzeit per Klick wieder austragbar.
                     </p>
                   </form>
@@ -217,18 +217,18 @@ export default function MaintenanceModal({
                     <div className="w-11 h-11 rounded-full bg-emerald-400/10 border border-emerald-400/30 flex items-center justify-center flex-shrink-0">
                       <CheckCircle2 size={20} className="text-emerald-400" />
                     </div>
-                    <h2 id="maintenance-title" className="text-2xl font-light tracking-tight text-[#F9FAFB]">
+                    <h2 id="maintenance-title" className="text-2xl font-light tracking-tight text-text-primary">
                       Eingetragen.
                     </h2>
                   </div>
-                  <p className="text-sm text-[#a4a4ad] leading-relaxed mb-6">
+                  <p className="text-sm text-text-secondary leading-relaxed mb-6">
                     Wir melden uns sobald der Shop wieder live geht — typischerweise ein paar Wochen. Bis dahin:
                     arbeite weiter, wir sammeln Daten und bauen.
                   </p>
                   <button
                     type="button"
                     onClick={onClose}
-                    className="w-full inline-flex items-center justify-center text-sm font-medium border border-white/10 text-[#a4a4ad] hover:text-[#F9FAFB] hover:border-[#e0a458]/40 px-5 py-3 transition-all"
+                    className="w-full inline-flex items-center justify-center text-sm font-medium border border-theme-border text-text-secondary hover:text-text-primary hover:border-theme-border-accent px-5 py-3 rounded-md transition-all"
                   >
                     Schließen
                   </button>

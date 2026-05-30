@@ -262,7 +262,7 @@ export default function ProjectAgentChat({ projectSlug, projectName, agentDispla
   return (
     <div className="card-premium p-0 overflow-hidden flex flex-col" style={{ minHeight: 520, maxHeight: 720 }}>
       {/* Header */}
-      <div className="px-5 py-4 border-b border-white/[0.06] flex items-center gap-3 bg-white/[0.015]">
+      <div className="px-3 sm:px-5 py-4 border-b border-white/[0.06] flex items-center gap-2 sm:gap-3 bg-white/[0.015]">
         <div className="w-9 h-9 rounded-lg bg-gold-400/12 border border-gold-400/30 flex items-center justify-center shrink-0">
           <Bot size={16} className="text-gold-300" />
         </div>
@@ -295,7 +295,7 @@ export default function ProjectAgentChat({ projectSlug, projectName, agentDispla
       </div>
 
       {/* Messages */}
-      <div ref={messagesRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-3" role="log" aria-live="polite">
+      <div ref={messagesRef} className="flex-1 overflow-y-auto px-3 sm:px-5 py-4 space-y-3" role="log" aria-live="polite">
         {session.messages.map((m, i) => (
           <MessageBubble key={i} msg={m} />
         ))}

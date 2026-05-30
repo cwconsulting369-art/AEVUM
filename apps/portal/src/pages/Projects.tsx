@@ -37,7 +37,7 @@ export default function Projects() {
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">Projekte</h1>
         </div>
-        <button onClick={() => setShowCreate(s => !s)} className="btn-gold text-sm">
+        <button onClick={() => setShowCreate(s => !s)} className="btn-gold text-sm w-full sm:w-auto justify-center">
           {showCreate ? <><X size={14} /> Abbrechen</> : <><Plus size={14} /> Neues Projekt</>}
         </button>
       </header>

@@ -100,19 +100,19 @@ export default function MaintenanceBanner() {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -64, opacity: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="sticky top-0 z-[60] w-full border-b border-[#e0a458]/25 bg-gradient-to-r from-[#0a0a0e] via-[#100d08] to-[#0a0a0e]"
+        className="sticky top-0 z-[60] w-full border-b border-theme-border-accent bg-bg-surface"
         role="status"
       >
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
           <div className="flex items-start sm:items-center gap-2.5 flex-1 min-w-0">
-            <div className="w-7 h-7 rounded-full bg-[#e0a458]/15 border border-[#e0a458]/30 flex items-center justify-center flex-shrink-0">
-              <Sparkles size={13} className="text-[#e0a458]" />
+            <div className="w-7 h-7 rounded-full bg-theme-accent/15 border border-theme-border-accent flex items-center justify-center flex-shrink-0">
+              <Sparkles size={13} className="text-theme-accent" />
             </div>
             <div className="min-w-0">
-              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#e0a458] block leading-tight">
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-theme-accent block leading-tight">
                 AEVUM · Launch-Vorbereitung
               </span>
-              <p className="text-[13px] text-[#d4d4dc] leading-tight mt-0.5 truncate sm:whitespace-normal">
+              <p className="text-[13px] text-text-secondary leading-tight mt-0.5 truncate sm:whitespace-normal">
                 {config.payments_paused_message ||
                   'Käufe pausiert — wir sammeln Daten der Pilot-Kunden bevor wir öffnen. Trag dich für die erste Welle ein.'}
               </p>
@@ -131,12 +131,12 @@ export default function MaintenanceBanner() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="du@firma.de"
                   aria-label="E-Mail für Launch-Benachrichtigung"
-                  className="flex-1 sm:w-56 bg-[#04040680] border border-white/12 px-3 py-1.5 text-xs text-[#F9FAFB] placeholder:text-[#5a5a65] focus:outline-none focus:border-[#e0a458]/50 focus:ring-1 focus:ring-[#e0a458]/30 transition-all"
+                  className="input-base flex-1 sm:w-56 min-w-0 py-1.5 text-xs"
                 />
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="inline-flex items-center justify-center gap-1.5 text-xs font-medium bg-[#e0a458] text-[#08080a] hover:bg-[#f0b468] disabled:opacity-60 disabled:cursor-not-allowed px-3 py-1.5 transition-all whitespace-nowrap"
+                  className="inline-flex items-center justify-center gap-1.5 text-xs font-medium bg-theme-accent text-text-on-accent hover:bg-theme-accent-hover disabled:opacity-60 disabled:cursor-not-allowed px-3 py-1.5 rounded-md transition-all whitespace-nowrap"
                 >
                   {submitting ? <Loader2 size={12} className="animate-spin" /> : 'Benachrichtige mich'}
                 </button>
@@ -151,7 +151,7 @@ export default function MaintenanceBanner() {
               type="button"
               onClick={dismiss}
               aria-label="Banner schließen"
-              className="text-[#7a7a85] hover:text-[#F9FAFB] transition-colors flex-shrink-0 p-1"
+              className="text-text-muted hover:text-text-primary transition-colors flex-shrink-0 p-1"
             >
               <X size={14} />
             </button>

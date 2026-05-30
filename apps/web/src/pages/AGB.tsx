@@ -20,30 +20,30 @@ export default function AGB() {
   });
 
   return (
-    <section className="px-6 lg:px-16 py-24 max-w-3xl mx-auto">
+    <section className="px-4 sm:px-6 lg:px-16 py-20 sm:py-24 max-w-3xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h1 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
-          Allgemeine <span className="text-[#e0a458]">Geschäftsbedingungen</span>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight mb-4 break-words">
+          Allgemeine <span className="text-theme-accent">Geschäftsbedingungen</span>
         </h1>
 
-        <p className="text-sm text-[#7a7a85] mb-6">Stand: 24. Mai 2026 · Version: agb-v3-saas-2026-05-24</p>
+        <p className="text-sm text-text-muted mb-6">Stand: 24. Mai 2026 · Version: agb-v3-saas-2026-05-24</p>
 
-        <div className="mb-12 border border-[#e0a458]/30 bg-[#e0a458]/[0.06] px-5 py-4 text-sm text-[#cfcfd4] leading-relaxed">
-          <strong className="text-[#e0a458]">Hinweis (Stand 25.05.2026):</strong> Dieser Text ist ein
+        <div className="mb-12 border border-theme-border-accent bg-theme-accent-soft px-5 py-4 text-sm text-text-secondary leading-relaxed">
+          <strong className="text-theme-accent">Hinweis (Stand 25.05.2026):</strong> Dieser Text ist ein
           Eigen-Entwurf des Anbieters und wurde noch nicht durch eine externe Rechtsanwaltskanzlei
           freigegeben. Wir arbeiten aktiv an einer anwaltlichen Prüfung vor produktivem Vertrieb.
           Bis dahin gilt: bei rechtlich kritischen Konstellationen bitte vor Vertragsschluss
           zusätzlich eigene anwaltliche Beratung einholen.
         </div>
 
-        <article className="prose prose-invert max-w-none space-y-8 text-[#a4a4ad] leading-relaxed">
+        <article className="prose prose-invert max-w-none space-y-8 text-text-secondary leading-relaxed break-words">
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 1 Geltungsbereich und Vertragspartner</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 1 Geltungsbereich und Vertragspartner</h2>
             <p>
               Diese Allgemeinen Geschäftsbedingungen gelten für sämtliche Verträge zwischen
               Carlos Wrusch, Federteilstr. 2e, 86517 Wehringen (nachfolgend „Anbieter" oder
@@ -55,7 +55,7 @@ export default function AGB() {
               AEVUM richtet sich primär an Unternehmer im Sinne von § 14 BGB (B2B). Bei
               Verbrauchern im Sinne von § 13 BGB (B2C) gelten ergänzend die gesetzlichen
               Verbraucherschutz-Regelungen, insbesondere das Widerrufsrecht (siehe{' '}
-              <a href="#/widerrufsbelehrung" className="text-[#e0a458] hover:underline">Widerrufsbelehrung</a>).
+              <a href="#/widerrufsbelehrung" className="text-theme-accent hover:underline">Widerrufsbelehrung</a>).
             </p>
             <p>
               Abweichende, entgegenstehende oder ergänzende AGB des Kunden werden nur Vertragsbestandteil,
@@ -64,7 +64,7 @@ export default function AGB() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 2 Vertragsschluss</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 2 Vertragsschluss</h2>
             <ol className="list-decimal pl-6 space-y-2">
               <li>
                 Die Darstellung der Pakete und Add-ons auf der Website stellt kein bindendes
@@ -92,7 +92,7 @@ export default function AGB() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 3 Leistungsgegenstand</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 3 Leistungsgegenstand</h2>
             <p>Der konkrete Leistungsumfang ergibt sich aus der Paketbeschreibung auf der Website:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>Paket S — Start (3.900 €):</strong> Workflow-Audit + Automatisierungs-Roadmap + Priorisierungs-Matrix, Lieferung in 5 Werktagen nach Kickoff. Kein Build inkludiert.</li>
@@ -114,7 +114,7 @@ export default function AGB() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 4 Vergütung und Zahlungsbedingungen</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 4 Vergütung und Zahlungsbedingungen</h2>
             <ol className="list-decimal pl-6 space-y-2">
               <li>
                 Es gelten die zum Zeitpunkt der Bestellung auf der Website ausgewiesenen Preise
@@ -150,7 +150,7 @@ export default function AGB() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 5 Zahlungsabwicklung (Stripe)</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 5 Zahlungsabwicklung (Stripe)</h2>
             <p>
               Die Zahlungsabwicklung erfolgt über die Stripe Payments Europe Ltd., 1 Grand
               Canal Street Lower, Grand Canal Dock, Dublin, Irland (nachfolgend „Stripe").
@@ -159,13 +159,13 @@ export default function AGB() {
             </p>
             <p>
               Welche Daten Stripe verarbeitet und auf welcher Rechtsgrundlage, ist in der{' '}
-              <a href="#/datenschutz" className="text-[#e0a458] hover:underline">Datenschutzerklärung</a>{' '}
+              <a href="#/datenschutz" className="text-theme-accent hover:underline">Datenschutzerklärung</a>{' '}
               detailliert beschrieben.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 5a SaaS-Tools — Credit-Verbrauch, Refund-Policy und Premium-Track</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 5a SaaS-Tools — Credit-Verbrauch, Refund-Policy und Premium-Track</h2>
             <ol className="list-decimal pl-6 space-y-2">
               <li>
                 <strong>Credit-Verbrauch:</strong> Jeder erfolgreiche Lauf eines SaaS-Tools (z.B.
@@ -202,7 +202,7 @@ export default function AGB() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 6 Mitwirkungspflichten des Kunden</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 6 Mitwirkungspflichten des Kunden</h2>
             <ol className="list-decimal pl-6 space-y-2">
               <li>Der Kunde stellt AEVUM alle für die Leistungserbringung notwendigen Informationen, Zugänge und Materialien rechtzeitig zur Verfügung.</li>
               <li>Wenn der Kunde personenbezogene Daten Dritter (z.B. Endkunden, Mitarbeiter) verarbeitet, schließen die Parteien einen separaten Auftragsverarbeitungsvertrag (AVV) nach Art 28 DSGVO. Ein Template stellt AEVUM auf Anfrage kostenfrei zur Verfügung.</li>
@@ -212,7 +212,7 @@ export default function AGB() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 7 Nutzungsrechte</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 7 Nutzungsrechte</h2>
             <p>
               Soweit AEVUM im Rahmen der Leistungserbringung urheberrechtlich geschützte Werke
               erstellt (Code, Workflows, Dokumentation, Konfigurationen), erhält der Kunde
@@ -227,7 +227,7 @@ export default function AGB() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 8 Verfügbarkeit (Paket L und Hosting-Services)</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 8 Verfügbarkeit (Paket L und Hosting-Services)</h2>
             <p>
               AEVUM strebt eine Verfügbarkeit der gehosteten Systeme von 99 % im Jahresmittel
               an, ohne Anspruch auf ständige Erreichbarkeit. Geplante Wartungsfenster und
@@ -237,7 +237,7 @@ export default function AGB() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 9 Haftung</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 9 Haftung</h2>
             <ol className="list-decimal pl-6 space-y-2">
               <li>AEVUM haftet unbeschränkt für Vorsatz und grobe Fahrlässigkeit sowie für Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit.</li>
               <li>Bei leichter Fahrlässigkeit haftet AEVUM nur bei Verletzung wesentlicher Vertragspflichten (Kardinalpflichten), begrenzt auf den vertragstypischen, vorhersehbaren Schaden.</li>
@@ -248,10 +248,10 @@ export default function AGB() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 10 Datenschutz und Vertraulichkeit</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 10 Datenschutz und Vertraulichkeit</h2>
             <p>
               Die Verarbeitung personenbezogener Daten erfolgt gemäß{' '}
-              <a href="#/datenschutz" className="text-[#e0a458] hover:underline">Datenschutzerklärung</a>.
+              <a href="#/datenschutz" className="text-theme-accent hover:underline">Datenschutzerklärung</a>.
               Soweit AEVUM personenbezogene Daten im Auftrag des Kunden verarbeitet (z.B.
               Endkunden-Daten), wird ein separater AVV nach Art 28 DSGVO geschlossen.
             </p>
@@ -263,11 +263,11 @@ export default function AGB() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 11 Widerrufsrecht (nur Verbraucher)</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 11 Widerrufsrecht (nur Verbraucher)</h2>
             <p>
               Verbraucher im Sinne von § 13 BGB haben ein gesetzliches Widerrufsrecht von
               14 Tagen ab Vertragsschluss. Details siehe{' '}
-              <a href="#/widerrufsbelehrung" className="text-[#e0a458] hover:underline">Widerrufsbelehrung</a>.
+              <a href="#/widerrufsbelehrung" className="text-theme-accent hover:underline">Widerrufsbelehrung</a>.
             </p>
             <p>
               Bei sofortigem Beginn der Dienstleistung auf ausdrücklichen Wunsch des
@@ -283,7 +283,7 @@ export default function AGB() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 12 Laufzeit und Kündigung</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 12 Laufzeit und Kündigung</h2>
             <ol className="list-decimal pl-6 space-y-2">
               <li>Einmal-Pakete (S, M, Add-ons): enden mit vollständiger Leistungserbringung.</li>
               <li>Subscription (Paket L): Mindestlaufzeit 3 Monate, danach monatlich kündbar zum Monatsende mit Frist von 14 Tagen.</li>
@@ -294,21 +294,21 @@ export default function AGB() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">§ 13 Schlussbestimmungen</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">§ 13 Schlussbestimmungen</h2>
             <ol className="list-decimal pl-6 space-y-2">
               <li>Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts.</li>
               <li>Gerichtsstand für sämtliche Streitigkeiten aus diesem Vertragsverhältnis ist der Wohnsitz des Anbieters (Wehringen, Amtsgericht Augsburg), soweit der Kunde Kaufmann, juristische Person des öffentlichen Rechts oder öffentlich-rechtliches Sondervermögen ist oder seinen Wohnsitz nach Vertragsschluss ins Ausland verlegt.</li>
-              <li>Plattform der Europäischen Kommission zur Online-Streitbeilegung: <a href="https://ec.europa.eu/consumers/odr/" className="text-[#e0a458] hover:underline" target="_blank" rel="noopener noreferrer">https://ec.europa.eu/consumers/odr/</a>. AEVUM ist nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</li>
+              <li>Plattform der Europäischen Kommission zur Online-Streitbeilegung: <a href="https://ec.europa.eu/consumers/odr/" className="text-theme-accent hover:underline" target="_blank" rel="noopener noreferrer">https://ec.europa.eu/consumers/odr/</a>. AEVUM ist nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</li>
               <li>Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt. An die Stelle der unwirksamen Bestimmung tritt die gesetzliche Regelung.</li>
             </ol>
           </section>
 
         </article>
 
-        <div className="mt-16 pt-8 border-t border-white/10 text-sm text-[#7a7a85] flex flex-wrap gap-6">
-          <a href="#/datenschutz" className="hover:text-[#e0a458]">Datenschutz</a>
-          <a href="#/impressum" className="hover:text-[#e0a458]">Impressum</a>
-          <a href="#/widerrufsbelehrung" className="hover:text-[#e0a458]">Widerrufsbelehrung</a>
+        <div className="mt-16 pt-8 border-t border-theme-border text-sm text-text-muted flex flex-wrap gap-6">
+          <a href="#/datenschutz" className="hover:text-theme-accent">Datenschutz</a>
+          <a href="#/impressum" className="hover:text-theme-accent">Impressum</a>
+          <a href="#/widerrufsbelehrung" className="hover:text-theme-accent">Widerrufsbelehrung</a>
         </div>
       </motion.div>
     </section>

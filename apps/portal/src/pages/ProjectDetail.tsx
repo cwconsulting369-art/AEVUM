@@ -219,11 +219,11 @@ function ApisSection({ apis, slug, onRefresh }: { apis: ApiRow[]; slug: string; 
               <input required type="password" value={form.key} onChange={e => setForm({ ...form, key: e.target.value })} className="input-premium pl-9 font-mono" placeholder="••••••••••••••••" />
             </div>
           </Field>
-          <div className="flex items-center justify-between gap-4 pt-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pt-1">
             <p className="text-[0.65rem] text-ink-400 flex-1 leading-relaxed">
               Schlüssel wird sofort AES-256-GCM verschlüsselt. Nur on-the-fly für API-Calls entschlüsselt.
             </p>
-            <button disabled={submitting || !form.service || !form.key} className="btn-gold shrink-0 text-sm">
+            <button disabled={submitting || !form.service || !form.key} className="btn-gold shrink-0 text-sm w-full sm:w-auto justify-center">
               {submitting ? <><span className="w-3.5 h-3.5 border-2 border-ink-950/50 border-t-ink-950 rounded-full animate-spin" /> Einreichen…</> : <><Lock size={13} /> Einreichen</>}
             </button>
           </div>
@@ -240,15 +240,15 @@ function ApisSection({ apis, slug, onRefresh }: { apis: ApiRow[]; slug: string; 
         ) : (
           <div className="space-y-2">
             {apis.map((k, i) => (
-              <div key={k.id} className="card-premium p-4 flex items-center justify-between gap-4 animate-fade-up" style={stagger(i, 40, 40)}>
+              <div key={k.id} className="card-premium p-4 flex items-center justify-between gap-3 sm:gap-4 animate-fade-up" style={stagger(i, 40, 40)}>
                 <div className="min-w-0 flex-1 flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center shrink-0">
                     <Lock size={13} className="text-gold-300" />
                   </div>
                   <div className="min-w-0">
-                    <div className="font-medium text-white text-sm flex items-center gap-2 truncate">
-                      {k.service}
-                      {k.key_label && <span className="text-ink-400 text-xs">— {k.key_label}</span>}
+                    <div className="font-medium text-white text-sm flex items-center gap-2 min-w-0">
+                      <span className="truncate">{k.service}</span>
+                      {k.key_label && <span className="text-ink-400 text-xs truncate">— {k.key_label}</span>}
                     </div>
                     <div className="text-[0.65rem] text-ink-400 mt-0.5 flex items-center gap-2 flex-wrap">
                       <span className="badge">{k.scope}</span>

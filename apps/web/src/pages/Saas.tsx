@@ -57,7 +57,7 @@ function StatusBadge({ tool }: { tool: SaasTool }) {
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border bg-white/5 border-white/15 text-text-primary/50">
+    <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border bg-bg-elevated border-theme-border-strong text-text-muted">
       <Clock size={10} />
       Konzept
     </span>
@@ -77,51 +77,51 @@ function ToolCard({ tool, idx }: { tool: SaasTool; idx: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.45, delay: idx * 0.06 }}
-      className={`group relative block bg-bg-primary border rounded-lg p-6 transition-all overflow-hidden ${
+      className={`group relative block bg-bg-surface border rounded-lg p-5 sm:p-6 transition-all overflow-hidden ${
         dimmed
-          ? 'border-white/8 hover:border-white/15 opacity-70'
-          : 'border-[#e0a458]/15 hover:border-[#e0a458]/40 hover:bg-[#0c0c0c]'
+          ? 'border-theme-border hover:border-theme-border-strong opacity-70'
+          : 'border-theme-border-accent hover:border-theme-accent/60 hover:bg-bg-elevated'
       }`}
     >
       {/* Top: badges */}
-      <div className="flex items-center justify-between gap-2 mb-4">
-        <div className="flex items-center gap-1.5 flex-wrap">
+      <div className="flex items-center justify-between gap-2 mb-4 min-w-0">
+        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
           <StatusBadge tool={tool} />
           <SecurityBadge level={tool.securityLevel} />
         </div>
-        <span className="font-mono text-[10px] uppercase tracking-widest text-text-primary/30">
+        <span className="font-mono text-[10px] uppercase tracking-widest text-text-muted flex-shrink-0">
           {tool.category}
         </span>
       </div>
 
       {/* Title */}
-      <h3 className={`text-xl font-light leading-tight mb-2 ${dimmed ? 'text-text-primary/70' : 'text-text-primary'}`}>
+      <h3 className={`text-lg sm:text-xl font-light leading-tight mb-2 break-words ${dimmed ? 'text-text-secondary' : 'text-text-primary'}`}>
         {tool.name}
       </h3>
-      <p className="text-sm text-text-primary/55 leading-relaxed mb-5 line-clamp-2">{tool.tagline}</p>
+      <p className="text-sm text-text-secondary leading-relaxed mb-5 line-clamp-2">{tool.tagline}</p>
 
       {/* Price */}
       <div className="flex items-center gap-2 mb-5">
-        <Coins size={13} className={dimmed ? 'text-text-primary/30' : 'text-[#e0a458]'} />
-        <span className={`text-xs font-mono ${dimmed ? 'text-text-primary/40' : 'text-[#e0a458]'}`}>
+        <Coins size={13} className={dimmed ? 'text-text-muted' : 'text-theme-accent'} />
+        <span className={`text-xs font-mono ${dimmed ? 'text-text-muted' : 'text-theme-accent'}`}>
           {tool.pricePerRunLabel}
         </span>
       </div>
 
       {/* CTA */}
-      <div className="flex items-center justify-between border-t border-white/5 pt-4">
-        <span className={`text-xs font-mono uppercase tracking-wider ${dimmed ? 'text-text-primary/40' : 'text-text-primary/70 group-hover:text-[#e0a458]'} transition-colors`}>
+      <div className="flex items-center justify-between border-t border-theme-border pt-4">
+        <span className={`text-xs font-mono uppercase tracking-wider ${dimmed ? 'text-text-muted' : 'text-text-secondary group-hover:text-theme-accent'} transition-colors`}>
           {tool.status === 'coming-soon' ? 'Details' : 'Jetzt nutzen'}
         </span>
         <ArrowRight
           size={15}
-          className={`${dimmed ? 'text-text-primary/30' : 'text-[#e0a458] group-hover:translate-x-1'} transition-transform`}
+          className={`${dimmed ? 'text-text-muted' : 'text-theme-accent group-hover:translate-x-1'} transition-transform`}
         />
       </div>
 
       {/* Hover-Glow */}
       {!dimmed && (
-        <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-[#e0a458]/5 via-transparent to-transparent" />
+        <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-theme-accent/5 via-transparent to-transparent" />
       )}
     </motion.a>
     </TiltCard>
@@ -130,45 +130,45 @@ function ToolCard({ tool, idx }: { tool: SaasTool; idx: number }) {
 
 function PackagesStrip() {
   return (
-    <section className="border-t border-white/5 py-16">
-      <div className="max-w-6xl mx-auto px-6">
+    <section className="border-t border-theme-border py-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10">
-          <span className="font-mono text-xs uppercase tracking-widest text-[#e0a458] mb-3 block">
+          <span className="font-mono text-xs uppercase tracking-widest text-theme-accent mb-3 block">
             Credit-Pakete
           </span>
           <h2 className="text-2xl md:text-3xl font-light text-text-primary mb-3">
             Pay-per-Use, kein Abo
           </h2>
-          <p className="text-sm text-text-primary/55 max-w-xl mx-auto leading-relaxed">
+          <p className="text-sm text-text-secondary max-w-xl mx-auto leading-relaxed">
             Lädst Credits einmalig auf, verbrauchst sie pro SaaS-Run. Credits verfallen nicht.
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3 max-w-3xl mx-auto">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3 max-w-3xl mx-auto">
           {CREDIT_PACKAGES.map((pkg) => (
             <div
               key={pkg.slug}
-              className={`relative bg-bg-primary border rounded-lg p-6 ${
-                pkg.featured ? 'border-[#e0a458]/40' : 'border-white/8'
+              className={`relative bg-bg-surface border rounded-lg p-6 ${
+                pkg.featured ? 'border-theme-border-accent' : 'border-theme-border'
               }`}
             >
               {pkg.featured && (
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 font-mono text-[9px] uppercase tracking-widest text-black bg-[#e0a458] px-2.5 py-1 rounded">
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 font-mono text-[9px] uppercase tracking-widest text-on-accent bg-theme-accent px-2.5 py-1 rounded">
                   Beliebt
                 </span>
               )}
               <div className="text-center">
-                <div className="text-xs font-mono uppercase tracking-wider text-text-primary/50 mb-1">
+                <div className="text-xs font-mono uppercase tracking-wider text-text-muted mb-1">
                   {pkg.name}
                 </div>
                 <div className="text-3xl font-light text-text-primary mb-1">€{pkg.priceEur}</div>
-                <div className="text-sm text-text-primary/60">{pkg.credits} Credits</div>
+                <div className="text-sm text-text-secondary">{pkg.credits} Credits</div>
                 {pkg.bonusPct > 0 && (
                   <div className="font-mono text-[10px] uppercase tracking-wider text-emerald-400 mt-2">
                     +{pkg.bonusPct}% Bonus
                   </div>
                 )}
-                <div className="text-xs text-text-primary/40 mt-3 font-mono">{pkg.runsHint}</div>
+                <div className="text-xs text-text-muted mt-3 font-mono">{pkg.runsHint}</div>
               </div>
             </div>
           ))}
@@ -186,24 +186,24 @@ function HowItWorks() {
     { n: 4, title: 'Pay-per-Run', text: 'Credits werden pro Run abgezogen. Nachladen jederzeit.' },
   ];
   return (
-    <section className="border-t border-white/5 py-16">
-      <div className="max-w-6xl mx-auto px-6">
+    <section className="border-t border-theme-border py-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
-          <span className="font-mono text-xs uppercase tracking-widest text-[#e0a458] mb-3 block">
+          <span className="font-mono text-xs uppercase tracking-widest text-theme-accent mb-3 block">
             So funktioniert es
           </span>
           <h2 className="text-2xl md:text-3xl font-light text-text-primary">
             Vom ersten Klick zum ersten Run in 90 Sekunden
           </h2>
         </div>
-        <div className="grid gap-6 md:grid-cols-4">
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
           {steps.map((s) => (
             <div key={s.n} className="text-center">
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-[#e0a458]/30 bg-[#e0a458]/8 text-[#e0a458] font-mono text-sm mb-3">
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-theme-border-accent bg-theme-accent-soft text-theme-accent font-mono text-sm mb-3">
                 {s.n}
               </div>
               <h3 className="text-sm text-text-primary mb-1.5 font-medium">{s.title}</h3>
-              <p className="text-xs text-text-primary/55 leading-relaxed">{s.text}</p>
+              <p className="text-xs text-text-secondary leading-relaxed">{s.text}</p>
             </div>
           ))}
         </div>
@@ -226,34 +226,34 @@ export default function Saas() {
   const partialCount = tools.filter((t) => t.status === 'partial').length;
 
   return (
-    <div className="min-h-screen bg-black text-text-primary">
+    <div className="min-h-screen bg-bg-primary text-text-primary overflow-x-hidden">
       {/* ─── Hero ─── */}
       <section className="relative pt-20 pb-16 md:pt-28 md:pb-20 overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#e0a458]/[0.04] via-transparent to-transparent" />
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-theme-accent/[0.04] via-transparent to-transparent" />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#e0a458]/25 bg-[#e0a458]/8 mb-6">
-              <Sparkles size={12} className="text-[#e0a458]" />
-              <span className="font-mono text-[10px] uppercase tracking-widest text-[#e0a458]">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-theme-border-accent bg-theme-accent-soft mb-6">
+              <Sparkles size={12} className="text-theme-accent" />
+              <span className="font-mono text-[10px] uppercase tracking-widest text-theme-accent">
                 AEVUM SaaS
               </span>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight leading-[1.05] text-text-primary mb-5">
+            <h1 className="text-[clamp(2rem,7vw,3.75rem)] font-light tracking-tight leading-[1.05] text-text-primary mb-5">
               AEVUM SaaS-Tools
               <br />
-              <span className="text-[#e0a458]">Pay-per-Use AI-Pipelines</span>
+              <span className="text-theme-accent">Pay-per-Use AI-Pipelines</span>
             </h1>
-            <p className="text-base md:text-lg text-text-primary/60 max-w-2xl mx-auto leading-relaxed mb-8">
+            <p className="text-base md:text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed mb-8">
               Keine Setup-Fees. Keine Subscriptions. Du zahlst pro Run via AEVUM Credits.
               Ad-Scripts, DSGVO-Texte, Leads — alle Pipelines in einem Account.
             </p>
 
             {/* Mini-Stats */}
-            <div className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-mono text-text-primary/50">
+            <div className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-mono text-text-muted">
               <span className="inline-flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                 {liveCount} live
@@ -277,14 +277,14 @@ export default function Saas() {
 
       {/* ─── Tools-Grid ─── */}
       <section className="pb-20">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex items-center gap-2 mb-6">
-            <LayoutGrid size={14} className="text-[#e0a458]" />
-            <span className="font-mono text-xs uppercase tracking-widest text-[#e0a458]">
+            <LayoutGrid size={14} className="text-theme-accent" />
+            <span className="font-mono text-xs uppercase tracking-widest text-theme-accent">
               Verfügbare Tools
             </span>
           </div>
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
             {tools.map((tool, idx) => (
               <ToolCard key={tool.slug} tool={tool} idx={idx} />
             ))}
@@ -296,25 +296,25 @@ export default function Saas() {
       <HowItWorks />
 
       {/* ─── Footer-CTA ─── */}
-      <section className="border-t border-white/5 py-16 text-center">
-        <div className="max-w-2xl mx-auto px-6">
+      <section className="border-t border-theme-border py-16 text-center">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6">
           <h2 className="text-2xl md:text-3xl font-light text-text-primary mb-4">
             Du brauchst Custom-Setup statt Self-Service?
           </h2>
-          <p className="text-text-primary/55 mb-6 leading-relaxed text-sm">
+          <p className="text-text-secondary mb-6 leading-relaxed text-sm">
             Unsere DFY-Services bauen Pipelines auf deinem Server mit Custom-Voice-Tuning.
             Im Shop verfügbar.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <a
               href="#/shop"
-              className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/15 hover:border-white/30 text-text-primary text-sm rounded transition"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] border border-theme-border-strong hover:border-theme-accent/50 text-text-primary text-sm rounded transition"
             >
               Zum Shop <ArrowRight size={14} />
             </a>
             <a
               href="#/audit"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#e0a458] text-black text-sm font-medium rounded hover:bg-[#e6b170] transition"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] bg-theme-accent text-on-accent text-sm font-medium rounded hover:bg-theme-accent/90 transition"
             >
               Audit-Call buchen <ArrowRight size={14} />
             </a>

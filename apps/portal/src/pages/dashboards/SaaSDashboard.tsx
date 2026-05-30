@@ -327,7 +327,7 @@ function RunHistoryTable() {
 
   return (
     <div className="card-premium divide-y divide-white/5">
-      <div className="hidden sm:grid grid-cols-12 gap-3 px-5 py-2 text-[0.6rem] uppercase tracking-wider text-ink-500 font-semibold">
+      <div className="hidden sm:grid grid-cols-12 gap-3 px-4 sm:px-5 py-2 text-[0.6rem] uppercase tracking-wider text-ink-500 font-semibold">
         <div className="col-span-3">Datum</div>
         <div className="col-span-2">Tool</div>
         <div className="col-span-3">Detail</div>
@@ -351,7 +351,7 @@ function RunRow({ run }: { run: FactoryRun }) {
   const out = run.pdf_url || run.output_url;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-3 px-5 py-3 text-sm items-center">
+    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-3 px-4 sm:px-5 py-3 text-sm items-center">
       <div className="sm:col-span-3 text-ink-300 text-[0.75rem] tabular-nums">{date}</div>
       <div className="sm:col-span-2">
         <span className="text-[0.65rem] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-ink-200">

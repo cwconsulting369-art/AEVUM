@@ -324,22 +324,22 @@ export default function LeadScraperTool() {
 
   // ── Render ────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-ink-950 text-ink-100 p-6 md:p-10">
+    <div className="min-h-screen bg-ink-950 text-ink-100 p-4 sm:p-6 md:p-10">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div className="min-w-0">
             <Link to="/dashboard" className="text-ink-400 hover:text-ink-200 text-sm flex items-center gap-1 mb-2">
               <ChevronLeft className="w-4 h-4" /> Dashboard
             </Link>
-            <h1 className="text-3xl font-serif text-white flex items-center gap-3">
-              <Users className="w-7 h-7 text-amber-400" />
+            <h1 className="text-2xl sm:text-3xl font-serif text-white flex items-center gap-3">
+              <Users className="w-7 h-7 text-amber-400 shrink-0" />
               Lead-Scraper-Factory
             </h1>
             <p className="text-ink-400 text-sm mt-1">CSV-Upload → AEVUM-Brandtone-Pitches → Send via audit@aevum-system.de</p>
           </div>
-          <div className="text-right">
-            <div className="flex items-center gap-2 text-sm text-amber-400 justify-end">
+          <div className="text-left sm:text-right shrink-0">
+            <div className="flex items-center gap-2 text-sm text-amber-400 sm:justify-end">
               <Coins className="w-4 h-4" />
               {credits === null ? '…' : `${credits} Credits`}
             </div>
@@ -348,7 +348,7 @@ export default function LeadScraperTool() {
         </div>
 
         {/* Step indicator */}
-        <div className="flex gap-2 mb-6 text-xs">
+        <div className="flex gap-2 mb-6 text-xs overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
           {(['setup', 'brandtone', 'generate', 'review'] as Step[]).map((s, i) => {
             const isCurrent = step === s;
             const idx = ['setup', 'brandtone', 'generate', 'review'].indexOf(step);
@@ -356,7 +356,7 @@ export default function LeadScraperTool() {
             return (
               <div
                 key={s}
-                className={`px-3 py-1.5 rounded-md border ${isCurrent ? 'bg-amber-400/10 border-amber-400/40 text-amber-300' : isPast ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-ink-900/50 border-ink-700 text-ink-500'}`}
+                className={`px-3 py-1.5 rounded-md border whitespace-nowrap shrink-0 ${isCurrent ? 'bg-amber-400/10 border-amber-400/40 text-amber-300' : isPast ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-ink-900/50 border-ink-700 text-ink-500'}`}
               >
                 {i + 1}. {s === 'setup' ? 'Setup' : s === 'brandtone' ? 'Brandtone' : s === 'generate' ? 'Generate' : 'Review & Send'}
               </div>
@@ -542,9 +542,9 @@ export default function LeadScraperTool() {
         {/* ── STEP 4: Review ──────────────────────────── */}
         {step === 'review' && activeCampaign && (
           <section className="space-y-4">
-            <div className="bg-ink-900/50 border border-ink-800 rounded-xl p-5 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-medium text-white">{activeCampaign.name}</h2>
+            <div className="bg-ink-900/50 border border-ink-800 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="min-w-0">
+                <h2 className="text-lg font-medium text-white break-words">{activeCampaign.name}</h2>
                 <div className="text-xs text-ink-400 mt-1">
                   Status: <span className={`px-2 py-0.5 rounded ${
                     activeCampaign.status === 'complete' ? 'bg-emerald-500/10 text-emerald-400' :
@@ -556,7 +556,7 @@ export default function LeadScraperTool() {
                   {leads.length} Leads ({generatedCount} generiert, {approvedCount} approved, {sentCount} sent)
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2 shrink-0">
                 <button onClick={resetWizard} className="px-3 py-1.5 bg-ink-800 hover:bg-ink-700 text-ink-200 rounded-md text-xs flex items-center gap-1">
                   <RotateCcw className="w-3.5 h-3.5" /> Neue Campaign
                 </button>
@@ -642,19 +642,19 @@ function LeadCard({
 
   return (
     <div className="bg-ink-900/40 border border-ink-800 rounded-xl p-5">
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <div className="text-white font-medium flex items-center gap-2">
-            <Mail className="w-4 h-4 text-amber-400" />
-            {lead.owner_name || '(unbekannt)'} · <span className="text-ink-300 text-sm">{lead.company_name || '—'}</span>
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="min-w-0">
+          <div className="text-white font-medium flex items-center gap-2 flex-wrap">
+            <Mail className="w-4 h-4 text-amber-400 shrink-0" />
+            <span className="break-words">{lead.owner_name || '(unbekannt)'}</span> · <span className="text-ink-300 text-sm break-words">{lead.company_name || '—'}</span>
           </div>
-          <div className="text-xs text-ink-500 mt-1 flex items-center gap-3">
-            <span>{lead.owner_email}</span>
-            {lead.company_domain && <span>· {lead.company_domain}</span>}
+          <div className="text-xs text-ink-500 mt-1 flex items-center gap-x-3 gap-y-1 flex-wrap">
+            <span className="break-all">{lead.owner_email}</span>
+            {lead.company_domain && <span className="break-all">· {lead.company_domain}</span>}
             {lead.owner_linkedin_url && <a href={lead.owner_linkedin_url} target="_blank" rel="noreferrer" className="text-amber-400 hover:underline">LinkedIn</a>}
           </div>
         </div>
-        <span className={`text-xs px-2 py-1 rounded border ${statusColor}`}>{lead.outreach_status}</span>
+        <span className={`text-xs px-2 py-1 rounded border shrink-0 ${statusColor}`}>{lead.outreach_status}</span>
       </div>
 
       {lead.outreach_status === 'pending' && (

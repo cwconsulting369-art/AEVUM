@@ -160,7 +160,7 @@ export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: 
       </header>
 
       {/* Sub-Tab Navigation */}
-      <nav className="flex gap-1 border-b border-white/5 -mb-2 overflow-x-auto">
+      <nav className="flex gap-1 border-b border-white/5 -mb-2 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         {[
           { id: 'metrics' as const,   label: 'Metriken',  icon: TrendingUp },
           { id: 'leads' as const,     label: 'Leads',     icon: Users },
@@ -230,10 +230,10 @@ function MetricsSection({ metrics, leadsCount }: { metrics: Metrics; leadsCount:
 
       <section>
         <SectionHeader icon={Users} title="Lead-Tier-Verteilung" sub={`${leadsCount} Leads gesamt`} />
-        <div className="card-premium p-5 grid lg:grid-cols-2 gap-6">
+        <div className="card-premium p-4 sm:p-5 grid lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Tremor BarChart — Tier-Verteilung */}
           <BarChart
-            className="h-56"
+            className="h-56 w-full"
             data={['A','B','C','D','unscored'].map((t) => ({
               tier: TIER_LABEL[t],
               Leads: metrics.by_tier[t] || 0,
@@ -246,7 +246,7 @@ function MetricsSection({ metrics, leadsCount }: { metrics: Metrics; leadsCount:
           />
           {/* Tremor DonutChart — Tier-Anteil */}
           <DonutChart
-            className="h-56"
+            className="h-56 w-full"
             data={['A','B','C','D','unscored']
               .map((t) => ({ name: TIER_LABEL[t], value: metrics.by_tier[t] || 0 }))
               .filter((d) => d.value > 0)}

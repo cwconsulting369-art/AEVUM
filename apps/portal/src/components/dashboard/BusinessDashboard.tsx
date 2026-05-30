@@ -58,7 +58,7 @@ export default function BusinessDashboard({ slug }: Props) {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in">
       {/* Section 1: KPI-Strip */}
       <section aria-labelledby="kpis-heading">
         <h2 id="kpis-heading" className="sr-only">Top-KPIs</h2>
@@ -67,20 +67,20 @@ export default function BusinessDashboard({ slug }: Props) {
 
       {/* Section 2: Pipeline-Funnel */}
       <section>
-        <header className="flex items-center justify-between mb-4">
+        <header className="flex flex-wrap items-center justify-between gap-2 mb-4">
           <h2 className="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
             <Filter size={14} className="text-gold-300" /> Pipeline-Funnel
           </h2>
           <span className="text-[0.65rem] text-ink-400">letzte 12 Wochen</span>
         </header>
-        <div className="card-premium p-6">
+        <div className="card-premium p-4 sm:p-6">
           <FunnelChart stages={data.funnel} />
         </div>
       </section>
 
       {/* Section 3: Recent Audits */}
       <section>
-        <header className="flex items-center justify-between mb-4">
+        <header className="flex flex-wrap items-center justify-between gap-2 mb-4">
           <h2 className="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
             <ListChecks size={14} className="text-gold-300" /> Letzte Audits
           </h2>

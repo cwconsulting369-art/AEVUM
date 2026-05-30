@@ -346,16 +346,16 @@ export default function ScriptFactoryTool() {
       {/* STEP: Settings */}
       {step === 'settings' && currentUseCase && (
         <div className="card-premium p-6 space-y-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+            <div className="min-w-0">
               <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                <Film size={16} className="text-gold-300" /> Settings · {currentUseCase.name}
+                <Film size={16} className="text-gold-300 shrink-0" /> Settings · {currentUseCase.name}
               </h2>
               <p className="text-sm text-ink-400 mt-1">
                 Beantworte was die Pipeline für gute Output-Qualität braucht.
               </p>
             </div>
-            <button onClick={() => setStep('use-case')} className="btn-ghost py-1.5 px-3 text-xs inline-flex items-center gap-1.5">
+            <button onClick={() => setStep('use-case')} className="btn-ghost py-1.5 px-3 text-xs inline-flex items-center gap-1.5 self-start shrink-0">
               <ChevronLeft size={12} /> Use-Case ändern
             </button>
           </div>
@@ -381,16 +381,16 @@ export default function ScriptFactoryTool() {
       {/* STEP: Upload */}
       {step === 'upload' && currentUseCase && (
         <div className="card-premium p-6 space-y-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+            <div className="min-w-0">
               <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                <Upload size={16} className="text-gold-300" /> Skript hochladen
+                <Upload size={16} className="text-gold-300 shrink-0" /> Skript hochladen
               </h2>
               <p className="text-sm text-ink-400 mt-1">
                 Direkter Paste empfohlen. Min 50 / max 10.000 Zeichen.
               </p>
             </div>
-            <button onClick={() => setStep('settings')} className="btn-ghost py-1.5 px-3 text-xs inline-flex items-center gap-1.5">
+            <button onClick={() => setStep('settings')} className="btn-ghost py-1.5 px-3 text-xs inline-flex items-center gap-1.5 self-start shrink-0">
               <ChevronLeft size={12} /> Settings
             </button>
           </div>

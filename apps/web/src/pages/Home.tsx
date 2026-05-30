@@ -193,15 +193,15 @@ function HeroSection() {
       <div className="mesh-bg" aria-hidden />
       <div className="noise-overlay absolute inset-0 pointer-events-none" aria-hidden />
       <ParticleCanvas />
-      <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+      <div className="relative z-10 text-center px-4 sm:px-6 max-w-5xl mx-auto">
         <motion.a
           href="#/waitlist"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-2 font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.14em] text-[#e0a458] mb-6 border border-[#e0a458]/30 bg-[#e0a458]/[0.06] hover:bg-[#e0a458]/[0.1] px-3 py-1.5 transition-colors"
+          className="inline-flex items-center gap-2 font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.14em] text-theme-accent mb-6 border border-theme-border-accent bg-theme-accent-soft hover:bg-theme-accent-soft px-3 py-1.5 transition-colors"
         >
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#e0a458] animate-pulse" />
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-theme-accent animate-pulse" />
           Pre-Launch · Early-Access-Liste eintragen →
         </motion.a>
         <motion.h1
@@ -220,7 +220,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="text-base md:text-lg text-[#a4a4ad] max-w-2xl mx-auto mb-8 leading-relaxed"
+          className="text-base md:text-lg text-text-secondary max-w-2xl mx-auto mb-8 leading-relaxed"
         >
           Fuer Unternehmer, die KI richtig einsetzen wollen — nicht einfach nur ausprobieren.
           Weniger manuelle Arbeit. Mehr Output. Klare Ergebnisse.
@@ -243,7 +243,7 @@ function HeroSection() {
             href={CONTACT.whatsapp}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm text-[#a4a4ad] hover:text-[#e0a458] underline-offset-4 hover:underline transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-theme-accent underline-offset-4 hover:underline transition-colors"
           >
             <MessageCircle size={14} />
             Direkt schreiben
@@ -253,7 +253,7 @@ function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.7 }}
-          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-[#7a7a85] font-mono mt-6"
+          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-text-muted font-mono mt-6"
         >
           <span>Agenturen</span>
           <span className="hidden sm:inline">·</span>
@@ -272,11 +272,11 @@ function HeroSection() {
         transition={{ delay: 1.2 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
       >
-        <div className="w-6 h-10 rounded-full border border-white/20 flex justify-center pt-2">
+        <div className="w-6 h-10 rounded-full border border-theme-border-strong flex justify-center pt-2">
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
-            className="w-1 h-2 rounded-full bg-[#e0a458]"
+            className="w-1 h-2 rounded-full bg-theme-accent"
           />
         </div>
       </motion.div>
@@ -327,22 +327,22 @@ const toneStyles: Record<'primary' | 'secondary' | 'premium', {
   badge?: string;
 }> = {
   primary: {
-    border: 'border-white/12 hover:border-[#e0a458]/50',
-    iconBg: 'bg-[#e0a458]/10',
-    iconColor: 'text-[#e0a458]',
-    pricingColor: 'text-[#e0a458]',
+    border: 'border-theme-border hover:border-theme-border-accent',
+    iconBg: 'bg-theme-accent-soft',
+    iconColor: 'text-theme-accent',
+    pricingColor: 'text-theme-accent',
   },
   secondary: {
-    border: 'border-white/12 hover:border-[#e0a458]/50',
-    iconBg: 'bg-white/8',
-    iconColor: 'text-[#F9FAFB]',
-    pricingColor: 'text-[#e0a458]',
+    border: 'border-theme-border hover:border-theme-border-accent',
+    iconBg: 'bg-bg-elevated',
+    iconColor: 'text-text-primary',
+    pricingColor: 'text-theme-accent',
   },
   premium: {
-    border: 'border-[#e0a458]/40 hover:border-[#e0a458]/80 bg-gradient-to-br from-[#e0a458]/[0.06] to-transparent',
+    border: 'border-theme-border-accent hover:border-theme-accent bg-gradient-to-br from-theme-accent-soft to-transparent',
     iconBg: 'bg-gradient-to-br from-[#e0a458] to-[#a86d27]',
     iconColor: 'text-black',
-    pricingColor: 'text-[#e0a458]',
+    pricingColor: 'text-theme-accent',
     badge: 'Premium',
   },
 };
@@ -352,7 +352,7 @@ function ThreePathsSection() {
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
   return (
-    <section className="px-6 lg:px-16 py-20 md:py-24 bg-[#0a0a0d]" ref={ref}>
+    <section className="px-4 sm:px-6 lg:px-16 py-16 md:py-24 bg-bg-primary" ref={ref}>
       <div className="max-w-[1280px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -360,13 +360,13 @@ function ThreePathsSection() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="text-center mb-12 md:mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-4 block">
             Drei Wege
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-4">
             So arbeitest du mit AEVUM
           </h2>
-          <p className="text-base md:text-lg text-[#a4a4ad] max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base md:text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
             Kauf was du brauchst, nutz Tools pro Run, oder lass uns dein komplettes System bauen.
           </p>
         </motion.div>
@@ -382,10 +382,10 @@ function ThreePathsSection() {
                 initial={{ opacity: 0, y: 24 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: i * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className={`group relative bg-bg-surface border ${s.border} p-7 md:p-8 transition-all flex flex-col hover:-translate-y-1`}
+                className={`group relative bg-bg-surface border ${s.border} p-6 sm:p-7 md:p-8 transition-all flex flex-col hover:-translate-y-1`}
               >
                 {s.badge && (
-                  <span className="absolute top-4 right-4 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-[#e0a458] bg-[#e0a458]/10 border border-[#e0a458]/30 px-2 py-0.5">
+                  <span className="absolute top-4 right-4 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-2 py-0.5">
                     {s.badge}
                   </span>
                 )}
@@ -394,18 +394,18 @@ function ThreePathsSection() {
                   <Icon size={22} className={s.iconColor} />
                 </div>
 
-                <h3 className="text-2xl font-medium text-[#F9FAFB] mb-1.5">{p.title}</h3>
-                <p className="text-sm text-[#a4a4ad] mb-4 leading-snug">{p.subtitle}</p>
+                <h3 className="text-2xl font-medium text-text-primary mb-1.5">{p.title}</h3>
+                <p className="text-sm text-text-secondary mb-4 leading-snug">{p.subtitle}</p>
 
                 <p className={`font-mono text-xs uppercase tracking-[0.1em] ${s.pricingColor} mb-4`}>
                   {p.pricing}
                 </p>
 
-                <p className="text-sm text-[#a4a4ad] leading-relaxed mb-6 flex-1">
+                <p className="text-sm text-text-secondary leading-relaxed mb-6 flex-1">
                   {p.description}
                 </p>
 
-                <div className="flex items-center gap-2 text-sm font-medium text-[#e0a458] group-hover:gap-3 transition-all mt-auto">
+                <div className="flex items-center gap-2 text-sm font-medium text-theme-accent group-hover:gap-3 transition-all mt-auto">
                   {p.cta}
                   <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
                 </div>
@@ -439,13 +439,13 @@ const TIER_HEADERS = [
 
 function Cell({ value }: { value: boolean | string }) {
   if (value === true) {
-    return <Check size={18} className="text-[#e0a458] mx-auto" />;
+    return <Check size={18} className="text-theme-accent mx-auto" />;
   }
   if (value === false) {
-    return <XIcon size={16} className="text-[#3a3a42] mx-auto" />;
+    return <XIcon size={16} className="text-text-muted mx-auto" />;
   }
   return (
-    <span className="text-[10px] font-mono uppercase tracking-[0.06em] text-[#e0a458] leading-tight">
+    <span className="text-[10px] font-mono uppercase tracking-[0.06em] text-theme-accent leading-tight">
       {value}
     </span>
   );
@@ -456,7 +456,7 @@ function AccountBenefitsSection() {
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
   return (
-    <section className="px-6 lg:px-16 py-20 md:py-24 bg-bg-primary" ref={ref}>
+    <section className="px-4 sm:px-6 lg:px-16 py-16 md:py-24 bg-bg-primary" ref={ref}>
       <div className="max-w-[1280px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -464,13 +464,13 @@ function AccountBenefitsSection() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="text-center mb-12 md:mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-4 block">
             Account-Vorteile
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-4">
             Mit AEVUM-Account: mehr rausholen
           </h2>
-          <p className="text-base md:text-lg text-[#a4a4ad] max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base md:text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
             Account ist gratis. Jeder Schritt schaltet mehr frei.
           </p>
         </motion.div>
@@ -480,27 +480,27 @@ function AccountBenefitsSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.15, duration: 0.6 }}
-          className="hidden md:block bg-bg-surface border border-white/10 overflow-hidden"
+          className="hidden md:block bg-bg-surface border border-theme-border overflow-hidden"
         >
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/10">
-                <th className="text-left p-5 text-xs font-mono uppercase tracking-[0.1em] text-[#9a9aa5] w-[34%]">
+              <tr className="border-b border-theme-border">
+                <th className="text-left p-5 text-xs font-mono uppercase tracking-[0.1em] text-text-secondary w-[34%]">
                   Feature
                 </th>
                 {TIER_HEADERS.map((t) => (
                   <th
                     key={t.key}
-                    className={`text-center p-5 ${t.highlight ? 'bg-[#e0a458]/[0.05]' : ''}`}
+                    className={`text-center p-5 ${t.highlight ? 'bg-theme-accent-soft' : ''}`}
                   >
                     <div
                       className={`text-sm font-medium ${
-                        t.highlight ? 'text-[#e0a458]' : 'text-[#F9FAFB]'
+                        t.highlight ? 'text-theme-accent' : 'text-text-primary'
                       }`}
                     >
                       {t.label}
                     </div>
-                    <div className="text-[0.65rem] font-mono uppercase tracking-[0.08em] text-[#7a7a85] mt-1">
+                    <div className="text-[0.65rem] font-mono uppercase tracking-[0.08em] text-text-muted mt-1">
                       {t.sub}
                     </div>
                   </th>
@@ -511,9 +511,9 @@ function AccountBenefitsSection() {
               {ACCOUNT_FEATURES.map((row, i) => (
                 <tr
                   key={row.feature}
-                  className={`${i % 2 === 1 ? 'bg-white/[0.015]' : ''} border-b border-white/5 last:border-b-0`}
+                  className={`${i % 2 === 1 ? 'bg-bg-elevated' : ''} border-b border-theme-border last:border-b-0`}
                 >
-                  <td className="p-5 text-sm text-[#F9FAFB]">{row.feature}</td>
+                  <td className="p-5 text-sm text-text-primary">{row.feature}</td>
                   <td className="p-5 text-center">
                     <Cell value={row.gast} />
                   </td>
@@ -523,7 +523,7 @@ function AccountBenefitsSection() {
                   <td className="p-5 text-center">
                     <Cell value={row.saas} />
                   </td>
-                  <td className="p-5 text-center bg-[#e0a458]/[0.04]">
+                  <td className="p-5 text-center bg-theme-accent-soft">
                     <Cell value={row.full} />
                   </td>
                 </tr>
@@ -541,14 +541,14 @@ function AccountBenefitsSection() {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: i * 0.08, duration: 0.5 }}
               className={`bg-bg-surface border ${
-                t.highlight ? 'border-[#e0a458]/40' : 'border-white/10'
+                t.highlight ? 'border-theme-border-accent' : 'border-theme-border'
               } p-5`}
             >
               <div className="mb-4">
-                <h3 className={`text-base font-medium ${t.highlight ? 'text-[#e0a458]' : 'text-[#F9FAFB]'}`}>
+                <h3 className={`text-base font-medium ${t.highlight ? 'text-theme-accent' : 'text-text-primary'}`}>
                   {t.label}
                 </h3>
-                <p className="text-[0.65rem] font-mono uppercase tracking-[0.08em] text-[#7a7a85] mt-0.5">
+                <p className="text-[0.65rem] font-mono uppercase tracking-[0.08em] text-text-muted mt-0.5">
                   {t.sub}
                 </p>
               </div>
@@ -560,18 +560,18 @@ function AccountBenefitsSection() {
                     <li
                       key={row.feature}
                       className={`flex items-start gap-3 text-sm ${
-                        enabled ? 'text-[#F9FAFB]' : 'text-[#5a5a62] line-through'
+                        enabled ? 'text-text-primary' : 'text-text-muted line-through'
                       }`}
                     >
                       {enabled ? (
-                        <Check size={16} className="text-[#e0a458] shrink-0 mt-0.5" />
+                        <Check size={16} className="text-theme-accent shrink-0 mt-0.5" />
                       ) : (
-                        <XIcon size={14} className="text-[#3a3a42] shrink-0 mt-1" />
+                        <XIcon size={14} className="text-text-muted shrink-0 mt-1" />
                       )}
                       <span className="flex-1">
                         {row.feature}
                         {typeof v === 'string' && (
-                          <span className="block text-[10px] font-mono uppercase tracking-[0.06em] text-[#e0a458] mt-0.5">
+                          <span className="block text-[10px] font-mono uppercase tracking-[0.06em] text-theme-accent mt-0.5">
                             {v}
                           </span>
                         )}
@@ -588,7 +588,7 @@ function AccountBenefitsSection() {
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ delay: 0.6, duration: 0.6 }}
-          className="text-center text-xs text-[#7a7a85] font-mono mt-8"
+          className="text-center text-xs text-text-muted font-mono mt-8"
         >
           Upgrade jederzeit möglich · Downgrade nicht nötig
         </motion.p>
@@ -643,15 +643,15 @@ function ThesisSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16" ref={ref}>
+    <section className="section-padding px-4 sm:px-6 lg:px-16" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-16"
+          className="mb-12 md:mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
             Die Story
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
@@ -667,19 +667,19 @@ function ThesisSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className={`bg-bg-surface border border-white/10 hover:border-[#e0a458]/30 transition-all p-8 lg:p-10 ${
-                step.isCTA ? 'border-[#e0a458]/40' : ''
+              className={`bg-bg-surface border border-theme-border hover:border-theme-border-accent transition-all p-6 sm:p-8 lg:p-10 ${
+                step.isCTA ? 'border-theme-border-accent' : ''
               }`}
             >
-              <div className="flex items-start gap-6">
-                <span className="font-mono text-sm text-[#7a7a85] shrink-0 mt-1">
+              <div className="flex items-start gap-4 sm:gap-6">
+                <span className="font-mono text-sm text-text-muted shrink-0 mt-1">
                   {step.num}
                 </span>
-                <div>
-                  <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-[#e0a458] mb-3 block">
+                <div className="min-w-0">
+                  <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-theme-accent mb-3 block">
                     {step.tag}
                   </span>
-                  <p className="text-base md:text-lg leading-relaxed text-[#F9FAFB]">
+                  <p className="text-base md:text-lg leading-relaxed text-text-primary">
                     {step.text}
                   </p>
                   {step.isCTA && (
@@ -740,15 +740,15 @@ function PillarsSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16 bg-bg-surface" ref={ref}>
+    <section className="section-padding px-4 sm:px-6 lg:px-16 bg-bg-surface" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-16"
+          className="mb-12 md:mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
             Die drei Saeulen
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
@@ -764,17 +764,17 @@ function PillarsSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-bg-primary p-8 lg:p-10 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
+              className="bg-bg-primary p-6 sm:p-8 lg:p-10 border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1"
             >
-              <p.icon size={32} className="text-[#e0a458] mb-6" />
-              <h3 className="font-mono text-sm uppercase tracking-[0.1em] text-[#e0a458] mb-3">
+              <p.icon size={32} className="text-theme-accent mb-6" />
+              <h3 className="font-mono text-sm uppercase tracking-[0.1em] text-theme-accent mb-3">
                 {p.name}
               </h3>
-              <p className="text-lg text-[#F9FAFB] font-medium mb-6">{p.pitch}</p>
+              <p className="text-lg text-text-primary font-medium mb-6">{p.pitch}</p>
               <ul className="space-y-3">
                 {p.bullets.map((b) => (
-                  <li key={b} className="flex items-start gap-2 text-sm text-[#a4a4ad]">
-                    <span className="text-[#e0a458] mt-0.5 shrink-0">-</span>
+                  <li key={b} className="flex items-start gap-2 text-sm text-text-secondary">
+                    <span className="text-theme-accent mt-0.5 shrink-0">-</span>
                     {b}
                   </li>
                 ))}
@@ -827,21 +827,21 @@ function ModulesSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16" ref={ref}>
+    <section className="section-padding px-4 sm:px-6 lg:px-16" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-16"
+          className="mb-12 md:mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
             Bausteine
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
             Module die zu deinem Setup andocken
           </h2>
-          <p className="text-[#a4a4ad] text-lg max-w-2xl leading-relaxed">
+          <p className="text-text-secondary text-lg max-w-2xl leading-relaxed">
             Im Audit klaeren wir, welche bei dir Sinn machen.
           </p>
         </motion.div>
@@ -854,14 +854,14 @@ function ModulesSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-bg-surface p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1 group"
+              className="bg-bg-surface p-6 sm:p-8 border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1 group"
             >
               <m.icon
                 size={28}
-                className="text-[#a4a4ad] group-hover:text-[#e0a458] transition-colors mb-4"
+                className="text-text-secondary group-hover:text-theme-accent transition-colors mb-4"
               />
               <h3 className="text-lg font-medium mb-2">{m.name}</h3>
-              <p className="text-sm text-[#a4a4ad] leading-relaxed">{m.desc}</p>
+              <p className="text-sm text-text-secondary leading-relaxed">{m.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -901,21 +901,21 @@ function ServicesSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16 bg-bg-surface" ref={ref}>
+    <section className="section-padding px-4 sm:px-6 lg:px-16 bg-bg-surface" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-16"
+          className="mb-12 md:mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
             Leistungen
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
             Drei Systeme. Konkrete Ergebnisse.
           </h2>
-          <p className="text-[#a4a4ad] text-lg max-w-2xl leading-relaxed">
+          <p className="text-text-secondary text-lg max-w-2xl leading-relaxed">
             Kein generischer AI-Hype. Jedes System wird auf dein Unternehmen zugeschnitten
             und liefert messbare Resultate.
           </p>
@@ -929,16 +929,16 @@ function ServicesSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-bg-primary p-8 lg:p-10 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1 flex flex-col"
+              className="bg-bg-primary p-6 sm:p-8 lg:p-10 border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1 flex flex-col"
             >
-              <s.icon size={32} className="text-[#e0a458] mb-6" />
-              <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-[#7a7a85] mb-3 block">
+              <s.icon size={32} className="text-theme-accent mb-6" />
+              <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-text-muted mb-3 block">
                 {s.tag}
               </span>
               <h3 className="text-xl font-medium mb-4">{s.title}</h3>
-              <p className="text-sm text-[#a4a4ad] leading-relaxed mb-6 flex-1">{s.desc}</p>
-              <div className="border-t border-white/10 pt-4">
-                <p className="text-sm text-[#e0a458] font-mono">{s.result}</p>
+              <p className="text-sm text-text-secondary leading-relaxed mb-6 flex-1">{s.desc}</p>
+              <div className="border-t border-theme-border pt-4">
+                <p className="text-sm text-theme-accent font-mono">{s.result}</p>
               </div>
             </motion.div>
           ))}
@@ -989,15 +989,15 @@ function CasesSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16" ref={ref}>
+    <section className="section-padding px-4 sm:px-6 lg:px-16" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-16"
+          className="mb-12 md:mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
             Live-Cases
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
@@ -1013,16 +1013,16 @@ function CasesSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-bg-surface p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all"
+              className="bg-bg-surface p-6 sm:p-8 border border-theme-border hover:border-theme-border-accent transition-all"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#e0a458] to-[#a86d27] flex items-center justify-center text-black font-bold text-lg">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#e0a458] to-[#a86d27] flex items-center justify-center text-black font-bold text-lg shrink-0">
                   {c.name[0]}
                 </div>
-                <div>
+                <div className="min-w-0">
                   <h3 className="font-medium">{c.name}</h3>
                   {c.share_industry && (
-                    <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-[#e0a458]">
+                    <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-theme-accent">
                       {c.industry}
                     </span>
                   )}
@@ -1036,11 +1036,11 @@ function CasesSection() {
               )}
 
               {c.share_company_name && c.share_industry && (
-                <p className="text-sm text-[#a4a4ad] leading-relaxed">{c.story}</p>
+                <p className="text-sm text-text-secondary leading-relaxed">{c.story}</p>
               )}
 
               {!c.share_company_name && c.share_industry && (
-                <p className="text-sm text-[#a4a4ad] leading-relaxed">
+                <p className="text-sm text-text-secondary leading-relaxed">
                   Projekt laeuft — Details auf Anfrage.
                 </p>
               )}
@@ -1057,7 +1057,7 @@ function CasesSection() {
         >
           <a
             href="#/cases"
-            className="inline-flex items-center gap-2 text-sm text-[#a4a4ad] hover:text-[#e0a458] transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-theme-accent transition-colors"
           >
             Alle Cases <ArrowRight size={14} />
           </a>
@@ -1080,21 +1080,21 @@ function PricingSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16 bg-bg-surface" ref={ref}>
+    <section className="section-padding px-4 sm:px-6 lg:px-16 bg-bg-surface" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-16 text-center"
+          className="mb-12 md:mb-16 text-center"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
             Investment
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
             Kein Standard-Paket. Kein Preisschild.
           </h2>
-          <p className="text-[#a4a4ad] text-lg max-w-2xl leading-relaxed mx-auto">
+          <p className="text-text-secondary text-lg max-w-2xl leading-relaxed mx-auto">
             Dein System ist individuell — dein Angebot auch.
           </p>
         </motion.div>
@@ -1104,9 +1104,9 @@ function PricingSection() {
           variants={fadeUp}
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
-          className="bg-bg-primary border border-white/10 p-10 lg:p-14 mb-10 max-w-3xl mx-auto"
+          className="bg-bg-primary border border-theme-border p-6 sm:p-10 lg:p-14 mb-10 max-w-3xl mx-auto"
         >
-          <p className="text-base md:text-lg text-[#a4a4ad] leading-relaxed mb-8">
+          <p className="text-base md:text-lg text-text-secondary leading-relaxed mb-8">
             Nach dem kostenlosen Audit analysieren wir gemeinsam:
           </p>
           <ul className="space-y-4 mb-10">
@@ -1115,25 +1115,25 @@ function PricingSection() {
               'Was das realistisch kostet',
               'Wann du den ROI siehst',
             ].map((item) => (
-              <li key={item} className="flex items-start gap-3 text-[#F9FAFB]">
-                <ArrowRight size={16} className="text-[#e0a458] shrink-0 mt-1" />
+              <li key={item} className="flex items-start gap-3 text-text-primary">
+                <ArrowRight size={16} className="text-theme-accent shrink-0 mt-1" />
                 <span className="text-base leading-relaxed">{item}</span>
               </li>
             ))}
           </ul>
 
-          <div className="border-t border-white/10 pt-8 mb-10 space-y-3">
-            <p className="text-sm text-[#7a7a85] font-mono uppercase tracking-[0.08em] mb-4">
+          <div className="border-t border-theme-border pt-8 mb-10 space-y-3">
+            <p className="text-sm text-text-muted font-mono uppercase tracking-[0.08em] mb-4">
               Typischer Rahmen
             </p>
             <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8">
-              <span className="text-[#a4a4ad] text-sm w-48 shrink-0">Setup einmalig</span>
+              <span className="text-text-secondary text-sm sm:w-48 shrink-0">Setup einmalig</span>
               <span className="text-xl md:text-2xl font-light text-gradient">
                 € 2.500 – 8.000
               </span>
             </div>
             <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8">
-              <span className="text-[#a4a4ad] text-sm w-48 shrink-0">Monatliche Begleitung</span>
+              <span className="text-text-secondary text-sm sm:w-48 shrink-0">Monatliche Begleitung</span>
               <span className="text-xl md:text-2xl font-light text-gradient">
                 € 700 – 2.500 / Monat
               </span>
@@ -1156,10 +1156,10 @@ function PricingSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="flex items-center gap-3 bg-bg-primary border border-white/10 px-5 py-4"
+              className="flex items-center gap-3 bg-bg-primary border border-theme-border px-5 py-4"
             >
-              <t.icon size={16} className="text-[#e0a458] shrink-0" />
-              <span className="text-sm text-[#a4a4ad]">{t.text}</span>
+              <t.icon size={16} className="text-theme-accent shrink-0" />
+              <span className="text-sm text-text-secondary">{t.text}</span>
             </motion.div>
           ))}
         </div>
@@ -1181,15 +1181,15 @@ function TrustSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16" ref={ref}>
+    <section className="section-padding px-4 sm:px-6 lg:px-16" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-16"
+          className="mb-12 md:mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
             Vertrauen
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
@@ -1197,7 +1197,7 @@ function TrustSection() {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 md:mb-16">
           {badges.map((b, i) => (
             <motion.div
               key={b.text}
@@ -1205,10 +1205,10 @@ function TrustSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-bg-surface p-8 border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1 text-center"
+              className="bg-bg-surface p-6 sm:p-8 border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1 text-center"
             >
-              <b.icon size={32} className="text-[#e0a458] mx-auto mb-4" />
-              <p className="text-sm text-[#a4a4ad] leading-relaxed">{b.text}</p>
+              <b.icon size={32} className="text-theme-accent mx-auto mb-4" />
+              <p className="text-sm text-text-secondary leading-relaxed">{b.text}</p>
             </motion.div>
           ))}
         </div>
@@ -1225,7 +1225,7 @@ function TrustSection() {
           </div>
           <div>
             <p className="font-medium text-lg">Carlos Wrusch</p>
-            <p className="font-mono text-xs text-[#a4a4ad] uppercase tracking-wider">
+            <p className="font-mono text-xs text-text-secondary uppercase tracking-wider">
               Founder
             </p>
           </div>
@@ -1298,15 +1298,15 @@ function FAQSection() {
   ];
 
   return (
-    <section className="section-padding px-6 lg:px-16 bg-bg-surface" ref={ref}>
+    <section className="section-padding px-4 sm:px-6 lg:px-16 bg-bg-surface" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-16"
+          className="mb-12 md:mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
             FAQ
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
@@ -1326,12 +1326,12 @@ function FAQSection() {
               <AccordionItem
                 key={i}
                 value={`faq-${i}`}
-                className="bg-bg-primary border border-white/10 px-6"
+                className="bg-bg-primary border border-theme-border px-6"
               >
                 <AccordionTrigger className="text-left text-sm md:text-base font-medium py-5 hover:no-underline">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-sm text-[#a4a4ad] leading-relaxed pb-5">
+                <AccordionContent className="text-sm text-text-secondary leading-relaxed pb-5">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
@@ -1351,7 +1351,7 @@ function FinalCTASection() {
 
   return (
     <section
-      className="min-h-[60vh] flex items-center justify-center px-6 relative"
+      className="min-h-[60vh] flex items-center justify-center px-4 sm:px-6 relative overflow-hidden"
       ref={ref}
     >
       <AuroraBg />
@@ -1372,7 +1372,7 @@ function FinalCTASection() {
 
         <PathThreeCard compact />
 
-        <p className="font-mono text-xs text-[#7a7a85] mt-10">
+        <p className="font-mono text-xs text-text-muted mt-10">
           Deutsch · DSGVO · Maßgeschneidert
         </p>
       </motion.div>

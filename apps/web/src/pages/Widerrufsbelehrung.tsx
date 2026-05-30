@@ -18,33 +18,33 @@ export default function Widerrufsbelehrung() {
   });
 
   return (
-    <section className="px-6 lg:px-16 py-24 max-w-3xl mx-auto">
+    <section className="px-4 sm:px-6 lg:px-16 py-20 sm:py-24 max-w-3xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h1 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
-          Widerrufs<span className="text-[#e0a458]">belehrung</span>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight mb-4 break-words">
+          Widerrufs<span className="text-theme-accent">belehrung</span>
         </h1>
 
-        <p className="text-sm text-[#7a7a85] mb-6">
+        <p className="text-sm text-text-muted mb-6">
           Stand: 20. Mai 2026. Diese Belehrung gilt für Verbraucher im Sinne von § 13 BGB.
           B2B-Kunden haben kein gesetzliches Widerrufsrecht — siehe AGB § 11 für freiwillige
           Stornierungsregeln.
         </p>
 
-        <div className="mb-12 border border-[#e0a458]/30 bg-[#e0a458]/[0.06] px-5 py-4 text-sm text-[#cfcfd4] leading-relaxed">
-          <strong className="text-[#e0a458]">Hinweis (Stand 25.05.2026):</strong> Diese Belehrung
+        <div className="mb-12 border border-theme-border-accent bg-theme-accent-soft px-5 py-4 text-sm text-text-secondary leading-relaxed">
+          <strong className="text-theme-accent">Hinweis (Stand 25.05.2026):</strong> Diese Belehrung
           orientiert sich am gesetzlichen Muster nach Anlage 1 zu Art. 246a § 1 Abs. 2 EGBGB. Sie
           wurde noch nicht durch eine externe Rechtsanwaltskanzlei freigegeben. Wir arbeiten an
           einer anwaltlichen Prüfung vor produktivem B2C-Vertrieb.
         </div>
 
-        <article className="prose prose-invert max-w-none space-y-8 text-[#a4a4ad] leading-relaxed">
+        <article className="prose prose-invert max-w-none space-y-8 text-text-secondary leading-relaxed break-words">
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Widerrufsrecht</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">Widerrufsrecht</h2>
             <p>
               Sie haben das Recht, binnen <strong>vierzehn Tagen</strong> ohne Angabe von
               Gründen diesen Vertrag zu widerrufen.
@@ -57,7 +57,7 @@ export default function Widerrufsbelehrung() {
             <p>
               Um Ihr Widerrufsrecht auszuüben, müssen Sie uns:
             </p>
-            <p className="bg-bg-surface border border-white/10 p-4 my-4 font-mono text-sm">
+            <p className="bg-bg-surface border border-theme-border p-4 my-4 font-mono text-sm">
               Carlos Wrusch<br />
               Federteilstr. 2e<br />
               86517 Wehringen<br />
@@ -77,7 +77,7 @@ export default function Widerrufsbelehrung() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Folgen des Widerrufs</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">Folgen des Widerrufs</h2>
             <p>
               Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir
               von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab
@@ -92,7 +92,7 @@ export default function Widerrufsbelehrung() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Vorzeitiges Erlöschen des Widerrufsrechts</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">Vorzeitiges Erlöschen des Widerrufsrechts</h2>
             <p>
               Bei Verträgen zur Erbringung von Dienstleistungen erlischt das Widerrufsrecht
               dann, wenn AEVUM die Dienstleistung vollständig erbracht hat und mit der
@@ -104,7 +104,7 @@ export default function Widerrufsbelehrung() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Anteilige Vergütung bei vorzeitigem Widerruf</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">Anteilige Vergütung bei vorzeitigem Widerruf</h2>
             <p>
               Verlangen Sie, dass die Dienstleistung während der Widerrufsfrist beginnen
               soll, und üben Sie das Widerrufsrecht anschließend aus, haben Sie uns einen
@@ -116,12 +116,12 @@ export default function Widerrufsbelehrung() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Muster-Widerrufsformular</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">Muster-Widerrufsformular</h2>
             <p>
               Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular
               aus und senden Sie es zurück:
             </p>
-            <div className="bg-bg-surface border border-white/10 p-6 my-4 text-sm">
+            <div className="bg-bg-surface border border-theme-border p-6 my-4 text-sm">
               <p className="mb-2">An:</p>
               <p className="mb-2">
                 Carlos Wrusch<br />
@@ -129,7 +129,7 @@ export default function Widerrufsbelehrung() {
                 86517 Wehringen<br />
                 E-Mail: info@aevum-system.de
               </p>
-              <hr className="border-white/10 my-3" />
+              <hr className="border-theme-border my-3" />
               <p className="mb-2">Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über</p>
               <p className="mb-2">die Erbringung der folgenden Dienstleistung: ______________</p>
               <p className="mb-2">Bestellt am (*) / erhalten am (*): ______________</p>
@@ -137,12 +137,12 @@ export default function Widerrufsbelehrung() {
               <p className="mb-2">Anschrift des/der Verbraucher(s): ______________</p>
               <p className="mb-2">Unterschrift des/der Verbraucher(s) (nur bei Mitteilung auf Papier): ______________</p>
               <p className="mb-2">Datum: ______________</p>
-              <p className="mt-4 text-xs text-[#7a7a85]">(*) Unzutreffendes streichen.</p>
+              <p className="mt-4 text-xs text-text-muted">(*) Unzutreffendes streichen.</p>
             </div>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Hinweis für Unternehmer (B2B)</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">Hinweis für Unternehmer (B2B)</h2>
             <p>
               Diese Widerrufsbelehrung gilt ausschließlich für Verbraucher im Sinne von
               § 13 BGB. Wenn Sie als Unternehmer (§ 14 BGB) bestellen, besteht kein
@@ -156,10 +156,10 @@ export default function Widerrufsbelehrung() {
 
         </article>
 
-        <div className="mt-16 pt-8 border-t border-white/10 text-sm text-[#7a7a85] flex flex-wrap gap-6">
-          <a href="#/agb" className="hover:text-[#e0a458]">AGB</a>
-          <a href="#/datenschutz" className="hover:text-[#e0a458]">Datenschutz</a>
-          <a href="#/impressum" className="hover:text-[#e0a458]">Impressum</a>
+        <div className="mt-16 pt-8 border-t border-theme-border text-sm text-text-muted flex flex-wrap gap-6">
+          <a href="#/agb" className="hover:text-theme-accent">AGB</a>
+          <a href="#/datenschutz" className="hover:text-theme-accent">Datenschutz</a>
+          <a href="#/impressum" className="hover:text-theme-accent">Impressum</a>
         </div>
       </motion.div>
     </section>

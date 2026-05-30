@@ -141,9 +141,9 @@ export default function CustomerActivity() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h2 className="text-lg font-medium text-ink-100 flex items-center gap-2">
-            <Activity size={18} /> Activity — {data.project.name}
+        <div className="min-w-0">
+          <h2 className="text-lg font-medium text-ink-100 flex items-center gap-2 break-words">
+            <Activity size={18} className="shrink-0" /> Activity — {data.project.name}
           </h2>
           <p className="text-xs text-ink-500 mt-1">
             Letzte Aktivität: {fmtDate(s.last_activity)}
@@ -170,7 +170,7 @@ export default function CustomerActivity() {
       </div>
 
       {/* KPI-Strip */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         <KpiCard Icon={Mail} label="Nachrichten" value={s.total_messages.toString()} />
         <KpiCard Icon={Hash} label="Tokens" value={fmtNum(s.total_tokens)} sub={`in: ${fmtNum(s.total_input_tokens)} · out: ${fmtNum(s.total_output_tokens)}`} />
         <KpiCard Icon={Coins} label="Kosten" value={fmtEur(s.total_cost_eur)} />

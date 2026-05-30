@@ -7,20 +7,20 @@ export default function Impressum() {
 
   return (
     <div className="min-h-screen bg-ink-950 text-ink-100">
-      <header className="sticky top-0 z-20 backdrop-blur-xl bg-ink-950/70 border-b border-white/5 px-6 py-4">
+      <header className="sticky top-0 z-20 backdrop-blur-xl bg-ink-950/70 border-b border-white/5 px-4 sm:px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link to="/" className="hover:opacity-90 transition"><Brand size={28} /></Link>
         </div>
       </header>
 
-      <section className="px-6 py-16 max-w-3xl mx-auto">
-        <h1 className="text-4xl font-light tracking-tight mb-2">Impressum</h1>
+      <section className="px-4 sm:px-6 py-12 sm:py-16 max-w-3xl mx-auto">
+        <h1 className="text-3xl sm:text-4xl font-light tracking-tight mb-2">Impressum</h1>
         <p className="text-sm text-neutral-500 mb-12">Stand: 22. Mai 2026</p>
 
-        <article className="space-y-8 text-neutral-400 leading-relaxed">
+        <article className="space-y-8 text-neutral-400 leading-relaxed break-words">
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">Angaben gemäß § 5 DDG</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">Angaben gemäß § 5 DDG</h2>
             <p>
               Carlos Wrusch<br />
               Federteilstr. 2e<br />
@@ -30,7 +30,7 @@ export default function Impressum() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">Kontakt</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">Kontakt</h2>
             <p>
               E-Mail: <a href="mailto:info@aevum-system.de" className="text-amber-500 hover:underline">info@aevum-system.de</a><br />
               Telefon: <a href="tel:+491772288372" className="text-amber-500 hover:underline">+49 177 228 83 72</a>
@@ -38,7 +38,7 @@ export default function Impressum() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">Berufsbezeichnung</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">Berufsbezeichnung</h2>
             <p>
               AI Fullstack Developer (selbstständig tätig, Bundesrepublik Deutschland).
               Die Tätigkeit ist nicht reglementiert; es bestehen keine berufsständische
@@ -47,7 +47,7 @@ export default function Impressum() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">Umsatzsteuer</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">Umsatzsteuer</h2>
             <p>
               Als Kleinunternehmer im Sinne von § 19 UStG wird keine Umsatzsteuer
               ausgewiesen. Eine Umsatzsteuer-Identifikationsnummer nach § 27a UStG
@@ -56,12 +56,12 @@ export default function Impressum() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">Inhaltlich verantwortlich gem. § 18 Abs 2 MStV</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">Inhaltlich verantwortlich gem. § 18 Abs 2 MStV</h2>
             <p>Carlos Wrusch (Anschrift wie oben)</p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">EU-Streitschlichtung</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">EU-Streitschlichtung</h2>
             <p>
               Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:{' '}
               <a href="https://ec.europa.eu/consumers/odr/" className="text-amber-500 hover:underline" target="_blank" rel="noopener noreferrer">
@@ -74,7 +74,7 @@ export default function Impressum() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">Haftung für Inhalte</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">Haftung für Inhalte</h2>
             <p>
               Als Diensteanbieter sind wir gemäß § 7 Abs 1 DDG für eigene Inhalte auf diesen
               Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind
@@ -92,7 +92,7 @@ export default function Impressum() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">Haftung für Links</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">Haftung für Links</h2>
             <p>
               Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir
               keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine
@@ -102,7 +102,7 @@ export default function Impressum() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">Urheberrecht</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">Urheberrecht</h2>
             <p>
               Die durch den Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten
               unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung,

@@ -54,9 +54,9 @@ function Paragraphs({ text }: { text: string | null | undefined }) {
   if (!text) return null;
   const parts = String(text).split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
   return (
-    <div className="space-y-4 text-[#a4a4ad] leading-relaxed">
+    <div className="space-y-4 text-text-secondary leading-relaxed">
       {parts.map((p, i) => (
-        <p key={i}>{p}</p>
+        <p key={i} className="break-words">{p}</p>
       ))}
     </div>
   );
@@ -72,12 +72,12 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="px-6 lg:px-16 py-12 md:py-16 border-t border-white/5">
+    <section className="px-4 sm:px-6 lg:px-16 py-12 md:py-16 border-t border-theme-border">
       <div className="max-w-[1100px] mx-auto">
-        <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-3 block">
+        <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block">
           {eyebrow}
         </span>
-        <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-6">{title}</h2>
+        <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-6 break-words">{title}</h2>
         {children}
       </div>
     </section>
@@ -88,14 +88,14 @@ function Section({
 
 function Hero({ data }: { data: CaseDetailDTO }) {
   return (
-    <section className="relative px-6 lg:px-16 pt-20 pb-12 md:pt-28 md:pb-16">
+    <section className="relative px-4 sm:px-6 lg:px-16 pt-20 pb-12 md:pt-28 md:pb-16">
       <div className="max-w-[1100px] mx-auto">
         <motion.a
           href="/#/cases"
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-[#7a7a85] hover:text-[#e0a458] transition-colors mb-8"
+          className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-text-muted hover:text-theme-accent transition-colors mb-8"
         >
           <ArrowLeft size={14} />
           Alle Cases
@@ -105,7 +105,7 @@ function Hero({ data }: { data: CaseDetailDTO }) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-4 block"
+          className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-4 block"
         >
           Case Study
         </motion.span>
@@ -114,7 +114,7 @@ function Hero({ data }: { data: CaseDetailDTO }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight leading-[1.08] mb-5"
+          className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight leading-[1.08] mb-5 break-words"
         >
           {data.hero_title}
         </motion.h1>
@@ -124,7 +124,7 @@ function Hero({ data }: { data: CaseDetailDTO }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-base md:text-lg text-[#a4a4ad] max-w-2xl"
+            className="text-base md:text-lg text-text-secondary max-w-2xl break-words"
           >
             {data.hero_subtitle}
           </motion.p>
@@ -141,9 +141,9 @@ function Hero({ data }: { data: CaseDetailDTO }) {
               href={data.brand_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm font-mono text-[#e0a458] hover:text-[#f5c481] border border-[#e0a458]/30 hover:border-[#e0a458]/60 px-4 py-2 rounded transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-mono text-theme-accent hover:text-theme-accent-hover border border-theme-border-accent hover:border-theme-accent px-4 py-2 rounded transition-colors break-all"
             >
-              <ExternalLink size={14} />
+              <ExternalLink size={14} className="shrink-0" />
               {data.brand_url.replace(/^https?:\/\//, '')}
             </a>
           </motion.div>
@@ -167,21 +167,21 @@ function Services({ services }: { services: ActivatedService[] }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ delay: i * 0.06, duration: 0.5 }}
-            className="bg-bg-surface border border-white/10 hover:border-[#e0a458]/30 transition-colors p-5"
+            className="bg-bg-surface border border-theme-border hover:border-theme-border-accent transition-colors p-5"
           >
             <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded bg-[#e0a458]/10 border border-[#e0a458]/20 flex items-center justify-center flex-shrink-0">
-                <Sparkles size={16} className="text-[#e0a458]" />
+              <div className="w-9 h-9 rounded bg-theme-accent-soft border border-theme-border-accent flex items-center justify-center flex-shrink-0">
+                <Sparkles size={16} className="text-theme-accent" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-medium text-[#F9FAFB]">{s.name || s.slug}</h3>
+                <h3 className="text-sm font-medium text-text-primary break-words">{s.name || s.slug}</h3>
                 {s.started_at && (
-                  <p className="text-[10px] font-mono text-[#7a7a85] uppercase tracking-wider mt-0.5">
+                  <p className="text-[10px] font-mono text-text-muted uppercase tracking-wider mt-0.5">
                     Live seit {s.started_at}
                   </p>
                 )}
                 {s.impact && (
-                  <p className="text-xs text-[#a4a4ad] mt-2 leading-relaxed">{s.impact}</p>
+                  <p className="text-xs text-text-secondary mt-2 leading-relaxed break-words">{s.impact}</p>
                 )}
               </div>
             </div>
@@ -206,18 +206,18 @@ function Kpis({ kpis }: { kpis: LiveKpi[] }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ delay: i * 0.06, duration: 0.5 }}
-            className="bg-bg-surface border border-white/10 p-5"
+            className="bg-bg-surface border border-theme-border p-5"
           >
-            <p className="text-[10px] font-mono uppercase tracking-wider text-[#7a7a85] mb-1.5">
+            <p className="text-[10px] font-mono uppercase tracking-wider text-text-muted mb-1.5 break-words">
               {k.label}
             </p>
-            <p className="text-xl md:text-2xl font-light text-[#F9FAFB]">
+            <p className="text-xl md:text-2xl font-light text-text-primary break-words">
               {k.value}
-              {k.unit && <span className="text-sm text-[#a4a4ad] ml-1">{k.unit}</span>}
+              {k.unit && <span className="text-sm text-text-secondary ml-1">{k.unit}</span>}
             </p>
             <span
               className={`mt-3 inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider ${
-                k.source === 'db' ? 'text-[#10b981]' : 'text-[#7a7a85]'
+                k.source === 'db' ? 'text-[#10b981]' : 'text-text-muted'
               }`}
             >
               <CheckCircle2 size={10} />
@@ -241,20 +241,20 @@ function Testimonial({
 }) {
   if (!quote && !author) return null;
   return (
-    <section className="px-6 lg:px-16 py-16 border-t border-white/5">
-      <div className="max-w-[900px] mx-auto bg-bg-surface border border-[#e0a458]/20 p-8 md:p-12 relative">
+    <section className="px-4 sm:px-6 lg:px-16 py-16 border-t border-theme-border">
+      <div className="max-w-[900px] mx-auto bg-bg-surface border border-theme-border-accent p-6 sm:p-8 md:p-12 relative">
         <Quote
           size={32}
-          className="text-[#e0a458]/30 absolute top-6 left-6"
+          className="text-theme-accent/30 absolute top-6 left-6"
         />
-        <div className="relative z-10 pl-10">
+        <div className="relative z-10 pl-8 sm:pl-10">
           {quote && (
-            <p className="text-lg md:text-xl font-light text-[#F9FAFB] leading-relaxed italic mb-6">
+            <p className="text-lg md:text-xl font-light text-text-primary leading-relaxed italic mb-6 break-words">
               &ldquo;{quote}&rdquo;
             </p>
           )}
           {author && (
-            <p className="text-sm font-mono uppercase tracking-wider text-[#e0a458]">
+            <p className="text-sm font-mono uppercase tracking-wider text-theme-accent break-words">
               — {author}
             </p>
           )}
@@ -339,50 +339,50 @@ function StackCard({
       viewport={{ once: true, margin: '-60px' }}
       transition={{ delay: index * 0.07, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ y: -2 }}
-      className="group relative text-left bg-gradient-to-br from-bg-surface to-bg-surface/40 border border-white/10 hover:border-[#e0a458]/40 transition-all p-6 rounded overflow-hidden"
+      className="group relative text-left bg-bg-surface border border-theme-border hover:border-theme-border-accent transition-all p-6 rounded overflow-hidden"
     >
       {/* Subtle gradient sheen on hover */}
       <span
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-br from-[#e0a458]/0 via-[#e0a458]/0 to-[#e0a458]/5 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-theme-accent-soft opacity-0 group-hover:opacity-100 transition-opacity"
       />
 
       <div className="relative z-10 flex items-start gap-4">
         <div
           className={`w-11 h-11 rounded-md flex items-center justify-center flex-shrink-0 transition-colors ${
             isActive
-              ? 'bg-[#e0a458]/15 border border-[#e0a458]/30 text-[#e0a458]'
-              : 'bg-white/[0.04] border border-white/10 text-[#7a7a85]'
+              ? 'bg-theme-accent-soft border border-theme-border-accent text-theme-accent'
+              : 'bg-bg-elevated border border-theme-border text-text-muted'
           }`}
         >
           <Icon size={18} />
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1.5">
-            <h3 className="text-sm font-medium text-[#F9FAFB]">{card.title}</h3>
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <h3 className="text-sm font-medium text-text-primary break-words">{card.title}</h3>
             <span
               className={`inline-flex items-center gap-1 text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded ${
                 isActive
                   ? 'bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/20'
-                  : 'bg-white/5 text-[#7a7a85] border border-white/10'
+                  : 'bg-bg-elevated text-text-muted border border-theme-border'
               }`}
             >
               {isActive ? <CheckCircle2 size={9} /> : <Lock size={9} />}
               {isActive ? 'aktiv' : 'NDA'}
             </span>
           </div>
-          <p className="text-xs text-[#a4a4ad] leading-relaxed">{card.statusLabel}</p>
+          <p className="text-xs text-text-secondary leading-relaxed break-words">{card.statusLabel}</p>
         </div>
       </div>
 
-      <div className="relative z-10 mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-        <span className="text-[10px] font-mono uppercase tracking-wider text-[#7a7a85] group-hover:text-[#e0a458] transition-colors">
+      <div className="relative z-10 mt-4 pt-4 border-t border-theme-border flex items-center justify-between">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-text-muted group-hover:text-theme-accent transition-colors">
           Mehr Details
         </span>
         <ArrowRight
           size={12}
-          className="text-[#7a7a85] group-hover:text-[#e0a458] group-hover:translate-x-0.5 transition-all"
+          className="text-text-muted group-hover:text-theme-accent group-hover:translate-x-0.5 transition-all"
         />
       </div>
     </motion.button>
@@ -424,28 +424,28 @@ function StackModal({ cardKey, onClose }: { cardKey: string | null; onClose: () 
         initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        className="relative bg-bg-surface border border-[#e0a458]/30 rounded-lg max-w-lg w-full p-7 shadow-2xl"
+        className="relative bg-bg-surface border border-theme-border-accent rounded-lg max-w-lg w-full p-6 sm:p-7 shadow-2xl"
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Schließen"
-          className="absolute top-4 right-4 text-[#7a7a85] hover:text-[#F9FAFB] transition-colors"
+          className="absolute top-4 right-4 text-text-muted hover:text-text-primary transition-colors"
         >
           <X size={18} />
         </button>
 
-        <div className="w-12 h-12 rounded-md bg-[#e0a458]/15 border border-[#e0a458]/30 flex items-center justify-center mb-5">
-          <Icon size={20} className="text-[#e0a458]" />
+        <div className="w-12 h-12 rounded-md bg-theme-accent-soft border border-theme-border-accent flex items-center justify-center mb-5">
+          <Icon size={20} className="text-theme-accent" />
         </div>
 
-        <h3 id="stack-modal-title" className="text-xl font-light text-[#F9FAFB] mb-3">
+        <h3 id="stack-modal-title" className="text-xl font-light text-text-primary mb-3 break-words">
           {card.title}
         </h3>
-        <p className="text-sm text-[#a4a4ad] leading-relaxed mb-6">{card.modalBody}</p>
+        <p className="text-sm text-text-secondary leading-relaxed mb-6 break-words">{card.modalBody}</p>
 
-        <div className="pt-5 border-t border-white/10 space-y-3">
-          <p className="text-[10px] font-mono uppercase tracking-wider text-[#7a7a85]">
+        <div className="pt-5 border-t border-theme-border space-y-3">
+          <p className="text-[10px] font-mono uppercase tracking-wider text-text-muted">
             Mehr Details bekommen?
           </p>
           <div className="flex flex-col sm:flex-row gap-2">
@@ -453,16 +453,16 @@ function StackModal({ cardKey, onClose }: { cardKey: string | null; onClose: () 
               href="https://wa.me/491772288372?text=Hi%20Carlos%2C%20Frage%20zu%20diesem%20AEVUM-Case."
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 text-xs font-mono text-[#e0a458] hover:text-[#f5c481] border border-[#e0a458]/30 hover:border-[#e0a458]/60 px-4 py-2.5 rounded transition-colors flex-1"
+              className="inline-flex items-center justify-center gap-2 text-xs font-mono text-theme-accent hover:text-theme-accent-hover border border-theme-border-accent hover:border-theme-accent px-4 py-2.5 rounded transition-colors flex-1"
             >
-              <ExternalLink size={12} />
+              <ExternalLink size={12} className="shrink-0" />
               WhatsApp Carlos
             </a>
             <a
               href="mailto:info@aevum-system.de?subject=Stack-Details%20auf%20Anfrage"
-              className="inline-flex items-center justify-center gap-2 text-xs font-mono text-[#F9FAFB] hover:text-[#e0a458] border border-white/10 hover:border-[#e0a458]/40 px-4 py-2.5 rounded transition-colors flex-1"
+              className="inline-flex items-center justify-center gap-2 text-xs font-mono text-text-primary hover:text-theme-accent border border-theme-border hover:border-theme-border-accent px-4 py-2.5 rounded transition-colors flex-1 break-all"
             >
-              <Mail size={12} />
+              <Mail size={12} className="shrink-0" />
               info@aevum-system.de
             </a>
           </div>
@@ -479,7 +479,7 @@ function StackPreview() {
       eyebrow="Beispiel-Setup"
       title="Was bei diesem Kunden im Stack ist"
     >
-      <p className="text-sm text-[#a4a4ad] mb-7 max-w-2xl">
+      <p className="text-sm text-text-secondary mb-7 max-w-2xl">
         Die konkreten Werte und Tool-Namen bleiben unter NDA bis der Customer Freigabe
         erteilt. Hier ist der visuelle Überblick — Details auf Anfrage.
       </p>
@@ -497,12 +497,12 @@ function StackPreview() {
 
 function CTA() {
   return (
-    <section className="px-6 lg:px-16 py-20 border-t border-white/5">
+    <section className="px-4 sm:px-6 lg:px-16 py-16 md:py-20 border-t border-theme-border">
       <div className="max-w-[900px] mx-auto text-center">
         <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-4">
           Eigenen Case bauen?
         </h2>
-        <p className="text-[#a4a4ad] mb-8 max-w-lg mx-auto">
+        <p className="text-text-secondary mb-8 max-w-lg mx-auto">
           Audit starten, Setup pruefen, klaren Plan bekommen.
         </p>
         <a href="/#/audit" className="btn-primary">
@@ -518,12 +518,12 @@ function CTA() {
 
 function LoadingState() {
   return (
-    <div className="bg-bg-primary min-h-screen px-6 lg:px-16 pt-24">
+    <div className="bg-bg-primary min-h-screen px-4 sm:px-6 lg:px-16 pt-24">
       <div className="max-w-[1100px] mx-auto animate-pulse space-y-6">
-        <div className="h-3 w-32 bg-white/5 rounded" />
-        <div className="h-12 w-3/4 bg-white/5 rounded" />
-        <div className="h-4 w-1/2 bg-white/5 rounded" />
-        <div className="h-40 bg-white/5 rounded mt-12" />
+        <div className="h-3 w-32 bg-bg-elevated rounded" />
+        <div className="h-12 w-3/4 bg-bg-elevated rounded" />
+        <div className="h-4 w-1/2 bg-bg-elevated rounded" />
+        <div className="h-40 bg-bg-elevated rounded mt-12" />
       </div>
     </div>
   );
@@ -531,10 +531,10 @@ function LoadingState() {
 
 function NotFoundState() {
   return (
-    <div className="bg-bg-primary min-h-screen flex items-center justify-center px-6">
+    <div className="bg-bg-primary min-h-screen flex items-center justify-center px-4 sm:px-6">
       <div className="max-w-md text-center">
-        <h1 className="text-2xl font-light text-[#F9FAFB] mb-3">Case nicht gefunden</h1>
-        <p className="text-[#a4a4ad] mb-8">
+        <h1 className="text-2xl font-light text-text-primary mb-3">Case nicht gefunden</h1>
+        <p className="text-text-secondary mb-8">
           Diesen Case gibt es nicht oder er ist gerade nicht oeffentlich.
         </p>
         <a href="/#/cases" className="btn-secondary">

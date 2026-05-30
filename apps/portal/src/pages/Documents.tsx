@@ -216,15 +216,15 @@ export default function Documents() {
 
   return (
     <>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center shrink-0">
           <FolderOpen size={16} className="text-gold-300" />
         </div>
-        <div>
+        <div className="min-w-0">
           <h1 className="text-xl font-bold text-white">Dokumente</h1>
           <p className="text-xs text-ink-400 mt-0.5">Tausche Markdown-Files mit deinem AEVUM-Agent</p>
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="w-full sm:w-auto sm:ml-auto flex items-center gap-2">
           <input
             ref={fileInputRef}
             type="file"
@@ -232,31 +232,33 @@ export default function Documents() {
             className="hidden"
             onChange={handleUpload}
           />
-          <button onClick={() => fileInputRef.current?.click()} className="btn-secondary text-sm">
+          <button onClick={() => fileInputRef.current?.click()} className="btn-secondary text-sm flex-1 sm:flex-none justify-center">
             <Upload size={13} /> Upload (Inbox)
           </button>
-          <button onClick={() => setCreating(true)} className="btn-gold text-sm">
+          <button onClick={() => setCreating(true)} className="btn-gold text-sm flex-1 sm:flex-none justify-center">
             <Plus size={13} /> Shared-Doc
           </button>
         </div>
       </div>
 
       {creating && (
-        <div className="card-premium p-4 mb-6 flex items-center gap-3">
+        <div className="card-premium p-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
           <input
             autoFocus
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && createInShared()}
             placeholder="briefing-q2.md"
-            className="input-premium flex-1"
+            className="input-premium w-full sm:flex-1"
           />
-          <button onClick={createInShared} className="btn-gold text-sm" disabled={!newName}>
-            <Plus size={13} /> Erstellen
-          </button>
-          <button onClick={() => { setCreating(false); setNewName(''); }} className="text-xs text-ink-400 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/5 transition">
-            Abbrechen
-          </button>
+          <div className="flex items-center gap-3">
+            <button onClick={createInShared} className="btn-gold text-sm flex-1 sm:flex-none justify-center" disabled={!newName}>
+              <Plus size={13} /> Erstellen
+            </button>
+            <button onClick={() => { setCreating(false); setNewName(''); }} className="text-xs text-ink-400 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/5 transition shrink-0">
+              Abbrechen
+            </button>
+          </div>
         </div>
       )}
 
@@ -328,7 +330,7 @@ export default function Documents() {
             </div>
           ) : (
             <div className="card-premium p-6">
-              <header className="flex items-center gap-3 mb-5 pb-4 border-b border-white/5">
+              <header className="flex flex-wrap items-center gap-3 mb-5 pb-4 border-b border-white/5">
                 <FileText size={18} className="text-gold-300 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <div className="text-base font-semibold text-white truncate">{selected.filename}</div>

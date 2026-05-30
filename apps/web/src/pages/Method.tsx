@@ -29,13 +29,13 @@ const fadeUp = {
 
 function HeroSection() {
   return (
-    <section className="relative min-h-[50vh] flex items-center justify-center px-6">
+    <section className="relative min-h-[50vh] flex items-center justify-center px-4 sm:px-6">
       <div className="relative z-10 text-center max-w-4xl mx-auto">
         <motion.span
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block"
+          className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block"
         >
           Unser Prozess
         </motion.span>
@@ -51,7 +51,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="text-base md:text-lg text-[#a4a4ad] max-w-2xl mx-auto leading-relaxed"
+          className="text-base md:text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed"
         >
           Analyse &rarr; Setup &rarr; Run. Kein vordefiniertes Paket — nur was dein Business braucht.
         </motion.p>
@@ -121,21 +121,21 @@ function ProcessSection() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section className="px-6 lg:px-16 py-24" ref={ref}>
+    <section className="px-4 sm:px-6 lg:px-16 py-16 md:py-24" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-16"
+          className="text-center mb-12 md:mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
             Der AEVUM-Prozess
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-4">
             Drei Phasen, ein <span className="text-gradient font-medium">System</span>
           </h2>
-          <p className="text-[#a4a4ad] max-w-xl mx-auto">
+          <p className="text-text-secondary max-w-xl mx-auto">
             Kein Cookie-Cutter. Jede Phase wird auf dein Business zugeschnitten.
           </p>
         </motion.div>
@@ -154,7 +154,7 @@ function ProcessSection() {
         >
           <a
             href="#pillars"
-            className="flex flex-col items-center gap-2 text-[#7a7a85] hover:text-[#e0a458] transition-colors"
+            className="flex flex-col items-center gap-2 text-text-muted hover:text-theme-accent transition-colors"
           >
             <span className="text-xs font-mono uppercase tracking-wider">Die 3 S&auml;ulen</span>
             <ChevronDown size={18} className="animate-bounce" />
@@ -186,26 +186,26 @@ function StepCard({ step, index }: { step: StepData; index: number }) {
       className="relative flex-1"
     >
       {index < steps.length - 1 && (
-        <div className="hidden lg:block absolute top-12 left-[60%] right-0 h-[2px] bg-gradient-to-r from-[#e0a458]/30 to-transparent" />
+        <div className="hidden lg:block absolute top-12 left-[60%] right-0 h-[2px] bg-gradient-to-r from-theme-accent/30 to-transparent" />
       )}
 
-      <div className="bg-bg-surface border border-white/10 p-8 h-full flex flex-col hover:border-[#e0a458]/30 transition-all">
+      <div className="bg-bg-surface border border-theme-border p-6 sm:p-8 h-full flex flex-col hover:border-theme-border-accent transition-all">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-lg bg-[#e0a458]/10 flex items-center justify-center">
-            <step.icon size={22} className="text-[#e0a458]" />
+          <div className="w-12 h-12 rounded-lg bg-theme-accent-soft flex items-center justify-center">
+            <step.icon size={22} className="text-theme-accent" />
           </div>
-          <span className="font-mono text-xs text-[#7a7a85] uppercase tracking-wider">
+          <span className="font-mono text-xs text-text-muted uppercase tracking-wider">
             {step.label}
           </span>
         </div>
 
-        <h3 className="text-xl font-medium tracking-tight mb-2 text-[#F9FAFB]">{step.title}</h3>
-        <p className="text-sm text-[#a4a4ad] mb-6 leading-relaxed">{step.description}</p>
+        <h3 className="text-xl font-medium tracking-tight mb-2 text-text-primary">{step.title}</h3>
+        <p className="text-sm text-text-secondary mb-6 leading-relaxed">{step.description}</p>
 
         <ul className="space-y-3 mb-8 flex-1">
           {step.bullets.map((bullet) => (
-            <li key={bullet} className="flex items-start gap-3 text-sm text-[#a4a4ad]">
-              <span className="w-1 h-1 rounded-full bg-[#e0a458] mt-2 flex-shrink-0" />
+            <li key={bullet} className="flex items-start gap-3 text-sm text-text-secondary">
+              <span className="w-1 h-1 rounded-full bg-theme-accent mt-2 flex-shrink-0" />
               {bullet}
             </li>
           ))}
@@ -284,21 +284,21 @@ function PillarsSection() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section id="pillars" className="px-6 lg:px-16 py-24 scroll-mt-20" ref={ref}>
+    <section id="pillars" className="px-4 sm:px-6 lg:px-16 py-16 md:py-24 scroll-mt-20" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-16"
+          className="text-center mb-12 md:mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
             Das Fundament
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-4">
             Die 3 <span className="text-gradient font-medium">S&auml;ulen</span> im Detail
           </h2>
-          <p className="text-[#a4a4ad] max-w-xl mx-auto">
+          <p className="text-text-secondary max-w-xl mx-auto">
             Jedes AEVUM-System baut auf diesen drei Prinzipien auf &mdash; von Tag 1 an.
           </p>
         </motion.div>
@@ -324,35 +324,35 @@ function PillarCard({ pillar, index }: { pillar: PillarData; index: number }) {
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className="bg-bg-surface border border-white/10 p-8 md:p-10 hover:border-[#e0a458]/30 transition-all"
+      className="bg-bg-surface border border-theme-border p-6 sm:p-8 md:p-10 hover:border-theme-border-accent transition-all"
     >
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-xl bg-[#e0a458]/10 flex items-center justify-center">
-          <pillar.icon size={26} className="text-[#e0a458]" />
+        <div className="w-14 h-14 rounded-xl bg-theme-accent-soft flex items-center justify-center shrink-0">
+          <pillar.icon size={26} className="text-theme-accent" />
         </div>
-        <div>
-          <span className="font-mono text-xs text-[#7a7a85] uppercase tracking-wider">
+        <div className="min-w-0">
+          <span className="font-mono text-xs text-text-muted uppercase tracking-wider">
             S&auml;ule {index + 1}
           </span>
-          <h3 className="text-xl font-medium tracking-tight text-[#F9FAFB]">
+          <h3 className="text-xl font-medium tracking-tight text-text-primary">
             {pillar.label.toUpperCase()}
           </h3>
         </div>
       </div>
 
       <h4
-        className="text-lg font-medium text-[#F9FAFB] mb-3"
+        className="text-lg font-medium text-text-primary mb-3"
         dangerouslySetInnerHTML={{ __html: pillar.headline }}
       />
       <p
-        className="text-sm text-[#a4a4ad] mb-6 leading-relaxed"
+        className="text-sm text-text-secondary mb-6 leading-relaxed"
         dangerouslySetInnerHTML={{ __html: pillar.description }}
       />
 
       <ul className="space-y-3">
         {pillar.features.map((feature) => (
-          <li key={feature} className="flex items-start gap-3 text-sm text-[#a4a4ad]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#e0a458] mt-1.5 flex-shrink-0" />
+          <li key={feature} className="flex items-start gap-3 text-sm text-text-secondary">
+            <span className="w-1.5 h-1.5 rounded-full bg-theme-accent mt-1.5 flex-shrink-0" />
             <span dangerouslySetInnerHTML={{ __html: feature }} />
           </li>
         ))}
@@ -368,7 +368,7 @@ function CTASection() {
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
   return (
-    <section className="px-6 lg:px-16 py-24" ref={ref}>
+    <section className="px-4 sm:px-6 lg:px-16 py-16 md:py-24" ref={ref}>
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}

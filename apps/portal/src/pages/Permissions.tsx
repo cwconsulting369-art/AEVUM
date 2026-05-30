@@ -87,7 +87,7 @@ export default function Permissions() {
             <div className="text-xs text-ink-300">
               Änderungen werden mit Timestamp + Account-ID digital signiert.
             </div>
-            <button disabled={saving} onClick={() => setConfirm(true)} className="btn-gold">
+            <button disabled={saving} onClick={() => setConfirm(true)} className="btn-gold w-full sm:w-auto justify-center">
               {saving ? (
                 <>
                   <span className="w-4 h-4 border-2 border-ink-950/50 border-t-ink-950 rounded-full animate-spin" />

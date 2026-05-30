@@ -31,21 +31,21 @@ const variantStyles: Record<PathVariant, {
 }> = {
   primary: {
     icon: ShoppingCart,
-    border: 'border-[#e0a458]/40 hover:border-[#e0a458]/70 hover:bg-[#e0a458]/[0.04]',
-    accent: 'text-[#e0a458]',
-    iconBg: 'bg-[#e0a458]/12',
+    border: 'border-theme-border-accent hover:border-theme-accent hover:bg-theme-accent/[0.04]',
+    accent: 'text-theme-accent',
+    iconBg: 'bg-theme-accent/[0.12]',
   },
   secondary: {
     icon: Sparkles,
-    border: 'border-white/12 hover:border-[#e0a458]/40 hover:bg-white/[0.02]',
-    accent: 'text-[#F9FAFB]',
-    iconBg: 'bg-white/8',
+    border: 'border-theme-border hover:border-theme-border-accent hover:bg-bg-elevated',
+    accent: 'text-text-primary',
+    iconBg: 'bg-bg-elevated',
   },
   tertiary: {
     icon: MessageCircle,
-    border: 'border-white/8 hover:border-white/20 hover:bg-white/[0.02]',
-    accent: 'text-[#a4a4ad]',
-    iconBg: 'bg-white/6',
+    border: 'border-theme-border hover:border-theme-border-strong hover:bg-bg-elevated',
+    accent: 'text-text-secondary',
+    iconBg: 'bg-bg-elevated',
   },
 };
 
@@ -63,9 +63,9 @@ function Card({ variant, href, onClick, title, subtitle, index }: CardProps) {
         </div>
         <div className="flex-1 min-w-0">
           <h3 className={`text-base font-medium leading-tight mb-1.5 ${s.accent}`}>{title}</h3>
-          <p className="text-xs text-[#a4a4ad] leading-snug">{subtitle}</p>
+          <p className="text-xs text-text-secondary leading-snug">{subtitle}</p>
         </div>
-        <ArrowRight size={16} className="text-[#7a7a85] group-hover:text-[#e0a458] group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1" />
+        <ArrowRight size={16} className="text-text-muted group-hover:text-theme-accent group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1" />
       </div>
     </>
   );
@@ -116,14 +116,14 @@ export default function PathThreeCard({
     <div className="w-full">
       {!compact && (
         <div className="mb-8 text-center">
-          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-3 block">
+          <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block">
             {eyebrow}
           </span>
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3">
+          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3 text-text-primary">
             {headline}
           </h2>
           {subline && (
-            <p className="text-sm text-[#a4a4ad] max-w-xl mx-auto leading-relaxed">
+            <p className="text-sm text-text-secondary max-w-xl mx-auto leading-relaxed">
               {subline}
             </p>
           )}

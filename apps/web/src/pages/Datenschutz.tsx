@@ -21,29 +21,29 @@ export default function Datenschutz() {
   });
 
   return (
-    <section className="px-6 lg:px-16 py-24 max-w-3xl mx-auto">
+    <section className="px-4 sm:px-6 lg:px-16 py-20 sm:py-24 max-w-3xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h1 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
-          Datenschutz<span className="text-[#e0a458]">erklärung</span>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight mb-4 break-words">
+          Datenschutz<span className="text-theme-accent">erklärung</span>
         </h1>
 
-        <p className="text-sm text-[#7a7a85] mb-6">Stand: 24. Mai 2026 · Version: datenschutz-v6-waveH-2026-05-24</p>
+        <p className="text-sm text-text-muted mb-6">Stand: 24. Mai 2026 · Version: datenschutz-v6-waveH-2026-05-24</p>
 
-        <div className="mb-12 border border-[#e0a458]/30 bg-[#e0a458]/[0.06] px-5 py-4 text-sm text-[#cfcfd4] leading-relaxed">
-          <strong className="text-[#e0a458]">Hinweis (Stand 25.05.2026):</strong> Diese Datenschutzerklärung
+        <div className="mb-12 border border-theme-border-accent bg-theme-accent-soft px-5 py-4 text-sm text-text-secondary leading-relaxed">
+          <strong className="text-theme-accent">Hinweis (Stand 25.05.2026):</strong> Diese Datenschutzerklärung
           ist ein Eigen-Entwurf und beschreibt die tatsächlich eingesetzten Verarbeitungen so präzise
           wie möglich. Eine abschließende anwaltliche Prüfung steht noch aus und ist vor produktivem
           Vertrieb geplant. Wir aktualisieren diese Seite, sobald die Prüfung erfolgt ist.
         </div>
 
-        <article className="prose prose-invert max-w-none space-y-8 text-[#a4a4ad] leading-relaxed">
+        <article className="prose prose-invert max-w-none space-y-8 text-text-secondary leading-relaxed break-words">
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">1. Verantwortlicher</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">1. Verantwortlicher</h2>
             <p>
               Verantwortlicher im Sinne der DSGVO und anderer nationaler Datenschutzgesetze
               der Mitgliedsstaaten sowie sonstiger datenschutzrechtlicher Bestimmungen ist:
@@ -52,16 +52,16 @@ export default function Datenschutz() {
               Carlos Wrusch<br />
               Federteilstr. 2e<br />
               86517 Wehringen, Deutschland<br />
-              E-Mail: <a href="mailto:dsgvo@aevum-system.de" className="text-[#e0a458] hover:underline">dsgvo@aevum-system.de</a>
+              E-Mail: <a href="mailto:dsgvo@aevum-system.de" className="text-theme-accent hover:underline">dsgvo@aevum-system.de</a>
             </p>
-            <p className="text-sm text-[#7a7a85]">
+            <p className="text-sm text-text-muted">
               Ein Datenschutzbeauftragter ist gesetzlich nicht erforderlich (kein
               Schwellenwert nach § 38 BDSG erreicht).
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">2. Welche Daten wir verarbeiten</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">2. Welche Daten wir verarbeiten</h2>
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>Workflow-Audit-Formular:</strong> Name, Firma, E-Mail, Telefon (optional), Branche, Teamgröße, Business-Beschreibung, aktuelle Tools, Budget-Rahmen, Timeline</li>
               <li><strong>Shop-Checkout:</strong> Name, Firma, E-Mail, gewähltes Paket, optional Add-ons</li>
@@ -89,7 +89,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">3. Zwecke und Rechtsgrundlagen</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">3. Zwecke und Rechtsgrundlagen</h2>
             <ul className="list-disc pl-6 space-y-2">
               <li><strong>Workflow-Audit-Bearbeitung:</strong> Art 6 Abs 1 lit b DSGVO (Vertragsanbahnung) und lit a (Einwilligung für Folge-Kommunikation)</li>
               <li><strong>Vertragsabwicklung (Pakete S/M/L, Add-ons):</strong> Art 6 Abs 1 lit b DSGVO</li>
@@ -101,76 +101,76 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">4. Empfänger und Auftragsverarbeiter</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">4. Empfänger und Auftragsverarbeiter</h2>
             <p>
               Wir setzen sorgfältig ausgewählte Dienstleister im Rahmen einer Auftragsverarbeitung
               nach Art 28 DSGVO ein. Mit allen aufgeführten Anbietern bestehen oder werden vor
               produktivem Einsatz Auftragsverarbeitungsverträge geschlossen.
             </p>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-sm border border-white/10">
+              <table className="min-w-full text-sm border border-theme-border">
                 <thead className="bg-bg-surface">
                   <tr className="text-left">
-                    <th className="px-3 py-2 border-b border-white/10 text-[#F8FAFC] font-normal">Anbieter</th>
-                    <th className="px-3 py-2 border-b border-white/10 text-[#F8FAFC] font-normal">Zweck</th>
-                    <th className="px-3 py-2 border-b border-white/10 text-[#F8FAFC] font-normal">Sitz / Server-Standort</th>
-                    <th className="px-3 py-2 border-b border-white/10 text-[#F8FAFC] font-normal">Garantien</th>
+                    <th className="px-3 py-2 border-b border-theme-border text-text-primary font-normal">Anbieter</th>
+                    <th className="px-3 py-2 border-b border-theme-border text-text-primary font-normal">Zweck</th>
+                    <th className="px-3 py-2 border-b border-theme-border text-text-primary font-normal">Sitz / Server-Standort</th>
+                    <th className="px-3 py-2 border-b border-theme-border text-text-primary font-normal">Garantien</th>
                   </tr>
                 </thead>
                 <tbody className="align-top">
                   <tr>
-                    <td className="px-3 py-2 border-b border-white/10">Supabase Inc.</td>
-                    <td className="px-3 py-2 border-b border-white/10">Datenbank-Hosting</td>
-                    <td className="px-3 py-2 border-b border-white/10">USA / EU (Frankfurt eu-central-1)</td>
-                    <td className="px-3 py-2 border-b border-white/10">AVV + EU-Standardvertragsklauseln</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Supabase Inc.</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Datenbank-Hosting</td>
+                    <td className="px-3 py-2 border-b border-theme-border">USA / EU (Frankfurt eu-central-1)</td>
+                    <td className="px-3 py-2 border-b border-theme-border">AVV + EU-Standardvertragsklauseln</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2 border-b border-white/10">Vercel Inc.</td>
-                    <td className="px-3 py-2 border-b border-white/10">Frontend-Hosting / CDN</td>
-                    <td className="px-3 py-2 border-b border-white/10">USA / EU-Edge</td>
-                    <td className="px-3 py-2 border-b border-white/10">AVV + EU-SCCs (Data Privacy Framework)</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Vercel Inc.</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Frontend-Hosting / CDN</td>
+                    <td className="px-3 py-2 border-b border-theme-border">USA / EU-Edge</td>
+                    <td className="px-3 py-2 border-b border-theme-border">AVV + EU-SCCs (Data Privacy Framework)</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2 border-b border-white/10">Cloudflare Inc.</td>
-                    <td className="px-3 py-2 border-b border-white/10">CDN, DDoS- und Bot-Abwehr</td>
-                    <td className="px-3 py-2 border-b border-white/10">USA / globales Edge-Netz (EU-Priorisierung)</td>
-                    <td className="px-3 py-2 border-b border-white/10">AVV + EU-SCCs (Data Privacy Framework)</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Cloudflare Inc.</td>
+                    <td className="px-3 py-2 border-b border-theme-border">CDN, DDoS- und Bot-Abwehr</td>
+                    <td className="px-3 py-2 border-b border-theme-border">USA / globales Edge-Netz (EU-Priorisierung)</td>
+                    <td className="px-3 py-2 border-b border-theme-border">AVV + EU-SCCs (Data Privacy Framework)</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2 border-b border-white/10">Stripe Payments Europe Ltd.</td>
-                    <td className="px-3 py-2 border-b border-white/10">Zahlungsabwicklung</td>
-                    <td className="px-3 py-2 border-b border-white/10">Irland / EU (Mutterkonzern USA)</td>
-                    <td className="px-3 py-2 border-b border-white/10">AVV + EU-SCCs, PCI-DSS Level 1</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Stripe Payments Europe Ltd.</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Zahlungsabwicklung</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Irland / EU (Mutterkonzern USA)</td>
+                    <td className="px-3 py-2 border-b border-theme-border">AVV + EU-SCCs, PCI-DSS Level 1</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2 border-b border-white/10">Anthropic PBC</td>
-                    <td className="px-3 py-2 border-b border-white/10">AI-gestützte Audit-Analyse + Helpbot-Chat (Verarbeitung der vom Nutzer eingegebenen Audit-Antworten und Chat-Nachrichten zur Erstellung der Workflow-Empfehlung bzw. Beantwortung der Anfrage; keine Trainings-Nutzung gemäß Anthropic Commercial Terms, Zero-Retention API)</td>
-                    <td className="px-3 py-2 border-b border-white/10">USA</td>
-                    <td className="px-3 py-2 border-b border-white/10">AVV (Anthropic DPA) + EU-SCCs (Modul 2), Zero-Retention API</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Anthropic PBC</td>
+                    <td className="px-3 py-2 border-b border-theme-border">AI-gestützte Audit-Analyse + Helpbot-Chat (Verarbeitung der vom Nutzer eingegebenen Audit-Antworten und Chat-Nachrichten zur Erstellung der Workflow-Empfehlung bzw. Beantwortung der Anfrage; keine Trainings-Nutzung gemäß Anthropic Commercial Terms, Zero-Retention API)</td>
+                    <td className="px-3 py-2 border-b border-theme-border">USA</td>
+                    <td className="px-3 py-2 border-b border-theme-border">AVV (Anthropic DPA) + EU-SCCs (Modul 2), Zero-Retention API</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2 border-b border-white/10">Mailbox.org (Heinlein Support GmbH)</td>
-                    <td className="px-3 py-2 border-b border-white/10">SMTP-Fallback für Transaktions-E-Mails (Magic-Link-Login, DSGVO-Challenge-Bestätigungen für Export/Löschung); nur als Fallback aktiv wenn Resend nicht verfügbar</td>
-                    <td className="px-3 py-2 border-b border-white/10">Deutschland (Berlin)</td>
-                    <td className="px-3 py-2 border-b border-white/10">AVV nach Art 28 DSGVO, § 32 BDSG, ISO 27001-zertifiziert</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Mailbox.org (Heinlein Support GmbH)</td>
+                    <td className="px-3 py-2 border-b border-theme-border">SMTP-Fallback für Transaktions-E-Mails (Magic-Link-Login, DSGVO-Challenge-Bestätigungen für Export/Löschung); nur als Fallback aktiv wenn Resend nicht verfügbar</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Deutschland (Berlin)</td>
+                    <td className="px-3 py-2 border-b border-theme-border">AVV nach Art 28 DSGVO, § 32 BDSG, ISO 27001-zertifiziert</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2 border-b border-white/10">Resend (Resend, Inc.)</td>
-                    <td className="px-3 py-2 border-b border-white/10">Primärer Versand von Transaktions-E-Mails (Magic-Link-Login, Lead-Magnet-PDFs, Bestell-Bestätigungen, DSGVO-Challenge-Bestätigungen, Waitlist-Notifications)</td>
-                    <td className="px-3 py-2 border-b border-white/10">USA, EU-Region verfügbar</td>
-                    <td className="px-3 py-2 border-b border-white/10">AVV + EU-SCCs (Modul 2), SOC 2 Type II, EU-Sub-Processor</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Resend (Resend, Inc.)</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Primärer Versand von Transaktions-E-Mails (Magic-Link-Login, Lead-Magnet-PDFs, Bestell-Bestätigungen, DSGVO-Challenge-Bestätigungen, Waitlist-Notifications)</td>
+                    <td className="px-3 py-2 border-b border-theme-border">USA, EU-Region verfügbar</td>
+                    <td className="px-3 py-2 border-b border-theme-border">AVV + EU-SCCs (Modul 2), SOC 2 Type II, EU-Sub-Processor</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2 border-b border-white/10">Telegram FZ-LLC</td>
-                    <td className="px-3 py-2 border-b border-white/10">Versand von Bot-Notifications, Customer-Magic-Links und Helpbot-Benachrichtigungen an opt-in Telegram-Accounts (nur wenn vom Kunden explizit aktiviert)</td>
-                    <td className="px-3 py-2 border-b border-white/10">Vereinigte Arabische Emirate / Schweiz</td>
-                    <td className="px-3 py-2 border-b border-white/10">Standard-Drittland-Übertragung; nur ID-Felder + Magic-Link-URL übermittelt, keine PII-Inhalte; opt-in Basis Art 6 Abs 1 lit a</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Telegram FZ-LLC</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Versand von Bot-Notifications, Customer-Magic-Links und Helpbot-Benachrichtigungen an opt-in Telegram-Accounts (nur wenn vom Kunden explizit aktiviert)</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Vereinigte Arabische Emirate / Schweiz</td>
+                    <td className="px-3 py-2 border-b border-theme-border">Standard-Drittland-Übertragung; nur ID-Felder + Magic-Link-URL übermittelt, keine PII-Inhalte; opt-in Basis Art 6 Abs 1 lit a</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2 border-b border-white/10">OpenRouter Inc.</td>
-                    <td className="px-3 py-2 border-b border-white/10">LLM-Routing-Gateway (Anthropic-Modelle) für ausgewählte interne Background-Tasks (z.B. Klassifizierung, Idea-Processing). Verarbeitet keine Customer-Chat-Inhalte direkt — primäre LLM-Verarbeitung läuft über Anthropic-Direct-API.</td>
-                    <td className="px-3 py-2 border-b border-white/10">USA</td>
-                    <td className="px-3 py-2 border-b border-white/10">AVV ausstehend (vor Q3 2026 zu signieren); EU-SCCs (Modul 2). Zero-Retention-Mode wo verfügbar.</td>
+                    <td className="px-3 py-2 border-b border-theme-border">OpenRouter Inc.</td>
+                    <td className="px-3 py-2 border-b border-theme-border">LLM-Routing-Gateway (Anthropic-Modelle) für ausgewählte interne Background-Tasks (z.B. Klassifizierung, Idea-Processing). Verarbeitet keine Customer-Chat-Inhalte direkt — primäre LLM-Verarbeitung läuft über Anthropic-Direct-API.</td>
+                    <td className="px-3 py-2 border-b border-theme-border">USA</td>
+                    <td className="px-3 py-2 border-b border-theme-border">AVV ausstehend (vor Q3 2026 zu signieren); EU-SCCs (Modul 2). Zero-Retention-Mode wo verfügbar.</td>
                   </tr>
                 </tbody>
               </table>
@@ -184,7 +184,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">5. Zahlungsabwicklung über Stripe</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">5. Zahlungsabwicklung über Stripe</h2>
             <p>
               Für die Abwicklung von Zahlungen nutzen wir <strong>Stripe Payments Europe Ltd.</strong>,
               1 Grand Canal Street Lower, Grand Canal Dock, Dublin, Irland. Stripe ist nach
@@ -209,7 +209,7 @@ export default function Datenschutz() {
             </p>
             <p>
               <strong>Stripe-Datenschutzerklärung:</strong>{' '}
-              <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener noreferrer" className="text-[#e0a458] hover:underline">
+              <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener noreferrer" className="text-theme-accent hover:underline">
                 stripe.com/de/privacy
               </a>
             </p>
@@ -220,19 +220,19 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">6. Auftragsverarbeitung für gewerbliche Kunden (AVV)</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">6. Auftragsverarbeitung für gewerbliche Kunden (AVV)</h2>
             <p>
               Soweit AEVUM im Rahmen der Leistungserbringung für gewerbliche Kunden personenbezogene
               Daten Dritter (z.B. Endkundendaten, Mitarbeiter-Daten) verarbeitet, geschieht dies
               ausschließlich auf Grundlage eines separaten Auftragsverarbeitungsvertrags nach
               <strong> Art 28 DSGVO</strong>. Ein Standard-AVV-Template stellen wir auf Anfrage
               kostenfrei zur Verfügung. Anfragen bitte per E-Mail an{' '}
-              <a href="mailto:dsgvo@aevum-system.de" className="text-[#e0a458] hover:underline">dsgvo@aevum-system.de</a>.
+              <a href="mailto:dsgvo@aevum-system.de" className="text-theme-accent hover:underline">dsgvo@aevum-system.de</a>.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">6a. Helpbot / AI-Chat</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">6a. Helpbot / AI-Chat</h2>
             <p>
               Der auf der AEVUM-Website verfügbare Helpbot (AEVUM Assistant) beantwortet Fragen rund
               um KI-Betriebssysteme. Er ist <strong>anonym</strong> nutzbar — wir erfassen keine Namen,
@@ -273,16 +273,16 @@ export default function Datenschutz() {
             </p>
             <ul className="list-disc pl-6 space-y-1">
               <li>das <strong>Mülleimer-Symbol</strong> im Chat-Header bzw. „Verlauf löschen" unter dem Eingabefeld</li>
-              <li>oder per E-Mail an <a href="mailto:dsgvo@aevum-system.de" className="text-[#e0a458] hover:underline">dsgvo@aevum-system.de</a> mit deiner Session-ID</li>
+              <li>oder per E-Mail an <a href="mailto:dsgvo@aevum-system.de" className="text-theme-accent hover:underline">dsgvo@aevum-system.de</a> mit deiner Session-ID</li>
             </ul>
-            <p className="text-sm text-[#7a7a85] mt-2">
-              Die Lösch-Funktion ruft den API-Endpunkt <code className="text-[#e0a458]">POST /api/helpbot/erase</code>{' '}
+            <p className="text-sm text-text-muted mt-2">
+              Die Lösch-Funktion ruft den API-Endpunkt <code className="text-theme-accent">POST /api/helpbot/erase</code>{' '}
               auf, der den entsprechenden Datenbank-Eintrag unverzüglich entfernt.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">7. Speicherdauer</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">7. Speicherdauer</h2>
             <ul className="list-disc pl-6 space-y-1">
               <li>Aktive Audit-Anfragen: bis Vertragsabschluss oder begründeter Ablehnung</li>
               <li>Abgeschlossene Audits ohne Vertragsschluss: 12 Monate ab Abschluss, danach Löschung</li>
@@ -303,12 +303,12 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">8. Ihre Rechte als Betroffene Person</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">8. Ihre Rechte als Betroffene Person</h2>
             <p>Sie haben jederzeit das Recht auf:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li>Auskunft über Ihre verarbeiteten Daten (Art 15 DSGVO)</li>
               <li>Berichtigung unrichtiger Daten (Art 16 DSGVO)</li>
-              <li>Löschung (Art 17 DSGVO) – direkt umsetzbar per E-Mail oder über den API-Endpunkt <code className="text-[#e0a458]">POST /api/audit/erase</code></li>
+              <li>Löschung (Art 17 DSGVO) – direkt umsetzbar per E-Mail oder über den API-Endpunkt <code className="text-theme-accent">POST /api/audit/erase</code></li>
               <li>Einschränkung der Verarbeitung (Art 18 DSGVO)</li>
               <li>Datenübertragbarkeit in einem strukturierten, gängigen Format (Art 20 DSGVO)</li>
               <li>Widerspruch gegen Verarbeitung auf Grundlage berechtigter Interessen (Art 21 DSGVO)</li>
@@ -316,7 +316,7 @@ export default function Datenschutz() {
             </ul>
             <p className="mt-4">
               Anfragen bitte per E-Mail an{' '}
-              <a href="mailto:dsgvo@aevum-system.de" className="text-[#e0a458] hover:underline">dsgvo@aevum-system.de</a>.
+              <a href="mailto:dsgvo@aevum-system.de" className="text-theme-accent hover:underline">dsgvo@aevum-system.de</a>.
               Wir bearbeiten Anfragen innerhalb der gesetzlichen Frist von einem Monat (Art 12 Abs 3 DSGVO).
             </p>
             <p className="mt-4">
@@ -327,12 +327,12 @@ export default function Datenschutz() {
             <p className="text-sm">
               Bayerisches Landesamt für Datenschutzaufsicht (BayLDA)<br />
               Promenade 18, 91522 Ansbach<br />
-              <a href="https://www.lda.bayern.de" target="_blank" rel="noopener noreferrer" className="text-[#e0a458] hover:underline">www.lda.bayern.de</a>
+              <a href="https://www.lda.bayern.de" target="_blank" rel="noopener noreferrer" className="text-theme-accent hover:underline">www.lda.bayern.de</a>
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">9. Cookies und Tracking</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">9. Cookies und Tracking</h2>
             <p>
               Die AEVUM-Website setzt <strong>keine Tracking-Cookies und keine Marketing-Cookies</strong>.
               Es findet kein Tracking durch Dritt-Anbieter wie Google Analytics, Meta Pixel,
@@ -349,7 +349,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">10. Datensicherheit (Technische und organisatorische Maßnahmen)</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">10. Datensicherheit (Technische und organisatorische Maßnahmen)</h2>
             <ul className="list-disc pl-6 space-y-1">
               <li>Durchgehende TLS-1.3-Verschlüsselung der Übertragung (Cloudflare und Vercel)</li>
               <li>Strenge Content-Security-Policy, HSTS und alle relevanten Security-Header</li>
@@ -364,7 +364,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">11. Änderungen dieser Datenschutzerklärung</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">11. Änderungen dieser Datenschutzerklärung</h2>
             <p>
               Wir behalten uns vor, diese Datenschutzerklärung anzupassen, wenn sich die
               Rechtslage oder unsere Verarbeitungsprozesse ändern. Die jeweils aktuelle Version

@@ -357,7 +357,7 @@ function ICPBadge({ icp }: { icp: ICP }) {
 
 function CategoryChip({ label }: { label: string }) {
   return (
-    <span className="font-mono text-[10px] uppercase tracking-wider text-[#e0a458] bg-[#e0a458]/8 border border-[#e0a458]/15 px-2 py-0.5 rounded">
+    <span className="font-mono text-[10px] uppercase tracking-wider text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-2 py-0.5 rounded">
       {label}
     </span>
   );
@@ -365,9 +365,9 @@ function CategoryChip({ label }: { label: string }) {
 
 function IncludesIcon({ text }: { text: string }) {
   const t = text.toLowerCase();
-  if (t.includes('json')) return <FileJson size={13} className="text-[#e0a458] flex-shrink-0 mt-0.5" />;
-  if (t.includes('video')) return <Video size={13} className="text-[#e0a458] flex-shrink-0 mt-0.5" />;
-  return <FileText size={13} className="text-[#e0a458] flex-shrink-0 mt-0.5" />;
+  if (t.includes('json')) return <FileJson size={13} className="text-theme-accent flex-shrink-0 mt-0.5" />;
+  if (t.includes('video')) return <Video size={13} className="text-theme-accent flex-shrink-0 mt-0.5" />;
+  return <FileText size={13} className="text-theme-accent flex-shrink-0 mt-0.5" />;
 }
 
 /* ──────────────────────── Tab-Routing (URL ?tab=X) ──────────────────────── */
@@ -393,12 +393,12 @@ function setTabInHash(tab: ShopTab) {
 
 function HeroStrip() {
   return (
-    <section className="pt-28 pb-10 px-6 text-center">
+    <section className="pt-28 pb-10 px-4 sm:px-6 text-center">
       <motion.span
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55 }}
-        className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-3 block"
+        className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block"
       >
         AEVUM Shop
       </motion.span>
@@ -406,7 +406,7 @@ function HeroStrip() {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-        className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-[1.1] mb-4"
+        className="text-[clamp(1.875rem,6vw,3rem)] font-light tracking-tight leading-[1.1] mb-4 text-text-primary"
       >
         KI-Systeme für dein Business.{' '}
         <span className="text-gradient font-medium">Sofort einsetzbar.</span>
@@ -415,7 +415,7 @@ function HeroStrip() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.65, delay: 0.18 }}
-        className="text-base text-[#a4a4ad] max-w-2xl mx-auto"
+        className="text-base text-text-secondary max-w-2xl mx-auto"
       >
         Blueprints zum Selbst-Implementieren · Done-For-You Services · Full-Audit-Partnerschaft.
       </motion.p>
@@ -433,9 +433,9 @@ function TabBar({ active, onChange }: { active: ShopTab; onChange: (t: ShopTab) 
   ];
 
   return (
-    <div className="px-6 lg:px-16 sticky top-[68px] z-30 bg-bg-primary/85 backdrop-blur-md border-b border-white/5">
+    <div className="px-4 sm:px-6 lg:px-16 sticky top-[68px] z-30 bg-bg-primary/85 backdrop-blur-md border-b border-theme-border">
       <div className="max-w-[1440px] mx-auto">
-        <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 py-3 overflow-x-auto">
+        <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 py-3">
           {tabs.map((t) => {
             const isActive = active === t.id;
             const Icon = t.icon;
@@ -443,10 +443,10 @@ function TabBar({ active, onChange }: { active: ShopTab; onChange: (t: ShopTab) 
               <button
                 key={t.id}
                 onClick={() => onChange(t.id)}
-                className={`flex-1 sm:flex-none min-w-[180px] text-left px-5 py-3 rounded-lg border transition-all group ${
+                className={`flex-1 sm:flex-none sm:min-w-[180px] text-left px-4 sm:px-5 py-3 rounded-lg border transition-all group ${
                   isActive
-                    ? 'bg-[#e0a458]/10 border-[#e0a458]/40 text-[#F9FAFB]'
-                    : 'bg-transparent border-white/8 text-[#a4a4ad] hover:border-[#e0a458]/25 hover:text-[#F9FAFB]'
+                    ? 'bg-theme-accent-soft border-theme-border-accent text-text-primary'
+                    : 'bg-transparent border-theme-border text-text-secondary hover:border-theme-accent/40 hover:text-text-primary'
                 }`}
                 aria-pressed={isActive}
               >
@@ -454,17 +454,17 @@ function TabBar({ active, onChange }: { active: ShopTab; onChange: (t: ShopTab) 
                   <div
                     className={`w-9 h-9 rounded-md flex items-center justify-center flex-shrink-0 transition-colors ${
                       isActive
-                        ? 'bg-[#e0a458] text-[#08080a]'
-                        : 'bg-white/5 text-[#7a7a85] group-hover:text-[#e0a458]'
+                        ? 'bg-theme-accent text-on-accent'
+                        : 'bg-bg-elevated text-text-muted group-hover:text-theme-accent'
                     }`}
                   >
                     <Icon size={16} />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <span className="block text-sm font-medium leading-tight">{t.label}</span>
                     <span
                       className={`block text-[11px] font-mono uppercase tracking-wider mt-0.5 ${
-                        isActive ? 'text-[#e0a458]' : 'text-[#7a7a85]'
+                        isActive ? 'text-theme-accent' : 'text-text-muted'
                       }`}
                     >
                       {t.sub}
@@ -493,33 +493,33 @@ function CreditIncentiveBanner() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.4 }}
-      className="mx-6 lg:mx-16 mb-10 max-w-[1440px] xl:mx-auto relative"
+      className="mx-4 sm:mx-6 lg:mx-16 mb-10 max-w-[1440px] xl:mx-auto relative"
     >
-      <div className="border border-[#e0a458]/40 bg-[#e0a458]/5 px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
+      <div className="border border-theme-border-accent bg-theme-accent-soft px-5 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
         <button
           onClick={() => setDismissed(true)}
-          className="absolute top-3 right-3 text-[#7a7a85] hover:text-[#F9FAFB] transition-colors"
+          className="absolute top-3 right-3 text-text-muted hover:text-text-primary transition-colors p-1"
           aria-label="Banner schließen"
         >
           <X size={14} />
         </button>
 
-        <div className="flex items-start gap-3">
-          <Star size={16} className="text-[#e0a458] flex-shrink-0 mt-0.5" />
-          <div>
-            <span className="font-mono text-xs uppercase tracking-widest text-[#e0a458] block mb-1">
+        <div className="flex items-start gap-3 min-w-0 pr-6">
+          <Star size={16} className="text-theme-accent flex-shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <span className="font-mono text-xs uppercase tracking-widest text-theme-accent block mb-1">
               AEVUM Credits — Sammle bei jedem Kauf
             </span>
-            <p className="text-sm text-[#a4a4ad]">
+            <p className="text-sm text-text-secondary">
               10 Credits pro €1 &middot; Einlösbar gegen Tools &amp; Demos &middot; 5 Käufe = 1 Blueprint gratis
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex items-center gap-3 flex-shrink-0 w-full sm:w-auto">
           <a
             href="/#/register"
-            className="inline-flex items-center gap-1.5 text-xs font-medium bg-[#e0a458] text-[#08080a] px-4 py-2 hover:bg-[#f0b468] transition-colors whitespace-nowrap"
+            className="inline-flex items-center justify-center gap-1.5 text-xs font-medium bg-theme-accent text-on-accent px-4 py-2 min-h-[40px] w-full sm:w-auto hover:bg-theme-accent/90 transition-colors whitespace-nowrap"
           >
             <UserPlus size={13} />
             Account erstellen — kostenlos
@@ -605,15 +605,15 @@ function BlueprintFilterBar({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2 justify-center mb-10">
-      <Filter size={14} className="text-[#7a7a85] mr-1" />
+      <Filter size={14} className="text-text-muted mr-1" />
       {blueprintCategories.map((cat) => (
         <button
           key={cat}
           onClick={() => onChange(cat)}
-          className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${
+          className={`px-4 py-2 min-h-[40px] rounded-full text-sm font-medium border transition-all ${
             active === cat
-              ? 'bg-[#e0a458] text-[#08080a] border-[#e0a458]'
-              : 'bg-transparent text-[#a4a4ad] border-white/10 hover:border-[#e0a458]/40 hover:text-[#F9FAFB]'
+              ? 'bg-theme-accent text-on-accent border-theme-accent'
+              : 'bg-transparent text-text-secondary border-theme-border hover:border-theme-accent/40 hover:text-text-primary'
           }`}
         >
           {cat}
@@ -649,10 +649,10 @@ function BlueprintCard({
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className={`relative bg-bg-surface border border-white/10 p-7 flex flex-col hover:border-[#e0a458]/35 transition-all group ${paused ? 'opacity-90' : ''}`}
+      className={`relative bg-bg-surface border border-theme-border p-6 sm:p-7 flex flex-col hover:border-theme-accent/40 transition-all group ${paused ? 'opacity-90' : ''}`}
     >
       {blueprint.tag && (
-        <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-[#e0a458] bg-[#e0a458]/10 border border-[#e0a458]/20 px-2 py-0.5">
+        <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-2 py-0.5">
           {blueprint.tag}
         </span>
       )}
@@ -664,39 +664,39 @@ function BlueprintCard({
         aria-label={`${blueprint.name} — Details`}
       >
         <div className="flex items-start justify-between gap-3 mb-3">
-          <h3 className="text-lg font-medium tracking-tight text-[#F9FAFB] leading-tight pr-12 group-hover/title:text-[#e0a458] transition-colors">
+          <h3 className="text-lg font-medium tracking-tight text-text-primary leading-tight pr-12 break-words group-hover/title:text-theme-accent transition-colors">
             {blueprint.name}
           </h3>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <SecurityBadge level={blueprint.security} />
-          <span className="font-mono text-xs text-[#7a7a85] uppercase tracking-wider">
+          <span className="font-mono text-xs text-text-muted uppercase tracking-wider">
             {blueprint.category}
           </span>
         </div>
       </a>
 
       <p
-        className="text-sm text-[#a4a4ad] leading-relaxed mb-5 flex-1"
+        className="text-sm text-text-secondary leading-relaxed mb-5 flex-1"
         dangerouslySetInnerHTML={{ __html: blueprint.description }}
       />
 
       <ul className="space-y-2 mb-6">
         {blueprint.includes.map((item) => (
-          <li key={item} className="flex items-start gap-2 text-xs text-[#a4a4ad]">
+          <li key={item} className="flex items-start gap-2 text-xs text-text-secondary">
             <IncludesIcon text={item} />
-            <span>{item}</span>
+            <span className="break-words">{item}</span>
           </li>
         ))}
       </ul>
 
       <div className="mb-5">
         <div className="flex items-baseline gap-2">
-          <span className="text-2xl font-light text-[#F9FAFB]">
+          <span className="text-2xl font-light text-text-primary">
             &euro;{blueprint.price}
           </span>
         </div>
-        <span className="text-xs text-[#e0a458]/70 font-mono mt-0.5 block">
+        <span className="text-xs text-theme-accent/80 font-mono mt-0.5 block">
           +{credits.toLocaleString('de-DE')} Credits mit Account
         </span>
       </div>
@@ -705,11 +705,11 @@ function BlueprintCard({
         <button
           onClick={() => onBuy(blueprint, false)}
           disabled={isLoading}
-          className="btn-primary text-sm px-5 py-2.5 inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="btn-primary text-sm px-5 py-2.5 min-h-[44px] inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <>
-              <span className="w-3.5 h-3.5 rounded-full border-2 border-[#08080a]/40 border-t-[#08080a] animate-spin" />
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-on-accent/40 border-t-on-accent animate-spin" />
               {paused ? 'Wartung…' : 'Wird gestartet...'}
             </>
           ) : paused ? (
@@ -726,7 +726,7 @@ function BlueprintCard({
         </button>
         <a
           href={`/#/shop/blueprint/${blueprint.slug}`}
-          className="inline-flex items-center justify-center gap-2 text-xs font-medium text-[#a4a4ad] border border-white/10 px-5 py-2 hover:border-[#e0a458]/40 hover:text-[#e0a458] transition-all"
+          className="inline-flex items-center justify-center gap-2 text-xs font-medium text-text-secondary border border-theme-border px-5 py-2 min-h-[40px] hover:border-theme-accent/40 hover:text-theme-accent transition-all"
         >
           Details ansehen
           <ArrowRight size={11} />
@@ -751,7 +751,7 @@ function BlueprintsSection() {
       : blueprints.filter((b) => b.category === activeCategory);
 
   return (
-    <section className="px-6 lg:px-16 pb-24 pt-10" ref={ref}>
+    <section className="px-4 sm:px-6 lg:px-16 pb-24 pt-10" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <CreditIncentiveBanner />
 
@@ -762,16 +762,16 @@ function BlueprintsSection() {
           className="mb-10"
         >
           <div className="flex items-center gap-4 mb-3">
-            <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458]">
+            <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent">
               Blueprints · Direkt-Kauf
             </span>
-            <div className="h-px flex-1 bg-white/8 max-w-xs" />
+            <div className="h-px flex-1 bg-theme-border max-w-xs" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-2">
+          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-2 text-text-primary">
             Sofort downloadbar.{' '}
             <span className="text-gradient font-medium">Mit oder ohne Account.</span>
           </h2>
-          <p className="text-sm text-[#7a7a85] max-w-lg">
+          <p className="text-sm text-text-muted max-w-lg">
             n8n-Workflows mit Setup-Guide. Nach Kauf erhältst du Workflow-Datei + Anleitung. Setup-Zeit hängt von deiner n8n-Erfahrung und den benötigten Credentials ab — plan realistisch 30-90 Minuten ein. Kein Retainer, kein Abo.
           </p>
         </motion.div>
@@ -779,7 +779,7 @@ function BlueprintsSection() {
         <BlueprintFilterBar active={activeCategory} onChange={setActiveCategory} />
 
         {buyError && (
-          <div className="mb-6 border border-rose-400/30 bg-rose-400/5 px-5 py-3 text-sm text-rose-400 font-mono">
+          <div className="mb-6 border border-rose-400/30 bg-rose-400/5 px-5 py-3 text-sm text-rose-400 font-mono break-words">
             {buyError}
           </div>
         )}
@@ -796,7 +796,7 @@ function BlueprintsSection() {
           ))}
         </div>
         {filtered.length === 0 && (
-          <p className="text-center text-[#7a7a85] py-20">
+          <p className="text-center text-text-muted py-20">
             Keine Blueprints in dieser Kategorie.
           </p>
         )}
@@ -806,30 +806,30 @@ function BlueprintsSection() {
           initial={{ opacity: 0, y: 32 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-12 bg-bg-surface border border-[#e0a458]/20 p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden"
+          className="mt-12 bg-bg-surface border border-theme-border-accent p-6 sm:p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden"
         >
-          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-[#e0a458]/5 blur-3xl pointer-events-none" />
-          <div>
-            <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-2 block">
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-theme-accent/5 blur-3xl pointer-events-none" />
+          <div className="min-w-0 relative">
+            <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-2 block">
               Bundle Deal
             </span>
-            <h3 className="text-xl md:text-2xl font-light tracking-tight mb-1">
+            <h3 className="text-xl md:text-2xl font-light tracking-tight mb-1 text-text-primary">
               Alle 6 Blueprints.{' '}
               <span className="text-gradient font-medium">Ein Preis.</span>
             </h3>
-            <p className="text-sm text-[#7a7a85]">
+            <p className="text-sm text-text-muted">
               Content, Leads, Reporting + Automatisierung — komplett.
             </p>
-            <span className="text-xs text-[#e0a458]/70 font-mono mt-1 block">
+            <span className="text-xs text-theme-accent/80 font-mono mt-1 block">
               +{(BUNDLE_PRICE * 10).toLocaleString('de-DE')} Credits mit Account
             </span>
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-4 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-center gap-4 flex-shrink-0 relative w-full md:w-auto">
             <div className="text-center">
-              <span className="block text-3xl font-light text-[#F9FAFB]">
+              <span className="block text-3xl font-light text-text-primary">
                 &euro;{BUNDLE_PRICE}
               </span>
-              <span className="text-xs text-[#7a7a85] font-mono">
+              <span className="text-xs text-text-muted font-mono">
                 statt &euro;{FULL_PRICE} (
                 <span className="text-emerald-400">
                   -{Math.round(100 - (BUNDLE_PRICE / FULL_PRICE) * 100)}%
@@ -837,7 +837,7 @@ function BlueprintsSection() {
                 )
               </span>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 w-full sm:w-auto">
               <button
                 onClick={() =>
                   buy(
@@ -855,7 +855,7 @@ function BlueprintsSection() {
                     false
                   )
                 }
-                className="btn-primary px-7 py-2.5 text-sm inline-flex items-center gap-2 whitespace-nowrap"
+                className="btn-primary px-7 py-2.5 min-h-[44px] text-sm inline-flex items-center justify-center gap-2"
               >
                 {paused ? (
                   <>
@@ -871,7 +871,7 @@ function BlueprintsSection() {
               </button>
               <a
                 href="/#/shop/bundle/bundle-all"
-                className="inline-flex items-center justify-center gap-2 text-xs text-[#a4a4ad] border border-white/10 px-5 py-2 hover:border-[#e0a458]/40 hover:text-[#e0a458] transition-all"
+                className="inline-flex items-center justify-center gap-2 text-xs text-text-secondary border border-theme-border px-5 py-2 min-h-[40px] hover:border-theme-accent/40 hover:text-theme-accent transition-all"
               >
                 Details ansehen
                 <ArrowRight size={11} />
@@ -922,10 +922,10 @@ function HowItWorksStrip() {
         transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
         className="text-center mb-10"
       >
-        <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-3 block">
+        <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block">
           So funktioniert's
         </span>
-        <h3 className="text-xl md:text-2xl font-light tracking-tight">
+        <h3 className="text-xl md:text-2xl font-light tracking-tight text-text-primary">
           Kauf → Download →{' '}
           <span className="text-gradient font-medium">Live</span>
         </h3>
@@ -939,18 +939,18 @@ function HowItWorksStrip() {
             variants={fadeUp}
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
-            className="flex-1 bg-[#0c0c10] border border-white/8 p-7 flex flex-col"
+            className="flex-1 bg-bg-surface border border-theme-border p-6 sm:p-7 flex flex-col"
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-[#e0a458]/10 flex items-center justify-center">
-                <step.icon size={18} className="text-[#e0a458]" />
+              <div className="w-10 h-10 rounded-lg bg-theme-accent-soft flex items-center justify-center flex-shrink-0">
+                <step.icon size={18} className="text-theme-accent" />
               </div>
-              <span className="font-mono text-xs text-[#7a7a85] uppercase tracking-wider">
+              <span className="font-mono text-xs text-text-muted uppercase tracking-wider">
                 {step.label}
               </span>
             </div>
-            <h4 className="text-base font-medium text-[#F9FAFB] mb-2">{step.title}</h4>
-            <p className="text-sm text-[#a4a4ad] leading-relaxed">{step.desc}</p>
+            <h4 className="text-base font-medium text-text-primary mb-2">{step.title}</h4>
+            <p className="text-sm text-text-secondary leading-relaxed">{step.desc}</p>
           </motion.div>
         ))}
       </div>
@@ -969,15 +969,15 @@ function ServiceFilterBar({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2 justify-center mb-10">
-      <Filter size={14} className="text-[#7a7a85] mr-1" />
+      <Filter size={14} className="text-text-muted mr-1" />
       {serviceCategories.map((cat) => (
         <button
           key={cat}
           onClick={() => onChange(cat)}
-          className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${
+          className={`px-4 py-2 min-h-[40px] rounded-full text-sm font-medium border transition-all ${
             active === cat
-              ? 'bg-[#e0a458] text-[#08080a] border-[#e0a458]'
-              : 'bg-transparent text-[#a4a4ad] border-white/10 hover:border-[#e0a458]/40 hover:text-[#F9FAFB]'
+              ? 'bg-theme-accent text-on-accent border-theme-accent'
+              : 'bg-transparent text-text-secondary border-theme-border hover:border-theme-accent/40 hover:text-text-primary'
           }`}
         >
           {cat}
@@ -998,10 +998,10 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className="relative bg-bg-surface border border-white/10 p-7 flex flex-col hover:border-[#e0a458]/35 transition-all group"
+      className="relative bg-bg-surface border border-theme-border p-6 sm:p-7 flex flex-col hover:border-theme-accent/40 transition-all group"
     >
       {service.tag && (
-        <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-[#e0a458] bg-[#e0a458]/10 border border-[#e0a458]/20 px-2 py-0.5">
+        <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-2 py-0.5">
           {service.tag}
         </span>
       )}
@@ -1010,7 +1010,7 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
         href={`/#/shop/dfy/${service.slug}`}
         className="block mb-4 group/title"
       >
-        <h3 className="text-lg font-medium tracking-tight text-[#F9FAFB] leading-tight mb-3 pr-16 group-hover/title:text-[#e0a458] transition-colors">
+        <h3 className="text-lg font-medium tracking-tight text-text-primary leading-tight mb-3 pr-16 break-words group-hover/title:text-theme-accent transition-colors">
           {service.name}
         </h3>
         <div className="flex items-center gap-2 flex-wrap">
@@ -1021,15 +1021,15 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
         </div>
       </a>
 
-      <p className="text-sm text-[#a4a4ad] leading-relaxed mb-5 flex-1">
+      <p className="text-sm text-text-secondary leading-relaxed mb-5 flex-1">
         {service.description}
       </p>
 
       <div className="mb-5">
-        <span className="block text-base font-medium text-[#F9FAFB]">
+        <span className="block text-base font-medium text-text-primary break-words">
           {service.priceLabel}
         </span>
-        <span className="text-xs text-[#7a7a85] font-mono mt-0.5 block">
+        <span className="text-xs text-text-muted font-mono mt-0.5 block">
           {service.tierHint}
         </span>
       </div>
@@ -1037,14 +1037,14 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
       <div className="flex flex-col gap-2 mt-auto">
         <a
           href={`/#/audit?service=${service.slug}`}
-          className="inline-flex items-center justify-center gap-2 text-sm font-medium text-[#08080a] bg-[#e0a458] hover:bg-[#f0b468] px-5 py-2.5 transition-all"
+          className="inline-flex items-center justify-center gap-2 text-sm font-medium text-on-accent bg-theme-accent hover:bg-theme-accent/90 px-5 py-2.5 min-h-[44px] transition-all"
         >
           Anfrage via Audit
           <ArrowRight size={13} />
         </a>
         <a
           href={`/#/shop/dfy/${service.slug}`}
-          className="inline-flex items-center justify-center gap-2 text-xs font-medium text-[#a4a4ad] border border-white/10 px-5 py-2 hover:border-[#e0a458]/40 hover:text-[#e0a458] transition-all"
+          className="inline-flex items-center justify-center gap-2 text-xs font-medium text-text-secondary border border-theme-border px-5 py-2 min-h-[40px] hover:border-theme-accent/40 hover:text-theme-accent transition-all"
         >
           Details ansehen
           <ArrowRight size={11} />
@@ -1082,17 +1082,17 @@ function TierLegend() {
       initial={{ opacity: 0, y: 20 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6 }}
-      className="mb-10 bg-[#0c0c10] border border-white/8 p-5 flex flex-col sm:flex-row gap-4 sm:gap-8 sm:items-center"
+      className="mb-10 bg-bg-surface border border-theme-border p-5 flex flex-col sm:flex-row gap-4 sm:gap-8 sm:items-center"
     >
-      <span className="font-mono text-xs uppercase tracking-wider text-[#7a7a85] flex-shrink-0">
+      <span className="font-mono text-xs uppercase tracking-wider text-text-muted flex-shrink-0">
         Service-Tiers
       </span>
-      <div className="flex flex-wrap gap-5">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-5">
         {tiers.map((t) => (
-          <div key={t.label} className="flex items-center gap-2">
+          <div key={t.label} className="flex items-center gap-2 min-w-0">
             <span className={`w-2 h-2 rounded-full flex-shrink-0 ${t.dot}`} />
-            <span className="text-xs text-[#F9FAFB] font-medium">{t.label}</span>
-            <span className="text-xs text-[#7a7a85]">— {t.desc}</span>
+            <span className="text-xs text-text-primary font-medium flex-shrink-0">{t.label}</span>
+            <span className="text-xs text-text-muted">— {t.desc}</span>
           </div>
         ))}
       </div>
@@ -1111,7 +1111,7 @@ function DFYSection() {
       : dfyServices.filter((s) => s.category === activeCategory);
 
   return (
-    <section className="px-6 lg:px-16 pb-24 pt-10" ref={ref}>
+    <section className="px-4 sm:px-6 lg:px-16 pb-24 pt-10" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -1120,16 +1120,16 @@ function DFYSection() {
           className="mb-10"
         >
           <div className="flex items-center gap-4 mb-3">
-            <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458]">
+            <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent">
               Done-For-You · Custom-Builds
             </span>
-            <div className="h-px flex-1 bg-white/8 max-w-xs" />
+            <div className="h-px flex-1 bg-theme-border max-w-xs" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-2">
+          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-2 text-text-primary">
             Wir bauen es.{' '}
             <span className="text-gradient font-medium">Du fokussierst dich aufs Business.</span>
           </h2>
-          <p className="text-sm text-[#7a7a85] max-w-lg">
+          <p className="text-sm text-text-muted max-w-lg">
             Custom entwickelt, vollständig integriert, übergabebereit. Kein Template — dein System. Anfrage läuft über das kostenlose Audit-Gespräch.
           </p>
         </motion.div>
@@ -1143,7 +1143,7 @@ function DFYSection() {
           ))}
         </div>
         {filtered.length === 0 && (
-          <p className="text-center text-[#7a7a85] py-20">
+          <p className="text-center text-text-muted py-20">
             Keine Services in dieser Kategorie.
           </p>
         )}
@@ -1152,20 +1152,20 @@ function DFYSection() {
           initial={{ opacity: 0, y: 32 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-16 border border-white/10 p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 bg-bg-surface relative overflow-hidden"
+          className="mt-16 border border-theme-border p-6 sm:p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 bg-bg-surface relative overflow-hidden"
         >
-          <div className="absolute -bottom-16 right-0 w-64 h-64 rounded-full bg-[#e0a458]/4 blur-3xl pointer-events-none" />
-          <div>
-            <h3 className="text-xl md:text-2xl font-light tracking-tight mb-2">
+          <div className="absolute -bottom-16 right-0 w-64 h-64 rounded-full bg-theme-accent/[0.04] blur-3xl pointer-events-none" />
+          <div className="min-w-0 relative">
+            <h3 className="text-xl md:text-2xl font-light tracking-tight mb-2 text-text-primary">
               Nicht sicher welcher Service passt?
             </h3>
-            <p className="text-sm text-[#7a7a85] max-w-md">
+            <p className="text-sm text-text-muted max-w-md">
               Im kostenlosen Audit analysieren wir dein Business in 48h und zeigen dir die Top-3 Quick-Wins — konkret, priorisiert, umsetzbar.
             </p>
           </div>
           <a
             href="/#/audit"
-            className="btn-primary px-8 py-3 text-base inline-flex items-center whitespace-nowrap flex-shrink-0"
+            className="btn-primary px-8 py-3 min-h-[44px] text-base inline-flex items-center justify-center whitespace-nowrap flex-shrink-0 relative w-full md:w-auto"
           >
             Kostenloses Audit buchen
             <ArrowRight size={16} className="ml-2" />
@@ -1211,7 +1211,7 @@ function AuditFeaturedSection() {
   ];
 
   return (
-    <section className="px-6 lg:px-16 pb-24 pt-10" ref={ref}>
+    <section className="px-4 sm:px-6 lg:px-16 pb-24 pt-10" ref={ref}>
       <div className="max-w-[1100px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -1220,10 +1220,10 @@ function AuditFeaturedSection() {
           className="mb-10"
         >
           <div className="flex items-center gap-4 mb-3">
-            <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458]">
+            <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent">
               Full-Audit · Premium-Partnerschaft
             </span>
-            <div className="h-px flex-1 bg-white/8 max-w-xs" />
+            <div className="h-px flex-1 bg-theme-border max-w-xs" />
           </div>
         </motion.div>
 
@@ -1232,22 +1232,22 @@ function AuditFeaturedSection() {
           initial={{ opacity: 0, y: 32 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-          className="relative bg-gradient-to-br from-[#111116] via-[#0e0e13] to-[#0a0a0e] border border-[#e0a458]/30 p-8 md:p-14 overflow-hidden"
+          className="relative bg-bg-surface border border-theme-border-accent p-6 sm:p-8 md:p-14 overflow-hidden"
         >
-          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#e0a458]/8 blur-[120px] pointer-events-none" />
-          <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-[#e0a458]/5 blur-[140px] pointer-events-none" />
+          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-theme-accent/8 blur-[120px] pointer-events-none" />
+          <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-theme-accent/5 blur-[140px] pointer-events-none" />
 
           <div className="relative">
-            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-[#e0a458] bg-[#e0a458]/10 border border-[#e0a458]/25 px-3 py-1 rounded-full mb-6">
+            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-3 py-1 rounded-full mb-6">
               <Star size={11} />
               Featured · Maximale Wirkung
             </span>
 
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight leading-[1.1] mb-4 max-w-3xl">
+            <h2 className="text-[clamp(1.875rem,6vw,3rem)] font-light tracking-tight leading-[1.1] mb-4 max-w-3xl text-text-primary">
               AEVUM{' '}
               <span className="text-gradient font-medium">Full-Partnership</span>
             </h2>
-            <p className="text-base md:text-lg text-[#a4a4ad] max-w-2xl leading-relaxed mb-10">
+            <p className="text-base md:text-lg text-text-secondary max-w-2xl leading-relaxed mb-10">
               Maßgeschneidertes System mit Personal-Agent. Für Founder die Tool-Wildwuchs hinter sich
               lassen und ein verbundenes Operating-System wollen — gebaut, betrieben, monatlich
               optimiert.
@@ -1263,12 +1263,12 @@ function AuditFeaturedSection() {
                   animate={isInView ? 'visible' : 'hidden'}
                   className="flex items-start gap-4"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-[#e0a458]/10 border border-[#e0a458]/20 flex items-center justify-center flex-shrink-0">
-                    <b.icon size={18} className="text-[#e0a458]" />
+                  <div className="w-10 h-10 rounded-lg bg-theme-accent-soft border border-theme-border-accent flex items-center justify-center flex-shrink-0">
+                    <b.icon size={18} className="text-theme-accent" />
                   </div>
-                  <div>
-                    <h3 className="text-base font-medium text-[#F9FAFB] mb-1">{b.title}</h3>
-                    <p className="text-sm text-[#a4a4ad] leading-relaxed">{b.desc}</p>
+                  <div className="min-w-0">
+                    <h3 className="text-base font-medium text-text-primary mb-1">{b.title}</h3>
+                    <p className="text-sm text-text-secondary leading-relaxed">{b.desc}</p>
                   </div>
                 </motion.div>
               ))}
@@ -1277,7 +1277,7 @@ function AuditFeaturedSection() {
             <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
               <a
                 href="/#/audit"
-                className="btn-primary px-8 py-3.5 text-base inline-flex items-center justify-center gap-2 whitespace-nowrap"
+                className="btn-primary px-8 py-3.5 min-h-[44px] text-base inline-flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 <Star size={15} />
                 Kostenloses Audit starten
@@ -1285,13 +1285,13 @@ function AuditFeaturedSection() {
               </a>
               <a
                 href="/#/audit#vergleich"
-                className="inline-flex items-center justify-center gap-2 text-sm font-medium text-[#e0a458] border border-[#e0a458]/30 px-7 py-3.5 hover:bg-[#e0a458]/8 transition-all"
+                className="inline-flex items-center justify-center gap-2 text-sm font-medium text-theme-accent border border-theme-border-accent px-7 py-3.5 min-h-[44px] hover:bg-theme-accent-soft transition-all"
               >
                 Erst Vergleich anschauen
               </a>
             </div>
 
-            <p className="text-xs text-[#7a7a85] font-mono mt-6">
+            <p className="text-xs text-text-muted font-mono mt-6">
               Keine Kreditkarte · Kein Verkaufsdruck · Audit + Auto-Plan-PDF in 48h
             </p>
           </div>
@@ -1302,18 +1302,18 @@ function AuditFeaturedSection() {
           initial={{ opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.4 }}
-          className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4"
+          className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4"
         >
           {[
             { label: 'Setup-Phase', value: '4-8 Wochen' },
             { label: 'Mindestlaufzeit', value: '3 Monate' },
             { label: 'Daten-Hoheit', value: 'Bleibt bei dir' },
           ].map((t) => (
-            <div key={t.label} className="bg-[#0c0c10] border border-white/8 px-5 py-4">
-              <span className="block font-mono text-[10px] uppercase tracking-widest text-[#7a7a85] mb-1">
+            <div key={t.label} className="bg-bg-surface border border-theme-border px-5 py-4">
+              <span className="block font-mono text-[10px] uppercase tracking-widest text-text-muted mb-1">
                 {t.label}
               </span>
-              <span className="block text-base font-medium text-[#F9FAFB]">{t.value}</span>
+              <span className="block text-base font-medium text-text-primary">{t.value}</span>
             </div>
           ))}
         </motion.div>
@@ -1347,7 +1347,7 @@ function EcosystemSection() {
   ];
 
   return (
-    <section id="ecosystem" className="px-6 lg:px-16 py-16 bg-[#0c0c10]" ref={ref}>
+    <section id="ecosystem" className="px-4 sm:px-6 lg:px-16 py-16 bg-bg-surface" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -1355,14 +1355,14 @@ function EcosystemSection() {
           transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
           className="text-center mb-10"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-3 block">
+          <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block">
             Das AEVUM Ecosystem
           </span>
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3">
+          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3 text-text-primary">
             Mehr Wert bei jedem{' '}
             <span className="text-gradient font-medium">Kauf</span>
           </h2>
-          <p className="text-sm text-[#7a7a85] max-w-xl mx-auto">
+          <p className="text-sm text-text-muted max-w-xl mx-auto">
             Ohne Account: kaufen &amp; herunterladen funktioniert. Credits und Stempelkarte gibt es nur für registrierte Kunden.
           </p>
         </motion.div>
@@ -1375,14 +1375,14 @@ function EcosystemSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="bg-bg-surface border border-white/10 p-7 flex flex-col gap-4 hover:border-[#e0a458]/30 transition-all"
+              className="bg-bg-elevated border border-theme-border p-6 sm:p-7 flex flex-col gap-4 hover:border-theme-accent/40 transition-all"
             >
-              <div className="w-11 h-11 rounded-lg bg-[#e0a458]/10 flex items-center justify-center flex-shrink-0">
-                <p.icon size={20} className="text-[#e0a458]" />
+              <div className="w-11 h-11 rounded-lg bg-theme-accent-soft flex items-center justify-center flex-shrink-0">
+                <p.icon size={20} className="text-theme-accent" />
               </div>
-              <div>
-                <h3 className="text-base font-medium text-[#F9FAFB] mb-1.5">{p.title}</h3>
-                <p className="text-sm text-[#a4a4ad] leading-relaxed">{p.desc}</p>
+              <div className="min-w-0">
+                <h3 className="text-base font-medium text-text-primary mb-1.5">{p.title}</h3>
+                <p className="text-sm text-text-secondary leading-relaxed">{p.desc}</p>
               </div>
             </motion.div>
           ))}
@@ -1420,7 +1420,7 @@ export default function Shop() {
   };
 
   return (
-    <div className="bg-bg-primary min-h-screen">
+    <div className="bg-bg-primary min-h-screen overflow-x-hidden">
       <HeroStrip />
       <TabBar active={tab} onChange={changeTab} />
 

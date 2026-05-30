@@ -486,16 +486,16 @@ export default function Helpbot() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             transition={{ type: 'spring', stiffness: 180, damping: 22 }}
-            className="fixed bottom-24 right-5 lg:right-6 z-[90] max-w-[260px] rounded-2xl border border-[#e0a458]/30 bg-[#101216]/95 backdrop-blur-md px-4 py-3 text-left shadow-[0_10px_40px_-8px_rgba(224, 164, 88,0.4)] cursor-pointer hover:border-[#e0a458]/50 transition-colors"
+            className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-[calc(1.25rem+env(safe-area-inset-right))] lg:right-6 z-[90] max-w-[260px] rounded-2xl border border-theme-border-accent bg-bg-elevated/95 backdrop-blur-md px-4 py-3 text-left shadow-theme-lg cursor-pointer hover:border-theme-accent transition-colors"
             aria-label="Helpbot öffnen"
           >
-            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#e0a458] font-medium mb-1">
+            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-theme-accent font-medium mb-1">
               <Sparkles className="w-3 h-3" /> AEVUM Assistant
             </div>
-            <div className="text-sm text-[#F9FAFB] leading-snug">
+            <div className="text-sm text-text-primary leading-snug">
               Frag mich was zu KI in deinem Unternehmen.
             </div>
-            <div className="absolute -bottom-1.5 right-7 w-3 h-3 rotate-45 bg-[#101216] border-r border-b border-[#e0a458]/30" />
+            <div className="absolute -bottom-1.5 right-7 w-3 h-3 rotate-45 bg-bg-elevated border-r border-b border-theme-border-accent" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -512,10 +512,10 @@ export default function Helpbot() {
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.94 }}
-            className="fixed bottom-5 right-5 lg:bottom-6 lg:right-6 z-[95] w-14 h-14 rounded-full bg-[#e0a458] text-[#0B0C10] flex items-center justify-center shadow-[0_8px_30px_-4px_rgba(224, 164, 88,0.55)] hover:bg-[#f5d68d] focus:outline-none focus:ring-2 focus:ring-[#e0a458] focus:ring-offset-2 focus:ring-offset-[#0B0C10] group"
+            className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] right-[calc(1.25rem+env(safe-area-inset-right))] lg:bottom-6 lg:right-6 z-[95] w-14 h-14 rounded-full bg-theme-accent text-text-on-accent flex items-center justify-center shadow-theme-glow hover:bg-theme-accent-hover focus:outline-none focus:ring-2 focus:ring-theme-accent focus:ring-offset-2 focus:ring-offset-bg-primary group"
             aria-label="AEVUM Assistant öffnen"
           >
-            <span className="absolute inset-0 rounded-full bg-[#e0a458]/40 animate-ping opacity-40 group-hover:opacity-0 pointer-events-none" />
+            <span className="absolute inset-0 rounded-full bg-theme-accent/40 animate-ping opacity-40 group-hover:opacity-0 pointer-events-none" />
             <MessageCircle className="w-6 h-6 relative" strokeWidth={2.2} />
           </motion.button>
         )}
@@ -543,22 +543,22 @@ export default function Helpbot() {
               transition={{ type: 'spring', stiffness: 240, damping: 26 }}
               role="dialog"
               aria-label="AEVUM Assistant Chat"
-              className="fixed z-[99] inset-0 sm:inset-auto sm:bottom-5 sm:right-5 lg:bottom-6 lg:right-6 sm:w-[420px] sm:max-w-[calc(100vw-2.5rem)] sm:h-[600px] sm:max-h-[calc(100vh-3rem)] flex flex-col bg-bg-primary sm:rounded-2xl overflow-hidden border-0 sm:border sm:border-white/10 shadow-[0_20px_60px_-12px_rgba(0,0,0,0.7)]"
+              className="fixed z-[99] inset-0 sm:inset-auto sm:bottom-5 sm:right-5 lg:bottom-6 lg:right-6 sm:w-[420px] sm:max-w-[calc(100vw-2.5rem)] sm:h-[600px] sm:max-h-[calc(100dvh-3rem)] flex flex-col bg-bg-primary sm:rounded-2xl overflow-hidden border-0 sm:border sm:border-theme-border shadow-theme-lg"
               style={{ fontFamily: 'inherit' }}
             >
               {/* Header */}
-              <div className="relative flex-shrink-0 px-5 py-4 border-b border-white/[0.06] bg-gradient-to-b from-[#101216] to-[#0B0C10]">
+              <div className="relative flex-shrink-0 px-5 py-4 border-b border-theme-border bg-gradient-to-b from-bg-surface to-bg-primary">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#e0a458] to-[#a86d27] flex items-center justify-center text-[#0B0C10] shadow-[0_2px_12px_rgba(224, 164, 88,0.4)]">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold-300 to-gold-600 flex items-center justify-center text-text-on-accent shadow-theme-glow">
                         <Sparkles className="w-4 h-4" strokeWidth={2.4} />
                       </div>
-                      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#22C55E] border-2 border-[#0B0C10]" />
+                      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#22C55E] border-2 border-bg-primary" />
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-[#F9FAFB] tracking-tight">AEVUM Assistant</div>
-                      <div className="text-[11px] text-[#71717A] flex items-center gap-1.5">
+                      <div className="text-sm font-semibold text-text-primary tracking-tight">AEVUM Assistant</div>
+                      <div className="text-[11px] text-text-muted flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />
                         Online · Antwort in Sekunden
                       </div>
@@ -570,7 +570,7 @@ export default function Helpbot() {
                       type="button"
                       onClick={clearChat}
                       title="Neuer Chat"
-                      className="p-2 rounded-lg text-[#71717A] hover:text-[#F9FAFB] hover:bg-white/5 transition-colors"
+                      className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-elevated transition-colors"
                       aria-label="Neuer Chat starten"
                     >
                       <RotateCcw className="w-4 h-4" strokeWidth={2} />
@@ -579,7 +579,7 @@ export default function Helpbot() {
                       type="button"
                       onClick={eraseHistory}
                       title="Verlauf endgültig löschen (DSGVO)"
-                      className="p-2 rounded-lg text-[#71717A] hover:text-[#EF4444] hover:bg-white/5 transition-colors"
+                      className="p-2 rounded-lg text-text-muted hover:text-[#EF4444] hover:bg-bg-elevated transition-colors"
                       aria-label="Verlauf löschen"
                     >
                       <Trash2 className="w-4 h-4" strokeWidth={2} />
@@ -588,7 +588,7 @@ export default function Helpbot() {
                       type="button"
                       onClick={() => setOpen(false)}
                       title="Schließen"
-                      className="p-2 rounded-lg text-[#71717A] hover:text-[#F9FAFB] hover:bg-white/5 transition-colors"
+                      className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-elevated transition-colors"
                       aria-label="Chat schließen"
                     >
                       <X className="w-4 h-4" strokeWidth={2} />
@@ -604,8 +604,8 @@ export default function Helpbot() {
                 style={{ scrollbarColor: '#3F3F46 transparent', scrollbarWidth: 'thin' }}
               >
                 {!hasConsent && (
-                  <div className="rounded-xl border border-[#e0a458]/30 bg-[#e0a458]/[0.04] p-4 text-[13px] leading-relaxed text-[#E4E4E7]">
-                    <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-[#e0a458] font-medium mb-2">
+                  <div className="rounded-xl border border-theme-border-accent bg-theme-accent/[0.04] p-4 text-[13px] leading-relaxed text-text-secondary">
+                    <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-theme-accent font-medium mb-2">
                       <Sparkles className="w-3 h-3" /> Bevor wir loslegen
                     </div>
                     <p className="mb-3">
@@ -614,12 +614,12 @@ export default function Helpbot() {
                       wird alles automatisch gelöscht. Du kannst den Verlauf jederzeit über das{' '}
                       <Trash2 className="inline w-3 h-3 -mt-0.5" />-Symbol löschen.
                     </p>
-                    <p className="mb-3 text-[#a4a4ad]">
+                    <p className="mb-3 text-text-muted">
                       Mehr Details unter{' '}
                       <a
                         href="#/datenschutz"
                         onClick={() => setOpen(false)}
-                        className="text-[#e0a458] hover:underline"
+                        className="text-theme-accent hover:underline"
                       >
                         Datenschutz
                       </a>.
@@ -627,7 +627,7 @@ export default function Helpbot() {
                     <button
                       type="button"
                       onClick={acceptConsent}
-                      className="w-full rounded-lg bg-[#e0a458] text-[#0B0C10] text-[13px] font-semibold py-2.5 hover:bg-[#f5d68d] transition-colors focus:outline-none focus:ring-2 focus:ring-[#e0a458] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
+                      className="w-full rounded-lg bg-theme-accent text-text-on-accent text-[13px] font-semibold py-2.5 hover:bg-theme-accent-hover transition-colors focus:outline-none focus:ring-2 focus:ring-theme-accent focus:ring-offset-2 focus:ring-offset-bg-primary"
                     >
                       Verstanden, los geht&apos;s
                     </button>
@@ -645,16 +645,16 @@ export default function Helpbot() {
                 {sending && session.messages[session.messages.length - 1]?.streaming &&
                   !session.messages[session.messages.length - 1]?.content && (
                   <div className="flex items-center gap-1.5 px-3 -mt-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#e0a458]/70 animate-pulse" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#e0a458]/70 animate-pulse" style={{ animationDelay: '0.2s' }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#e0a458]/70 animate-pulse" style={{ animationDelay: '0.4s' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-theme-accent/70 animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-theme-accent/70 animate-pulse" style={{ animationDelay: '0.2s' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-theme-accent/70 animate-pulse" style={{ animationDelay: '0.4s' }} />
                   </div>
                 )}
               </div>
 
               {/* Input */}
-              <div className="flex-shrink-0 border-t border-white/[0.06] bg-bg-primary px-3 pt-3 pb-3 sm:pb-3" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
-                <div className="relative flex items-end gap-2 rounded-xl border border-white/10 bg-[#101216] focus-within:border-[#e0a458]/50 focus-within:shadow-[0_0_0_3px_rgba(224, 164, 88,0.08)] transition-all">
+              <div className="flex-shrink-0 border-t border-theme-border bg-bg-primary px-3 pt-3 pb-3 sm:pb-3" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
+                <div className="relative flex items-end gap-2 rounded-xl border border-theme-border bg-bg-elevated focus-within:border-theme-accent focus-within:shadow-theme-glow transition-all">
                   <textarea
                     ref={inputRef}
                     value={input}
@@ -663,7 +663,7 @@ export default function Helpbot() {
                     placeholder="Frag mich etwas …"
                     rows={1}
                     maxLength={2000}
-                    className="flex-1 bg-transparent px-3.5 py-3 text-sm text-[#F9FAFB] placeholder-[#52525B] outline-none resize-none max-h-32"
+                    className="flex-1 bg-transparent px-3.5 py-3 text-sm text-text-primary placeholder-text-muted outline-none resize-none max-h-32"
                     style={{ minHeight: '20px' }}
                     disabled={sending}
                   />
@@ -671,13 +671,13 @@ export default function Helpbot() {
                     type="button"
                     onClick={sendMessage}
                     disabled={!input.trim() || sending}
-                    className="mb-1.5 mr-1.5 w-9 h-9 rounded-lg bg-[#e0a458] text-[#0B0C10] flex-shrink-0 flex items-center justify-center disabled:bg-white/10 disabled:text-[#7a7a85] hover:bg-[#f5d68d] transition-colors focus:outline-none focus:ring-2 focus:ring-[#e0a458] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
+                    className="mb-1.5 mr-1.5 w-9 h-9 rounded-lg bg-theme-accent text-text-on-accent flex-shrink-0 flex items-center justify-center disabled:bg-bg-elevated disabled:text-text-muted hover:bg-theme-accent-hover transition-colors focus:outline-none focus:ring-2 focus:ring-theme-accent focus:ring-offset-2 focus:ring-offset-bg-primary"
                     aria-label="Nachricht senden"
                   >
                     <Send className="w-4 h-4" strokeWidth={2.4} />
                   </button>
                 </div>
-                <div className="mt-2 px-1 text-[10px] text-[#7a7a85] tracking-wide">
+                <div className="mt-2 px-1 text-[10px] text-text-muted tracking-wide">
                   Powered by Claude Sonnet 4.5 · keine Daten an Dritte
                 </div>
               </div>
@@ -724,13 +724,13 @@ function MessageBubble({ msg, onCta, onHandoff, isLast }: BubbleProps) {
         <div
           className={`px-4 py-2.5 rounded-2xl text-[14px] leading-relaxed whitespace-pre-wrap break-words ${
             isUser
-              ? 'bg-[#e0a458] text-[#0B0C10] rounded-br-md font-medium'
-              : 'bg-[#16181D] text-[#E4E4E7] rounded-bl-md border border-white/[0.04]'
+              ? 'bg-theme-accent text-text-on-accent rounded-br-md font-medium'
+              : 'bg-bg-elevated text-text-secondary rounded-bl-md border border-theme-border'
           }`}
         >
           {displayContent || (msg.streaming ? '' : ' ')}
           {msg.streaming && displayContent && (
-            <span className="inline-block w-1.5 h-3.5 ml-0.5 -mb-0.5 bg-[#e0a458] animate-pulse" />
+            <span className="inline-block w-1.5 h-3.5 ml-0.5 -mb-0.5 bg-theme-accent animate-pulse" />
           )}
         </div>
 
@@ -739,11 +739,11 @@ function MessageBubble({ msg, onCta, onHandoff, isLast }: BubbleProps) {
             <button
               type="button"
               onClick={() => (onHandoff ? onHandoff() : onCta('/audit'))}
-              className="w-full px-4 py-3 rounded-xl bg-[#e0a458] hover:bg-[#f5d68d] text-[#0B0C10] text-[14px] font-semibold transition-all shadow-[0_4px_20px_-4px_rgba(224, 164, 88,0.45)] focus:outline-none focus:ring-2 focus:ring-[#e0a458] focus:ring-offset-2 focus:ring-offset-[#0B0C10]"
+              className="w-full px-4 py-3 rounded-xl bg-theme-accent hover:bg-theme-accent-hover text-text-on-accent text-[14px] font-semibold transition-all shadow-theme-glow focus:outline-none focus:ring-2 focus:ring-theme-accent focus:ring-offset-2 focus:ring-offset-bg-primary"
             >
               → Audit starten (Vorab-Daten werden übernommen)
             </button>
-            <div className="mt-1.5 px-1 text-[10px] text-[#7a7a85] tracking-wide">
+            <div className="mt-1.5 px-1 text-[10px] text-text-muted tracking-wide">
               15-20 Min · Pitch-Report binnen 24-48h
             </div>
           </div>
@@ -755,7 +755,7 @@ function MessageBubble({ msg, onCta, onHandoff, isLast }: BubbleProps) {
               <button
                 type="button"
                 onClick={() => (onHandoff ? onHandoff() : onCta('/audit'))}
-                className="px-3.5 py-1.5 rounded-lg bg-[#e0a458]/10 hover:bg-[#e0a458]/20 border border-[#e0a458]/30 hover:border-[#e0a458]/60 text-[#e0a458] text-[12px] font-medium transition-all"
+                className="px-3.5 py-1.5 rounded-lg bg-theme-accent/10 hover:bg-theme-accent/20 border border-theme-border-accent hover:border-theme-accent text-theme-accent text-[12px] font-medium transition-all"
               >
                 → Audit starten
               </button>
@@ -764,7 +764,7 @@ function MessageBubble({ msg, onCta, onHandoff, isLast }: BubbleProps) {
               <button
                 type="button"
                 onClick={() => onCta('/audit')}
-                className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-[#F9FAFB] text-[12px] font-medium transition-all"
+                className="px-3.5 py-1.5 rounded-lg bg-bg-elevated hover:bg-bg-surface border border-theme-border hover:border-theme-border-strong text-text-primary text-[12px] font-medium transition-all"
               >
                 → Erstgespräch buchen
               </button>

@@ -392,7 +392,7 @@ export function GradientBorder({
   return (
     <div className={`relative inline-flex p-[1.5px] rounded-2xl overflow-hidden ${className}`}>
       <div className="absolute inset-0 animate-[spin_5s_linear_infinite] bg-[conic-gradient(from_0deg,#e0a458,#8b5cf6,#e0a458)]" />
-      <div className="relative rounded-2xl bg-[#0a0a0f] w-full">{children}</div>
+      <div className="relative rounded-2xl bg-bg-primary w-full">{children}</div>
     </div>
   );
 }

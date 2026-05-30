@@ -94,15 +94,15 @@ function fmtVal(kpi: KPIItem) {
 function KPICard({ kpi, delay }: { kpi: KPIItem; delay: number }) {
   const val = fmtVal(kpi);
   return (
-    <div className="card-premium p-5 animate-fade-up flex flex-col gap-3" style={{ animationDelay: `${delay}ms` }}>
-      <div className="flex items-center justify-between">
-        <span className="text-[0.65rem] uppercase tracking-wider text-ink-400 font-semibold">{kpi.label}</span>
+    <div className="card-premium p-4 sm:p-5 animate-fade-up flex flex-col gap-3" style={{ animationDelay: `${delay}ms` }}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[0.65rem] uppercase tracking-wider text-ink-400 font-semibold truncate">{kpi.label}</span>
         {kpi.live
           ? <span className="flex items-center gap-1 text-[0.6rem] text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />Live</span>
           : <span className="text-[0.6rem] text-ink-600">Kein Key</span>}
       </div>
-      <div className="flex items-baseline gap-1">
-        <span className={`text-3xl font-bold font-mono tabular-nums leading-none ${val === '—' ? 'text-ink-600' : 'text-white'}`}>{val}</span>
+      <div className="flex items-baseline gap-1 min-w-0">
+        <span className={`text-2xl sm:text-3xl font-bold font-mono tabular-nums leading-none truncate ${val === '—' ? 'text-ink-600' : 'text-white'}`}>{val}</span>
         {val !== '—' && val !== '…' && <span className="text-xs text-ink-400">{kpi.unit}</span>}
       </div>
     </div>
@@ -137,9 +137,9 @@ function SectionOverview({ data }: { data: DashboardPayload }) {
   return (
     <div className="space-y-8">
       <div>
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
           <h1 className="text-2xl font-bold text-white">CollaGlow</h1>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="badge badge-gold">E-Commerce</span>
             <span className={`badge ${connectedCount > 0 ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/25' : ''}`}>
               {connectedCount}/{data.integrations.length} Integrationen
@@ -434,14 +434,14 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
       )}
 
       {/* Score Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: 'SEO', score: seo ?? 0 },
           { label: 'Speed', score: spd ?? 0 },
           { label: 'Copy', score: cpy ?? 0 },
           { label: 'Workflow', score: wfl ?? 0 },
         ].map(({ label, score }) => (
-          <div key={label} className="card-premium p-5 flex flex-col items-center gap-2">
+          <div key={label} className="card-premium p-4 sm:p-5 flex flex-col items-center gap-2">
             <ScoreRing score={score} label={label} />
           </div>
         ))}

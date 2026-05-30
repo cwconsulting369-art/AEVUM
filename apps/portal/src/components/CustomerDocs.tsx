@@ -192,7 +192,7 @@ export default function CustomerDocs() {
   return (
     <div className="space-y-4">
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-ink-800">
+      <div className="flex gap-1 border-b border-ink-800 overflow-x-auto">
         {BOXES.map(({ id, label, hint, Icon }) => {
           const count = docs[id]?.length || 0;
           const isActive = active === id;
@@ -293,7 +293,7 @@ export default function CustomerDocs() {
         </div>
 
         {/* Preview pane */}
-        <div className="border border-ink-800 rounded-lg p-4 min-h-[300px]">
+        <div className="border border-ink-800 rounded-lg p-4 min-h-[300px] min-w-0">
           {!selected ? (
             <p className="text-sm text-ink-500 text-center py-12">Klick eine Datei zum Anzeigen</p>
           ) : loadingContent ? (

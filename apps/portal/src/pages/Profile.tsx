@@ -109,7 +109,7 @@ export default function Profile() {
           </Section>
 
           <div className="pt-2">
-            <button disabled={saving} className="btn-gold">
+            <button disabled={saving} className="btn-gold w-full sm:w-auto justify-center">
               {saving ? (
                 <>
                   <span className="w-4 h-4 border-2 border-ink-950/50 border-t-ink-950 rounded-full animate-spin" />
@@ -137,7 +137,7 @@ export default function Profile() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold text-white truncate">{form.display_name || me?.account.name || 'Anzeigename'}</div>
-                  <div className="text-xs text-ink-400 truncate">{me?.account.email}</div>
+                  <div className="text-xs text-ink-400 truncate break-all">{me?.account.email}</div>
                 </div>
               </div>
 

@@ -7,21 +7,21 @@ export default function Datenschutz() {
 
   return (
     <div className="min-h-screen bg-ink-950 text-ink-100">
-      <header className="sticky top-0 z-20 backdrop-blur-xl bg-ink-950/70 border-b border-white/5 px-6 py-4">
+      <header className="sticky top-0 z-20 backdrop-blur-xl bg-ink-950/70 border-b border-white/5 px-4 sm:px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link to="/" className="hover:opacity-90 transition"><Brand size={28} /></Link>
         </div>
       </header>
 
-      <section className="px-6 py-16 max-w-3xl mx-auto">
-        <h1 className="text-4xl font-light tracking-tight mb-2">Datenschutzerklärung</h1>
+      <section className="px-4 sm:px-6 py-12 sm:py-16 max-w-3xl mx-auto">
+        <h1 className="text-3xl sm:text-4xl font-light tracking-tight mb-2">Datenschutzerklärung</h1>
         <p className="text-sm text-neutral-500 mb-2">Gilt für: <span className="text-neutral-300">app.aevum-system.de</span> (Customer-Portal)</p>
         <p className="text-sm text-neutral-500 mb-12">Stand: 22. Mai 2026</p>
 
-        <article className="space-y-10 text-neutral-400 leading-relaxed">
+        <article className="space-y-10 text-neutral-400 leading-relaxed break-words">
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">1. Verantwortlicher</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">1. Verantwortlicher</h2>
             <p>
               Verantwortlich für die Datenverarbeitung im Sinne von Art 4 Nr 7 DSGVO:
             </p>
@@ -42,7 +42,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">2. Zwecke der Verarbeitung</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">2. Zwecke der Verarbeitung</h2>
             <p>Wir verarbeiten personenbezogene Daten im Customer-Portal ausschließlich, um folgende Zwecke zu erfüllen:</p>
             <ul className="list-disc list-inside space-y-2 mt-3">
               <li>Bereitstellung des Self-Service-Portals (Login, Account-Verwaltung, Sitzungsverwaltung)</li>
@@ -55,7 +55,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">3. Rechtsgrundlagen</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">3. Rechtsgrundlagen</h2>
             <ul className="list-disc list-inside space-y-2">
               <li>
                 <span className="text-neutral-200">Art 6 Abs 1 lit b DSGVO</span> – Vertragserfüllung
@@ -78,7 +78,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">4. Kategorien verarbeiteter Daten</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">4. Kategorien verarbeiteter Daten</h2>
             <ul className="list-disc list-inside space-y-2">
               <li>Account-Stammdaten: Name, E-Mail-Adresse, Firma</li>
               <li>Authentifizierungs-Daten: Magic-Link-Tokens (kurzlebig), Session-Cookies</li>
@@ -90,7 +90,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">5. Verschlüsselung von API-Schlüsseln</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">5. Verschlüsselung von API-Schlüsseln</h2>
             <p>
               API-Schlüssel, die du im Portal einreichst (z.B. Anthropic, OpenAI, Stripe deines
               Unternehmens), werden serverseitig mit <span className="text-neutral-200">AES-256-GCM</span>
@@ -105,7 +105,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">6. Speicherdauer</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">6. Speicherdauer</h2>
             <ul className="list-disc list-inside space-y-2">
               <li>Aktive Account-Daten: für die Dauer der Vertragsbeziehung</li>
               <li>Nach Vertragsende: maximal <span className="text-neutral-200">365 Tage</span>, sofern keine längeren handels- oder steuerrechtlichen Aufbewahrungspflichten bestehen</li>
@@ -117,14 +117,14 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">7. Sub-Processors (Auftragsverarbeiter)</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">7. Sub-Processors (Auftragsverarbeiter)</h2>
             <p>
               Zur Bereitstellung des Portals setzen wir folgende Auftragsverarbeiter ein.
               Mit allen genannten Anbietern besteht ein Vertrag zur Auftragsverarbeitung
               gemäß Art 28 DSGVO. Für Drittlandstransfers gelten EU-Standardvertragsklauseln.
             </p>
             <div className="mt-4 overflow-x-auto">
-              <table className="w-full text-sm border-collapse">
+              <table className="w-full text-sm border-collapse min-w-[28rem]">
                 <thead>
                   <tr className="border-b border-neutral-800 text-neutral-300">
                     <th className="text-left py-2 pr-4 font-medium">Anbieter</th>
@@ -168,7 +168,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">8. Cookies</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">8. Cookies</h2>
             <p>
               Wir verwenden ausschließlich technisch notwendige Cookies (Session, CSRF-Schutz)
               auf Grundlage von Art 6 Abs 1 lit b DSGVO bzw. § 25 Abs 2 Nr 2 TDDDG.
@@ -179,7 +179,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">9. Deine Rechte (Art 15–21 DSGVO)</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">9. Deine Rechte (Art 15–21 DSGVO)</h2>
             <ul className="list-disc list-inside space-y-2">
               <li><span className="text-neutral-200">Auskunft</span> (Art 15) – über die zu deiner Person gespeicherten Daten</li>
               <li><span className="text-neutral-200">Berichtigung</span> (Art 16) – unrichtiger Daten</li>
@@ -197,7 +197,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">10. Beschwerderecht bei der Aufsichtsbehörde</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">10. Beschwerderecht bei der Aufsichtsbehörde</h2>
             <p>
               Du hast nach Art 77 DSGVO das Recht, dich bei einer Datenschutz-Aufsichtsbehörde
               zu beschweren. Zuständig für den Verantwortlichen ist:
@@ -214,7 +214,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">11. Automatisierte Entscheidungsfindung</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">11. Automatisierte Entscheidungsfindung</h2>
             <p>
               Eine ausschließlich automatisierte Entscheidungsfindung mit Rechtswirkung
               im Sinne von Art 22 DSGVO findet nicht statt. Die Auto-Plan-Funktion führt
@@ -223,7 +223,7 @@ export default function Datenschutz() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-neutral-100 mb-3">12. Änderungen dieser Erklärung</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">12. Änderungen dieser Erklärung</h2>
             <p>
               Wir passen diese Datenschutzerklärung an, wenn sich Rechtslage oder Verarbeitungen
               ändern. Die jeweils aktuelle Fassung ist unter dieser URL abrufbar. Substantielle
