@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, useInView } from 'framer-motion';
 import {
   MessageCircle,
@@ -188,6 +189,7 @@ function ParticleCanvas() {
 }
 
 function HeroSection() {
+  const { t } = useTranslation();
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div className="mesh-bg" aria-hidden />
@@ -202,7 +204,7 @@ function HeroSection() {
           className="inline-flex items-center gap-2 font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.14em] text-theme-accent mb-6 border border-theme-border-accent bg-theme-accent-soft hover:bg-theme-accent-soft px-3 py-1.5 transition-colors"
         >
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-theme-accent animate-pulse" />
-          Pre-Launch · Early-Access-Liste eintragen →
+          {t('home.hero.badge')}
         </motion.a>
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
@@ -210,11 +212,11 @@ function HeroSection() {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light tracking-tight leading-[1.1] mb-6"
         >
-          Wir bauen das KI-System,
+          {t('home.hero.titleLine1')}
           <span className="block mt-2 text-gradient font-medium">
-            das dein Unternehmen in 90 Tagen
+            {t('home.hero.titleLine2')}
           </span>
-          <span className="block mt-1">unabhaengig macht.</span>
+          <span className="block mt-1">{t('home.hero.titleLine3')}</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -222,8 +224,7 @@ function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           className="text-base md:text-lg text-text-secondary max-w-2xl mx-auto mb-8 leading-relaxed"
         >
-          Fuer Unternehmer, die KI richtig einsetzen wollen — nicht einfach nur ausprobieren.
-          Weniger manuelle Arbeit. Mehr Output. Klare Ergebnisse.
+          {t('home.hero.subtitle')}
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -233,10 +234,10 @@ function HeroSection() {
         >
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full max-w-lg">
             <a href="#/audit" className="btn-primary flex items-center justify-center gap-2 sm:flex-1">
-              Kostenlosen Audit buchen
+              {t('home.hero.ctaPrimary')}
             </a>
             <a href="#/method" className="btn-secondary flex items-center justify-center gap-2 sm:flex-1">
-              Wie wir arbeiten
+              {t('home.hero.ctaSecondary')}
             </a>
           </div>
           <a
@@ -246,7 +247,7 @@ function HeroSection() {
             className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-theme-accent underline-offset-4 hover:underline transition-colors"
           >
             <MessageCircle size={14} />
-            Direkt schreiben
+            {t('home.hero.ctaWhatsapp')}
           </a>
         </motion.div>
         <motion.div
@@ -255,13 +256,13 @@ function HeroSection() {
           transition={{ duration: 0.8, delay: 0.7 }}
           className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-text-muted font-mono mt-6"
         >
-          <span>Agenturen</span>
+          <span>{t('home.hero.tags.agencies')}</span>
           <span className="hidden sm:inline">·</span>
-          <span>Personal Brands</span>
+          <span>{t('home.hero.tags.personalBrands')}</span>
           <span className="hidden sm:inline">·</span>
-          <span>Mittelstand</span>
+          <span>{t('home.hero.tags.midmarket')}</span>
           <span className="hidden sm:inline">|</span>
-          <span>DSGVO-konform</span>
+          <span>{t('home.hero.tags.gdpr')}</span>
         </motion.div>
       </div>
 
@@ -286,37 +287,10 @@ function HeroSection() {
 
 /* ──────────────────────── Section 1b: 3 Wege mit AEVUM (Shop/SaaS/Audit) ──────────────────────── */
 
-const THREE_PATHS = [
-  {
-    icon: ShoppingBag,
-    title: 'Shop',
-    subtitle: 'Blueprint kaufen & selbst deployen',
-    pricing: 'ab €97 · sofort',
-    description: 'n8n-Workflows + PDF + Prompts. Mit oder ohne Account.',
-    cta: 'Shop ansehen',
-    href: '#/shop',
-    tone: 'primary' as const,
-  },
-  {
-    icon: Zap,
-    title: 'SaaS-Tools',
-    subtitle: 'AI-Tools pro Run nutzen',
-    pricing: 'ab €3 / Run',
-    description: 'Script-Factory, DSGVO-Factory & mehr. Pay-per-Use mit Credits.',
-    cta: 'Tools entdecken',
-    href: '#/saas',
-    tone: 'secondary' as const,
-  },
-  {
-    icon: Handshake,
-    title: 'Full-Partnership',
-    subtitle: 'Audit → maßgeschneidertes System',
-    pricing: 'kostenloses Audit',
-    description: 'Personal-Agent · eigenes Dashboard · SaaS-Free-Kontingent. Langfristige Partnerschaft.',
-    cta: 'Audit starten',
-    href: '#/audit',
-    tone: 'premium' as const,
-  },
+const THREE_PATHS_META = [
+  { icon: ShoppingBag, href: '#/shop', tone: 'primary' as const },
+  { icon: Zap, href: '#/saas', tone: 'secondary' as const },
+  { icon: Handshake, href: '#/audit', tone: 'premium' as const },
 ];
 
 const toneStyles: Record<'primary' | 'secondary' | 'premium', {
@@ -324,7 +298,7 @@ const toneStyles: Record<'primary' | 'secondary' | 'premium', {
   iconBg: string;
   iconColor: string;
   pricingColor: string;
-  badge?: string;
+  hasBadge?: boolean;
 }> = {
   primary: {
     border: 'border-theme-border hover:border-theme-border-accent',
@@ -343,13 +317,20 @@ const toneStyles: Record<'primary' | 'secondary' | 'premium', {
     iconBg: 'bg-gradient-to-br from-[#e0a458] to-[#a86d27]',
     iconColor: 'text-black',
     pricingColor: 'text-theme-accent',
-    badge: 'Premium',
+    hasBadge: true,
   },
 };
 
 function ThreePathsSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
+
+  const pathTexts = t('home.threePaths.items', { returnObjects: true }) as {
+    title: string; subtitle: string; pricing: string; description: string; cta: string;
+  }[];
+  const THREE_PATHS = THREE_PATHS_META.map((m, i) => ({ ...m, ...pathTexts[i] }));
+  const badgeLabel = t('home.threePaths.badgePremium');
 
   return (
     <section className="px-4 sm:px-6 lg:px-16 py-16 md:py-24 bg-bg-primary" ref={ref}>
@@ -361,13 +342,13 @@ function ThreePathsSection() {
           className="text-center mb-12 md:mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-4 block">
-            Drei Wege
+            {t('home.threePaths.eyebrow')}
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-4">
-            So arbeitest du mit AEVUM
+            {t('home.threePaths.heading')}
           </h2>
           <p className="text-base md:text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
-            Kauf was du brauchst, nutz Tools pro Run, oder lass uns dein komplettes System bauen.
+            {t('home.threePaths.subtitle')}
           </p>
         </motion.div>
 
@@ -384,9 +365,9 @@ function ThreePathsSection() {
                 transition={{ delay: i * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 className={`group relative bg-bg-surface border ${s.border} p-6 sm:p-7 md:p-8 transition-all flex h-full flex-col hover:-translate-y-1`}
               >
-                {s.badge && (
+                {s.hasBadge && (
                   <span className="absolute top-4 right-4 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-2 py-0.5">
-                    {s.badge}
+                    {badgeLabel}
                   </span>
                 )}
 
@@ -420,21 +401,21 @@ function ThreePathsSection() {
 
 /* ──────────────────────── Section 1c: Account-Vorteile-Vergleich ──────────────────────── */
 
-const ACCOUNT_FEATURES = [
-  { feature: 'Blueprint-Kauf', gast: true, shop: true, saas: true, full: true },
-  { feature: 'Credits sammeln (10 ¢ / €)', gast: false, shop: true, saas: true, full: true },
-  { feature: 'Stempelkarte (5 → 1 gratis)', gast: false, shop: true, saas: true, full: true },
-  { feature: 'SaaS-Tools nutzen', gast: false, shop: false, saas: true, full: 'inkl. Free-Kontingent' as const },
-  { feature: 'Personal AI-Agent', gast: false, shop: false, saas: false, full: true },
-  { feature: 'Eigenes Dashboard', gast: false, shop: false, saas: false, full: true },
-  { feature: 'AEVUM Founder-Community', gast: false, shop: false, saas: false, full: true },
-];
+const ACCOUNT_FEATURE_META = [
+  { key: 'blueprint', gast: true, shop: true, saas: true, full: true },
+  { key: 'credits', gast: false, shop: true, saas: true, full: true },
+  { key: 'stamps', gast: false, shop: true, saas: true, full: true },
+  { key: 'saasTools', gast: false, shop: false, saas: true, full: 'saasFull' as const },
+  { key: 'personalAgent', gast: false, shop: false, saas: false, full: true },
+  { key: 'dashboard', gast: false, shop: false, saas: false, full: true },
+  { key: 'community', gast: false, shop: false, saas: false, full: true },
+] as const;
 
-const TIER_HEADERS = [
-  { key: 'gast', label: 'Gast', sub: 'ohne Account' },
-  { key: 'shop', label: 'Shop-Account', sub: 'kostenlos' },
-  { key: 'saas', label: 'SaaS-Account', sub: 'kostenlos' },
-  { key: 'full', label: 'Full-Partnership', sub: 'nach Audit', highlight: true },
+const TIER_META = [
+  { key: 'gast' },
+  { key: 'shop' },
+  { key: 'saas' },
+  { key: 'full', highlight: true },
 ] as const;
 
 function Cell({ value }: { value: boolean | string }) {
@@ -452,8 +433,24 @@ function Cell({ value }: { value: boolean | string }) {
 }
 
 function AccountBenefitsSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
+
+  const saasFullValue = t('home.accountBenefits.saasFullValue');
+  const ACCOUNT_FEATURES = ACCOUNT_FEATURE_META.map((row) => ({
+    feature: t(`home.accountBenefits.features.${row.key}`),
+    gast: row.gast,
+    shop: row.shop,
+    saas: row.saas,
+    full: row.full === 'saasFull' ? saasFullValue : row.full,
+  }));
+  const TIER_HEADERS = TIER_META.map((tier) => ({
+    key: tier.key,
+    label: t(`home.accountBenefits.tiers.${tier.key}.label`),
+    sub: t(`home.accountBenefits.tiers.${tier.key}.sub`),
+    highlight: 'highlight' in tier ? tier.highlight : false,
+  }));
 
   return (
     <section className="px-4 sm:px-6 lg:px-16 py-16 md:py-24 bg-bg-primary" ref={ref}>
@@ -465,13 +462,13 @@ function AccountBenefitsSection() {
           className="text-center mb-12 md:mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-4 block">
-            Account-Vorteile
+            {t('home.accountBenefits.eyebrow')}
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-4">
-            Mit AEVUM-Account: mehr rausholen
+            {t('home.accountBenefits.heading')}
           </h2>
           <p className="text-base md:text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
-            Account ist gratis. Jeder Schritt schaltet mehr frei.
+            {t('home.accountBenefits.subtitle')}
           </p>
         </motion.div>
 
@@ -486,22 +483,22 @@ function AccountBenefitsSection() {
             <thead>
               <tr className="border-b border-theme-border">
                 <th className="text-left p-5 text-xs font-mono uppercase tracking-[0.1em] text-text-secondary w-[34%]">
-                  Feature
+                  {t('home.accountBenefits.featureColumn')}
                 </th>
-                {TIER_HEADERS.map((t) => (
+                {TIER_HEADERS.map((tier) => (
                   <th
-                    key={t.key}
-                    className={`text-center p-5 ${t.highlight ? 'bg-theme-accent-soft' : ''}`}
+                    key={tier.key}
+                    className={`text-center p-5 ${tier.highlight ? 'bg-theme-accent-soft' : ''}`}
                   >
                     <div
                       className={`text-sm font-medium ${
-                        t.highlight ? 'text-theme-accent' : 'text-text-primary'
+                        tier.highlight ? 'text-theme-accent' : 'text-text-primary'
                       }`}
                     >
-                      {t.label}
+                      {tier.label}
                     </div>
                     <div className="text-[0.65rem] font-mono uppercase tracking-[0.08em] text-text-muted mt-1">
-                      {t.sub}
+                      {tier.sub}
                     </div>
                   </th>
                 ))}
@@ -534,27 +531,27 @@ function AccountBenefitsSection() {
 
         {/* Mobile: stacked cards per tier */}
         <div className="md:hidden space-y-5">
-          {TIER_HEADERS.map((t, i) => (
+          {TIER_HEADERS.map((tier, i) => (
             <motion.div
-              key={t.key}
+              key={tier.key}
               initial={{ opacity: 0, y: 16 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: i * 0.08, duration: 0.5 }}
               className={`bg-bg-surface border ${
-                t.highlight ? 'border-theme-border-accent' : 'border-theme-border'
+                tier.highlight ? 'border-theme-border-accent' : 'border-theme-border'
               } p-5`}
             >
               <div className="mb-4">
-                <h3 className={`text-base font-medium ${t.highlight ? 'text-theme-accent' : 'text-text-primary'}`}>
-                  {t.label}
+                <h3 className={`text-base font-medium ${tier.highlight ? 'text-theme-accent' : 'text-text-primary'}`}>
+                  {tier.label}
                 </h3>
                 <p className="text-[0.65rem] font-mono uppercase tracking-[0.08em] text-text-muted mt-0.5">
-                  {t.sub}
+                  {tier.sub}
                 </p>
               </div>
               <ul className="space-y-2.5">
                 {ACCOUNT_FEATURES.map((row) => {
-                  const v = row[t.key as 'gast' | 'shop' | 'saas' | 'full'];
+                  const v = row[tier.key as 'gast' | 'shop' | 'saas' | 'full'];
                   const enabled = v !== false;
                   return (
                     <li
@@ -590,7 +587,7 @@ function AccountBenefitsSection() {
           transition={{ delay: 0.6, duration: 0.6 }}
           className="text-center text-xs text-text-muted font-mono mt-8"
         >
-          Upgrade jederzeit möglich · Downgrade nicht nötig
+          {t('home.accountBenefits.footer')}
         </motion.p>
       </div>
     </section>
@@ -600,47 +597,17 @@ function AccountBenefitsSection() {
 /* ──────────────────────── Section 2: Marketing-Thesis (7 Steps) ──────────────────────── */
 
 function ThesisSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const steps = [
-    {
-      num: '01',
-      tag: 'PROBLEM',
-      text: 'Unternehmen sammeln Tools wie Erweiterungs-Karten. CRM hier, Automations-Hub dort, AI-Spielzeug ueberall. Aber zwischen den Inseln verlaeuft sich die Arbeit: Daten doppelt gepflegt, Entscheidungen aus dem Bauch, Reports im Excel-Limbo.',
-    },
-    {
-      num: '02',
-      tag: 'HYPOTHESE',
-      text: 'Viele glauben: noch ein Tool, noch ein Hire, dann wird\'s besser. Oder: "Wir machen jetzt was mit AI", dann sind wir auf dem Stand der Zeit.',
-    },
-    {
-      num: '03',
-      tag: 'ANTI-THESE',
-      text: 'Mehr Werkzeuge in einer ungeordneten Werkstatt machen die Werkstatt nicht ordentlicher. AI ohne System wird zur teuren Spielerei. Die meisten "AI-Implementierungen" produzieren PowerPoint-Material, nicht Outcomes.',
-    },
-    {
-      num: '04',
-      tag: 'DIAGNOSE',
-      text: 'Was fehlt, ist kein weiteres Tool. Was fehlt, ist ein Betriebssystem. Ein zentraler Layer, der Daten, Workflows und Entscheidungen orchestriert.',
-    },
-    {
-      num: '05',
-      tag: 'MECHANISMUS',
-      text: 'AEVUM ist dieses Betriebssystem. In drei Schritten: Analyse → Setup → Run',
-    },
-    {
-      num: '06',
-      tag: 'BEWEIS',
-      text: 'Wir bauen, was wir selbst nutzen. AEVUM laeuft auf uns selbst, bevor es zu dir kommt. Client Zero.',
-    },
-    {
-      num: '07',
-      tag: 'CTA',
-      text: 'Starte mit einem Audit. 15-25 Fragen, ein Datei-Upload, ein automatisch generierter Pitch-Report.',
-      isCTA: true,
-    },
-  ];
+  const stepTexts = t('home.thesis.steps', { returnObjects: true }) as { tag: string; text: string }[];
+  const steps = stepTexts.map((s, i) => ({
+    num: String(i + 1).padStart(2, '0'),
+    tag: s.tag,
+    text: s.text,
+    isCTA: i === stepTexts.length - 1,
+  }));
 
   return (
     <section className="section-padding px-4 sm:px-6 lg:px-16" ref={ref}>
@@ -652,10 +619,10 @@ function ThesisSection() {
           className="mb-12 md:mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
-            Die Story
+            {t('home.thesis.eyebrow')}
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
-            Warum die meisten KI-Projekte scheitern
+            {t('home.thesis.heading')}
           </h2>
         </motion.div>
 
@@ -687,7 +654,7 @@ function ThesisSection() {
                       href="#/audit"
                       className="btn-primary inline-flex items-center gap-2 mt-6"
                     >
-                      Kostenlosen Audit buchen <ArrowRight size={18} />
+                      {t('home.thesis.ctaButton')} <ArrowRight size={18} />
                     </a>
                   )}
                 </div>
@@ -702,42 +669,17 @@ function ThesisSection() {
 
 /* ──────────────────────── Section 3: Die 3 Saeulen ──────────────────────── */
 
+const PILLAR_ICONS = [LayoutDashboard, Settings2, TrendingUp];
+
 function PillarsSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const pillars = [
-    {
-      icon: LayoutDashboard,
-      name: 'MONITORING',
-      pitch: 'Du siehst jederzeit, was laeuft.',
-      bullets: [
-        'Dashboard mit Echtzeit-KPIs',
-        'Woechentliche Reports',
-        'Transparenz ueber alle Workflows',
-      ],
-    },
-    {
-      icon: Settings2,
-      name: 'ANPASSUNG',
-      pitch: 'System passt sich an dein Business an.',
-      bullets: [
-        'Workflows werden weiterentwickelt',
-        'Tools getauscht wo besser',
-        'Agent lernt mit',
-      ],
-    },
-    {
-      icon: TrendingUp,
-      name: 'WACHSTUM',
-      pitch: 'Wir bauen mit dir hoch, nicht fuer dich.',
-      bullets: [
-        'Neue Bausteine integriert',
-        'Use Cases werden unlocked',
-        'Skalierungs-Logik baked-in',
-      ],
-    },
-  ];
+  const pillarTexts = t('home.pillars.items', { returnObjects: true }) as {
+    name: string; pitch: string; bullets: string[];
+  }[];
+  const pillars = pillarTexts.map((p, i) => ({ ...p, icon: PILLAR_ICONS[i] }));
 
   return (
     <section className="section-padding px-4 sm:px-6 lg:px-16 bg-bg-surface" ref={ref}>
@@ -749,10 +691,10 @@ function PillarsSection() {
           className="mb-12 md:mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
-            Die drei Saeulen
+            {t('home.pillars.eyebrow')}
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
-            Was AEVUM ausmacht
+            {t('home.pillars.heading')}
           </h2>
         </motion.div>
 
@@ -789,42 +731,15 @@ function PillarsSection() {
 
 /* ──────────────────────── Section 4: Bausteine-Visualisierung ──────────────────────── */
 
+const MODULE_ICONS = [MousePointerClick, Mail, BarChart3, Users, FileText, Zap];
+
 function ModulesSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const modules = [
-    {
-      icon: MousePointerClick,
-      name: 'Lead-Routing',
-      desc: 'Automatisierte Verteilung von Leads basierend auf Qualitaet, Quelle und Verfuegbarkeit.',
-    },
-    {
-      icon: Mail,
-      name: 'Email-Automation',
-      desc: 'Personalisierte Sequenzen, die zum richtigen Zeitpunkt ausgeloest werden.',
-    },
-    {
-      icon: BarChart3,
-      name: 'Reporting-Pipeline',
-      desc: 'Zentrale Daten-Sicht statt verstreuter Excel-Reports.',
-    },
-    {
-      icon: Users,
-      name: 'CRM-Sync',
-      desc: 'Zwei-Wege-Synchronisation zwischen allen Tools und deinem CRM.',
-    },
-    {
-      icon: FileText,
-      name: 'Content-Pipeline',
-      desc: 'Von der Idee bis zum Publishing — automatisiert und skalierbar.',
-    },
-    {
-      icon: Zap,
-      name: 'Monitoring-Alerts',
-      desc: 'Proaktive Benachrichtigungen bei Anomalien oder Engpaessen.',
-    },
-  ];
+  const moduleTexts = t('home.modules.items', { returnObjects: true }) as { name: string; desc: string }[];
+  const modules = moduleTexts.map((m, i) => ({ ...m, icon: MODULE_ICONS[i] }));
 
   return (
     <section className="section-padding px-4 sm:px-6 lg:px-16" ref={ref}>
@@ -836,13 +751,13 @@ function ModulesSection() {
           className="mb-12 md:mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
-            Bausteine
+            {t('home.modules.eyebrow')}
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
-            Module die zu deinem Setup andocken
+            {t('home.modules.heading')}
           </h2>
           <p className="text-text-secondary text-lg max-w-2xl leading-relaxed">
-            Im Audit klaeren wir, welche bei dir Sinn machen.
+            {t('home.modules.subtitle')}
           </p>
         </motion.div>
 
@@ -872,33 +787,17 @@ function ModulesSection() {
 
 /* ──────────────────────── Section 5: Services ──────────────────────── */
 
+const SERVICE_ICONS = [Zap, Target, BarChart3];
+
 function ServicesSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const services = [
-    {
-      icon: Zap,
-      tag: 'Fuer Agenturen + Personal Brands',
-      title: 'Content- & Workflow-Automatisierung',
-      desc: 'Wir automatisieren deine Content-Produktion, Briefing-Prozesse und internen Workflows — von der Idee bis zum Publishing. Dein Team arbeitet, ohne dass du jeden Schritt koordinieren musst.',
-      result: 'Ziel-Range: ~8-15 Stunden manueller Arbeit pro Woche reduzieren (Schätzung basierend auf bisherigen Pilot-Setups, individuell unterschiedlich).',
-    },
-    {
-      icon: Target,
-      tag: 'Fuer alle drei Segmente',
-      title: 'Lead-Qualifizierung + CRM-Automatisierung',
-      desc: 'Kein Lead faellt mehr durchs Raster. Automatische Qualifizierung, CRM-Sync und Follow-up-Sequenzen — abgestimmt auf deinen Sales-Prozess.',
-      result: 'Ziel: schnellere Reaktionszeit auf Leads + sauberer CRM-Status pro Kontakt. Konkrete Kennzahlen hängen vom bestehenden Sales-Prozess ab.',
-    },
-    {
-      icon: BarChart3,
-      tag: 'Fuer ambitionierte Mittelstaendler',
-      title: 'KI-gestuetztes Reporting & Dashboard',
-      desc: 'Ein zentrales Echtzeit-Dashboard fuer alle relevanten KPIs. Kein Excel-Export mehr, keine verstreuten Datenquellen. Entscheidungen auf Basis echter Zahlen — nicht aus dem Bauchgefuehl.',
-      result: 'Ziel: zentrale Daten-Sicht statt verstreuter Reports. Genaue Zeit-Ersparnis hängt vom aktuellen Reporting-Aufwand ab.',
-    },
-  ];
+  const serviceTexts = t('home.services.items', { returnObjects: true }) as {
+    tag: string; title: string; desc: string; result: string;
+  }[];
+  const services = serviceTexts.map((s, i) => ({ ...s, icon: SERVICE_ICONS[i] }));
 
   return (
     <section className="section-padding px-4 sm:px-6 lg:px-16 bg-bg-surface" ref={ref}>
@@ -910,14 +809,13 @@ function ServicesSection() {
           className="mb-12 md:mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
-            Leistungen
+            {t('home.services.eyebrow')}
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
-            Drei Systeme. Konkrete Ergebnisse.
+            {t('home.services.heading')}
           </h2>
           <p className="text-text-secondary text-lg max-w-2xl leading-relaxed">
-            Kein generischer AI-Hype. Jedes System wird auf dein Unternehmen zugeschnitten
-            und liefert messbare Resultate.
+            {t('home.services.subtitle')}
           </p>
         </motion.div>
 
@@ -951,7 +849,7 @@ function ServicesSection() {
           className="mt-10 text-center"
         >
           <a href="#/audit" className="btn-primary inline-flex items-center gap-2">
-            Kostenlosen Audit buchen <ArrowRight size={18} />
+            {t('home.services.ctaButton')} <ArrowRight size={18} />
           </a>
         </motion.div>
       </div>
@@ -961,32 +859,20 @@ function ServicesSection() {
 
 /* ──────────────────────── Section 6: Live-Cases ──────────────────────── */
 
+const CASE_META = [
+  { name: 'Carlos', share_industry: true, share_kpi_deltas: true, share_logo: false, share_company_name: true },
+  { name: 'Patrick', share_industry: true, share_kpi_deltas: true, share_logo: false, share_company_name: false },
+];
+
 function CasesSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const mockCases = [
-    {
-      name: 'Carlos',
-      industry: 'AEVUM / Client Zero',
-      share_industry: true,
-      share_kpi_deltas: true,
-      kpi_delta: 'System-Basis',
-      story: 'Wir bauen, was wir selbst nutzen.',
-      share_logo: false,
-      share_company_name: true,
-    },
-    {
-      name: 'Patrick',
-      industry: 'Real Estate Thailand',
-      share_industry: true,
-      share_kpi_deltas: true,
-      kpi_delta: 'Lead-Setup live',
-      story: 'Lead-System mit CRM-Integration fuer internationales Immobilien-Business.',
-      share_logo: false,
-      share_company_name: false,
-    },
-  ];
+  const caseTexts = t('home.cases.items', { returnObjects: true }) as {
+    industry: string; kpi_delta: string; story: string;
+  }[];
+  const mockCases = CASE_META.map((m, i) => ({ ...m, ...caseTexts[i] }));
 
   return (
     <section className="section-padding px-4 sm:px-6 lg:px-16" ref={ref}>
@@ -998,10 +884,10 @@ function CasesSection() {
           className="mb-12 md:mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
-            Live-Cases
+            {t('home.cases.eyebrow')}
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
-            Echte Projekte, ehrlich dokumentiert
+            {t('home.cases.heading')}
           </h2>
         </motion.div>
 
@@ -1041,7 +927,7 @@ function CasesSection() {
 
               {!c.share_company_name && c.share_industry && (
                 <p className="text-sm text-text-secondary leading-relaxed">
-                  Projekt laeuft — Details auf Anfrage.
+                  {t('home.cases.projectRunning')}
                 </p>
               )}
             </motion.div>
@@ -1059,7 +945,7 @@ function CasesSection() {
             href="#/cases"
             className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-theme-accent transition-colors"
           >
-            Alle Cases <ArrowRight size={14} />
+            {t('home.cases.allCases')} <ArrowRight size={14} />
           </a>
         </motion.div>
       </div>
@@ -1069,15 +955,16 @@ function CasesSection() {
 
 /* ──────────────────────── Section 7: Pricing-Block ──────────────────────── */
 
+const PRICING_TRUST_ICONS = [Lock, ShieldCheck, Globe];
+
 function PricingSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const trustSignals = [
-    { icon: Lock, text: 'Kein Lock-in · Export-Pfad ab Tag 1' },
-    { icon: ShieldCheck, text: '14 Tage Rückgaberecht für Verbraucher' },
-    { icon: Globe, text: 'EU-Hosting (Supabase Frankfurt)' },
-  ];
+  const trustTexts = t('home.pricing.trustSignals', { returnObjects: true }) as string[];
+  const trustSignals = trustTexts.map((text, i) => ({ icon: PRICING_TRUST_ICONS[i], text }));
+  const bullets = t('home.pricing.bullets', { returnObjects: true }) as string[];
 
   return (
     <section className="section-padding px-4 sm:px-6 lg:px-16 bg-bg-surface" ref={ref}>
@@ -1089,13 +976,13 @@ function PricingSection() {
           className="mb-12 md:mb-16 text-center"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
-            Investment
+            {t('home.pricing.eyebrow')}
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
-            Kein Standard-Paket. Kein Preisschild.
+            {t('home.pricing.heading')}
           </h2>
           <p className="text-text-secondary text-lg max-w-2xl leading-relaxed mx-auto">
-            Dein System ist individuell — dein Angebot auch.
+            {t('home.pricing.subtitle')}
           </p>
         </motion.div>
 
@@ -1107,14 +994,10 @@ function PricingSection() {
           className="bg-bg-primary border border-theme-border p-6 sm:p-10 lg:p-14 mb-10 max-w-3xl mx-auto"
         >
           <p className="text-base md:text-lg text-text-secondary leading-relaxed mb-8">
-            Nach dem kostenlosen Audit analysieren wir gemeinsam:
+            {t('home.pricing.intro')}
           </p>
           <ul className="space-y-4 mb-10">
-            {[
-              'Was du brauchst (und was du nicht brauchst)',
-              'Was das realistisch kostet',
-              'Wann du den ROI siehst',
-            ].map((item) => (
+            {bullets.map((item) => (
               <li key={item} className="flex items-start gap-3 text-text-primary">
                 <ArrowRight size={16} className="text-theme-accent shrink-0 mt-1" />
                 <span className="text-base leading-relaxed">{item}</span>
@@ -1124,18 +1007,18 @@ function PricingSection() {
 
           <div className="border-t border-theme-border pt-8 mb-10 space-y-3">
             <p className="text-sm text-text-muted font-mono uppercase tracking-[0.08em] mb-4">
-              Typischer Rahmen
+              {t('home.pricing.rangeLabel')}
             </p>
             <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8">
-              <span className="text-text-secondary text-sm sm:w-48 shrink-0">Setup einmalig</span>
+              <span className="text-text-secondary text-sm sm:w-48 shrink-0">{t('home.pricing.setupLabel')}</span>
               <span className="text-xl md:text-2xl font-light text-gradient">
-                € 2.500 – 8.000
+                {t('home.pricing.setupValue')}
               </span>
             </div>
             <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8">
-              <span className="text-text-secondary text-sm sm:w-48 shrink-0">Monatliche Begleitung</span>
+              <span className="text-text-secondary text-sm sm:w-48 shrink-0">{t('home.pricing.retainerLabel')}</span>
               <span className="text-xl md:text-2xl font-light text-gradient">
-                € 700 – 2.500 / Monat
+                {t('home.pricing.retainerValue')}
               </span>
             </div>
           </div>
@@ -1144,22 +1027,22 @@ function PricingSection() {
             href="#/audit"
             className="btn-primary inline-flex items-center gap-2"
           >
-            Audit buchen — kostenlos & unverbindlich <ArrowRight size={18} />
+            {t('home.pricing.ctaButton')} <ArrowRight size={18} />
           </a>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-          {trustSignals.map((t, i) => (
+          {trustSignals.map((signal, i) => (
             <motion.div
-              key={t.text}
+              key={signal.text}
               custom={i + 1}
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
               className="flex h-full items-center gap-3 bg-bg-primary border border-theme-border px-5 py-4"
             >
-              <t.icon size={16} className="text-theme-accent shrink-0" />
-              <span className="text-sm text-text-secondary">{t.text}</span>
+              <signal.icon size={16} className="text-theme-accent shrink-0" />
+              <span className="text-sm text-text-secondary">{signal.text}</span>
             </motion.div>
           ))}
         </div>
@@ -1170,15 +1053,15 @@ function PricingSection() {
 
 /* ──────────────────────── Section 8: Vertrauens-Layer ──────────────────────── */
 
+const TRUST_BADGE_ICONS = [ShieldCheck, Lock, Globe];
+
 function TrustSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const badges = [
-    { icon: ShieldCheck, text: 'Deutsches Unternehmen, DSGVO-konform' },
-    { icon: Lock, text: 'Aufgebaut auf bewaehrter Open-Source-Stack' },
-    { icon: Globe, text: 'Keine Vendor-Locks. Du behaeltst die Kontrolle ueber deine Daten.' },
-  ];
+  const badgeTexts = t('home.trust.badges', { returnObjects: true }) as string[];
+  const badges = badgeTexts.map((text, i) => ({ icon: TRUST_BADGE_ICONS[i], text }));
 
   return (
     <section className="section-padding px-4 sm:px-6 lg:px-16" ref={ref}>
@@ -1190,10 +1073,10 @@ function TrustSection() {
           className="mb-12 md:mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
-            Vertrauen
+            {t('home.trust.eyebrow')}
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
-            Transparent. Deutsch. DSGVO.
+            {t('home.trust.heading')}
           </h2>
         </motion.div>
 
@@ -1226,7 +1109,7 @@ function TrustSection() {
           <div>
             <p className="font-medium text-lg">Carlos Wrusch</p>
             <p className="font-mono text-xs text-text-secondary uppercase tracking-wider">
-              Founder
+              {t('home.trust.founderRole')}
             </p>
           </div>
         </motion.div>
@@ -1259,43 +1142,11 @@ function TrustSection() {
 /* ──────────────────────── Section 9: FAQ ──────────────────────── */
 
 function FAQSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const faqs = [
-    {
-      q: 'Was unterscheidet AEVUM von einer normalen AI-Agency?',
-      a: 'AEVUM ist kein Service-Katalog. Wir bauen ein individuelles Betriebssystem fuer dein Unternehmen — mit Analyse, Setup und laufender Optimierung.',
-    },
-    {
-      q: 'Wie lange dauert der Aufbau?',
-      a: 'Typischerweise 4 bis 8 Wochen fuer das initiale Setup. Danach laeuft die laufende Optimierung im Retainer.',
-    },
-    {
-      q: 'Was passiert nach dem Audit?',
-      a: 'Du bekommst einen automatisch generierten Pitch-Report mit Analyse, Roadmap und Kostenschaetzung. Danach besprechen wir im Call die Details.',
-    },
-    {
-      q: 'Behaltet ihr meine Daten?',
-      a: 'Du behaeltst die Kontrolle. API-Keys werden AES-256-GCM-verschluesselt in deinem Account abgelegt und nie im Frontend gelesen. Wo immer moeglich nutzen wir Read-only-Scopes; bei Workflows die Schreibrechte brauchen, beschraenken wir den Scope auf das Minimum und dokumentieren das im Setup. Details siehe Datenschutzerklaerung.',
-    },
-    {
-      q: 'Kann ich das System spaeter selbst uebernehmen?',
-      a: 'Ja. Alle Workflows sind dokumentiert und exportierbar. Kein Vendor-Lock.',
-    },
-    {
-      q: 'Was ist mit Tool-Lizenz-Kosten?',
-      a: 'Wir kalkulieren Tool-Lizenzen transparent. Aktuell ueblich: Listenpreis + Faktor fuer Setup, Wartung und Support. Den konkreten Multiplikator besprechen wir im Audit, weil er stark vom Stack abhaengt.',
-    },
-    {
-      q: 'Ihr seid in Deutschland? DSGVO?',
-      a: 'Ja. AEVUM wird aus Augsburg gefuehrt. Alle Systeme sind DSGVO-konform konzipiert.',
-    },
-    {
-      q: 'Ich habe schon ein Make/n8n-Setup — koennt ihr drauf aufbauen?',
-      a: 'Ja. Im Audit analysieren wir deinen bestehenden Stack und bauen darauf auf.',
-    },
-  ];
+  const faqs = t('home.faq.items', { returnObjects: true }) as { q: string; a: string }[];
 
   return (
     <section className="section-padding px-4 sm:px-6 lg:px-16 bg-bg-surface" ref={ref}>
@@ -1307,10 +1158,10 @@ function FAQSection() {
           className="mb-12 md:mb-16"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
-            FAQ
+            {t('home.faq.eyebrow')}
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
-            Haeufige Fragen
+            {t('home.faq.heading')}
           </h2>
         </motion.div>
 
@@ -1346,6 +1197,7 @@ function FAQSection() {
 /* ──────────────────────── Section 10: Final CTA ──────────────────────── */
 
 function FinalCTASection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
@@ -1366,14 +1218,14 @@ function FinalCTASection() {
         className="relative z-10 text-center max-w-4xl mx-auto"
       >
         <h2 className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight mb-10">
-          Bereit, dein
-          <span className="block text-gradient mt-2">Operating-System aufzubauen?</span>
+          {t('home.finalCta.titleLine1')}
+          <span className="block text-gradient mt-2">{t('home.finalCta.titleLine2')}</span>
         </h2>
 
         <PathThreeCard compact />
 
         <p className="font-mono text-xs text-text-muted mt-10">
-          Deutsch · DSGVO · Maßgeschneidert
+          {t('home.finalCta.note')}
         </p>
       </motion.div>
     </section>
@@ -1383,9 +1235,10 @@ function FinalCTASection() {
 /* ──────────────────────── Home Page ──────────────────────── */
 
 export default function Home() {
+  const { t } = useTranslation();
   usePageSeo({
-    title: 'AEVUM — Wir bauen das KI-System für DACH-Unternehmen | Operating-System',
-    description: 'Custom-KI für Unternehmen die Daten ernst nehmen. Audit kostenlos in 48h → Auto-Plan → maßgeschneidertes System mit Personal-Agent. Anti-Buzzword. Messbar.',
+    title: t('home.seo.title'),
+    description: t('home.seo.description'),
     path: '/',
   });
   return (
