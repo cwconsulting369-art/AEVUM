@@ -1,28 +1,40 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { AuthProvider, useAuth } from './lib/auth';
 import Layout from './components/Layout';
 import CookieBanner from './components/CookieBanner';
 import Spinner from './components/Spinner';
-import Login from './pages/Login';
-import AuthVerify from './pages/AuthVerify';
-import AuthToken from './pages/AuthToken';
-import Dashboard from './pages/Dashboard';
-import CommandPreview from './pages/CommandPreview';
-import Profile from './pages/Profile';
-import Permissions from './pages/Permissions';
-import Testimonial from './pages/Testimonial';
-import Projects from './pages/Projects';
-import ProjectDetail from './pages/ProjectDetail';
-import Documents from './pages/Documents';
-import CustomerDocs from './components/CustomerDocs';
-import Datenschutz from './pages/Datenschutz';
-import Impressum from './pages/Impressum';
-import AGB from './pages/AGB';
-import Credits from './pages/Credits';
-import ScriptFactoryTool from './pages/tools/ScriptFactoryTool';
-import DsgvoFactoryTool from './pages/tools/DsgvoFactoryTool';
-import TimCustomers from './pages/tools/TimCustomers';
-import LeadScraperTool from './pages/tools/LeadScraperTool';
+
+// Route-level code-splitting: pages are lazy-loaded so the initial bundle stays lean.
+// Layout, AuthProvider, RequireAuth and Spinner remain eager (critical shell).
+const Login = lazy(() => import('./pages/Login'));
+const AuthVerify = lazy(() => import('./pages/AuthVerify'));
+const AuthToken = lazy(() => import('./pages/AuthToken'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const CommandPreview = lazy(() => import('./pages/CommandPreview'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Permissions = lazy(() => import('./pages/Permissions'));
+const Testimonial = lazy(() => import('./pages/Testimonial'));
+const Projects = lazy(() => import('./pages/Projects'));
+const ProjectDetail = lazy(() => import('./pages/ProjectDetail'));
+const Documents = lazy(() => import('./pages/Documents'));
+const CustomerDocs = lazy(() => import('./components/CustomerDocs'));
+const Datenschutz = lazy(() => import('./pages/Datenschutz'));
+const Impressum = lazy(() => import('./pages/Impressum'));
+const AGB = lazy(() => import('./pages/AGB'));
+const Credits = lazy(() => import('./pages/Credits'));
+const ScriptFactoryTool = lazy(() => import('./pages/tools/ScriptFactoryTool'));
+const DsgvoFactoryTool = lazy(() => import('./pages/tools/DsgvoFactoryTool'));
+const TimCustomers = lazy(() => import('./pages/tools/TimCustomers'));
+const LeadScraperTool = lazy(() => import('./pages/tools/LeadScraperTool'));
+
+function RouteFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-ink-950 text-ink-100">
+      <Spinner size="md" />
+    </div>
+  );
+}
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { me, loading } = useAuth();
@@ -53,7 +65,8 @@ function RequireToolsAccess({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <AuthProvider>
-      <Routes>
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/auth/verify" element={<AuthVerify />} />
         <Route path="/auth/token" element={<AuthToken />} />
@@ -77,7 +90,8 @@ export default function App() {
           <Route path="/tools/lead-scraper" element={<RequireToolsAccess><LeadScraperTool /></RequireToolsAccess>} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+        </Routes>
+      </Suspense>
       <CookieBanner />
     </AuthProvider>
   );

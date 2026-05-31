@@ -1,5 +1,6 @@
 import { Users } from 'lucide-react';
 import type { DashboardData } from './types';
+import { useTranslation } from 'react-i18next';
 
 type Props = { customers: DashboardData['customers'] };
 
@@ -10,31 +11,32 @@ const dotColor: Record<string, string> = {
 };
 
 export default function CustomerHealthCard({ customers }: Props) {
+  const { t } = useTranslation();
   if (customers.total === 0) {
     return (
-      <div className="card-premium p-6">
+      <div className="card-premium p-6 h-full flex flex-col">
         <header className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-            <Users size={14} className="text-gold-300" /> Customer Health
+            <Users size={14} className="text-gold-300" /> {t('dashComponents.customerHealth.title')}
           </h3>
-          <span className="badge">0 aktiv</span>
+          <span className="badge">{t('dashComponents.customerHealth.zeroActive')}</span>
         </header>
         <div className="text-center py-6">
           <Users size={28} className="mx-auto mb-3 text-gold-300/60" />
-          <div className="text-sm text-ink-300">Noch keine Customers.</div>
-          <div className="text-xs text-ink-400 mt-1">Erster Audit erwartet — siehe Pipeline-Funnel.</div>
+          <div className="text-sm text-ink-300">{t('dashComponents.customerHealth.empty')}</div>
+          <div className="text-xs text-ink-400 mt-1">{t('dashComponents.customerHealth.emptyHint')}</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="card-premium p-6">
+    <div className="card-premium p-6 h-full flex flex-col">
       <header className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-          <Users size={14} className="text-gold-300" /> Customer Health
+          <Users size={14} className="text-gold-300" /> {t('dashComponents.customerHealth.title')}
         </h3>
-        <span className="badge badge-emerald">{customers.active} aktiv</span>
+        <span className="badge badge-emerald">{t('dashComponents.customerHealth.activeBadge', { count: customers.active })}</span>
       </header>
       <ul className="space-y-2">
         {customers.list.slice(0, 8).map((c, i) => (

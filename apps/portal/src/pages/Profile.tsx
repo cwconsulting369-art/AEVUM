@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
@@ -7,13 +8,14 @@ import { User, Building2, Users, Banknote, Eye, Save, Sparkles } from 'lucide-re
 const INDUSTRIES = ['real-estate','e-commerce','b2b-saas','consulting','agency','finance','healthcare','manufacturing','education','hospitality','energy-consulting','ai-systems','other'];
 const TEAM_SIZES = ['1-5','6-20','21-100','101-500','500+'];
 const REVENUE_BANDS = ['<100k','100k-1M','1M-10M','10M-100M','100M+'];
-const VISIBILITIES = [
-  { value: 'private', label: 'Privat (nur du)' },
-  { value: 'network', label: 'Netzwerk (AEVUM-Mitglieder)' },
-  { value: 'public', label: 'Öffentlich' }
-];
 
 export default function Profile() {
+  const { t } = useTranslation();
+  const VISIBILITIES = [
+    { value: 'private', label: t('profile.visPrivate') },
+    { value: 'network', label: t('profile.visNetwork') },
+    { value: 'public', label: t('profile.visPublic') }
+  ];
   const { me, refresh } = useAuth();
   const [form, setForm] = useState({
     display_name: me?.profile?.display_name || '',
@@ -31,10 +33,10 @@ export default function Profile() {
     setSaving(true);
     try {
       await api('/api/me/profile', { method: 'PATCH', body: JSON.stringify(form) });
-      toast.success('Profil gespeichert');
+      toast.success(t('profile.saved'));
       await refresh();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'Speichern fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('profile.saveError'));
     } finally {
       setSaving(false);
     }
@@ -53,55 +55,55 @@ export default function Profile() {
     <div>
       <header className="mb-10">
         <div className="flex items-center gap-2 text-xs text-gold-300 mb-3 uppercase tracking-wider font-semibold">
-          <User size={12} /> Account
+          <User size={12} /> {t('profile.eyebrow')}
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">Profil</h1>
-        <p className="text-ink-400 mt-2">Dein Netzwerk-Profil. Sichtbarkeit kontrollierst du selbst.</p>
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">{t('profile.title')}</h1>
+        <p className="text-ink-400 mt-2">{t('profile.subtitle')}</p>
       </header>
 
       <div className="grid lg:grid-cols-[1fr_22rem] gap-8">
         {/* FORM */}
         <form onSubmit={save} className="space-y-5">
-          <Section title="Identität" icon={User}>
-            <Field label="Anzeigename">
-              <input value={form.display_name} onChange={e => setForm({ ...form, display_name: e.target.value })} className="input-premium" placeholder="z.B. Carlos Wrusch" />
+          <Section title={t('profile.sectionIdentity')} icon={User}>
+            <Field label={t('profile.fieldDisplayName')}>
+              <input value={form.display_name} onChange={e => setForm({ ...form, display_name: e.target.value })} className="input-premium" placeholder={t('profile.displayNamePlaceholder')} />
             </Field>
           </Section>
 
-          <Section title="Unternehmen" icon={Building2}>
+          <Section title={t('profile.sectionCompany')} icon={Building2}>
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Branche">
+              <Field label={t('profile.fieldIndustry')}>
                 <select value={form.industry} onChange={e => setForm({ ...form, industry: e.target.value })} className="input-premium">
-                  <option value="">— wählen —</option>
+                  <option value="">{t('profile.selectPlaceholder')}</option>
                   {INDUSTRIES.map(i => <option key={i} value={i}>{i}</option>)}
                 </select>
               </Field>
-              <Field label="Team-Größe">
+              <Field label={t('profile.fieldTeamSize')}>
                 <select value={form.team_size} onChange={e => setForm({ ...form, team_size: e.target.value })} className="input-premium">
-                  <option value="">— wählen —</option>
+                  <option value="">{t('profile.selectPlaceholder')}</option>
                   {TEAM_SIZES.map(i => <option key={i} value={i}>{i}</option>)}
                 </select>
               </Field>
             </div>
-            <Field label="Umsatz-Band" icon={Banknote}>
+            <Field label={t('profile.fieldRevenue')} icon={Banknote}>
               <select value={form.revenue_band} onChange={e => setForm({ ...form, revenue_band: e.target.value })} className="input-premium">
-                <option value="">— wählen —</option>
+                <option value="">{t('profile.selectPlaceholder')}</option>
                 {REVENUE_BANDS.map(i => <option key={i} value={i}>{i}</option>)}
               </select>
             </Field>
           </Section>
 
-          <Section title="Vision & Bio" icon={Sparkles}>
-            <Field label="Vision">
-              <textarea value={form.vision} onChange={e => setForm({ ...form, vision: e.target.value })} rows={3} className="input-premium resize-none" placeholder="Was willst du bauen?" />
+          <Section title={t('profile.sectionVisionBio')} icon={Sparkles}>
+            <Field label={t('profile.fieldVision')}>
+              <textarea value={form.vision} onChange={e => setForm({ ...form, vision: e.target.value })} rows={3} className="input-premium resize-none" placeholder={t('profile.visionPlaceholder')} />
             </Field>
-            <Field label="Bio">
-              <textarea value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} rows={4} className="input-premium resize-none" placeholder="Kurze Beschreibung deiner Person." />
+            <Field label={t('profile.fieldBio')}>
+              <textarea value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} rows={4} className="input-premium resize-none" placeholder={t('profile.bioPlaceholder')} />
             </Field>
           </Section>
 
-          <Section title="Sichtbarkeit" icon={Eye}>
-            <Field label="Wer darf dein Profil sehen?">
+          <Section title={t('profile.sectionVisibility')} icon={Eye}>
+            <Field label={t('profile.fieldVisibility')}>
               <select value={form.visibility} onChange={e => setForm({ ...form, visibility: e.target.value })} className="input-premium">
                 {VISIBILITIES.map(v => <option key={v.value} value={v.value}>{v.label}</option>)}
               </select>
@@ -109,15 +111,15 @@ export default function Profile() {
           </Section>
 
           <div className="pt-2">
-            <button disabled={saving} className="btn-gold">
+            <button disabled={saving} className="btn-gold w-full sm:w-auto justify-center">
               {saving ? (
                 <>
                   <span className="w-4 h-4 border-2 border-ink-950/50 border-t-ink-950 rounded-full animate-spin" />
-                  Speichere…
+                  {t('profile.saving')}
                 </>
               ) : (
                 <>
-                  <Save size={16} /> Speichern
+                  <Save size={16} /> {t('profile.save')}
                 </>
               )}
             </button>
@@ -127,7 +129,7 @@ export default function Profile() {
         {/* PREVIEW */}
         <aside className="lg:sticky lg:top-24 self-start space-y-4">
           <div className="text-[0.65rem] uppercase tracking-[0.18em] text-ink-400 font-semibold flex items-center gap-2">
-            <Eye size={11} /> Live-Vorschau
+            <Eye size={11} /> {t('profile.livePreview')}
           </div>
           <div className="card-premium p-6 noise-overlay relative overflow-hidden">
             <div className="relative">
@@ -136,24 +138,24 @@ export default function Profile() {
                   {initials}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-white truncate">{form.display_name || me?.account.name || 'Anzeigename'}</div>
-                  <div className="text-xs text-ink-400 truncate">{me?.account.email}</div>
+                  <div className="font-semibold text-white truncate">{form.display_name || me?.account.name || t('profile.displayNameFallback')}</div>
+                  <div className="text-xs text-ink-400 truncate break-all">{me?.account.email}</div>
                 </div>
               </div>
 
               <div className="divider mb-4" />
 
               <div className="space-y-2.5 text-xs">
-                <PreviewRow label="Branche" value={form.industry} />
-                <PreviewRow label="Team" value={form.team_size} />
-                <PreviewRow label="Umsatz" value={form.revenue_band} />
-                <PreviewRow label="Sichtbar" value={form.visibility} />
+                <PreviewRow label={t('profile.previewIndustry')} value={form.industry} />
+                <PreviewRow label={t('profile.previewTeam')} value={form.team_size} />
+                <PreviewRow label={t('profile.previewRevenue')} value={form.revenue_band} />
+                <PreviewRow label={t('profile.previewVisible')} value={form.visibility} />
               </div>
 
               {form.vision && (
                 <>
                   <div className="divider my-4" />
-                  <div className="text-[0.65rem] uppercase tracking-wider text-ink-400 mb-1.5">Vision</div>
+                  <div className="text-[0.65rem] uppercase tracking-wider text-ink-400 mb-1.5">{t('profile.previewVision')}</div>
                   <div className="text-xs text-ink-200 leading-relaxed">{form.vision.slice(0, 120)}{form.vision.length > 120 && '…'}</div>
                 </>
               )}
@@ -163,7 +165,7 @@ export default function Profile() {
           {/* Completeness */}
           <div className="card-premium p-5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-ink-300">Profil-Vollständigkeit</span>
+              <span className="text-xs text-ink-300">{t('profile.completeness')}</span>
               <span className="text-xs font-semibold text-gold-200 tabular-nums">{completeness}%</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">

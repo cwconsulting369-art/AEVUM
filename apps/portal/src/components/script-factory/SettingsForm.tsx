@@ -1,6 +1,7 @@
 // SettingsForm — Conditional Fields basierend auf use_case.required_settings.
 
 import { Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export interface KnowledgeHub {
   id: string;
@@ -28,16 +29,17 @@ interface Props {
 }
 
 const AWARENESS = [
-  { v: 'unaware',         l: 'Unaware — kennt Problem nicht' },
-  { v: 'problem_aware',   l: 'Problem-Aware — kennt Schmerz' },
-  { v: 'solution_aware',  l: 'Solution-Aware — kennt Lösungen' },
-  { v: 'product_aware',   l: 'Product-Aware — kennt dich' },
-  { v: 'most_aware',      l: 'Most-Aware — bereit zu kaufen' },
+  { v: 'unaware',         k: 'scriptFactory.awareness.unaware' },
+  { v: 'problem_aware',   k: 'scriptFactory.awareness.problemAware' },
+  { v: 'solution_aware',  k: 'scriptFactory.awareness.solutionAware' },
+  { v: 'product_aware',   k: 'scriptFactory.awareness.productAware' },
+  { v: 'most_aware',      k: 'scriptFactory.awareness.mostAware' },
 ];
 
 export default function SettingsForm({
   required, settings, onChange, knowledgeHubs, selectedHubIds, onHubsChange, useCaseSlug
 }: Props) {
+  const { t } = useTranslation();
   const show = (k: string) => required.includes(k);
   const isAdCopy = useCaseSlug.startsWith('ad-copy');
 
@@ -52,23 +54,23 @@ export default function SettingsForm({
   return (
     <div className="space-y-5">
       {show('niche') && (
-        <Field label="Niche">
+        <Field label={t('scriptFactory.settings.niche')}>
           <input
             type="text"
             value={settings.niche || ''}
             onChange={e => onChange({ ...settings, niche: e.target.value })}
-            placeholder="z.B. Beauty, Coaching, SaaS-B2B, Solar"
+            placeholder={t('scriptFactory.settings.nichePlaceholder')}
             className="input-premium"
           />
         </Field>
       )}
 
       {show('icp') && (
-        <Field label="ICP (Wer ist der Kunde?)">
+        <Field label={t('scriptFactory.settings.icp')}>
           <textarea
             value={settings.icp || ''}
             onChange={e => onChange({ ...settings, icp: e.target.value })}
-            placeholder="z.B. Frauen 30-45, beauty-affin, mittleres Einkommen, Instagram-aktiv"
+            placeholder={t('scriptFactory.settings.icpPlaceholder')}
             rows={3}
             className="input-premium resize-none"
           />
@@ -76,48 +78,48 @@ export default function SettingsForm({
       )}
 
       {show('awareness_stage') && (
-        <Field label="Awareness-Stage">
+        <Field label={t('scriptFactory.settings.awarenessStage')}>
           <select
             value={settings.awareness_stage || 'problem_aware'}
             onChange={e => onChange({ ...settings, awareness_stage: e.target.value })}
             className="input-premium"
           >
             {AWARENESS.map(a => (
-              <option key={a.v} value={a.v}>{a.l}</option>
+              <option key={a.v} value={a.v}>{t(a.k)}</option>
             ))}
           </select>
         </Field>
       )}
 
       {show('brand_tone') && (
-        <Field label="Brand-Tone (optional)">
+        <Field label={t('scriptFactory.settings.brandTone')}>
           <input
             type="text"
             value={settings.brand_tone || ''}
             onChange={e => onChange({ ...settings, brand_tone: e.target.value })}
-            placeholder="z.B. warm-direkt, premium, edgy, freundschaftlich"
+            placeholder={t('scriptFactory.settings.brandTonePlaceholder')}
             className="input-premium"
           />
         </Field>
       )}
 
       {isAdCopy && (
-        <Field label="Platform">
+        <Field label={t('scriptFactory.settings.platform')}>
           <select
             value={settings.platform || 'all'}
             onChange={e => onChange({ ...settings, platform: e.target.value })}
             className="input-premium"
           >
-            <option value="meta">Meta (FB/Instagram)</option>
-            <option value="google">Google Ads</option>
-            <option value="tiktok">TikTok</option>
-            <option value="all">Alle Platforms</option>
+            <option value="meta">{t('scriptFactory.settings.platformMeta')}</option>
+            <option value="google">{t('scriptFactory.settings.platformGoogle')}</option>
+            <option value="tiktok">{t('scriptFactory.settings.platformTiktok')}</option>
+            <option value="all">{t('scriptFactory.settings.platformAll')}</option>
           </select>
         </Field>
       )}
 
       {knowledgeHubs.length > 0 && (
-        <Field label="Knowledge-Hubs (Multi-Select)">
+        <Field label={t('scriptFactory.settings.knowledgeHubs')}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {knowledgeHubs.map(h => {
               const active = selectedHubIds.includes(h.id);

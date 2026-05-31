@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Check, ChevronLeft, ChevronRight, Upload, FileText,
@@ -21,6 +22,7 @@ import CONTACT from '@/config/contact';
 import { track } from '@/lib/shop-track';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import TrustpilotWidget from '@/components/TrustpilotWidget';
+import { MouseGlow, NumberCounter, GradientBorder, Magnetic } from '@/components/showcase-fx';
 
 /* ------------------------------------------------------------------ */
 /*  TYPES                                                             */
@@ -84,77 +86,29 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.aevum-system.
 const STORAGE_KEY = 'audit-form-v3-draft';
 const HELPBOT_PREFILL_KEY = 'aevum_audit_prefill';
 
-const MONTHLY_REVENUE_OPTIONS = [
-  { value: '<5k', label: 'Unter 5.000 €/Mo' },
-  { value: '5-15k', label: '5.000 – 15.000 €/Mo' },
-  { value: '15-50k', label: '15.000 – 50.000 €/Mo' },
-  { value: '>50k', label: 'Über 50.000 €/Mo' },
-] as const;
+// Option label sources live in i18n (audit.options.*). These hooks build the
+// localized {value,label[,desc]} arrays used by both the form selects and the
+// review-step label lookups, keeping `value` stable for the backend mapping.
+type Opt = { value: string; label: string };
+type OptDesc = { value: string; label: string; desc: string };
 
-const AG_ZEITFRESSER_OPTIONS = [
-  { value: 'content', label: 'Content-Produktion' },
-  { value: 'reporting', label: 'Reporting' },
-  { value: 'onboarding', label: 'Kunden-Onboarding' },
-  { value: 'pitches', label: 'Pitches & Angebote' },
-] as const;
-
-const PB_KANAL_OPTIONS = [
-  { value: 'instagram', label: 'Instagram' },
-  { value: 'youtube', label: 'YouTube' },
-  { value: 'linkedin', label: 'LinkedIn' },
-  { value: 'tiktok', label: 'TikTok' },
-  { value: 'newsletter', label: 'Newsletter' },
-] as const;
-
-const PB_SKALIERUNG_OPTIONS = [
-  { value: 'content', label: 'Content-Produktion' },
-  { value: 'monetarisierung', label: 'Monetarisierung' },
-  { value: 'community', label: 'Community' },
-  { value: 'launches', label: 'Launch-Prozesse' },
-] as const;
-
-const FI_BRANCHE_OPTIONS = [
-  { value: 'handel', label: 'Handel' },
-  { value: 'dienstleistung', label: 'Dienstleistung' },
-  { value: 'produktion', label: 'Produktion' },
-  { value: 'immobilien', label: 'Immobilien' },
-  { value: 'sonstiges', label: 'Sonstiges' },
-] as const;
-
-const FI_MITARBEITER_OPTIONS = [
-  { value: '1-10', label: '1 – 10 Mitarbeiter' },
-  { value: '11-50', label: '11 – 50 Mitarbeiter' },
-  { value: '50+', label: '50+ Mitarbeiter' },
-] as const;
-
-const FI_PAIN_OPTIONS = [
-  { value: 'reporting', label: 'Reporting' },
-  { value: 'leadgenerierung', label: 'Leadgenerierung' },
-  { value: 'kundenservice', label: 'Kundenservice' },
-  { value: 'interne-prozesse', label: 'Interne Prozesse' },
-] as const;
-
-const URGENCY_OPTIONS = [
-  { value: 'sofort' as const, label: 'Sofort — ich will loslegen' },
-  { value: '1-4-wochen' as const, label: 'In 1 – 4 Wochen' },
-  { value: 'nur-infos' as const, label: 'Ich sammle erst Infos' },
-];
-
-// Budget — mig009 tier-Ranges (Setup-Bereitschaft)
-const BUDGET_SETUP_OPTIONS = [
-  { value: '500-2k' as const, label: '€ 500 – 2.000', desc: 'Audit / sehr schlankes Setup' },
-  { value: '2-8k' as const,   label: '€ 2.000 – 8.000', desc: 'Tier S — 1 Use Case + Basics' },
-  { value: '8-20k' as const,  label: '€ 8.000 – 20.000', desc: 'Tier M — 2-3 Use Cases + Custom' },
-  { value: '20k+' as const,   label: '€ 20.000+', desc: 'Tier L — Multi-Project / Enterprise' },
-];
-
-// Budget — Retainer-Bereitschaft / Mo
-const BUDGET_RETAINER_OPTIONS = [
-  { value: '0-500' as const,  label: '€ 0 – 500 / Mo',     desc: 'Audit-Only / kein Retainer' },
-  { value: '500-2k' as const, label: '€ 500 – 2.000 / Mo', desc: 'Basics / kleinere Skalierung' },
-  { value: '2-5k' as const,   label: '€ 2.000 – 5.000 / Mo', desc: 'Growth / aktives Optimieren' },
-  { value: '5k+' as const,    label: '€ 5.000+ / Mo',      desc: 'Skalierung / Enterprise' },
-];
+function useAuditOptions() {
+  const { t } = useTranslation();
+  const arr = (key: string) => t(`audit.options.${key}`, { returnObjects: true }) as Opt[];
+  const arrDesc = (key: string) => t(`audit.options.${key}`, { returnObjects: true }) as OptDesc[];
+  return {
+    MONTHLY_REVENUE_OPTIONS: arr('monthlyRevenue'),
+    AG_ZEITFRESSER_OPTIONS: arr('agZeitfresser'),
+    PB_KANAL_OPTIONS: arr('pbKanal'),
+    PB_SKALIERUNG_OPTIONS: arr('pbSkalierung'),
+    FI_BRANCHE_OPTIONS: arr('fiBranche'),
+    FI_MITARBEITER_OPTIONS: arr('fiMitarbeiter'),
+    FI_PAIN_OPTIONS: arr('fiPain'),
+    URGENCY_OPTIONS: arr('urgency'),
+    BUDGET_SETUP_OPTIONS: arrDesc('budgetSetup'),
+    BUDGET_RETAINER_OPTIONS: arrDesc('budgetRetainer'),
+  };
+}
 
 // Map UI ranges → numeric min/max for backend (matches mig009)
 const SETUP_BUDGET_RANGE: Record<SetupBudget, { min: number; max: number }> = {
@@ -181,7 +135,6 @@ const RETAINER_BUDGET_RANGE: Record<RetainerBudget, { min: number; max: number }
 // Step 3: Kontakt
 // Step 4: Review + Submit
 
-const STEP_LABELS = ['Wer bist du?', 'Deine Situation', 'Investment', 'Kontakt', 'Bestätigung'];
 const TOTAL_STEPS = 5;
 
 /* ------------------------------------------------------------------ */
@@ -277,9 +230,10 @@ const DEFAULT_STATE: FormState = {
 /* ================================================================== */
 
 export default function Audit() {
+  const { t } = useTranslation();
   usePageSeo({
-    title: 'Kostenloses Workflow-Audit — Auto-Plan in 48h | AEVUM Full-Partnership',
-    description: 'Audit → Auto-Plan-PDF in 48h → Pflicht-Call → maßgeschneidertes KI-System mit Personal-Agent. Anti-Verkaufsdruck. Anti-Buzzword. Messbar oder Geld zurück.',
+    title: t('audit.seo.title'),
+    description: t('audit.seo.description'),
     path: '/audit',
   });
 
@@ -301,7 +255,7 @@ export default function Audit() {
   }, []);
 
   return (
-    <div style={{ background: '#0B0C10' }}>
+    <div className="bg-bg-primary">
       <AuditHeroSection />
       <ValueComparisonSection />
       <WhyAuditSection />
@@ -323,20 +277,22 @@ function scrollToId(id: string) {
 }
 
 function AuditHeroSection() {
+  const { t } = useTranslation();
   const TRUST_BADGES = [
-    { icon: <BadgeCheck className="w-3.5 h-3.5" />, label: 'Audit kostenlos' },
-    { icon: <Clock className="w-3.5 h-3.5" />, label: '48h Auto-Plan-PDF' },
-    { icon: <Phone className="w-3.5 h-3.5" />, label: 'Pflicht-Call zur Klärung' },
-    { icon: <Shield className="w-3.5 h-3.5" />, label: 'DSGVO-konform' },
-    { icon: <Users className="w-3.5 h-3.5" />, label: 'Founder-Community Zugang' },
+    { icon: <BadgeCheck className="w-3.5 h-3.5" />, label: t('audit.hero.trustBadges.auditFree') },
+    { icon: <Clock className="w-3.5 h-3.5" />, label: t('audit.hero.trustBadges.autoPlan') },
+    { icon: <Phone className="w-3.5 h-3.5" />, label: t('audit.hero.trustBadges.call') },
+    { icon: <Shield className="w-3.5 h-3.5" />, label: t('audit.hero.trustBadges.gdpr') },
+    { icon: <Users className="w-3.5 h-3.5" />, label: t('audit.hero.trustBadges.community') },
   ];
 
   return (
     <section className="relative overflow-hidden pt-24 pb-20 sm:pt-32 sm:pb-28">
+      <MouseGlow />
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full opacity-[0.12] blur-[120px]"
-          style={{ background: 'radial-gradient(circle, #e0a458 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, var(--theme-accent) 0%, transparent 70%)' }} />
       </div>
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
@@ -344,19 +300,18 @@ function AuditHeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
-          <Badge variant="outline" className="mb-6 text-xs px-3 py-1"
-            style={{ borderColor: 'rgba(224,164,88,0.35)', color: '#e0a458', background: 'rgba(224,164,88,0.08)' }}>
-            <Sparkles className="w-3 h-3 inline mr-1.5" />Full-Partnership · Premium-Tier
+          <Badge variant="outline" className="mb-6 text-xs px-3 py-1 border-theme-border-accent text-theme-accent bg-theme-accent-soft">
+            <Sparkles className="w-3 h-3 inline mr-1.5" />{t('audit.hero.badge')}
           </Badge>
 
-          <h1 className="text-4xl sm:text-6xl font-bold mb-6 leading-[1.1]"
-            style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
-            AEVUM <span style={{ color: '#e0a458' }}>Full-Partnership</span>
+          <h1 className="text-4xl sm:text-6xl font-bold mb-6 leading-[1.1] text-text-primary"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            {t('audit.hero.title')} <span className="text-theme-accent">{t('audit.hero.titleAccent')}</span>
           </h1>
 
-          <p className="text-lg sm:text-xl max-w-2xl mx-auto mb-8"
-            style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
-            Wir bauen dein maßgeschneidertes KI-System. Mit Personal-Agent. Mit Dashboard. Langfristig.
+          <p className="text-lg sm:text-xl max-w-2xl mx-auto mb-8 text-text-secondary"
+            style={{ lineHeight: 1.7 }}>
+            {t('audit.hero.subtitle')}
           </p>
 
           {/* Trustpilot Widget */}
@@ -364,16 +319,33 @@ function AuditHeroSection() {
             <TrustpilotWidget />
           </div>
 
+          {/* Animated stats strip */}
+          <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-10">
+            <div className="text-center">
+              <div className="text-3xl sm:text-5xl font-bold text-theme-accent mb-1">
+                <NumberCounter to={48} suffix="h" />
+              </div>
+              <div className="text-xs text-text-muted uppercase tracking-wider">{t('audit.hero.statAutoPlan')}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl sm:text-5xl font-bold text-theme-accent mb-1">
+                <NumberCounter to={100} suffix="%" />
+              </div>
+              <div className="text-xs text-text-muted uppercase tracking-wider">{t('audit.hero.statGdpr')}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl sm:text-5xl font-bold text-theme-accent mb-1">
+                <NumberCounter to={0} suffix="€" />
+              </div>
+              <div className="text-xs text-text-muted uppercase tracking-wider">{t('audit.hero.statCost')}</div>
+            </div>
+          </div>
+
           {/* Trust badges */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10">
             {TRUST_BADGES.map(b => (
               <div key={b.label}
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
-                style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#E4E4E7',
-                }}>
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium bg-bg-elevated border border-theme-border text-text-secondary">
                 <span style={{ color: '#10B981' }}>{b.icon}</span>
                 {b.label}
               </div>
@@ -381,24 +353,21 @@ function AuditHeroSection() {
           </div>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
+            <Magnetic strength={0.25}>
             <Button
               onClick={() => scrollToId('form')}
-              className="h-13 px-8 text-base font-semibold rounded-lg"
-              style={{ background: '#e0a458', color: '#0B0C10', height: '52px' }}>
-              <Sparkles className="w-4 h-4 mr-2" />Kostenloses Audit starten
+              className="h-13 px-8 text-base font-semibold rounded-lg w-full sm:w-auto bg-theme-accent text-on-accent hover:bg-theme-accent-hover"
+              style={{ height: '52px' }}>
+              <Sparkles className="w-4 h-4 mr-2" />{t('audit.hero.ctaStart')}
             </Button>
+            </Magnetic>
             <Button
               variant="outline"
               onClick={() => scrollToId('vergleich')}
-              className="px-8 text-base font-semibold rounded-lg"
-              style={{
-                background: 'transparent',
-                border: '1px solid rgba(224,164,88,0.4)',
-                color: '#e0a458',
-                height: '52px',
-              }}>
-              Vergleich sehen<ArrowDown className="w-4 h-4 ml-2" />
+              className="px-8 text-base font-semibold rounded-lg w-full sm:w-auto bg-transparent border border-theme-border-accent text-theme-accent"
+              style={{ height: '52px' }}>
+              {t('audit.hero.ctaCompare')}<ArrowDown className="w-4 h-4 ml-2" />
             </Button>
           </div>
         </motion.div>
@@ -419,150 +388,172 @@ interface ComparisonRow {
   full: string | boolean;
 }
 
-const COMPARISON_ROWS: ComparisonRow[] = [
-  { feature: 'Blueprint-Kauf (Shop)', gast: true, shop: true, saas: true, full: true },
-  { feature: 'Credits sammeln (10c/€)', gast: false, shop: true, saas: true, full: true },
-  { feature: 'Stempelkarte 5→1 gratis', gast: false, shop: true, saas: true, full: true },
-  { feature: 'SaaS-Tools nutzen', gast: false, shop: false, saas: 'Credits', full: 'inkl. 500/Mo' },
-  { feature: 'Personal AI-Agent', gast: false, shop: false, saas: false, full: true },
-  { feature: 'Eigenes Customer-Dashboard', gast: false, shop: false, saas: false, full: true },
-  { feature: 'Quicklinks · Documents · Agent', gast: false, shop: false, saas: false, full: true },
-  { feature: 'Per-Project-API-Coverage', gast: false, shop: false, saas: false, full: true },
-  { feature: 'Cross-OS Aggregator (LennoxOS)', gast: false, shop: false, saas: false, full: true },
-  { feature: 'AEVUM Founder-Community', gast: false, shop: false, saas: false, full: true },
+const COMPARISON_ROW_META: { key: string; gast: string | boolean; shop: string | boolean; saas: string | boolean; full: string | boolean }[] = [
+  { key: 'blueprint', gast: true, shop: true, saas: true, full: true },
+  { key: 'credits', gast: false, shop: true, saas: true, full: true },
+  { key: 'stamps', gast: false, shop: true, saas: true, full: true },
+  { key: 'saasTools', gast: false, shop: false, saas: 'saasCredits', full: 'fullSaas' },
+  { key: 'personalAgent', gast: false, shop: false, saas: false, full: true },
+  { key: 'dashboard', gast: false, shop: false, saas: false, full: true },
+  { key: 'quicklinks', gast: false, shop: false, saas: false, full: true },
+  { key: 'apiCoverage', gast: false, shop: false, saas: false, full: true },
+  { key: 'aggregator', gast: false, shop: false, saas: false, full: true },
+  { key: 'community', gast: false, shop: false, saas: false, full: true },
 ];
 
-const COMPARISON_FOOTER: { pricing: string; entry: string; cta: { label: string; action: () => void }; col: 'gast' | 'shop' | 'saas' | 'full' }[] = [
-  { col: 'gast', pricing: 'pro Kauf', entry: 'Direkt', cta: { label: 'Shop ansehen', action: () => { window.location.hash = '/shop'; } } },
-  { col: 'shop', pricing: 'pro Kauf + Credits', entry: 'Account anlegen', cta: { label: 'Account anlegen', action: () => { window.location.hash = '/shop?signup=1'; } } },
-  { col: 'saas', pricing: 'Pay-per-Use', entry: 'Account + Credit-Paket', cta: { label: 'SaaS-Hub', action: () => { window.location.hash = '/saas'; } } },
-  { col: 'full', pricing: 'Setup + Retainer', entry: 'Audit + Call', cta: { label: 'Audit starten', action: () => scrollToId('form') } },
+const COMPARISON_FOOTER_META: { col: 'gast' | 'shop' | 'saas' | 'full'; action: () => void }[] = [
+  { col: 'gast', action: () => { window.location.hash = '/shop'; } },
+  { col: 'shop', action: () => { window.location.hash = '/shop?signup=1'; } },
+  { col: 'saas', action: () => { window.location.hash = '/saas'; } },
+  { col: 'full', action: () => scrollToId('form') },
 ];
 
 function CellIcon({ value, highlight }: { value: string | boolean; highlight?: boolean }) {
   if (value === true) {
-    return <Check className="w-5 h-5 mx-auto" style={{ color: highlight ? '#e0a458' : '#10B981' }} />;
+    return <Check className="w-5 h-5 mx-auto" style={{ color: highlight ? 'var(--theme-accent)' : '#10B981' }} />;
   }
   if (value === false) {
-    return <X className="w-5 h-5 mx-auto" style={{ color: '#3F3F46' }} />;
+    return <X className="w-5 h-5 mx-auto" style={{ color: 'var(--text-muted)' }} />;
   }
   return (
     <span className="text-xs font-medium"
-      style={{ color: highlight ? '#e0a458' : '#A1A1AA' }}>
+      style={{ color: highlight ? 'var(--theme-accent)' : 'var(--text-secondary)' }}>
       {value}
     </span>
   );
 }
 
+function useComparisonData() {
+  const { t } = useTranslation();
+  const resolveVal = (v: string | boolean): string | boolean =>
+    v === 'saasCredits' ? t('audit.comparison.values.saasCredits')
+      : v === 'fullSaas' ? t('audit.comparison.values.fullSaas')
+        : v;
+  const rows: ComparisonRow[] = COMPARISON_ROW_META.map((r) => ({
+    feature: t(`audit.comparison.rows.${r.key}`),
+    gast: resolveVal(r.gast),
+    shop: resolveVal(r.shop),
+    saas: resolveVal(r.saas),
+    full: resolveVal(r.full),
+  }));
+  const footer = COMPARISON_FOOTER_META.map((f) => ({
+    col: f.col,
+    pricing: t(`audit.comparison.footer.${f.col}.pricing`),
+    entry: t(`audit.comparison.footer.${f.col}.entry`),
+    cta: { label: t(`audit.comparison.footer.${f.col}.cta`), action: f.action },
+  }));
+  return { rows, footer };
+}
+
+type ComparisonFooterItem = ReturnType<typeof useComparisonData>['footer'][number];
+
 function ValueComparisonSection() {
+  const { t } = useTranslation();
+  const { rows: COMPARISON_ROWS, footer: COMPARISON_FOOTER } = useComparisonData();
   return (
     <section id="vergleich" className="relative py-20 sm:py-28"
-      style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      style={{ borderTop: '1px solid var(--theme-border)' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12 max-w-2xl mx-auto">
           <Badge variant="outline" className="mb-4 text-xs"
-            style={{ borderColor: 'rgba(224,164,88,0.3)', color: '#e0a458', background: 'rgba(224,164,88,0.08)' }}>
-            Vergleich
+            style={{ borderColor: 'var(--theme-border-accent)', color: 'var(--theme-accent)', background: 'var(--theme-accent-soft)' }}>
+            {t('audit.comparison.badge')}
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-bold mb-4"
-            style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
-            Welche Stufe passt zu dir?
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: 'var(--text-primary)' }}>
+            {t('audit.comparison.heading')}
           </h2>
-          <p className="text-base" style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
-            Vier Investment-Stufen. Du kannst jederzeit nach oben wechseln — Credits bleiben erhalten.
+          <p className="text-base" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+            {t('audit.comparison.subtitle')}
           </p>
         </div>
 
         {/* Desktop Table */}
         <div className="hidden lg:block">
-          <div className="rounded-2xl overflow-hidden"
-            style={{ background: '#15161A', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="rounded-2xl overflow-hidden bg-bg-surface border border-theme-border">
             <table className="w-full">
               <thead>
-                <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  <th className="text-left px-6 py-5 text-xs uppercase tracking-[0.12em] font-semibold"
-                    style={{ color: '#71717A', width: '34%' }}>
-                    Feature
+                <tr className="bg-bg-elevated border-b border-theme-border">
+                  <th className="text-left px-6 py-5 text-xs uppercase tracking-[0.12em] font-semibold text-text-muted"
+                    style={{ width: '34%' }}>
+                    {t('audit.comparison.featureColumn')}
                   </th>
-                  <th className="px-4 py-5 text-center text-xs uppercase tracking-[0.12em] font-semibold"
-                    style={{ color: '#71717A' }}>
-                    Gast
+                  <th className="px-4 py-5 text-center text-xs uppercase tracking-[0.12em] font-semibold text-text-muted">
+                    {t('audit.comparison.tiers.gast')}
                   </th>
-                  <th className="px-4 py-5 text-center text-xs uppercase tracking-[0.12em] font-semibold"
-                    style={{ color: '#71717A' }}>
-                    Shop-Account
+                  <th className="px-4 py-5 text-center text-xs uppercase tracking-[0.12em] font-semibold text-text-muted">
+                    {t('audit.comparison.tiers.shop')}
                   </th>
-                  <th className="px-4 py-5 text-center text-xs uppercase tracking-[0.12em] font-semibold"
-                    style={{ color: '#71717A' }}>
-                    SaaS-Account
+                  <th className="px-4 py-5 text-center text-xs uppercase tracking-[0.12em] font-semibold text-text-muted">
+                    {t('audit.comparison.tiers.saas')}
                   </th>
-                  <th className="px-4 py-5 text-center text-xs uppercase tracking-[0.12em] font-semibold"
-                    style={{ background: 'rgba(224,164,88,0.08)', color: '#e0a458', borderLeft: '1px solid rgba(224,164,88,0.2)', borderRight: '1px solid rgba(224,164,88,0.2)' }}>
-                    Full-Partnership <Star className="w-3 h-3 inline ml-1" style={{ fill: '#e0a458' }} />
+                  <th className="px-4 py-5 text-center text-xs uppercase tracking-[0.12em] font-semibold text-theme-accent bg-theme-accent-soft"
+                    style={{ borderLeft: '1px solid var(--theme-border-accent)', borderRight: '1px solid var(--theme-border-accent)' }}>
+                    {t('audit.comparison.tiers.full')} <Star className="w-3 h-3 inline ml-1" style={{ fill: 'currentColor' }} />
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {COMPARISON_ROWS.map((row, i) => (
                   <tr key={row.feature}
-                    style={{ borderBottom: i < COMPARISON_ROWS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                    <td className="px-6 py-4 text-sm font-medium" style={{ color: '#E4E4E7' }}>
+                    style={{ borderBottom: i < COMPARISON_ROWS.length - 1 ? '1px solid var(--theme-border)' : 'none' }}>
+                    <td className="px-6 py-4 text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                       {row.feature}
                     </td>
                     <td className="px-4 py-4 text-center"><CellIcon value={row.gast} /></td>
                     <td className="px-4 py-4 text-center"><CellIcon value={row.shop} /></td>
                     <td className="px-4 py-4 text-center"><CellIcon value={row.saas} /></td>
                     <td className="px-4 py-4 text-center"
-                      style={{ background: 'rgba(224,164,88,0.04)', borderLeft: '1px solid rgba(224,164,88,0.2)', borderRight: '1px solid rgba(224,164,88,0.2)' }}>
+                      style={{ background: 'var(--theme-accent-soft)', borderLeft: '1px solid var(--theme-border-accent)', borderRight: '1px solid var(--theme-border-accent)' }}>
                       <CellIcon value={row.full} highlight />
                     </td>
                   </tr>
                 ))}
                 {/* Pricing row */}
-                <tr style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)' }}>
-                  <td className="px-6 py-4 text-xs uppercase tracking-[0.12em] font-semibold" style={{ color: '#71717A' }}>
-                    Pricing
+                <tr style={{ borderTop: '1px solid var(--theme-border)', background: 'var(--bg-elevated)' }}>
+                  <td className="px-6 py-4 text-xs uppercase tracking-[0.12em] font-semibold" style={{ color: 'var(--text-muted)' }}>
+                    {t('audit.comparison.pricingRow')}
                   </td>
                   {COMPARISON_FOOTER.map(f => (
                     <td key={f.col} className="px-4 py-4 text-center text-xs"
                       style={f.col === 'full' ? {
-                        background: 'rgba(224,164,88,0.06)', color: '#e0a458',
-                        borderLeft: '1px solid rgba(224,164,88,0.2)', borderRight: '1px solid rgba(224,164,88,0.2)', fontWeight: 600,
-                      } : { color: '#A1A1AA' }}>
+                        background: 'var(--theme-accent-soft)', color: 'var(--theme-accent)',
+                        borderLeft: '1px solid var(--theme-border-accent)', borderRight: '1px solid var(--theme-border-accent)', fontWeight: 600,
+                      } : { color: 'var(--text-secondary)' }}>
                       {f.pricing}
                     </td>
                   ))}
                 </tr>
                 <tr>
-                  <td className="px-6 py-4 text-xs uppercase tracking-[0.12em] font-semibold" style={{ color: '#71717A' }}>
-                    Einstieg
+                  <td className="px-6 py-4 text-xs uppercase tracking-[0.12em] font-semibold" style={{ color: 'var(--text-muted)' }}>
+                    {t('audit.comparison.entryRow')}
                   </td>
                   {COMPARISON_FOOTER.map(f => (
                     <td key={f.col} className="px-4 py-4 text-center text-xs"
                       style={f.col === 'full' ? {
-                        background: 'rgba(224,164,88,0.06)', color: '#e0a458',
-                        borderLeft: '1px solid rgba(224,164,88,0.2)', borderRight: '1px solid rgba(224,164,88,0.2)', fontWeight: 600,
-                      } : { color: '#A1A1AA' }}>
+                        background: 'var(--theme-accent-soft)', color: 'var(--theme-accent)',
+                        borderLeft: '1px solid var(--theme-border-accent)', borderRight: '1px solid var(--theme-border-accent)', fontWeight: 600,
+                      } : { color: 'var(--text-secondary)' }}>
                       {f.entry}
                     </td>
                   ))}
                 </tr>
                 {/* CTAs */}
-                <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
+                <tr style={{ background: 'var(--bg-elevated)' }}>
                   <td className="px-6 py-5"></td>
                   {COMPARISON_FOOTER.map(f => (
                     <td key={f.col} className="px-3 py-5 text-center"
                       style={f.col === 'full' ? {
-                        background: 'rgba(224,164,88,0.06)',
-                        borderLeft: '1px solid rgba(224,164,88,0.2)', borderRight: '1px solid rgba(224,164,88,0.2)',
+                        background: 'var(--theme-accent-soft)',
+                        borderLeft: '1px solid var(--theme-border-accent)', borderRight: '1px solid var(--theme-border-accent)',
                       } : undefined}>
                       <button
                         onClick={f.cta.action}
                         className="text-xs font-semibold rounded-lg px-3 py-2 transition-all"
                         style={f.col === 'full' ? {
-                          background: '#e0a458', color: '#0B0C10',
+                          background: 'var(--theme-accent)', color: 'var(--text-on-accent)',
                         } : {
-                          background: 'rgba(255,255,255,0.04)', color: '#F9FAFB', border: '1px solid rgba(255,255,255,0.1)',
+                          background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--theme-border-strong)',
                         }}>
                         {f.cta.label}
                         <ArrowRight className="w-3 h-3 inline ml-1" />
@@ -579,8 +570,13 @@ function ValueComparisonSection() {
         <div className="lg:hidden space-y-4">
           {(['gast', 'shop', 'saas', 'full'] as const).map(col => {
             const footer = COMPARISON_FOOTER.find(f => f.col === col)!;
-            const titles = { gast: 'Gast', shop: 'Shop-Account', saas: 'SaaS-Account', full: 'Full-Partnership' };
-            return <MobileComparisonCard key={col} col={col} title={titles[col]} footer={footer} />;
+            const titles = {
+              gast: t('audit.comparison.tiers.gast'),
+              shop: t('audit.comparison.tiers.shop'),
+              saas: t('audit.comparison.tiers.saas'),
+              full: t('audit.comparison.tiers.full'),
+            };
+            return <MobileComparisonCard key={col} col={col} title={titles[col]} footer={footer} rows={COMPARISON_ROWS} />;
           })}
         </div>
       </div>
@@ -588,18 +584,19 @@ function ValueComparisonSection() {
   );
 }
 
-function MobileComparisonCard({ col, title, footer }: {
+function MobileComparisonCard({ col, title, footer, rows }: {
   col: 'gast' | 'shop' | 'saas' | 'full';
   title: string;
-  footer: typeof COMPARISON_FOOTER[number];
+  footer: ComparisonFooterItem;
+  rows: ComparisonRow[];
 }) {
   const [open, setOpen] = useState(col === 'full');
   const isFull = col === 'full';
   return (
     <div className="rounded-xl overflow-hidden"
       style={{
-        background: isFull ? 'rgba(224,164,88,0.04)' : '#15161A',
-        border: isFull ? '1.5px solid rgba(224,164,88,0.35)' : '1px solid rgba(255,255,255,0.06)',
+        background: isFull ? 'var(--theme-accent-soft)' : 'var(--bg-surface)',
+        border: isFull ? '1.5px solid var(--theme-border-accent)' : '1px solid var(--theme-border)',
       }}>
       <button
         type="button"
@@ -608,24 +605,24 @@ function MobileComparisonCard({ col, title, footer }: {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-sm font-semibold"
-              style={{ color: isFull ? '#e0a458' : '#F9FAFB', fontFamily: "'Space Grotesk', sans-serif" }}>
+              style={{ color: isFull ? 'var(--theme-accent)' : 'var(--text-primary)', fontFamily: "'Space Grotesk', sans-serif" }}>
               {title}
             </span>
-            {isFull && <Star className="w-3.5 h-3.5" style={{ fill: '#e0a458', color: '#e0a458' }} />}
+            {isFull && <Star className="w-3.5 h-3.5" style={{ fill: 'var(--theme-accent)', color: 'var(--theme-accent)' }} />}
           </div>
-          <div className="text-xs" style={{ color: '#71717A' }}>
+          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
             {footer.pricing} · {footer.entry}
           </div>
         </div>
         <ChevronDown className="w-4 h-4 transition-transform"
-          style={{ color: '#A1A1AA', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+          style={{ color: 'var(--text-secondary)', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
       </button>
       {open && (
         <div className="px-5 pb-5 pt-1 space-y-2"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-          {COMPARISON_ROWS.map(row => (
+          style={{ borderTop: '1px solid var(--theme-border)' }}>
+          {rows.map(row => (
             <div key={row.feature} className="flex items-center justify-between gap-3 py-1.5">
-              <span className="text-sm" style={{ color: '#A1A1AA' }}>{row.feature}</span>
+              <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{row.feature}</span>
               <span className="flex-shrink-0"><CellIcon value={row[col]} highlight={isFull} /></span>
             </div>
           ))}
@@ -633,9 +630,9 @@ function MobileComparisonCard({ col, title, footer }: {
             onClick={footer.cta.action}
             className="mt-4 w-full rounded-lg py-3 text-sm font-semibold transition-all"
             style={isFull ? {
-              background: '#e0a458', color: '#0B0C10',
+              background: 'var(--theme-accent)', color: 'var(--text-on-accent)',
             } : {
-              background: 'rgba(255,255,255,0.04)', color: '#F9FAFB', border: '1px solid rgba(255,255,255,0.1)',
+              background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--theme-border-strong)',
             }}>
             {footer.cta.label}
             <ArrowRight className="w-3.5 h-3.5 inline ml-1.5" />
@@ -651,39 +648,30 @@ function MobileComparisonCard({ col, title, footer }: {
 /* ================================================================== */
 
 function WhyAuditSection() {
-  const cards = [
-    {
-      icon: <MessageSquareWarning className="w-6 h-6" />,
-      title: 'Wir verkaufen nicht — wir prüfen erst',
-      desc: 'Anti-Fake-it-till-you-make-it. Bevor wir dir was empfehlen, schauen wir uns deinen Business-Stand wirklich an. Kein Standard-Pitch.',
-    },
-    {
-      icon: <FileCheck className="w-6 h-6" />,
-      title: 'Du bekommst Auto-Plan in 48h',
-      desc: 'Selbst wenn wir am Ende nicht zusammenarbeiten — du hast einen konkreten Plan in der Hand. PDF mit Tier-Empfehlung, Tool-Stack und Roadmap.',
-    },
-    {
-      icon: <HeartHandshake className="w-6 h-6" />,
-      title: 'Mismatch = ehrliches Nein',
-      desc: 'Wenn dein Case nicht passt, sagen wir das im Call direkt. Brand-Werte über Cash. Wir wollen Partnerschaften die langfristig funktionieren.',
-    },
+  const { t } = useTranslation();
+  const cardIcons = [
+    <MessageSquareWarning className="w-6 h-6" />,
+    <FileCheck className="w-6 h-6" />,
+    <HeartHandshake className="w-6 h-6" />,
   ];
+  const cardTexts = t('audit.whyAudit.cards', { returnObjects: true }) as { title: string; desc: string }[];
+  const cards = cardTexts.map((c, i) => ({ ...c, icon: cardIcons[i] }));
 
   return (
     <section className="relative py-20 sm:py-28"
-      style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      style={{ borderTop: '1px solid var(--theme-border)' }}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12 max-w-2xl mx-auto">
           <Badge variant="outline" className="mb-4 text-xs"
-            style={{ borderColor: 'rgba(224,164,88,0.3)', color: '#e0a458', background: 'rgba(224,164,88,0.08)' }}>
-            Warum kostenloses Audit?
+            style={{ borderColor: 'var(--theme-border-accent)', color: 'var(--theme-accent)', background: 'var(--theme-accent-soft)' }}>
+            {t('audit.whyAudit.badge')}
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-bold mb-4"
-            style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
-            Erst prüfen. Dann bauen.
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: 'var(--text-primary)' }}>
+            {t('audit.whyAudit.heading')}
           </h2>
-          <p className="text-base" style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
-            Drei Gründe warum wir mit einem Audit starten — nicht mit einem Pitch.
+          <p className="text-base" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+            {t('audit.whyAudit.subtitle')}
           </p>
         </div>
 
@@ -695,20 +683,20 @@ function WhyAuditSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className="rounded-xl p-6"
+              className="flex h-full flex-col rounded-xl p-6"
               style={{
-                background: '#15161A',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--theme-border)',
               }}>
               <div className="inline-flex items-center justify-center w-11 h-11 rounded-lg mb-4"
-                style={{ background: 'rgba(224,164,88,0.1)', color: '#e0a458' }}>
+                style={{ background: 'var(--theme-accent-soft)', color: 'var(--theme-accent)' }}>
                 {c.icon}
               </div>
               <h3 className="text-base font-semibold mb-2"
-                style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB', lineHeight: 1.3 }}>
+                style={{ fontFamily: "'Space Grotesk', sans-serif", color: 'var(--text-primary)', lineHeight: 1.3 }}>
                 {c.title}
               </h3>
-              <p className="text-sm" style={{ color: '#A1A1AA', lineHeight: 1.6 }}>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
                 {c.desc}
               </p>
             </motion.div>
@@ -724,54 +712,32 @@ function WhyAuditSection() {
 /* ================================================================== */
 
 function AuditTimelineSection() {
-  const steps = [
-    {
-      icon: <FileText className="w-5 h-5" />,
-      title: 'Audit-Form',
-      desc: '5 Steps · 7 Minuten',
-      detail: 'Segment, Situation, Budget, Kontakt',
-    },
-    {
-      icon: <Zap className="w-5 h-5" />,
-      title: 'Auto-Plan-Engine',
-      desc: 'LLM-Analyse + Tier-Mapping',
-      detail: 'Automatisch innerhalb von Minuten',
-    },
-    {
-      icon: <FileCheck className="w-5 h-5" />,
-      title: 'PDF per Mail',
-      desc: 'innerhalb 48h',
-      detail: 'Roadmap · Stack · Quote',
-    },
-    {
-      icon: <Phone className="w-5 h-5" />,
-      title: 'Pflicht-Call',
-      desc: '45 Minuten mit Carlos',
-      detail: 'Klärung · Fragen · Match-Check',
-    },
-    {
-      icon: <Rocket className="w-5 h-5" />,
-      title: 'Onboarding',
-      desc: 'innerhalb 14 Tage',
-      detail: 'Setup-Quote · Kickoff · Build',
-    },
+  const { t } = useTranslation();
+  const stepIcons = [
+    <FileText className="w-5 h-5" />,
+    <Zap className="w-5 h-5" />,
+    <FileCheck className="w-5 h-5" />,
+    <Phone className="w-5 h-5" />,
+    <Rocket className="w-5 h-5" />,
   ];
+  const stepTexts = t('audit.timeline.steps', { returnObjects: true }) as { title: string; desc: string; detail: string }[];
+  const steps = stepTexts.map((s, i) => ({ ...s, icon: stepIcons[i] }));
 
   return (
     <section id="timeline" className="relative py-20 sm:py-28"
-      style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      style={{ borderTop: '1px solid var(--theme-border)' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14 max-w-2xl mx-auto">
           <Badge variant="outline" className="mb-4 text-xs"
-            style={{ borderColor: 'rgba(224,164,88,0.3)', color: '#e0a458', background: 'rgba(224,164,88,0.08)' }}>
-            So läuft's
+            style={{ borderColor: 'var(--theme-border-accent)', color: 'var(--theme-accent)', background: 'var(--theme-accent-soft)' }}>
+            {t('audit.timeline.badge')}
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-bold mb-4"
-            style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
-            Von Audit zum Build — in 5 Schritten
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: 'var(--text-primary)' }}>
+            {t('audit.timeline.heading')}
           </h2>
-          <p className="text-base" style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
-            Klarer Funnel, keine Surprise-Gebühren. Vom ersten Klick bis zum Onboarding.
+          <p className="text-base" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+            {t('audit.timeline.subtitle')}
           </p>
         </div>
 
@@ -783,36 +749,36 @@ function AuditTimelineSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className="relative rounded-xl p-5"
+              className="relative flex h-full flex-col rounded-xl p-5"
               style={{
-                background: '#15161A',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--theme-border)',
               }}>
               {/* Step number */}
               <div className="absolute -top-3 left-5 px-2 py-0.5 rounded text-[10px] uppercase tracking-[0.12em] font-bold"
-                style={{ background: '#e0a458', color: '#0B0C10' }}>
-                Step {i + 1}
+                style={{ background: 'var(--theme-accent)', color: 'var(--text-on-accent)' }}>
+                {t('audit.timeline.stepPrefix')} {i + 1}
               </div>
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg mt-2 mb-3"
-                style={{ background: 'rgba(224,164,88,0.1)', color: '#e0a458' }}>
+                style={{ background: 'var(--theme-accent-soft)', color: 'var(--theme-accent)' }}>
                 {s.icon}
               </div>
               <h3 className="text-sm font-semibold mb-1"
-                style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
+                style={{ fontFamily: "'Space Grotesk', sans-serif", color: 'var(--text-primary)' }}>
                 {s.title}
               </h3>
-              <p className="text-xs font-medium mb-1" style={{ color: '#e0a458' }}>
+              <p className="text-xs font-medium mb-1" style={{ color: 'var(--theme-accent)' }}>
                 {s.desc}
               </p>
-              <p className="text-xs" style={{ color: '#71717A', lineHeight: 1.5 }}>
+              <p className="text-xs" style={{ color: 'var(--text-muted)', lineHeight: 1.5 }}>
                 {s.detail}
               </p>
 
               {/* Arrow connector (desktop only) */}
               {i < steps.length - 1 && (
                 <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 items-center justify-center w-6 h-6 rounded-full"
-                  style={{ background: '#0B0C10', border: '1px solid rgba(224,164,88,0.3)' }}>
-                  <ChevronRight className="w-3.5 h-3.5" style={{ color: '#e0a458' }} />
+                  style={{ background: 'var(--bg-primary)', border: '1px solid var(--theme-border-accent)' }}>
+                  <ChevronRight className="w-3.5 h-3.5" style={{ color: 'var(--theme-accent)' }} />
                 </div>
               )}
             </motion.div>
@@ -823,8 +789,8 @@ function AuditTimelineSection() {
           <Button
             onClick={() => scrollToId('form')}
             className="h-13 px-8 text-base font-semibold rounded-lg"
-            style={{ background: '#e0a458', color: '#0B0C10', height: '52px' }}>
-            Jetzt Audit starten<ArrowDown className="w-4 h-4 ml-2" />
+            style={{ background: 'var(--theme-accent)', color: 'var(--text-on-accent)', height: '52px' }}>
+            {t('audit.timeline.ctaStart')}<ArrowDown className="w-4 h-4 ml-2" />
           </Button>
         </div>
       </div>
@@ -836,57 +802,24 @@ function AuditTimelineSection() {
 /*  MARKETING — FAQ                                                   */
 /* ================================================================== */
 
-const FAQ_ITEMS = [
-  {
-    q: 'Was kostet das Audit?',
-    a: 'Komplett kostenlos. Inklusive Auto-Plan-PDF mit Tier-Empfehlung, Tool-Stack-Vorschlag und Roadmap. Selbst wenn wir nicht zusammenarbeiten — du behältst den Plan.',
-  },
-  {
-    q: 'Was wenn wir nicht passen?',
-    a: 'Wir sagen das im Call ehrlich — und du verlierst nichts. Du behältst das PDF, kannst es selbst umsetzen oder einem anderen Anbieter geben. Brand-Werte über Cash.',
-  },
-  {
-    q: 'Wie lange dauert der Setup?',
-    a: 'Abhängig vom Tier: S = ~30h (1 Use Case), M = ~80h (2-3 Use Cases + Custom), L = ~200h+ (Multi-Project / Enterprise). Konkrete Timeline kommt im PDF + Call.',
-  },
-  {
-    q: 'Was ist der Personal-Agent?',
-    a: 'Dein eigener KI-Assistent. Kontextualisiert auf dein Business + deine Projekte. Erreichbar via Telegram + Web-Portal. Mit Memory, Tool-Access und projektspezifischen API-Coverage.',
-  },
-  {
-    q: 'Kann ich später upgraden?',
-    a: 'Ja. Shop → SaaS → Full-Partnership geht jederzeit. Credits bleiben erhalten und werden auf das nächste Tier angerechnet. Kein Lock-in.',
-  },
-  {
-    q: 'Was ist die AEVUM Founder-Community?',
-    a: 'Exklusiver Kreis aller Full-Partnership-Kunden. Direkter Austausch zwischen Foundern, Tool-Sharing, Use-Case-Templates, Quarterly-Calls mit Carlos + Lennox. Keine Fremde, keine LinkedIn-Influencer — nur Operators die ihr System ernst nehmen. Inklusive in Full-Partnership.',
-  },
-  {
-    q: 'Was ist mit DSGVO?',
-    a: 'Full-Compliance. Eigene Sub-Processor-Liste, DSGVO-Challenge-Flow, Auftragsverarbeitungsverträge, granulare Consent-Verwaltung. Customer-Daten werden separat verschlüsselt gespeichert.',
-  },
-  {
-    q: 'Kann ich kündigen?',
-    a: 'Ja, monatlich. Ab Tier B kann eine Mindest-Vertragslaufzeit für den Setup-Amortisation greifen — das besprechen wir transparent im Call.',
-  },
-];
-
 function FaqSection() {
+  const { t } = useTranslation();
+  const FAQ_ITEMS = t('audit.faq.items', { returnObjects: true }) as { q: string; a: string }[];
   return (
     <section id="faq" className="relative py-20 sm:py-28"
-      style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      style={{ borderTop: '1px solid var(--theme-border)' }}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
           <Badge variant="outline" className="mb-4 text-xs"
-            style={{ borderColor: 'rgba(224,164,88,0.3)', color: '#e0a458', background: 'rgba(224,164,88,0.08)' }}>
-            <HelpCircle className="w-3 h-3 inline mr-1" />FAQ
+            style={{ borderColor: 'var(--theme-border-accent)', color: 'var(--theme-accent)', background: 'var(--theme-accent-soft)' }}>
+            <HelpCircle className="w-3 h-3 inline mr-1" />{t('audit.faq.badge')}
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-bold mb-4"
-            style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
-            Häufige Fragen
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: 'var(--text-primary)' }}>
+            {t('audit.faq.heading')}
           </h2>
-          <p className="text-base" style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
-            Noch was offen? Schreib uns direkt im Helpbot rechts unten.
+          <p className="text-base" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+            {t('audit.faq.subtitle')}
           </p>
         </div>
 
@@ -905,19 +838,19 @@ function FaqItem({ q, a, defaultOpen }: { q: string; a: string; defaultOpen?: bo
   return (
     <div className="rounded-xl overflow-hidden transition-colors"
       style={{
-        background: '#15161A',
-        border: `1px solid ${open ? 'rgba(224,164,88,0.25)' : 'rgba(255,255,255,0.06)'}`,
+        background: 'var(--bg-surface)',
+        border: `1px solid ${open ? 'var(--theme-border-accent)' : 'var(--theme-border)'}`,
       }}>
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
         className="w-full px-5 py-4 text-left flex items-center justify-between gap-4">
         <span className="text-sm sm:text-base font-semibold"
-          style={{ color: '#F9FAFB', fontFamily: "'Space Grotesk', sans-serif" }}>
+          style={{ color: 'var(--text-primary)', fontFamily: "'Space Grotesk', sans-serif" }}>
           {q}
         </span>
         <ChevronDown className="w-4 h-4 flex-shrink-0 transition-transform"
-          style={{ color: open ? '#e0a458' : '#A1A1AA', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+          style={{ color: open ? 'var(--theme-accent)' : 'var(--text-secondary)', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
       </button>
       <AnimatePresence initial={false}>
         {open && (
@@ -927,7 +860,7 @@ function FaqItem({ q, a, defaultOpen }: { q: string; a: string; defaultOpen?: bo
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             style={{ overflow: 'hidden' }}>
-            <div className="px-5 pb-5 text-sm" style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
+            <div className="px-5 pb-5 text-sm" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
               {a}
             </div>
           </motion.div>
@@ -942,6 +875,8 @@ function FaqItem({ q, a, defaultOpen }: { q: string; a: string; defaultOpen?: bo
 /* ================================================================== */
 
 function AuditForm() {
+  const { t } = useTranslation();
+  const STEP_LABELS = t('audit.stepLabels', { returnObjects: true }) as string[];
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [submitted, setSubmitted] = useState(false);
@@ -1039,8 +974,8 @@ function AuditForm() {
     setFiles(prev => {
       const next = [...prev];
       for (const f of list) {
-        if (next.length >= MAX_FILES) { setFileError(`Max. ${MAX_FILES} Dateien.`); break; }
-        if (!isAllowedFile(f)) { setFileError(`"${f.name}" abgelehnt (Typ/Groesse).`); continue; }
+        if (next.length >= MAX_FILES) { setFileError(t('audit.errors.maxFiles', { max: MAX_FILES })); break; }
+        if (!isAllowedFile(f)) { setFileError(t('audit.errors.fileRejected', { name: f.name })); continue; }
         if (next.some(x => x.name === f.name && x.size === f.size)) continue;
         next.push(f);
       }
@@ -1128,10 +1063,10 @@ function AuditForm() {
         setSubmitted(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        setSubmitError((await res.text()) || 'Ein Fehler ist aufgetreten.');
+        setSubmitError((await res.text()) || t('audit.errors.generic'));
       }
     } catch {
-      setSubmitError('Netzwerkfehler. Bitte erneut versuchen.');
+      setSubmitError(t('audit.errors.network'));
     } finally {
       setIsSubmitting(false);
     }
@@ -1158,7 +1093,7 @@ function AuditForm() {
   if (submitted) {
     const contactLink = formState.contact.urgency === 'sofort' ? CONTACT.calendly : undefined;
     return (
-      <div className="min-h-screen" style={{ background: '#0B0C10' }}>
+      <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
         <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-24 pb-16">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -1171,31 +1106,31 @@ function AuditForm() {
               <Check className="w-10 h-10" style={{ color: '#10B981' }} />
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold mb-4"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
-              Audit eingegangen!
+              style={{ fontFamily: "'Space Grotesk', sans-serif", color: 'var(--text-primary)' }}>
+              {t('audit.submitted.title')}
             </h1>
             <p className="text-lg sm:text-xl mb-4 max-w-lg mx-auto"
-              style={{ color: '#A1A1AA', lineHeight: 1.7 }}>
-              Wir analysieren dein Profil und schicken dir das individuelle Auto-Plan-PDF (Tier-Empfehlung, Tool-Stack, Roadmap, Cashflow-/Revenue-Share-Alternativen) per Mail.
+              style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+              {t('audit.submitted.text')}
             </p>
             {formState.contact.urgency === 'sofort' && (
               <p className="text-sm mb-10 max-w-md mx-auto"
-                style={{ color: '#e0a458' }}>
-                Du hast "Sofort" gewahlt — buch direkt einen Termin, damit wir keine Zeit verlieren.
+                style={{ color: 'var(--theme-accent)' }}>
+                {t('audit.submitted.urgentNote')}
               </p>
             )}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button onClick={() => { window.location.hash = '/'; }}
                 className="h-12 px-8 text-base font-semibold rounded-lg"
-                style={{ background: '#e0a458', color: '#0B0C10' }}>
-                <ArrowLeft className="w-4 h-4 mr-2" />Zur Startseite
+                style={{ background: 'var(--theme-accent)', color: 'var(--text-on-accent)' }}>
+                <ArrowLeft className="w-4 h-4 mr-2" />{t('audit.submitted.backHome')}
               </Button>
               {contactLink && (
                 <Button variant="outline"
                   onClick={() => window.open(contactLink, '_blank')}
                   className="h-12 px-8 text-base font-semibold rounded-lg"
-                  style={{ borderColor: 'rgba(224, 164, 88,0.4)', color: '#e0a458', background: 'transparent' }}>
-                  <Calendar className="w-4 h-4 mr-2" />Termin buchen
+                  style={{ borderColor: 'var(--theme-border-accent)', color: 'var(--theme-accent)', background: 'transparent' }}>
+                  <Calendar className="w-4 h-4 mr-2" />{t('audit.submitted.bookSlot')}
                 </Button>
               )}
             </div>
@@ -1210,17 +1145,17 @@ function AuditForm() {
   /* ================================================================= */
 
   return (
-    <div className="min-h-screen" style={{ background: '#0B0C10' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
 
       {/* Progress Header */}
       <div className="sticky top-0 z-30"
-        style={{ background: 'rgba(11,12,16,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        style={{ background: 'var(--bg-overlay)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--theme-border)' }}>
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium" style={{ color: '#A1A1AA' }}>
-              Schritt {step + 1} von {TOTAL_STEPS}
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+              {t('audit.wizard.stepOf', { current: step + 1, total: TOTAL_STEPS })}
             </span>
-            <span className="text-sm font-semibold" style={{ color: '#e0a458', fontFamily: "'Space Grotesk', sans-serif" }}>
+            <span className="text-sm font-semibold text-right" style={{ color: 'var(--theme-accent)', fontFamily: "'Space Grotesk', sans-serif" }}>
               {STEP_LABELS[step]}
             </span>
           </div>
@@ -1233,9 +1168,9 @@ function AuditForm() {
                 className="cursor-pointer disabled:cursor-default">
                 <div className="w-2.5 h-2.5 rounded-full transition-all duration-300"
                   style={{
-                    background: i <= step ? '#e0a458' : '#52525B',
+                    background: i <= step ? 'var(--theme-accent)' : 'var(--text-muted)',
                     transform: i === step ? 'scale(1.4)' : 'scale(1)',
-                    boxShadow: i === step ? '0 0 10px rgba(224,164,88,0.4)' : 'none',
+                    boxShadow: i === step ? '0 0 10px var(--theme-border-accent)' : 'none',
                   }} />
               </button>
             ))}
@@ -1251,18 +1186,18 @@ function AuditForm() {
           <motion.div
             initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
             className="mb-6 rounded-xl border p-4 flex items-start justify-between gap-4"
-            style={{ background: 'rgba(224,164,88,0.08)', borderColor: 'rgba(224,164,88,0.35)' }}>
+            style={{ background: 'var(--theme-accent-soft)', borderColor: 'var(--theme-border-accent)' }}>
             <div className="flex-1">
-              <div className="text-[11px] uppercase tracking-[0.16em] font-medium mb-1" style={{ color: '#e0a458' }}>
-                Daten aus AI-Beratung ubernommen
+              <div className="text-[11px] uppercase tracking-[0.16em] font-medium mb-1" style={{ color: 'var(--theme-accent)' }}>
+                {t('audit.helpbotBanner.label')}
               </div>
-              <div className="text-sm leading-relaxed" style={{ color: '#E4E4E7' }}>
-                Wir haben dich aus dem Chat erkannt und verknupfen den Audit mit deiner Beratung.
+              <div className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                {t('audit.helpbotBanner.text')}
               </div>
             </div>
             <button type="button" onClick={() => setShowHelpbotBanner(false)}
-              aria-label="Hinweis schliessen"
-              className="p-1 rounded text-[#a4a4ad] hover:text-[#F9FAFB] hover:bg-white/5 transition-colors">
+              aria-label={t('audit.helpbotBanner.closeAria')}
+              className="p-1 rounded text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-colors">
               <X className="w-4 h-4" strokeWidth={2} />
             </button>
           </motion.div>
@@ -1278,27 +1213,27 @@ function AuditForm() {
             exit="exit"
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}>
             <Card className="border-0 shadow-2xl"
-              style={{ background: '#15161A', border: '1px solid rgba(255,255,255,0.06)' }}>
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--theme-border)' }}>
               <CardContent className="p-6 sm:p-10">
 
                 {/* Step badge + title */}
                 <div className="mb-8">
                   <Badge variant="outline" className="mb-3 text-xs"
-                    style={{ borderColor: 'rgba(224,164,88,0.3)', color: '#e0a458', background: 'rgba(224,164,88,0.08)' }}>
-                    Schritt {step + 1}
+                    style={{ borderColor: 'var(--theme-border-accent)', color: 'var(--theme-accent)', background: 'var(--theme-accent-soft)' }}>
+                    {t('audit.wizard.stepBadge', { n: step + 1 })}
                   </Badge>
                   <h2 className="text-2xl sm:text-3xl font-bold"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F9FAFB' }}>
+                    style={{ fontFamily: "'Space Grotesk', sans-serif", color: 'var(--text-primary)' }}>
                     {STEP_LABELS[step]}
                   </h2>
                   {step === 0 && (
-                    <p className="mt-2 text-sm" style={{ color: '#A1A1AA' }}>
-                      Damit wir die richtigen Fragen stellen — was beschreibt dich am besten?
+                    <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                      {t('audit.wizard.segmentHint')}
                     </p>
                   )}
                 </div>
 
-                <Separator className="mb-8" style={{ background: 'rgba(255,255,255,0.06)' }} />
+                <Separator className="mb-8" style={{ background: 'var(--theme-border)' }} aria-hidden />
 
                 {/* ====== STEP 1: SEGMENT ====== */}
                 {step === 0 && (
@@ -1364,15 +1299,15 @@ function AuditForm() {
         <div className="mt-8 flex items-center justify-between">
           <Button type="button" variant="outline" onClick={goBack} disabled={step === 0}
             className="h-12 px-6 rounded-lg font-medium disabled:opacity-30"
-            style={{ borderColor: 'rgba(255,255,255,0.1)', color: '#F9FAFB', background: 'rgba(255,255,255,0.04)' }}>
-            <ChevronLeft className="w-4 h-4 mr-2" />Zuruck
+            style={{ borderColor: 'var(--theme-border-strong)', color: 'var(--text-primary)', background: 'var(--bg-elevated)' }}>
+            <ChevronLeft className="w-4 h-4 mr-2" />{t('audit.wizard.back')}
           </Button>
 
           {step < TOTAL_STEPS - 1 ? (
             <Button type="button" onClick={goNext} disabled={!canAdvance()}
               className="h-12 px-8 rounded-lg font-semibold disabled:opacity-40"
-              style={{ background: '#e0a458', color: '#0B0C10' }}>
-              Weiter<ChevronRight className="w-4 h-4 ml-2" />
+              style={{ background: 'var(--theme-accent)', color: 'var(--text-on-accent)' }}>
+              {t('audit.wizard.next')}<ChevronRight className="w-4 h-4 ml-2" />
             </Button>
           ) : (
             <Button type="button" onClick={onSubmit}
@@ -1380,18 +1315,18 @@ function AuditForm() {
               className="h-12 px-8 rounded-lg font-semibold disabled:opacity-50"
               style={{ background: '#10B981', color: '#FFFFFF' }}>
               {isSubmitting ? (
-                <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />Wird gesendet...</>
+                <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />{t('audit.wizard.submitting')}</>
               ) : (
-                <><Check className="w-4 h-4 mr-2" />Audit absenden</>
+                <><Check className="w-4 h-4 mr-2" />{t('audit.wizard.submit')}</>
               )}
             </Button>
           )}
         </div>
 
         <div className="mt-6 text-center">
-          <p className="text-xs" style={{ color: '#52525B' }}>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
             <Shield className="w-3 h-3 inline mr-1" />
-            Deine Daten sind verschlusselt und werden gemaess DSGVO verarbeitet.
+            {t('audit.wizard.securityNote')}
           </p>
         </div>
       </div>
@@ -1405,28 +1340,20 @@ function AuditForm() {
 
 /* ---- Segment Picker ---- */
 
-const SEGMENT_OPTIONS = [
-  {
-    id: 'AG' as const,
-    icon: <Users className="w-7 h-7" />,
-    title: 'Agentur / Freelancer-Team',
-    desc: 'Du betreust Kunden, erstellst Inhalte oder deliverst Projekte — als Team oder Solo.',
-  },
-  {
-    id: 'PB' as const,
-    icon: <Star className="w-7 h-7" />,
-    title: 'Personal Brand / Creator / Coach',
-    desc: 'Deine Marke bist du. Du baust eine Audience, monetarisierst Wissen oder launchst Kurse.',
-  },
-  {
-    id: 'FI' as const,
-    icon: <Building2 className="w-7 h-7" />,
-    title: 'Unternehmen / Mittelstand',
-    desc: 'Klassisches Unternehmen mit Team, internen Prozessen und B2B- oder B2C-Struktur.',
-  },
+const SEGMENT_META = [
+  { id: 'AG' as const, icon: <Users className="w-7 h-7" /> },
+  { id: 'PB' as const, icon: <Star className="w-7 h-7" /> },
+  { id: 'FI' as const, icon: <Building2 className="w-7 h-7" /> },
 ];
 
 function StepSegment({ value, onChange }: { value: Segment; onChange: (s: Segment) => void }) {
+  const { t } = useTranslation();
+  const SEGMENT_OPTIONS = SEGMENT_META.map((m) => ({
+    id: m.id,
+    icon: m.icon,
+    title: t(`audit.segments.${m.id}.title`),
+    desc: t(`audit.segments.${m.id}.desc`),
+  }));
   return (
     <div className="space-y-4">
       {SEGMENT_OPTIONS.map((opt, i) => (
@@ -1442,30 +1369,30 @@ function StepSegment({ value, onChange }: { value: Segment; onChange: (s: Segmen
             onClick={() => onChange(opt.id)}
             className="w-full text-left rounded-xl p-5 transition-all duration-200 focus:outline-none"
             style={{
-              background: value === opt.id ? 'rgba(224,164,88,0.1)' : 'rgba(255,255,255,0.02)',
-              border: `1.5px solid ${value === opt.id ? 'rgba(224,164,88,0.6)' : 'rgba(255,255,255,0.08)'}`,
-              boxShadow: value === opt.id ? '0 0 18px rgba(224,164,88,0.12)' : 'none',
+              background: value === opt.id ? 'var(--theme-accent-soft)' : 'var(--bg-elevated)',
+              border: `1.5px solid ${value === opt.id ? 'var(--theme-accent)' : 'var(--theme-border)'}`,
+              boxShadow: value === opt.id ? '0 0 18px var(--theme-accent-soft)' : 'none',
             }}
           >
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 mt-0.5" style={{ color: value === opt.id ? '#e0a458' : '#52525B' }}>
+              <div className="flex-shrink-0 mt-0.5" style={{ color: value === opt.id ? 'var(--theme-accent)' : 'var(--text-muted)' }}>
                 {opt.icon}
               </div>
               <div className="flex-1">
                 <div className="font-semibold text-base mb-1"
-                  style={{ color: value === opt.id ? '#F9FAFB' : '#A1A1AA', fontFamily: "'Space Grotesk', sans-serif" }}>
+                  style={{ color: value === opt.id ? 'var(--text-primary)' : 'var(--text-secondary)', fontFamily: "'Space Grotesk', sans-serif" }}>
                   {opt.title}
                 </div>
-                <div className="text-sm leading-relaxed" style={{ color: '#71717A' }}>
+                <div className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                   {opt.desc}
                 </div>
               </div>
               <div className="flex-shrink-0 w-5 h-5 rounded-full border-2 mt-1 flex items-center justify-center"
                 style={{
-                  borderColor: value === opt.id ? '#e0a458' : '#52525B',
-                  background: value === opt.id ? '#e0a458' : 'transparent',
+                  borderColor: value === opt.id ? 'var(--theme-accent)' : 'var(--text-muted)',
+                  background: value === opt.id ? 'var(--theme-accent)' : 'transparent',
                 }}>
-                {value === opt.id && <Check className="w-3 h-3" style={{ color: '#0B0C10' }} />}
+                {value === opt.id && <Check className="w-3 h-3" style={{ color: 'var(--text-on-accent)' }} />}
               </div>
             </div>
           </button>
@@ -1478,25 +1405,23 @@ function StepSegment({ value, onChange }: { value: Segment; onChange: (s: Segmen
 /* ---- AG Questions ---- */
 
 function StepAG({ data, onChange }: { data: AGData; onChange: (f: keyof AGData, v: string) => void }) {
+  const { t } = useTranslation();
+  const { AG_ZEITFRESSER_OPTIONS, MONTHLY_REVENUE_OPTIONS } = useAuditOptions();
+  const kundenOptions = t('audit.steps.ag.kundenOptions', { returnObjects: true }) as Opt[];
   return (
     <div className="space-y-6">
       <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>Wie viele Kunden betreust du aktuell?</FieldLabel>
+        <FieldLabel required>{t('audit.steps.ag.kundenanzahl')}</FieldLabel>
         <SelectInput
           value={data.kundenanzahl}
           onChange={v => onChange('kundenanzahl', v)}
-          placeholder="Anzahl wahlen"
-          options={[
-            { value: '1-3', label: '1 – 3 Kunden' },
-            { value: '4-10', label: '4 – 10 Kunden' },
-            { value: '11-25', label: '11 – 25 Kunden' },
-            { value: '25+', label: '25+ Kunden' },
-          ]}
+          placeholder={t('audit.steps.ag.kundenanzahlPlaceholder')}
+          options={kundenOptions}
         />
       </motion.div>
 
       <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>Was kostet dich am meisten Zeit?</FieldLabel>
+        <FieldLabel required>{t('audit.steps.ag.zeitfresser')}</FieldLabel>
         <CardOptions
           value={data.zeitfresser}
           onChange={v => onChange('zeitfresser', v)}
@@ -1505,7 +1430,7 @@ function StepAG({ data, onChange }: { data: AGData; onChange: (f: keyof AGData, 
       </motion.div>
 
       <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>Monatlicher Umsatz</FieldLabel>
+        <FieldLabel required>{t('audit.steps.ag.umsatz')}</FieldLabel>
         <CardOptions
           value={data.monthly_revenue}
           onChange={v => onChange('monthly_revenue', v)}
@@ -1519,10 +1444,12 @@ function StepAG({ data, onChange }: { data: AGData; onChange: (f: keyof AGData, 
 /* ---- PB Questions ---- */
 
 function StepPB({ data, onChange }: { data: PBData; onChange: (f: keyof PBData, v: string) => void }) {
+  const { t } = useTranslation();
+  const { PB_KANAL_OPTIONS, PB_SKALIERUNG_OPTIONS, MONTHLY_REVENUE_OPTIONS } = useAuditOptions();
   return (
     <div className="space-y-6">
       <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>Dein Hauptkanal?</FieldLabel>
+        <FieldLabel required>{t('audit.steps.pb.hauptkanal')}</FieldLabel>
         <CardOptions
           value={data.hauptkanal}
           onChange={v => onChange('hauptkanal', v)}
@@ -1531,7 +1458,7 @@ function StepPB({ data, onChange }: { data: PBData; onChange: (f: keyof PBData, 
       </motion.div>
 
       <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>Was fallt dir schwer zu skalieren?</FieldLabel>
+        <FieldLabel required>{t('audit.steps.pb.skalierung')}</FieldLabel>
         <CardOptions
           value={data.skalierung}
           onChange={v => onChange('skalierung', v)}
@@ -1540,7 +1467,7 @@ function StepPB({ data, onChange }: { data: PBData; onChange: (f: keyof PBData, 
       </motion.div>
 
       <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>Monatlicher Umsatz</FieldLabel>
+        <FieldLabel required>{t('audit.steps.pb.umsatz')}</FieldLabel>
         <CardOptions
           value={data.monthly_revenue}
           onChange={v => onChange('monthly_revenue', v)}
@@ -1554,20 +1481,22 @@ function StepPB({ data, onChange }: { data: PBData; onChange: (f: keyof PBData, 
 /* ---- FI Questions ---- */
 
 function StepFI({ data, onChange }: { data: FIData; onChange: (f: keyof FIData, v: string) => void }) {
+  const { t } = useTranslation();
+  const { FI_BRANCHE_OPTIONS, FI_MITARBEITER_OPTIONS, FI_PAIN_OPTIONS } = useAuditOptions();
   return (
     <div className="space-y-6">
       <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>Branche</FieldLabel>
+        <FieldLabel required>{t('audit.steps.fi.branche')}</FieldLabel>
         <SelectInput
           value={data.branche}
           onChange={v => onChange('branche', v)}
-          placeholder="Branche wahlen"
+          placeholder={t('audit.steps.fi.branchePlaceholder')}
           options={FI_BRANCHE_OPTIONS}
         />
       </motion.div>
 
       <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>Mitarbeiterzahl</FieldLabel>
+        <FieldLabel required>{t('audit.steps.fi.mitarbeiter')}</FieldLabel>
         <CardOptions
           value={data.mitarbeiterzahl}
           onChange={v => onChange('mitarbeiterzahl', v)}
@@ -1576,7 +1505,7 @@ function StepFI({ data, onChange }: { data: FIData; onChange: (f: keyof FIData, 
       </motion.div>
 
       <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>Groesster Pain?</FieldLabel>
+        <FieldLabel required>{t('audit.steps.fi.pain')}</FieldLabel>
         <CardOptions
           value={data.pain}
           onChange={v => onChange('pain', v)}
@@ -1590,53 +1519,55 @@ function StepFI({ data, onChange }: { data: FIData; onChange: (f: keyof FIData, 
 /* ---- Budget Step ---- */
 
 function StepBudget({ data, onChange }: { data: BudgetData; onChange: (f: keyof BudgetData, v: string) => void }) {
+  const { t } = useTranslation();
+  const { BUDGET_SETUP_OPTIONS, BUDGET_RETAINER_OPTIONS } = useAuditOptions();
   return (
     <div className="space-y-8">
       <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>Setup-Budget (einmalig)</FieldLabel>
-        <p className="text-xs mb-4" style={{ color: '#71717A' }}>
-          Wie viel kannst du einmalig in den Aufbau investieren? Hilft uns, das passende Paket vorzuschlagen.
+        <FieldLabel required>{t('audit.steps.budget.setupLabel')}</FieldLabel>
+        <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+          {t('audit.steps.budget.setupHint')}
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
           {BUDGET_SETUP_OPTIONS.map(opt => (
             <button
               key={opt.value}
               type="button"
               onClick={() => onChange('setup', opt.value)}
-              className="rounded-lg px-4 py-4 text-sm text-left transition-all duration-150"
+              className="flex h-full flex-col rounded-lg px-4 py-4 text-sm text-left transition-all duration-150"
               style={{
-                background: data.setup === opt.value ? 'rgba(224,164,88,0.12)' : 'rgba(255,255,255,0.03)',
-                border: `1.5px solid ${data.setup === opt.value ? 'rgba(224,164,88,0.6)' : 'rgba(255,255,255,0.08)'}`,
+                background: data.setup === opt.value ? 'var(--theme-accent-soft)' : 'var(--bg-elevated)',
+                border: `1.5px solid ${data.setup === opt.value ? 'var(--theme-accent)' : 'var(--theme-border)'}`,
               }}>
-              <div className="font-semibold mb-1" style={{ color: data.setup === opt.value ? '#F9FAFB' : '#A1A1AA' }}>
+              <div className="font-semibold mb-1" style={{ color: data.setup === opt.value ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                 {opt.label}
               </div>
-              <div className="text-xs" style={{ color: '#71717A' }}>{opt.desc}</div>
+              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{opt.desc}</div>
             </button>
           ))}
         </div>
       </motion.div>
 
       <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>Monatlicher Retainer (laufende Betreuung)</FieldLabel>
-        <p className="text-xs mb-4" style={{ color: '#71717A' }}>
-          Wie viel ist dir laufende Optimierung + Support pro Monat wert?
+        <FieldLabel required>{t('audit.steps.budget.retainerLabel')}</FieldLabel>
+        <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+          {t('audit.steps.budget.retainerHint')}
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
           {BUDGET_RETAINER_OPTIONS.map(opt => (
             <button
               key={opt.value}
               type="button"
               onClick={() => onChange('retainer', opt.value)}
-              className="rounded-lg px-4 py-4 text-sm text-left transition-all duration-150"
+              className="flex h-full flex-col rounded-lg px-4 py-4 text-sm text-left transition-all duration-150"
               style={{
-                background: data.retainer === opt.value ? 'rgba(224,164,88,0.12)' : 'rgba(255,255,255,0.03)',
-                border: `1.5px solid ${data.retainer === opt.value ? 'rgba(224,164,88,0.6)' : 'rgba(255,255,255,0.08)'}`,
+                background: data.retainer === opt.value ? 'var(--theme-accent-soft)' : 'var(--bg-elevated)',
+                border: `1.5px solid ${data.retainer === opt.value ? 'var(--theme-accent)' : 'var(--theme-border)'}`,
               }}>
-              <div className="font-semibold mb-1" style={{ color: data.retainer === opt.value ? '#F9FAFB' : '#A1A1AA' }}>
+              <div className="font-semibold mb-1" style={{ color: data.retainer === opt.value ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                 {opt.label}
               </div>
-              <div className="text-xs" style={{ color: '#71717A' }}>{opt.desc}</div>
+              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{opt.desc}</div>
             </button>
           ))}
         </div>
@@ -1644,10 +1575,9 @@ function StepBudget({ data, onChange }: { data: BudgetData; onChange: (f: keyof 
 
       <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
         <div className="rounded-lg p-4" style={{ background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.15)' }}>
-          <p className="text-xs" style={{ color: '#A1A1AA', lineHeight: 1.6 }}>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
             <Shield className="w-3.5 h-3.5 inline mr-1.5" style={{ color: '#10B981' }} />
-            Kein Cash für Setup, aber Wachstums-Case? Wir haben <span style={{ color: '#e0a458' }}>Cashflow- und Revenue-Share-Modelle</span>.
-            Im Auto-Plan-PDF werden dir passende Alternativen automatisch vorgeschlagen.
+            {t('audit.steps.budget.noteText')} <span style={{ color: 'var(--theme-accent)' }}>{t('audit.steps.budget.noteHighlight')}</span>{t('audit.steps.budget.noteSuffix')}
           </p>
         </div>
       </motion.div>
@@ -1673,39 +1603,41 @@ interface StepContactProps {
 }
 
 function StepContact({ data, onChange, files, fileError, dragOver, fileInputRef, onDragOver, onDragLeave, onDrop, onFileInputChange, onRemoveFile, onOpenFilePicker }: StepContactProps) {
+  const { t } = useTranslation();
+  const { URGENCY_OPTIONS } = useAuditOptions();
   return (
     <div className="space-y-6">
       <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>Name</FieldLabel>
+        <FieldLabel required>{t('audit.steps.contact.name')}</FieldLabel>
         <TextInput
           value={data.name}
           onChange={v => onChange('name', v)}
-          placeholder="Max Mustermann"
+          placeholder={t('audit.steps.contact.namePlaceholder')}
         />
       </motion.div>
 
       <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>E-Mail</FieldLabel>
+        <FieldLabel required>{t('audit.steps.contact.email')}</FieldLabel>
         <TextInput
           type="email"
           value={data.email}
           onChange={v => onChange('email', v)}
-          placeholder="max@beispiel.de"
+          placeholder={t('audit.steps.contact.emailPlaceholder')}
         />
       </motion.div>
 
       <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel optional>Telefon</FieldLabel>
+        <FieldLabel optional>{t('audit.steps.contact.phone')}</FieldLabel>
         <TextInput
           type="tel"
           value={data.phone}
           onChange={v => onChange('phone', v)}
-          placeholder="+49 123 456789"
+          placeholder={t('audit.steps.contact.phonePlaceholder')}
         />
       </motion.div>
 
       <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible">
-        <FieldLabel required>Wie dringend ist es fur dich?</FieldLabel>
+        <FieldLabel required>{t('audit.steps.contact.urgency')}</FieldLabel>
         <div className="space-y-3">
           {URGENCY_OPTIONS.map(opt => (
             <button
@@ -1714,9 +1646,9 @@ function StepContact({ data, onChange, files, fileError, dragOver, fileInputRef,
               onClick={() => onChange('urgency', opt.value)}
               className="w-full text-left rounded-lg px-4 py-3 text-sm transition-all duration-150"
               style={{
-                background: data.urgency === opt.value ? 'rgba(224,164,88,0.1)' : 'rgba(255,255,255,0.02)',
-                border: `1.5px solid ${data.urgency === opt.value ? 'rgba(224,164,88,0.6)' : 'rgba(255,255,255,0.08)'}`,
-                color: data.urgency === opt.value ? '#F9FAFB' : '#A1A1AA',
+                background: data.urgency === opt.value ? 'var(--theme-accent-soft)' : 'var(--bg-elevated)',
+                border: `1.5px solid ${data.urgency === opt.value ? 'var(--theme-accent)' : 'var(--theme-border)'}`,
+                color: data.urgency === opt.value ? 'var(--text-primary)' : 'var(--text-secondary)',
               }}>
               {opt.label}
             </button>
@@ -1726,27 +1658,27 @@ function StepContact({ data, onChange, files, fileError, dragOver, fileInputRef,
 
       {/* File upload */}
       <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible">
-        <Label className="text-sm font-medium mb-3 block" style={{ color: '#F9FAFB' }}>
-          <FileText className="w-4 h-4 inline mr-2" style={{ color: '#e0a458' }} />
-          Dateien anhaengen <span className="text-xs" style={{ color: '#52525B' }}>(optional)</span>
+        <Label className="text-sm font-medium mb-3 block" style={{ color: 'var(--text-primary)' }}>
+          <FileText className="w-4 h-4 inline mr-2" style={{ color: 'var(--theme-accent)' }} />
+          {t('audit.steps.contact.filesLabel')} <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('audit.steps.contact.filesOptional')}</span>
         </Label>
         <div
           role="button" tabIndex={0}
-          aria-label="Dateien auswaehlen oder per Drag and Drop hochladen"
+          aria-label={t('audit.steps.contact.filesDropAria')}
           onClick={onOpenFilePicker}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenFilePicker(); } }}
           onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}
           className="rounded-lg border-2 border-dashed p-8 text-center transition-all cursor-pointer focus:outline-none"
           style={{
-            background: dragOver ? 'rgba(224,164,88,0.06)' : 'rgba(255,255,255,0.02)',
-            borderColor: dragOver ? 'rgba(224,164,88,0.4)' : 'rgba(255,255,255,0.1)',
+            background: dragOver ? 'var(--theme-accent-soft)' : 'var(--bg-elevated)',
+            borderColor: dragOver ? 'var(--theme-border-accent)' : 'var(--theme-border-strong)',
           }}>
-          <Upload className="w-8 h-8 mx-auto mb-3" style={{ color: dragOver ? '#e0a458' : '#52525B' }} />
-          <p className="text-sm font-medium" style={{ color: '#A1A1AA' }}>
-            {dragOver ? 'Dateien hier ablegen' : 'Klicken oder per Drag & Drop'}
+          <Upload className="w-8 h-8 mx-auto mb-3" style={{ color: dragOver ? 'var(--theme-accent)' : 'var(--text-muted)' }} />
+          <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+            {dragOver ? t('audit.steps.contact.filesDrop') : t('audit.steps.contact.filesClick')}
           </p>
-          <p className="text-xs mt-1" style={{ color: '#52525B' }}>
-            PDF, DOCX, XLSX, CSV, PNG, JPG — max. 5 Dateien a 10 MB
+          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+            {t('audit.steps.contact.filesHint')}
           </p>
         </div>
 
@@ -1758,27 +1690,27 @@ function StepContact({ data, onChange, files, fileError, dragOver, fileInputRef,
         />
 
         {fileError && (
-          <p className="text-xs mt-2 flex items-center gap-1.5" style={{ color: '#e0a458' }}>
+          <p className="text-xs mt-2 flex items-center gap-1.5" style={{ color: 'var(--theme-accent)' }}>
             <AlertCircle className="w-3.5 h-3.5" />{fileError}
           </p>
         )}
 
         {files.length > 0 && (
-          <ul className="mt-4 space-y-2" aria-label="Hochgeladene Dateien">
+          <ul className="mt-4 space-y-2" aria-label={t('audit.steps.contact.filesUploadedAria')}>
             {files.map((f, idx) => (
               <li key={`${f.name}-${f.size}-${idx}`}
                 className="flex items-center justify-between gap-3 rounded-lg p-3"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                style={{ background: 'var(--bg-elevated)', border: '1px solid var(--theme-border)' }}>
                 <div className="flex items-center gap-3 min-w-0">
-                  <FileText className="w-4 h-4 flex-shrink-0" style={{ color: '#e0a458' }} />
+                  <FileText className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--theme-accent)' }} />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium truncate" style={{ color: '#F9FAFB' }} title={f.name}>{f.name}</p>
-                    <p className="text-xs" style={{ color: '#52525B' }}>{formatBytes(f.size)}</p>
+                    <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }} title={f.name}>{f.name}</p>
+                    <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{formatBytes(f.size)}</p>
                   </div>
                 </div>
                 <button type="button" onClick={() => onRemoveFile(idx)}
-                  aria-label={`Datei ${f.name} entfernen`}
-                  className="flex-shrink-0 p-1.5 rounded-md transition-colors" style={{ color: '#A1A1AA' }}>
+                  aria-label={t('audit.steps.contact.removeFileAria', { name: f.name })}
+                  className="flex-shrink-0 p-1.5 rounded-md transition-colors" style={{ color: 'var(--text-secondary)' }}>
                   <X className="w-4 h-4" />
                 </button>
               </li>
@@ -1798,26 +1730,33 @@ function StepReview({ formState, consent, onConsentChange, submitError }: {
   onConsentChange: (v: boolean) => void;
   submitError: string | null;
 }) {
+  const { t } = useTranslation();
+  const {
+    MONTHLY_REVENUE_OPTIONS, AG_ZEITFRESSER_OPTIONS, PB_KANAL_OPTIONS,
+    PB_SKALIERUNG_OPTIONS, FI_BRANCHE_OPTIONS, FI_MITARBEITER_OPTIONS,
+    FI_PAIN_OPTIONS, URGENCY_OPTIONS, BUDGET_SETUP_OPTIONS, BUDGET_RETAINER_OPTIONS,
+  } = useAuditOptions();
+
   const segmentLabel =
-    formState.segment === 'AG' ? 'Agentur / Freelancer-Team' :
-    formState.segment === 'PB' ? 'Personal Brand / Creator / Coach' :
-    formState.segment === 'FI' ? 'Unternehmen / Mittelstand' : '—';
+    formState.segment === 'AG' ? t('audit.segments.AG.title') :
+    formState.segment === 'PB' ? t('audit.segments.PB.title') :
+    formState.segment === 'FI' ? t('audit.segments.FI.title') : '—';
 
   const segmentRows: { label: string; value: string }[] =
     formState.segment === 'AG' ? [
-      { label: 'Kunden aktuell', value: formState.ag.kundenanzahl },
-      { label: 'Groesster Zeitfresser', value: AG_ZEITFRESSER_OPTIONS.find(o => o.value === formState.ag.zeitfresser)?.label || formState.ag.zeitfresser },
-      { label: 'Monatlicher Umsatz', value: MONTHLY_REVENUE_OPTIONS.find(o => o.value === formState.ag.monthly_revenue)?.label || formState.ag.monthly_revenue },
+      { label: t('audit.steps.review.agKunden'), value: formState.ag.kundenanzahl },
+      { label: t('audit.steps.review.agZeitfresser'), value: AG_ZEITFRESSER_OPTIONS.find(o => o.value === formState.ag.zeitfresser)?.label || formState.ag.zeitfresser },
+      { label: t('audit.steps.review.umsatz'), value: MONTHLY_REVENUE_OPTIONS.find(o => o.value === formState.ag.monthly_revenue)?.label || formState.ag.monthly_revenue },
     ] :
     formState.segment === 'PB' ? [
-      { label: 'Hauptkanal', value: PB_KANAL_OPTIONS.find(o => o.value === formState.pb.hauptkanal)?.label || formState.pb.hauptkanal },
-      { label: 'Skalierungs-Challenge', value: PB_SKALIERUNG_OPTIONS.find(o => o.value === formState.pb.skalierung)?.label || formState.pb.skalierung },
-      { label: 'Monatlicher Umsatz', value: MONTHLY_REVENUE_OPTIONS.find(o => o.value === formState.pb.monthly_revenue)?.label || formState.pb.monthly_revenue },
+      { label: t('audit.steps.review.pbHauptkanal'), value: PB_KANAL_OPTIONS.find(o => o.value === formState.pb.hauptkanal)?.label || formState.pb.hauptkanal },
+      { label: t('audit.steps.review.pbSkalierung'), value: PB_SKALIERUNG_OPTIONS.find(o => o.value === formState.pb.skalierung)?.label || formState.pb.skalierung },
+      { label: t('audit.steps.review.umsatz'), value: MONTHLY_REVENUE_OPTIONS.find(o => o.value === formState.pb.monthly_revenue)?.label || formState.pb.monthly_revenue },
     ] :
     formState.segment === 'FI' ? [
-      { label: 'Branche', value: FI_BRANCHE_OPTIONS.find(o => o.value === formState.fi.branche)?.label || formState.fi.branche },
-      { label: 'Mitarbeiterzahl', value: FI_MITARBEITER_OPTIONS.find(o => o.value === formState.fi.mitarbeiterzahl)?.label || formState.fi.mitarbeiterzahl },
-      { label: 'Groesster Pain', value: FI_PAIN_OPTIONS.find(o => o.value === formState.fi.pain)?.label || formState.fi.pain },
+      { label: t('audit.steps.review.fiBranche'), value: FI_BRANCHE_OPTIONS.find(o => o.value === formState.fi.branche)?.label || formState.fi.branche },
+      { label: t('audit.steps.review.fiMitarbeiter'), value: FI_MITARBEITER_OPTIONS.find(o => o.value === formState.fi.mitarbeiterzahl)?.label || formState.fi.mitarbeiterzahl },
+      { label: t('audit.steps.review.fiPain'), value: FI_PAIN_OPTIONS.find(o => o.value === formState.fi.pain)?.label || formState.fi.pain },
     ] : [];
 
   const urgencyLabel = URGENCY_OPTIONS.find(o => o.value === formState.contact.urgency)?.label || formState.contact.urgency;
@@ -1828,34 +1767,34 @@ function StepReview({ formState, consent, onConsentChange, submitError }: {
     <div className="space-y-6">
       <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
         <h3 className="text-base font-semibold mb-4 flex items-center gap-2"
-          style={{ color: '#e0a458', fontFamily: "'Space Grotesk', sans-serif" }}>
-          <Briefcase className="w-4 h-4" />Dein Profil
+          style={{ color: 'var(--theme-accent)', fontFamily: "'Space Grotesk', sans-serif" }}>
+          <Briefcase className="w-4 h-4" />{t('audit.steps.review.heading')}
         </h3>
 
         {/* Segment block */}
-        <ReviewBlock title="Typ">
-          <ReviewRow label="Kategorie" value={segmentLabel} />
+        <ReviewBlock title={t('audit.steps.review.blockTyp')}>
+          <ReviewRow label={t('audit.steps.review.category')} value={segmentLabel} />
           {segmentRows.map(r => (
             <ReviewRow key={r.label} label={r.label} value={r.value} />
           ))}
         </ReviewBlock>
 
         {/* Budget block */}
-        <ReviewBlock title="Investment">
-          <ReviewRow label="Setup-Budget" value={setupBudgetLabel} />
-          <ReviewRow label="Retainer / Mo" value={retainerBudgetLabel} />
+        <ReviewBlock title={t('audit.steps.review.blockInvestment')}>
+          <ReviewRow label={t('audit.steps.review.setupBudget')} value={setupBudgetLabel} />
+          <ReviewRow label={t('audit.steps.review.retainerMo')} value={retainerBudgetLabel} />
         </ReviewBlock>
 
         {/* Contact block */}
-        <ReviewBlock title="Kontakt">
-          <ReviewRow label="Name" value={formState.contact.name} />
-          <ReviewRow label="E-Mail" value={formState.contact.email} />
-          {formState.contact.phone && <ReviewRow label="Telefon" value={formState.contact.phone} />}
-          <ReviewRow label="Dringlichkeit" value={urgencyLabel} />
+        <ReviewBlock title={t('audit.steps.review.blockKontakt')}>
+          <ReviewRow label={t('audit.steps.review.name')} value={formState.contact.name} />
+          <ReviewRow label={t('audit.steps.review.email')} value={formState.contact.email} />
+          {formState.contact.phone && <ReviewRow label={t('audit.steps.review.phone')} value={formState.contact.phone} />}
+          <ReviewRow label={t('audit.steps.review.urgency')} value={urgencyLabel} />
         </ReviewBlock>
       </motion.div>
 
-      <Separator style={{ background: 'rgba(255,255,255,0.06)' }} />
+      <Separator style={{ background: 'var(--theme-border)' }} />
 
       {/* DSGVO */}
       <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
@@ -1867,18 +1806,17 @@ function StepReview({ formState, consent, onConsentChange, submitError }: {
             onCheckedChange={v => onConsentChange(v === true)}
           />
           <div className="space-y-1 leading-none">
-            <Label htmlFor="consent_dsgvo" style={{ color: '#F9FAFB' }}>
+            <Label htmlFor="consent_dsgvo" style={{ color: 'var(--text-primary)' }}>
               <Shield className="w-4 h-4 inline mr-1" style={{ color: '#10B981' }} />
-              DSGVO-Einwilligung <span style={{ color: '#EF4444' }}>*</span>
+              {t('audit.steps.review.consentLabel')} <span style={{ color: '#EF4444' }}>*</span>
             </Label>
-            <p className="text-xs" style={{ color: '#A1A1AA' }}>
-              Ich willige ein, dass meine angegebenen Daten durch AEVUM zur Bearbeitung
-              meiner Anfrage und Erstellung der Audit-Auswertung verarbeitet werden. Gemass{' '}
+            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+              {t('audit.steps.review.consentTextBefore')}{' '}
               <a href="#/datenschutz" target="_blank" rel="noopener noreferrer"
-                style={{ color: '#e0a458', textDecoration: 'underline' }}>
-                Datenschutzerklarung
+                style={{ color: 'var(--theme-accent)', textDecoration: 'underline' }}>
+                {t('audit.steps.review.consentLink')}
               </a>
-              . Widerruf per E-Mail an info@aevum-system.de.
+              {t('audit.steps.review.consentTextAfter')}
             </p>
           </div>
         </div>
@@ -1902,10 +1840,10 @@ function FieldLabel({ children, required, optional }: {
   children: React.ReactNode; required?: boolean; optional?: boolean;
 }) {
   return (
-    <label className="block text-sm font-medium mb-2" style={{ color: '#F9FAFB' }}>
+    <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
       {children}
       {required && <span className="ml-1" style={{ color: '#EF4444' }}>*</span>}
-      {optional && <span className="ml-1 text-xs" style={{ color: '#52525B' }}>(optional)</span>}
+      {optional && <span className="ml-1 text-xs" style={{ color: 'var(--text-muted)' }}>(optional)</span>}
     </label>
   );
 }
@@ -1921,12 +1859,12 @@ function TextInput({ value, onChange, placeholder, type = 'text' }: {
       placeholder={placeholder}
       className="h-12 rounded-lg w-full px-4 text-sm focus:outline-none transition-colors"
       style={{
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.1)',
-        color: '#F9FAFB',
+        background: 'var(--bg-elevated)',
+        border: '1px solid var(--theme-border-strong)',
+        color: 'var(--text-primary)',
       }}
-      onFocus={e => { e.currentTarget.style.borderColor = 'rgba(224,164,88,0.5)'; }}
-      onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+      onFocus={e => { e.currentTarget.style.borderColor = 'var(--theme-accent)'; }}
+      onBlur={e => { e.currentTarget.style.borderColor = 'var(--theme-border)'; }}
     />
   );
 }
@@ -1943,14 +1881,14 @@ function SelectInput({ value, onChange, placeholder, options }: {
       onChange={e => onChange(e.target.value)}
       className="h-12 rounded-lg w-full px-4 text-sm focus:outline-none transition-colors appearance-none cursor-pointer"
       style={{
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.1)',
-        color: value ? '#F9FAFB' : '#52525B',
+        background: 'var(--bg-elevated)',
+        border: '1px solid var(--theme-border-strong)',
+        color: value ? 'var(--text-primary)' : 'var(--text-muted)',
       }}
     >
       {placeholder && <option value="" disabled>{placeholder}</option>}
       {options.map(opt => (
-        <option key={opt.value} value={opt.value} style={{ background: '#15161A', color: '#F9FAFB' }}>
+        <option key={opt.value} value={opt.value} style={{ background: 'var(--bg-surface)', color: 'var(--text-primary)' }}>
           {opt.label}
         </option>
       ))}
@@ -1972,9 +1910,9 @@ function CardOptions({ value, onChange, options }: {
           onClick={() => onChange(opt.value)}
           className="rounded-lg px-4 py-3 text-sm text-left transition-all duration-150 font-medium"
           style={{
-            background: value === opt.value ? 'rgba(224,164,88,0.12)' : 'rgba(255,255,255,0.03)',
-            border: `1.5px solid ${value === opt.value ? 'rgba(224,164,88,0.6)' : 'rgba(255,255,255,0.08)'}`,
-            color: value === opt.value ? '#F9FAFB' : '#A1A1AA',
+            background: value === opt.value ? 'var(--theme-accent-soft)' : 'var(--bg-elevated)',
+            border: `1.5px solid ${value === opt.value ? 'var(--theme-accent)' : 'var(--theme-border)'}`,
+            color: value === opt.value ? 'var(--text-primary)' : 'var(--text-secondary)',
           }}>
           {opt.label}
         </button>
@@ -1986,8 +1924,8 @@ function CardOptions({ value, onChange, options }: {
 function ReviewBlock({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-lg p-4 mb-4"
-      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-      <h4 className="text-xs uppercase tracking-[0.12em] font-semibold mb-3" style={{ color: '#e0a458' }}>
+      style={{ background: 'var(--bg-elevated)', border: '1px solid var(--theme-border)' }}>
+      <h4 className="text-xs uppercase tracking-[0.12em] font-semibold mb-3" style={{ color: 'var(--theme-accent)' }}>
         {title}
       </h4>
       <div className="space-y-2">{children}</div>
@@ -1999,8 +1937,8 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
   if (!value) return null;
   return (
     <div className="flex justify-between text-sm">
-      <span style={{ color: '#52525B' }}>{label}</span>
-      <span className="text-right max-w-[60%]" style={{ color: '#F9FAFB' }}>{value}</span>
+      <span style={{ color: 'var(--text-muted)' }}>{label}</span>
+      <span className="text-right max-w-[60%]" style={{ color: 'var(--text-primary)' }}>{value}</span>
     </div>
   );
 }

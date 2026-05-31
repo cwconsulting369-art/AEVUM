@@ -1,33 +1,36 @@
 import { MessageCircle, Flame } from 'lucide-react';
 import type { DashboardData } from './types';
 import { fmtPct } from './types';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 type Props = { insights: DashboardData['helpbot_insights'] };
 
-function relativeTime(iso: string): string {
+function relativeTime(iso: string, t: TFunction): string {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
-  if (m < 1) return 'gerade eben';
-  if (m < 60) return `vor ${m} min`;
+  if (m < 1) return t('dashComponents.helpbot.justNow');
+  if (m < 60) return t('dashComponents.helpbot.minAgo', { m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `vor ${h} h`;
+  if (h < 24) return t('dashComponents.helpbot.hAgo', { h });
   const d = Math.floor(h / 24);
-  return `vor ${d} d`;
+  return t('dashComponents.helpbot.dAgo', { d });
 }
 
 export default function HelpbotInsightsCard({ insights }: Props) {
+  const { t } = useTranslation();
   const noData = insights.recent.length === 0 && insights.top_pains.length === 0;
 
   return (
-    <div className="card-premium p-6">
+    <div className="card-premium p-6 h-full flex flex-col">
       <header className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-white flex items-center gap-2">
           <MessageCircle size={14} className="text-gold-300" />
-          Helpbot-Insights
+          {t('dashComponents.helpbot.title')}
         </h3>
         {insights.handoff_rate_pct != null && (
           <span className="badge badge-gold">
-            Hand-off {fmtPct(insights.handoff_rate_pct)}
+            {t('dashComponents.helpbot.handoff', { pct: fmtPct(insights.handoff_rate_pct) })}
           </span>
         )}
       </header>
@@ -35,17 +38,17 @@ export default function HelpbotInsightsCard({ insights }: Props) {
       {noData ? (
         <div className="text-center py-8">
           <MessageCircle size={28} className="mx-auto mb-3 text-gold-300/60" />
-          <div className="text-sm text-ink-300">Noch keine Helpbot-Conversations.</div>
-          <div className="text-xs text-ink-400 mt-1">Widget ist auf aevum-system.de live — wartet auf ersten Besucher.</div>
+          <div className="text-sm text-ink-300">{t('dashComponents.helpbot.empty')}</div>
+          <div className="text-xs text-ink-400 mt-1">{t('dashComponents.helpbot.emptyHint')}</div>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <div className="text-[0.65rem] uppercase tracking-wider text-ink-400 font-semibold mb-3">
-              Letzte 5 Conversations
+              {t('dashComponents.helpbot.last5')}
             </div>
             {insights.recent.length === 0 ? (
-              <div className="text-xs text-ink-500">—</div>
+              <div className="text-xs text-ink-500">{t('dashComponents.helpbot.dash')}</div>
             ) : (
               <ul className="space-y-2">
                 {insights.recent.map((c, i) => (
@@ -57,11 +60,11 @@ export default function HelpbotInsightsCard({ insights }: Props) {
                     <div className="flex items-center justify-between gap-2 mb-1.5">
                       <span className="text-[0.65rem] font-mono text-gold-300">#{c.id_hash}</span>
                       <span className="text-[0.65rem] text-ink-400">
-                        {relativeTime(c.last_msg_at)} · {c.message_count} msg
+                        {t('dashComponents.helpbot.msgCount', { rel: relativeTime(c.last_msg_at, t), count: c.message_count })}
                       </span>
                     </div>
                     <div className="text-xs text-ink-200 truncate">
-                      {c.first_msg_preview || <span className="text-ink-500 italic">— leer —</span>}
+                      {c.first_msg_preview || <span className="text-ink-500 italic">{t('dashComponents.helpbot.emptyMsg')}</span>}
                     </div>
                   </li>
                 ))}
@@ -71,12 +74,12 @@ export default function HelpbotInsightsCard({ insights }: Props) {
 
           <div>
             <div className="text-[0.65rem] uppercase tracking-wider text-ink-400 font-semibold mb-3 flex items-center gap-1.5">
-              <Flame size={11} className="text-gold-300" /> Top Pain-Points
+              <Flame size={11} className="text-gold-300" /> {t('dashComponents.helpbot.topPains')}
             </div>
             {insights.top_pains.length === 0 ? (
               <div className="text-xs text-ink-500">
-                Noch keine Pain-Points extrahiert.
-                <div className="mt-1">Extract-Engine läuft sobald Conversations gestartet sind.</div>
+                {t('dashComponents.helpbot.noPains')}
+                <div className="mt-1">{t('dashComponents.helpbot.noPainsHint')}</div>
               </div>
             ) : (
               <ul className="space-y-1.5">

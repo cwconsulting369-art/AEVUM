@@ -22,6 +22,9 @@ export default defineConfig({
           if (id.includes('react-hook-form') || id.includes('@hookform') || id.includes('zod')) return 'vendor-forms';
           if (id.includes('react-router')) return 'vendor-router';
           if (id.includes('sonner') || id.includes('tailwind-merge') || id.includes('clsx')) return 'vendor-ui-utils';
+          if (id.includes('/node_modules/motion/') || id.includes('/node_modules/framer-motion/')) return 'vendor-motion';
+          if (id.includes('@react-three') || id.includes('/node_modules/three/')) return 'vendor-three';
+          if (id.includes('recharts') || id.includes('@tremor')) return 'vendor-charts';
           if (
             id.includes('/node_modules/react/') ||
             id.includes('/node_modules/react-dom/') ||

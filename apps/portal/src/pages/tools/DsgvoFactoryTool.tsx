@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/auth';
 import { api } from '@/lib/api';
 import {
@@ -46,7 +47,16 @@ const FALLBACK_TEMPLATES: Template[] = [
   { type: 'agb', label: 'AGB (B2B)', description: 'Standard-Geschäftsbedingungen.', status: 'coming_soon', credits: 40 }
 ];
 
+// Lokalisierte Label/Description für bekannte Fallback-Template-Typen.
+const TEMPLATE_I18N: Record<string, { label: string; desc: string }> = {
+  avv: { label: 'tools.dsgvo.tplAvv', desc: 'tools.dsgvo.tplAvvDesc' },
+  datenschutzerklaerung: { label: 'tools.dsgvo.tplDse', desc: 'tools.dsgvo.tplDseDesc' },
+  impressum: { label: 'tools.dsgvo.tplImpressum', desc: 'tools.dsgvo.tplImpressumDesc' },
+  agb: { label: 'tools.dsgvo.tplAgb', desc: 'tools.dsgvo.tplAgbDesc' },
+};
+
 export default function DsgvoFactoryTool() {
+  const { t } = useTranslation();
   const { me } = useAuth();
   const nav = useNavigate();
 
@@ -84,13 +94,17 @@ export default function DsgvoFactoryTool() {
 
   const showToast = (m: string) => { setToast(m); setTimeout(() => setToast(null), 2400); };
 
-  const pickTemplate = (t: Template) => {
-    if (t.status !== 'live') {
-      showToast(`${t.label} — bald verfügbar`);
+  const pickTemplate = (tpl: Template) => {
+    if (tpl.status !== 'live') {
+      showToast(t('tools.dsgvo.comingSoon', { label: tplLabel(tpl) }));
       return;
     }
-    setPicked(t);
+    setPicked(tpl);
   };
+
+  // Lokalisiertes Label/Description (Fallback-Templates), sonst Backend-Wert.
+  const tplLabel = (tpl: Template) => TEMPLATE_I18N[tpl.type] ? t(TEMPLATE_I18N[tpl.type].label) : tpl.label;
+  const tplDesc = (tpl: Template) => TEMPLATE_I18N[tpl.type] ? t(TEMPLATE_I18N[tpl.type].desc) : tpl.description;
 
   const updateVendor = (i: number, patch: Partial<Vendor>) => {
     setVendors(vs => vs.map((v, idx) => idx === i ? { ...v, ...patch } : v));
@@ -101,12 +115,12 @@ export default function DsgvoFactoryTool() {
   const startRun = async () => {
     if (!picked) return;
     if (!firma.trim() || !anschrift.trim()) {
-      setRunError('Firma + Anschrift sind Pflichtfelder.');
+      setRunError(t('tools.dsgvo.firmaAddrRequired'));
       return;
     }
     const filledVendors = vendors.filter(v => v.name.trim() && v.zweck.trim());
     if (filledVendors.length === 0) {
-      setRunError('Mindestens ein Vendor mit Name + Zweck erforderlich.');
+      setRunError(t('tools.dsgvo.vendorRequired'));
       return;
     }
     setRunError(null);
@@ -127,7 +141,7 @@ export default function DsgvoFactoryTool() {
       });
       pollRun(res.run_id);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Unbekannter Fehler';
+      const msg = e instanceof Error ? e.message : t('tools.common.unknownError');
       setRunError(msg);
       setSubmitting(false);
     }
@@ -147,13 +161,13 @@ export default function DsgvoFactoryTool() {
           return;
         }
         if (Date.now() - started > POLL_TIMEOUT_MS) {
-          setRunError('Timeout — Run dauert ungewöhnlich lange. Check History später.');
+          setRunError(t('tools.dsgvo.timeout'));
           setSubmitting(false);
           return;
         }
         setTimeout(tick, POLL_INTERVAL_MS);
       } catch (e: unknown) {
-        const msg = e instanceof Error ? e.message : 'Polling-Fehler';
+        const msg = e instanceof Error ? e.message : t('tools.common.pollingError');
         setRunError(msg);
         setSubmitting(false);
       }
@@ -181,14 +195,14 @@ export default function DsgvoFactoryTool() {
       {/* Header */}
       <div>
         <Link to="/dashboard" className="text-[0.7rem] text-ink-400 hover:text-white inline-flex items-center gap-1.5 mb-3">
-          <ArrowLeft size={12} /> Zurück zum Dashboard
+          <ArrowLeft size={12} /> {t('tools.common.backToDashboard')}
         </Link>
         <div className="flex items-center gap-2 text-xs text-gold-300 mb-2 uppercase tracking-wider font-semibold">
-          <Sparkles size={12} /> AEVUM DSGVO-Factory
+          <Sparkles size={12} /> {t('tools.dsgvo.brand')}
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Legal-Dokumente auf Knopfdruck</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-white">{t('tools.dsgvo.title')}</h1>
         <p className="text-ink-400 mt-2 text-sm">
-          AVV ist live. Weitere Templates (DSE, Impressum, AGB) folgen.
+          {t('tools.dsgvo.subtitle')}
         </p>
       </div>
 
@@ -199,21 +213,21 @@ export default function DsgvoFactoryTool() {
             <Coins size={18} className="text-gold-300" />
           </div>
           <div>
-            <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">Dein Guthaben</div>
+            <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">{t('tools.common.yourBalance')}</div>
             <div className="text-lg font-bold text-white tabular-nums">
-              {(credits ?? 0).toLocaleString('de-DE')} <span className="text-xs font-medium text-ink-400">Credits</span>
+              {(credits ?? 0).toLocaleString('de-DE')} <span className="text-xs font-medium text-ink-400">{t('tools.common.credits')}</span>
             </div>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">Kosten pro Run</div>
+          <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">{t('tools.dsgvo.costPerRun')}</div>
           <div className="text-lg font-bold text-gold-gradient tabular-nums">
-            {(picked?.credits ?? CREDITS_PER_RUN)} Credits
+            {picked?.credits ?? CREDITS_PER_RUN} {t('tools.common.credits')}
           </div>
         </div>
         {(credits ?? 0) < (picked?.credits ?? CREDITS_PER_RUN) && (
           <Link to="/credits" className="btn-gold py-1.5 px-3 text-[0.7rem] inline-flex items-center gap-1.5">
-            <Plus size={12} /> Credits aufladen
+            <Plus size={12} /> {t('tools.dsgvo.topUp')}
           </Link>
         )}
       </div>
@@ -225,11 +239,11 @@ export default function DsgvoFactoryTool() {
         // Template-Picker
         <section>
           <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-            <Shield size={16} className="text-gold-300" /> Template wählen
+            <Shield size={16} className="text-gold-300" /> {t('tools.dsgvo.pickTemplate')}
           </h2>
           <div className="grid sm:grid-cols-2 gap-3">
-            {templates.map(t => (
-              <TemplateCard key={t.type} t={t} onPick={() => pickTemplate(t)} />
+            {templates.map(tpl => (
+              <TemplateCard key={tpl.type} t={tpl} label={tplLabel(tpl)} description={tplDesc(tpl)} onPick={() => pickTemplate(tpl)} />
             ))}
           </div>
         </section>
@@ -240,31 +254,31 @@ export default function DsgvoFactoryTool() {
             onClick={() => setPicked(null)}
             className="text-[0.7rem] text-ink-400 hover:text-white inline-flex items-center gap-1.5"
           >
-            <ChevronLeft size={12} /> Anderes Template
+            <ChevronLeft size={12} /> {t('tools.dsgvo.otherTemplate')}
           </button>
 
           <div className="card-premium p-6 sm:p-7 space-y-5">
             <h2 className="text-base font-semibold text-white flex items-center gap-2">
-              <FileText size={16} className="text-gold-300" /> {picked.label}
+              <FileText size={16} className="text-gold-300" /> {tplLabel(picked)}
             </h2>
 
-            <Field label="Firma — Name *" value={firma} onChange={setFirma} placeholder="z.B. Acme GmbH" />
-            <Field label="Anschrift *" value={anschrift} onChange={setAnschrift} placeholder="Straße, PLZ Ort" textarea />
-            <Field label="USt-IdNr" value={ustId} onChange={setUstId} placeholder="z.B. DE123456789" />
-            <Field label="Kontakt-DSB" value={kontaktDsb} onChange={setKontaktDsb} placeholder="E-Mail / Name Datenschutzbeauftragter" />
+            <Field label={t('tools.dsgvo.fieldFirma')} value={firma} onChange={setFirma} placeholder={t('tools.dsgvo.fieldFirmaPlaceholder')} />
+            <Field label={t('tools.dsgvo.fieldAddr')} value={anschrift} onChange={setAnschrift} placeholder={t('tools.dsgvo.fieldAddrPlaceholder')} textarea />
+            <Field label={t('tools.dsgvo.fieldUstId')} value={ustId} onChange={setUstId} placeholder={t('tools.dsgvo.fieldUstIdPlaceholder')} />
+            <Field label={t('tools.dsgvo.fieldDsb')} value={kontaktDsb} onChange={setKontaktDsb} placeholder={t('tools.dsgvo.fieldDsbPlaceholder')} />
 
             {/* Vendoren */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-[0.7rem] uppercase tracking-wider text-ink-400 font-semibold">
-                  Vendoren (mind. 1)
+                  {t('tools.dsgvo.vendors')}
                 </label>
                 <button
                   type="button"
                   onClick={addVendor}
                   className="text-[0.65rem] text-gold-300 hover:text-gold-200 inline-flex items-center gap-1"
                 >
-                  <Plus size={11} /> Hinzufügen
+                  <Plus size={11} /> {t('tools.dsgvo.addVendor')}
                 </button>
               </div>
               <div className="space-y-2">
@@ -274,14 +288,14 @@ export default function DsgvoFactoryTool() {
                       type="text"
                       value={v.name}
                       onChange={e => updateVendor(i, { name: e.target.value })}
-                      placeholder="Vendor-Name"
+                      placeholder={t('tools.dsgvo.vendorName')}
                       className="sm:col-span-4 bg-white/5 border border-white/10 rounded px-2 py-1.5 text-sm text-white placeholder-ink-500 focus:border-gold-400/50 focus:outline-none"
                     />
                     <input
                       type="text"
                       value={v.zweck}
                       onChange={e => updateVendor(i, { zweck: e.target.value })}
-                      placeholder="Zweck (z.B. E-Mail-Versand)"
+                      placeholder={t('tools.dsgvo.vendorZweck')}
                       className="sm:col-span-5 bg-white/5 border border-white/10 rounded px-2 py-1.5 text-sm text-white placeholder-ink-500 focus:border-gold-400/50 focus:outline-none"
                     />
                     <label className="sm:col-span-2 flex items-center gap-1.5 text-[0.7rem] text-ink-300 px-1">
@@ -291,7 +305,7 @@ export default function DsgvoFactoryTool() {
                         onChange={e => updateVendor(i, { sub_processor: e.target.checked })}
                         className="accent-gold-400"
                       />
-                      Sub-P.
+                      {t('tools.dsgvo.subProcessor')}
                     </label>
                     <button
                       type="button"
@@ -320,9 +334,9 @@ export default function DsgvoFactoryTool() {
               className="btn-gold w-full py-3 text-sm inline-flex items-center justify-center gap-2"
             >
               {submitting ? (
-                <><Loader2 size={14} className="animate-spin" /> Generiert …</>
+                <><Loader2 size={14} className="animate-spin" /> {t('tools.dsgvo.generating')}</>
               ) : (
-                <><Zap size={14} /> Generieren ({picked.credits ?? CREDITS_PER_RUN} Credits)</>
+                <><Zap size={14} /> {t('tools.dsgvo.generate', { n: picked.credits ?? CREDITS_PER_RUN })}</>
               )}
             </button>
           </div>
@@ -342,8 +356,9 @@ export default function DsgvoFactoryTool() {
   );
 }
 
-function TemplateCard({ t, onPick }: { t: Template; onPick: () => void }) {
-  const isLive = t.status === 'live';
+function TemplateCard({ t: tpl, label, description, onPick }: { t: Template; label: string; description?: string; onPick: () => void }) {
+  const { t } = useTranslation();
+  const isLive = tpl.status === 'live';
   return (
     <button
       type="button"
@@ -357,38 +372,39 @@ function TemplateCard({ t, onPick }: { t: Template; onPick: () => void }) {
             ? 'bg-emerald-400/15 border-emerald-400/40 text-emerald-200'
             : 'bg-white/[0.04] border-white/10 text-ink-300'
         }`}>
-          {isLive ? 'Live' : 'Bald'}
+          {isLive ? t('tools.dsgvo.live') : t('tools.dsgvo.soon')}
         </span>
       </div>
       <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-center mb-4">
         <FileText size={18} className="text-gold-300" strokeWidth={1.6} />
       </div>
-      <div className="text-base font-semibold text-white mb-1.5 pr-12">{t.label}</div>
-      {t.description && (
-        <div className="text-[0.72rem] text-ink-400 leading-relaxed">{t.description}</div>
+      <div className="text-base font-semibold text-white mb-1.5 pr-12">{label}</div>
+      {description && (
+        <div className="text-[0.72rem] text-ink-400 leading-relaxed">{description}</div>
       )}
       <div className="mt-4 pt-3 border-t border-white/5 text-[0.65rem] text-ink-500">
-        {t.credits ?? CREDITS_PER_RUN} Credits / Run
+        {t('tools.dsgvo.creditsPerRun', { n: tpl.credits ?? CREDITS_PER_RUN })}
       </div>
     </button>
   );
 }
 
 function RunResultPanel({ run, onReset, onBack }: { run: DsgvoRun; onReset: () => void; onBack: () => void }) {
+  const { t } = useTranslation();
   if (run.status === 'failed') {
     return (
       <div className="card-premium p-6 space-y-4">
         <div className="flex items-center gap-2 text-rose-300">
           <AlertCircle size={18} />
-          <h2 className="text-base font-semibold">Generierung fehlgeschlagen</h2>
+          <h2 className="text-base font-semibold">{t('tools.dsgvo.failed')}</h2>
         </div>
-        <p className="text-sm text-ink-300">{run.error_message || 'Unbekannter Fehler. Credits wurden nicht abgebucht.'}</p>
+        <p className="text-sm text-ink-300">{run.error_message || t('tools.dsgvo.failedDefault')}</p>
         <div className="flex gap-2">
           <button onClick={onReset} className="btn-gold py-2 px-4 text-xs inline-flex items-center gap-2">
-            Neuer Versuch
+            {t('tools.dsgvo.retry')}
           </button>
           <button onClick={onBack} className="px-4 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs text-ink-200">
-            Anderes Template
+            {t('tools.dsgvo.otherTemplate')}
           </button>
         </div>
       </div>
@@ -399,11 +415,11 @@ function RunResultPanel({ run, onReset, onBack }: { run: DsgvoRun; onReset: () =
     return (
       <div className="card-premium p-10 text-center space-y-3">
         <Loader2 size={32} className="mx-auto text-gold-300 animate-spin" />
-        <div className="text-base font-semibold text-white">DSGVO-Factory arbeitet …</div>
+        <div className="text-base font-semibold text-white">{t('tools.dsgvo.working')}</div>
         <div className="text-[0.75rem] text-ink-400">
-          Status: <span className="text-gold-300 uppercase tracking-wider">{run.status}</span>
+          {t('tools.dsgvo.status')}: <span className="text-gold-300 uppercase tracking-wider">{run.status}</span>
         </div>
-        <div className="text-[0.7rem] text-ink-500">Polling alle 3 Sekunden — bleib einfach hier.</div>
+        <div className="text-[0.7rem] text-ink-500">{t('tools.dsgvo.pollingNote')}</div>
       </div>
     );
   }
@@ -414,9 +430,9 @@ function RunResultPanel({ run, onReset, onBack }: { run: DsgvoRun; onReset: () =
         <CheckCircle2 size={28} className="text-emerald-300" />
       </div>
       <div>
-        <h2 className="text-xl font-semibold text-white">Dokument fertig</h2>
+        <h2 className="text-xl font-semibold text-white">{t('tools.dsgvo.docReady')}</h2>
         <p className="text-[0.75rem] text-ink-400 mt-1">
-          {run.credits_spent ?? 0} Credits verbraucht · Template: {run.template_type?.toUpperCase() || '—'}
+          {t('tools.dsgvo.creditsSpent', { credits: run.credits_spent ?? 0, template: run.template_type?.toUpperCase() || '—' })}
         </p>
       </div>
       {run.pdf_url ? (
@@ -426,18 +442,18 @@ function RunResultPanel({ run, onReset, onBack }: { run: DsgvoRun; onReset: () =
           rel="noopener noreferrer"
           className="btn-gold inline-flex items-center gap-2 py-3 px-6 text-sm"
         >
-          <Download size={14} /> PDF herunterladen
+          <Download size={14} /> {t('tools.dsgvo.downloadPdf')}
         </a>
       ) : (
-        <p className="text-[0.75rem] text-ink-400">Kein PDF-Link verfügbar — bitte später nochmals prüfen.</p>
+        <p className="text-[0.75rem] text-ink-400">{t('tools.dsgvo.noPdf')}</p>
       )}
       <div className="flex gap-2 justify-center pt-2">
         <button onClick={onReset} className="text-[0.7rem] text-gold-300 hover:text-gold-200">
-          Neuer Run
+          {t('tools.dsgvo.newRun')}
         </button>
         <span className="text-ink-600">·</span>
         <button onClick={onBack} className="text-[0.7rem] text-ink-400 hover:text-white">
-          Anderes Template
+          {t('tools.dsgvo.otherTemplate')}
         </button>
       </div>
     </div>

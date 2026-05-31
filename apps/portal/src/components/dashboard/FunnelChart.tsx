@@ -1,5 +1,6 @@
 import type { FunnelStage } from './types';
 import { fmtPct } from './types';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   stages: FunnelStage[];
@@ -7,6 +8,7 @@ type Props = {
 
 // Custom SVG horizontal funnel — width per stage proportional to count.
 export default function FunnelChart({ stages }: Props) {
+  const { t } = useTranslation();
   if (!stages.length) return null;
   const max = Math.max(...stages.map(s => s.count), 1);
 
@@ -46,7 +48,7 @@ export default function FunnelChart({ stages }: Props) {
               />
               <div className="absolute inset-0 flex items-center px-3">
                 <span className={`text-[0.7rem] font-medium ${isEmpty ? 'text-ink-500' : 'text-ink-950 mix-blend-normal'}`}>
-                  {isEmpty ? 'noch leer' : ''}
+                  {isEmpty ? t('dashComponents.funnelChart.empty') : ''}
                 </span>
               </div>
             </div>

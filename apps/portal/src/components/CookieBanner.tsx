@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { Cookie } from 'lucide-react';
 
 const STORAGE_KEY = 'aevum_cookie_consent';
@@ -13,6 +14,7 @@ type Consent = {
 };
 
 export default function CookieBanner() {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -51,7 +53,7 @@ export default function CookieBanner() {
   return (
     <div
       role="dialog"
-      aria-label="Cookie-Einstellungen"
+      aria-label={t('common.cookieDialogLabel')}
       className="fixed inset-x-0 bottom-0 z-50 px-3 pb-3 sm:px-4 sm:pb-4 pointer-events-none"
     >
       <div
@@ -65,22 +67,22 @@ export default function CookieBanner() {
               <Cookie size={13} className="text-gold-300" />
             </div>
             <p className="text-[0.78rem] leading-snug text-ink-300">
-              Nur technisch notwendige Cookies. Kein Tracking.{' '}
+              {t('common.cookieText')}{' '}
               <Link
                 to="/datenschutz"
                 className="text-gold-300 hover:text-gold-200 underline-offset-2 hover:underline whitespace-nowrap"
                 onClick={() => persist(false)}
               >
-                Mehr →
+                {t('common.cookieMore')}
               </Link>
             </p>
           </div>
           <div className="flex gap-1.5 shrink-0">
             <button onClick={() => persist(false)} className="btn-ghost text-[0.7rem] px-3 py-1.5">
-              Essentiell
+              {t('common.cookieEssential')}
             </button>
             <button onClick={() => persist(true)} className="btn-gold text-[0.7rem] px-3 py-1.5">
-              Alle OK
+              {t('common.cookieAllOk')}
             </button>
           </div>
         </div>

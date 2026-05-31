@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { verifyMagicLink, clearTokens } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { CheckCircle2, XCircle, ArrowLeft } from 'lucide-react';
@@ -8,6 +9,7 @@ import MeshBackground from '@/components/MeshBackground';
 import Brand from '@/components/Brand';
 
 export default function AuthVerify() {
+  const { t } = useTranslation();
   const [params] = useSearchParams();
   const [state, setState] = useState<'verifying' | 'ok' | 'error'>('verifying');
   const [accountInfo, setAccountInfo] = useState<{ slug: string; name: string } | null>(null);
@@ -27,7 +29,7 @@ export default function AuthVerify() {
     const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
     const hashParams = new URLSearchParams(hash);
     const token = hashParams.get('token') || hashParams.get('t') || params.get('token');
-    if (!token) { setState('error'); setErrorMsg('Kein Token in der URL'); return; }
+    if (!token) { setState('error'); setErrorMsg(t('auth.errNoToken')); return; }
     // CRITICAL: vorhandene Auth komplett löschen BEVOR der neue Token gesetzt wird.
     // Sonst landet ein Admin der über Customer-Magic-Link kommt versehentlich auf
     // seinem alten Dashboard. Hard-Logout = sichere Account-Trennung.
@@ -51,13 +53,13 @@ export default function AuthVerify() {
           try { await refresh(); } catch { /* noop */ }
           setTimeout(() => nav('/dashboard'), 1200);
         }
-        else { setState('error'); setErrorMsg('Token ungültig oder abgelaufen'); }
+        else { setState('error'); setErrorMsg(t('auth.errInvalidToken')); }
       } catch (e: unknown) {
         setState('error');
-        setErrorMsg(e instanceof Error ? e.message : 'unbekannter Fehler');
+        setErrorMsg(e instanceof Error ? e.message : t('auth.errUnknown'));
       }
     })();
-  }, [params, nav, refresh]);
+  }, [params, nav, refresh, t]);
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-ink-950 text-ink-100 overflow-hidden px-6">
@@ -70,8 +72,8 @@ export default function AuthVerify() {
         {state === 'verifying' && (
           <div className="animate-fade-up" style={{ animationDelay: '120ms' }}>
             <div className="flex justify-center mb-6"><Spinner size="lg" /></div>
-            <div className="text-lg font-medium text-white">Verifiziere…</div>
-            <div className="text-sm text-ink-400 mt-2">Wir prüfen deinen Magic-Link</div>
+            <div className="text-lg font-medium text-white">{t('auth.verifying')}</div>
+            <div className="text-sm text-ink-400 mt-2">{t('auth.verifyingHint')}</div>
           </div>
         )}
 
@@ -80,10 +82,10 @@ export default function AuthVerify() {
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center animate-pulse-gold" style={{ animationName: 'pulse-gold' }}>
               <CheckCircle2 size={40} className="text-emerald-400" strokeWidth={1.8} />
             </div>
-            <div className="text-lg font-semibold text-white">Eingeloggt{accountInfo ? ` als ${accountInfo.name}` : ''}</div>
-            <div className="text-sm text-ink-300 mt-2">Leite weiter zum Dashboard…</div>
+            <div className="text-lg font-semibold text-white">{accountInfo ? t('auth.loggedInAs', { name: accountInfo.name }) : t('auth.loggedIn')}</div>
+            <div className="text-sm text-ink-300 mt-2">{t('auth.redirecting')}</div>
             {accountInfo && (
-              <div className="mt-3 text-xs text-ink-500">Account: <code className="text-amber-300">{accountInfo.slug}</code></div>
+              <div className="mt-3 text-xs text-ink-500">{t('auth.account')} <code className="text-amber-300">{accountInfo.slug}</code></div>
             )}
           </div>
         )}
@@ -93,10 +95,10 @@ export default function AuthVerify() {
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-rose-500/15 border border-rose-500/40 flex items-center justify-center">
               <XCircle size={40} className="text-rose-400" strokeWidth={1.8} />
             </div>
-            <div className="text-lg font-semibold text-white mb-2">Login fehlgeschlagen</div>
+            <div className="text-lg font-semibold text-white mb-2">{t('auth.loginFailed')}</div>
             <div className="text-sm text-ink-400 mb-8 leading-relaxed">{errorMsg}</div>
             <a href="/" className="btn-ghost inline-flex">
-              <ArrowLeft size={14} /> Zurück zum Login
+              <ArrowLeft size={14} /> {t('auth.backToLogin')}
             </a>
           </div>
         )}

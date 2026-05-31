@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import Spinner from '@/components/Spinner';
 import {
@@ -92,17 +93,18 @@ function fmtVal(kpi: KPIItem) {
 // ── KPI Card ─────────────────────────────────────────────────────────────────
 
 function KPICard({ kpi, delay }: { kpi: KPIItem; delay: number }) {
+  const { t } = useTranslation();
   const val = fmtVal(kpi);
   return (
-    <div className="card-premium p-5 animate-fade-up flex flex-col gap-3" style={{ animationDelay: `${delay}ms` }}>
-      <div className="flex items-center justify-between">
-        <span className="text-[0.65rem] uppercase tracking-wider text-ink-400 font-semibold">{kpi.label}</span>
+    <div className="card-premium p-4 sm:p-5 animate-fade-up flex flex-col gap-3 h-full" style={{ animationDelay: `${delay}ms` }}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[0.65rem] uppercase tracking-wider text-ink-400 font-semibold truncate">{kpi.label}</span>
         {kpi.live
-          ? <span className="flex items-center gap-1 text-[0.6rem] text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />Live</span>
-          : <span className="text-[0.6rem] text-ink-600">Kein Key</span>}
+          ? <span className="flex items-center gap-1 text-[0.6rem] text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />{t('dashComponents.colla.live')}</span>
+          : <span className="text-[0.6rem] text-ink-600">{t('dashComponents.colla.noKey')}</span>}
       </div>
-      <div className="flex items-baseline gap-1">
-        <span className={`text-3xl font-bold font-mono tabular-nums leading-none ${val === '—' ? 'text-ink-600' : 'text-white'}`}>{val}</span>
+      <div className="flex items-baseline gap-1 min-w-0">
+        <span className={`text-2xl sm:text-3xl font-bold font-mono tabular-nums leading-none truncate ${val === '—' ? 'text-ink-600' : 'text-white'}`}>{val}</span>
         {val !== '—' && val !== '…' && <span className="text-xs text-ink-400">{kpi.unit}</span>}
       </div>
     </div>
@@ -133,47 +135,48 @@ function SeoRing({ score }: { score: number }) {
 // ── Section: Overview ─────────────────────────────────────────────────────────
 
 function SectionOverview({ data }: { data: DashboardPayload }) {
+  const { t } = useTranslation();
   const connectedCount = data.integrations.filter(i => i.connected).length;
   return (
     <div className="space-y-8">
       <div>
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
           <h1 className="text-2xl font-bold text-white">CollaGlow</h1>
-          <div className="flex items-center gap-2">
-            <span className="badge badge-gold">E-Commerce</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="badge badge-gold">{t('dashComponents.colla.industry')}</span>
             <span className={`badge ${connectedCount > 0 ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/25' : ''}`}>
-              {connectedCount}/{data.integrations.length} Integrationen
+              {t('dashComponents.colla.integrations', { connected: connectedCount, total: data.integrations.length })}
             </span>
           </div>
         </div>
-        <p className="text-sm text-ink-400">Retainer-Light · Ketolabs GmbH</p>
+        <p className="text-sm text-ink-400">{t('dashComponents.colla.retainer')}</p>
       </div>
 
       {/* KPI Strip */}
       <section>
-        <div className="text-[0.65rem] uppercase tracking-widest text-ink-500 font-semibold mb-3">Performance-KPIs</div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="text-[0.65rem] uppercase tracking-widest text-ink-500 font-semibold mb-3">{t('dashComponents.colla.perfKpis')}</div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 items-stretch">
           {data.kpis.map((kpi, i) => <KPICard key={kpi.id} kpi={kpi} delay={40 + i * 50} />)}
         </div>
       </section>
 
       {/* Targets */}
       <section className="card-premium p-6">
-        <div className="text-xs font-semibold text-white uppercase tracking-wider mb-4">Zielwerte</div>
+        <div className="text-xs font-semibold text-white uppercase tracking-wider mb-4">{t('dashComponents.colla.targets')}</div>
         <div className="grid sm:grid-cols-2 gap-4">
           {[
-            { label: 'ROAS Minimum', value: '2.5×', desc: 'Unter diesem Wert → sofortiger Review' },
-            { label: 'CPA Maximum', value: '€35', desc: 'Über diesem Wert → Kampagne pausieren' },
-            { label: 'Email Open Rate', value: '25%', desc: 'Klaviyo Flow Ziel' },
-            { label: 'CTR Meta', value: '2%', desc: 'Mindest Click-Through-Rate' },
-          ].map((t, i) => (
-            <div key={t.label} className="flex items-start gap-3 animate-fade-up" style={stagger(i, 40, 40)}>
+            { label: t('dashComponents.colla.targetRoasMin'), value: '2.5×', desc: t('dashComponents.colla.targetRoasMinDesc') },
+            { label: t('dashComponents.colla.targetCpaMax'), value: '€35', desc: t('dashComponents.colla.targetCpaMaxDesc') },
+            { label: t('dashComponents.colla.targetEmailOpen'), value: '25%', desc: t('dashComponents.colla.targetEmailOpenDesc') },
+            { label: t('dashComponents.colla.targetCtrMeta'), value: '2%', desc: t('dashComponents.colla.targetCtrMetaDesc') },
+          ].map((tt, i) => (
+            <div key={tt.label} className="flex items-start gap-3 animate-fade-up" style={stagger(i, 40, 40)}>
               <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center shrink-0 mt-0.5">
                 <span className="text-[0.65rem] font-bold text-gold-300">{i + 1}</span>
               </div>
               <div>
-                <div className="text-sm text-white font-medium">{t.label} <span className="text-gold-300 font-mono ml-1">{t.value}</span></div>
-                <div className="text-[0.7rem] text-ink-400">{t.desc}</div>
+                <div className="text-sm text-white font-medium">{tt.label} <span className="text-gold-300 font-mono ml-1">{tt.value}</span></div>
+                <div className="text-[0.7rem] text-ink-400">{tt.desc}</div>
               </div>
             </div>
           ))}
@@ -181,7 +184,7 @@ function SectionOverview({ data }: { data: DashboardPayload }) {
       </section>
 
       <div className="text-[0.65rem] text-ink-600 text-right">
-        Stand {new Date(data.generated_at).toLocaleTimeString('de-DE')}
+        {t('dashComponents.colla.asOf', { time: new Date(data.generated_at).toLocaleTimeString('de-DE') })}
       </div>
     </div>
   );
@@ -190,6 +193,7 @@ function SectionOverview({ data }: { data: DashboardPayload }) {
 // ── Section: Ads ─────────────────────────────────────────────────────────────
 
 function SectionAds({ data }: { data: DashboardPayload }) {
+  const { t } = useTranslation();
   const meta = data.integrations.find(i => i.service === 'meta_ads');
   const google = data.integrations.find(i => i.service === 'google_ads');
   const metaKpis = data.kpis.filter(k => k.source === 'meta_ads');
@@ -198,25 +202,25 @@ function SectionAds({ data }: { data: DashboardPayload }) {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Ads</h1>
-        <p className="text-sm text-ink-400">Meta Ads & Google Ads Performance</p>
+        <h1 className="text-2xl font-bold text-white mb-1">{t('dashComponents.colla.adsTitle')}</h1>
+        <p className="text-sm text-ink-400">{t('dashComponents.colla.adsSub')}</p>
       </div>
 
       {/* Meta Ads */}
       <section>
         <div className="flex items-center gap-3 mb-4">
           <BarChart2 size={16} className="text-blue-300" />
-          <span className="text-sm font-semibold text-white">Meta Ads</span>
+          <span className="text-sm font-semibold text-white">{t('dashComponents.colla.metaAds')}</span>
           <span className={`badge text-[0.65rem] ml-auto ${meta?.connected ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/25' : 'text-ink-400'}`}>
-            {meta?.connected ? <><CheckCircle2 size={10} /> Verbunden</> : <><XCircle size={10} /> Ausstehend</>}
+            {meta?.connected ? <><CheckCircle2 size={10} /> {t('dashComponents.colla.connected')}</> : <><XCircle size={10} /> {t('dashComponents.colla.pending')}</>}
           </span>
         </div>
         {metaKpis.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 items-stretch">
             {metaKpis.map((kpi, i) => <KPICard key={kpi.id} kpi={kpi} delay={40 + i * 50} />)}
           </div>
         ) : (
-          <ConnectPrompt service="meta_ads" label="Meta Ads" />
+          <ConnectPrompt service="meta_ads" label={t('dashComponents.colla.metaAds')} />
         )}
       </section>
 
@@ -224,17 +228,17 @@ function SectionAds({ data }: { data: DashboardPayload }) {
       <section>
         <div className="flex items-center gap-3 mb-4">
           <TrendingUp size={16} className="text-yellow-300" />
-          <span className="text-sm font-semibold text-white">Google Ads</span>
+          <span className="text-sm font-semibold text-white">{t('dashComponents.colla.googleAds')}</span>
           <span className={`badge text-[0.65rem] ml-auto ${google?.connected ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/25' : 'text-ink-400'}`}>
-            {google?.connected ? <><CheckCircle2 size={10} /> Verbunden</> : <><XCircle size={10} /> Ausstehend</>}
+            {google?.connected ? <><CheckCircle2 size={10} /> {t('dashComponents.colla.connected')}</> : <><XCircle size={10} /> {t('dashComponents.colla.pending')}</>}
           </span>
         </div>
         {googleKpis.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 items-stretch">
             {googleKpis.map((kpi, i) => <KPICard key={kpi.id} kpi={kpi} delay={40 + i * 50} />)}
           </div>
         ) : (
-          <ConnectPrompt service="google_ads" label="Google Ads" />
+          <ConnectPrompt service="google_ads" label={t('dashComponents.colla.googleAds')} />
         )}
       </section>
     </div>
@@ -244,6 +248,7 @@ function SectionAds({ data }: { data: DashboardPayload }) {
 // ── Section: Spend ────────────────────────────────────────────────────────────
 
 function SectionSpend({ data }: { data: DashboardPayload }) {
+  const { t } = useTranslation();
   const metaKpis = data.kpis.filter(k => k.source === 'meta_ads');
   const googleKpis = data.kpis.filter(k => k.source === 'google_ads');
   const anyConnected = data.integrations.some(i => (i.service === 'meta_ads' || i.service === 'google_ads') && i.connected);
@@ -251,33 +256,33 @@ function SectionSpend({ data }: { data: DashboardPayload }) {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Spend</h1>
-        <p className="text-sm text-ink-400">Budget & ROAS-Tracking über alle Kanäle</p>
+        <h1 className="text-2xl font-bold text-white mb-1">{t('dashComponents.colla.spendTitle')}</h1>
+        <p className="text-sm text-ink-400">{t('dashComponents.colla.spendSub')}</p>
       </div>
 
       <section>
-        <div className="text-[0.65rem] uppercase tracking-widest text-ink-500 font-semibold mb-3">Alle Ad-KPIs</div>
+        <div className="text-[0.65rem] uppercase tracking-widest text-ink-500 font-semibold mb-3">{t('dashComponents.colla.allAdKpis')}</div>
         {anyConnected ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 items-stretch">
             {[...metaKpis, ...googleKpis].map((kpi, i) => <KPICard key={kpi.id} kpi={kpi} delay={40 + i * 50} />)}
           </div>
         ) : (
           <div className="card-premium p-10 text-center space-y-3">
             <DollarSign size={32} className="mx-auto text-ink-600" />
-            <div className="text-sm text-ink-300">Keine Ad-Plattform verbunden.</div>
-            <div className="text-xs text-ink-500">Verbinde Meta Ads oder Google Ads unter API-Keys.</div>
+            <div className="text-sm text-ink-300">{t('dashComponents.colla.noAdPlatform')}</div>
+            <div className="text-xs text-ink-500">{t('dashComponents.colla.noAdPlatformHint')}</div>
           </div>
         )}
       </section>
 
       {/* Thresholds */}
       <section className="card-premium p-6">
-        <div className="text-xs font-semibold text-white uppercase tracking-wider mb-4">ROAS-Alarm-Schwellen</div>
+        <div className="text-xs font-semibold text-white uppercase tracking-wider mb-4">{t('dashComponents.colla.roasThresholds')}</div>
         <div className="space-y-3">
           {[
-            { label: 'ROAS < 2.5', action: 'Kampagne sofort reviewen', sev: 'critical' },
-            { label: 'ROAS 2.5–3.5', action: 'Optimierungspotenzial analysieren', sev: 'medium' },
-            { label: 'ROAS > 3.5', action: 'Budget skalieren', sev: 'ok' },
+            { label: 'ROAS < 2.5', action: t('dashComponents.colla.roasLow'), sev: 'critical' },
+            { label: 'ROAS 2.5–3.5', action: t('dashComponents.colla.roasMid'), sev: 'medium' },
+            { label: 'ROAS > 3.5', action: t('dashComponents.colla.roasHigh'), sev: 'ok' },
           ].map((r, i) => (
             <div key={r.label} className="flex items-center gap-3 text-sm animate-fade-up" style={{ animationDelay: `${i * 60}ms` }}>
               <div className={`w-2 h-2 rounded-full shrink-0 ${r.sev === 'critical' ? 'bg-rose-400' : r.sev === 'medium' ? 'bg-yellow-400' : 'bg-emerald-400'}`} />
@@ -294,36 +299,37 @@ function SectionSpend({ data }: { data: DashboardPayload }) {
 // ── Section: Email ────────────────────────────────────────────────────────────
 
 function SectionEmail({ data }: { data: DashboardPayload }) {
+  const { t } = useTranslation();
   const klaviyo = data.integrations.find(i => i.service === 'klaviyo');
   const kpis = data.kpis.filter(k => k.source === 'klaviyo');
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">E-Mail</h1>
-        <p className="text-sm text-ink-400">Klaviyo — Flows, Campaigns, Open Rates</p>
+        <h1 className="text-2xl font-bold text-white mb-1">{t('dashComponents.colla.emailTitle')}</h1>
+        <p className="text-sm text-ink-400">{t('dashComponents.colla.emailSub')}</p>
       </div>
       <div className="flex items-center gap-3">
         <Mail size={16} className="text-green-300" />
         <span className="text-sm font-semibold text-white">Klaviyo</span>
         <span className={`badge text-[0.65rem] ml-auto ${klaviyo?.connected ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/25' : 'text-ink-400'}`}>
-          {klaviyo?.connected ? <><CheckCircle2 size={10} /> Verbunden</> : <><XCircle size={10} /> Ausstehend</>}
+          {klaviyo?.connected ? <><CheckCircle2 size={10} /> {t('dashComponents.colla.connected')}</> : <><XCircle size={10} /> {t('dashComponents.colla.pending')}</>}
         </span>
       </div>
       {kpis.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 items-stretch">
           {kpis.map((kpi, i) => <KPICard key={kpi.id} kpi={kpi} delay={40 + i * 50} />)}
         </div>
       ) : (
         <ConnectPrompt service="klaviyo" label="Klaviyo" />
       )}
       <section className="card-premium p-6">
-        <div className="text-xs font-semibold text-white uppercase tracking-wider mb-4">Zielwerte E-Mail</div>
+        <div className="text-xs font-semibold text-white uppercase tracking-wider mb-4">{t('dashComponents.colla.emailTargets')}</div>
         <div className="space-y-3 text-sm">
           {[
-            { metric: 'Open Rate', target: '≥ 25%', hint: 'Klaviyo-Flows + Segmentierung' },
-            { metric: 'Click Rate', target: '≥ 3%', hint: 'CTA-Klarheit + personalisierter Content' },
-            { metric: 'Unsubscribe Rate', target: '< 0.3%', hint: 'List-Health-Indikator' },
+            { metric: t('dashComponents.colla.metricOpenRate'), target: '≥ 25%', hint: t('dashComponents.colla.metricOpenRateHint') },
+            { metric: t('dashComponents.colla.metricClickRate'), target: '≥ 3%', hint: t('dashComponents.colla.metricClickRateHint') },
+            { metric: t('dashComponents.colla.metricUnsub'), target: '< 0.3%', hint: t('dashComponents.colla.metricUnsubHint') },
           ].map((r, i) => (
             <div key={r.metric} className="flex items-start gap-4 animate-fade-up" style={{ animationDelay: `${i * 50}ms` }}>
               <span className="text-ink-400 w-32 text-xs shrink-0">{r.metric}</span>
@@ -340,24 +346,25 @@ function SectionEmail({ data }: { data: DashboardPayload }) {
 // ── Section: Shop ─────────────────────────────────────────────────────────────
 
 function SectionShop({ data }: { data: DashboardPayload }) {
+  const { t } = useTranslation();
   const shopify = data.integrations.find(i => i.service === 'shopify');
   const kpis = data.kpis.filter(k => k.source === 'shopify');
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Shop</h1>
-        <p className="text-sm text-ink-400">Shopify — Revenue, AOV, Conversion</p>
+        <h1 className="text-2xl font-bold text-white mb-1">{t('dashComponents.colla.shopTitle')}</h1>
+        <p className="text-sm text-ink-400">{t('dashComponents.colla.shopSub')}</p>
       </div>
       <div className="flex items-center gap-3">
         <ShoppingBag size={16} className="text-emerald-300" />
         <span className="text-sm font-semibold text-white">Shopify</span>
         <span className={`badge text-[0.65rem] ml-auto ${shopify?.connected ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/25' : 'text-ink-400'}`}>
-          {shopify?.connected ? <><CheckCircle2 size={10} /> Verbunden</> : <><XCircle size={10} /> Ausstehend</>}
+          {shopify?.connected ? <><CheckCircle2 size={10} /> {t('dashComponents.colla.connected')}</> : <><XCircle size={10} /> {t('dashComponents.colla.pending')}</>}
         </span>
       </div>
       {kpis.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 items-stretch">
           {kpis.map((kpi, i) => <KPICard key={kpi.id} kpi={kpi} delay={40 + i * 50} />)}
         </div>
       ) : (
@@ -396,14 +403,15 @@ const CAT_LABELS: Record<string, string> = {
 };
 
 function SectionIntelligence({ data }: { data: DashboardPayload }) {
+  const { t } = useTranslation();
   const intel = data.intelligence;
 
   if (!intel || intel.status === 'running') {
     return (
       <div className="card-premium p-16 text-center space-y-3">
         <Globe size={32} className="mx-auto text-ink-600 animate-pulse" />
-        <div className="text-sm text-ink-300">{intel?.status === 'running' ? 'Audit läuft…' : 'Kein Audit vorhanden.'}</div>
-        {intel?.status === 'running' && <div className="text-xs text-ink-500">Wird im Hintergrund analysiert — in 1-2 Min fertig.</div>}
+        <div className="text-sm text-ink-300">{intel?.status === 'running' ? t('dashComponents.colla.auditRunning') : t('dashComponents.colla.noAudit')}</div>
+        {intel?.status === 'running' && <div className="text-xs text-ink-500">{t('dashComponents.colla.auditRunningHint')}</div>}
       </div>
     );
   }
@@ -421,7 +429,7 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
       {fr?.executive_summary && (
         <div className="card-premium p-6 border-l-2 border-gold-400/50">
           <div className="text-xs font-semibold text-gold-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <Zap size={12} /> Executive Summary
+            <Zap size={12} /> {t('dashComponents.colla.execSummary')}
             {fr.overall_score != null && <span className="ml-auto badge badge-gold">{fr.overall_score}/100</span>}
           </div>
           <p className="text-sm text-ink-200 leading-relaxed">{fr.executive_summary}</p>
@@ -434,14 +442,14 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
       )}
 
       {/* Score Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-stretch">
         {[
           { label: 'SEO', score: seo ?? 0 },
           { label: 'Speed', score: spd ?? 0 },
           { label: 'Copy', score: cpy ?? 0 },
           { label: 'Workflow', score: wfl ?? 0 },
         ].map(({ label, score }) => (
-          <div key={label} className="card-premium p-5 flex flex-col items-center gap-2">
+          <div key={label} className="card-premium p-4 sm:p-5 flex flex-col items-center justify-center gap-2 h-full">
             <ScoreRing score={score} label={label} />
           </div>
         ))}
@@ -451,7 +459,7 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
       {fr?.top_priorities && fr.top_priorities.length > 0 && (
         <section>
           <div className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <Zap size={12} className="text-gold-300" /> Top-Prioritäten
+            <Zap size={12} className="text-gold-300" /> {t('dashComponents.colla.topPriorities')}
           </div>
           <div className="space-y-2">
             {fr.top_priorities.map((p, i) => (
@@ -463,8 +471,8 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
                     <span className="badge text-[0.6rem]">{CAT_LABELS[p.category] ?? p.category}</span>
                   </div>
                   <div className="mt-1.5 flex items-center gap-3 text-[0.65rem]">
-                    <span className={IMPACT_COLOR[p.impact] ?? 'text-ink-400'}>Impact: {p.impact}</span>
-                    <span className={EFFORT_COLOR[p.effort] ?? 'text-ink-400'}>Aufwand: {p.effort}</span>
+                    <span className={IMPACT_COLOR[p.impact] ?? 'text-ink-400'}>{t('dashComponents.colla.impact', { v: p.impact })}</span>
+                    <span className={EFFORT_COLOR[p.effort] ?? 'text-ink-400'}>{t('dashComponents.colla.effort', { v: p.effort })}</span>
                     {p.revenue_impact && <span className="text-emerald-300">{p.revenue_impact}</span>}
                   </div>
                 </div>
@@ -478,7 +486,7 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
       {fr?.quick_wins_this_week && fr.quick_wins_this_week.length > 0 && (
         <section className="card-premium p-5">
           <div className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <CheckCircle2 size={12} className="text-emerald-400" /> Diese Woche umsetzbar
+            <CheckCircle2 size={12} className="text-emerald-400" /> {t('dashComponents.colla.quickWinsWeek')}
           </div>
           <ul className="space-y-2">
             {fr.quick_wins_this_week.map((w, i) => (
@@ -494,12 +502,12 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
       {/* SEO Details */}
       <section className="card-premium p-6">
         <div className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-5 flex items-center gap-2">
-          <Globe size={12} className="text-gold-300" /> SEO + Website
+          <Globe size={12} className="text-gold-300" /> {t('dashComponents.colla.seoWebsite')}
           {seo != null && <span className="badge ml-auto">{seo}/100</span>}
         </div>
         <div className="space-y-2">
           {(intel.website_issues ?? []).length === 0
-            ? <div className="text-xs text-emerald-300 flex items-center gap-2"><CheckCircle2 size={13} /> Keine Issues gefunden.</div>
+            ? <div className="text-xs text-emerald-300 flex items-center gap-2"><CheckCircle2 size={13} /> {t('dashComponents.colla.noIssues')}</div>
             : intel.website_issues.map((issue, i) => (
                 <div key={i} className={`flex items-start gap-2 px-3 py-2 rounded-lg border text-xs ${SEV_COLOR[issue.severity] ?? SEV_COLOR.low}`}>
                   <AlertCircle size={13} className="shrink-0 mt-0.5" />
@@ -517,7 +525,7 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
       {intel.copy_analysis && (
         <section className="card-premium p-6">
           <div className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-5 flex items-center gap-2">
-            <Zap size={12} className="text-gold-300" /> Copy & Wording
+            <Zap size={12} className="text-gold-300" /> {t('dashComponents.colla.copyWording')}
             {cpy != null && <span className="badge ml-auto">{cpy}/100</span>}
           </div>
           <div className="grid sm:grid-cols-3 gap-4 mb-5">
@@ -539,15 +547,15 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
           )}
           {(intel.copy_analysis.rewrite_suggestions ?? []).length > 0 && (
             <div className="space-y-3 mt-4">
-              <div className="text-[0.65rem] font-semibold text-ink-500 uppercase tracking-wider">Rewrite-Vorschläge</div>
+              <div className="text-[0.65rem] font-semibold text-ink-500 uppercase tracking-wider">{t('dashComponents.colla.rewriteSuggestions')}</div>
               {intel.copy_analysis.rewrite_suggestions!.slice(0, 4).map((r, i) => (
                 <div key={i} className="grid sm:grid-cols-2 gap-2 text-xs">
                   <div className="bg-rose-500/5 border border-rose-500/20 rounded-lg p-3">
-                    <div className="text-[0.6rem] text-ink-500 mb-1">{r.element} — Aktuell</div>
+                    <div className="text-[0.6rem] text-ink-500 mb-1">{t('dashComponents.colla.current', { element: r.element })}</div>
                     <div className="text-ink-300">{r.current}</div>
                   </div>
                   <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-3">
-                    <div className="text-[0.6rem] text-ink-500 mb-1">Verbessert</div>
+                    <div className="text-[0.6rem] text-ink-500 mb-1">{t('dashComponents.colla.improved')}</div>
                     <div className="text-emerald-200">{r.improved}</div>
                   </div>
                 </div>
@@ -561,7 +569,7 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
       {intel.workflow_analysis && (
         <section className="card-premium p-6">
           <div className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-5 flex items-center gap-2">
-            <TrendingUp size={12} className="text-gold-300" /> Workflow & AI-Automationen
+            <TrendingUp size={12} className="text-gold-300" /> {t('dashComponents.colla.workflowAi')}
             {wfl != null && <span className="badge ml-auto">{wfl}/100</span>}
           </div>
           {(intel.workflow_analysis.automation_opportunities ?? []).length > 0 && (
@@ -571,9 +579,9 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="font-medium text-sm text-white">{opp.title}</div>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <span className={`text-[0.6rem] font-semibold ${IMPACT_COLOR[opp.impact] ?? 'text-ink-400'}`}>Impact: {opp.impact}</span>
+                      <span className={`text-[0.6rem] font-semibold ${IMPACT_COLOR[opp.impact] ?? 'text-ink-400'}`}>{t('dashComponents.colla.impact', { v: opp.impact })}</span>
                       <span className="text-ink-600">·</span>
-                      <span className={`text-[0.6rem] font-semibold ${EFFORT_COLOR[opp.effort] ?? 'text-ink-400'}`}>Aufwand: {opp.effort}</span>
+                      <span className={`text-[0.6rem] font-semibold ${EFFORT_COLOR[opp.effort] ?? 'text-ink-400'}`}>{t('dashComponents.colla.effort', { v: opp.effort })}</span>
                     </div>
                   </div>
                   <div className="text-xs text-ink-400 mb-2">{opp.description}</div>
@@ -588,7 +596,7 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
           )}
           {intel.workflow_analysis.missing_integrations && intel.workflow_analysis.missing_integrations.length > 0 && (
             <div className="mt-4 pt-4 border-t border-white/5">
-              <div className="text-[0.65rem] text-ink-500 mb-2">Empfohlene Integrationen</div>
+              <div className="text-[0.65rem] text-ink-500 mb-2">{t('dashComponents.colla.recommendedIntegrations')}</div>
               <div className="flex flex-wrap gap-2">
                 {intel.workflow_analysis.missing_integrations.map(t => (
                   <span key={t} className="badge">{t}</span>
@@ -603,14 +611,14 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
       {fr?.aevum_fit && (
         <div className="card-premium p-5 border border-gold-400/20 bg-gold-400/5">
           <div className="text-xs font-semibold text-gold-300 uppercase tracking-wider mb-2 flex items-center gap-2">
-            <Zap size={12} /> Was AEVUM konkret tut
+            <Zap size={12} /> {t('dashComponents.colla.aevumDoes')}
           </div>
           <p className="text-sm text-ink-200">{fr.aevum_fit}</p>
         </div>
       )}
 
       <div className="text-[0.65rem] text-ink-600 text-right">
-        Audit v2 · {new Date(intel.generated_at).toLocaleString('de-DE')}
+        {t('dashComponents.colla.auditV2', { date: new Date(intel.generated_at).toLocaleString('de-DE') })}
       </div>
     </div>
   );
@@ -619,13 +627,14 @@ function SectionIntelligence({ data }: { data: DashboardPayload }) {
 // ── Connect Prompt ────────────────────────────────────────────────────────────
 
 function ConnectPrompt({ service, label }: { service: string; label: string }) {
+  const { t } = useTranslation();
   return (
     <div className="card-premium p-10 text-center space-y-3">
       <div className="mx-auto w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
         {SVC_ICON[service] ?? <Zap size={18} className="text-ink-400" />}
       </div>
-      <div className="text-sm text-ink-300 font-medium">{label} nicht verbunden</div>
-      <div className="text-xs text-ink-500">API-Key unter <span className="text-gold-300">API-Keys</span> einreichen um Live-Daten zu sehen.</div>
+      <div className="text-sm text-ink-300 font-medium">{t('dashComponents.colla.notConnectedLabel', { label })}</div>
+      <div className="text-xs text-ink-500">{t('dashComponents.colla.apiKeyHint1')}<span className="text-gold-300">{t('dashComponents.colla.apiKeys')}</span>{t('dashComponents.colla.apiKeyHint2')}</div>
     </div>
   );
 }
@@ -633,6 +642,7 @@ function ConnectPrompt({ service, label }: { service: string; label: string }) {
 // ── Main Export ───────────────────────────────────────────────────────────────
 
 export default function CollaGlowDashboard({ section = 'overview' }: { section?: string }) {
+  const { t } = useTranslation();
   const [data, setData] = useState<DashboardPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -641,16 +651,16 @@ export default function CollaGlowDashboard({ section = 'overview' }: { section?:
     let active = true;
     api<DashboardPayload>('/api/me/projects/collaglow/dashboard')
       .then(d => { if (active) { setData(d); setError(null); } })
-      .catch((e: unknown) => { if (active) { const m = e instanceof Error ? e.message : 'Fehler'; setError(m); toast.error(m); } })
+      .catch((e: unknown) => { if (active) { const m = e instanceof Error ? e.message : t('dashComponents.common.error'); setError(m); toast.error(m); } })
       .finally(() => active && setLoading(false));
     return () => { active = false; };
   }, []);
 
   if (loading) {
-    return <div className="card-premium p-16 flex flex-col items-center gap-3"><Spinner size="md" /><div className="text-xs text-ink-400">Lade Dashboard…</div></div>;
+    return <div className="card-premium p-16 flex flex-col items-center gap-3"><Spinner size="md" /><div className="text-xs text-ink-400">{t('dashComponents.colla.loading')}</div></div>;
   }
   if (error || !data) {
-    return <div className="card-premium p-10 text-center text-sm text-rose-300">{error || 'Keine Daten.'}</div>;
+    return <div className="card-premium p-10 text-center text-sm text-rose-300">{error || t('dashComponents.colla.noData')}</div>;
   }
 
   switch (section) {

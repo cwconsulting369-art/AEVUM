@@ -5,6 +5,8 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { api } from '@/lib/api';
 import Spinner from '@/components/Spinner';
 import { useNavigate, useParams } from 'react-router';
@@ -54,9 +56,11 @@ const STATUS_COLOR: Record<string, string> = {
   failed: 'text-rose-300 bg-rose-500/10 border-rose-500/25',
 };
 
-const OBJ_LABEL: Record<string, string> = {
-  weg: 'WEG', mfh: 'MFH', efh: 'EFH', gewerbe: 'Gewerbe', sonstige: 'Sonstige'
+const OBJ_KEY: Record<string, string> = {
+  weg: 'dashComponents.uh.objWeg', mfh: 'dashComponents.uh.objMfh', efh: 'dashComponents.uh.objEfh',
+  gewerbe: 'dashComponents.uh.objGewerbe', sonstige: 'dashComponents.uh.objSonstige'
 };
+const objLabel = (t: TFunction, k: string | null | undefined) => (k && OBJ_KEY[k]) ? t(OBJ_KEY[k]) : (k || '–');
 
 function statusBadge(s: string | null | undefined) {
   const k = (s || 'inactive').toLowerCase();
@@ -66,6 +70,7 @@ function statusBadge(s: string | null | undefined) {
 // ── Overview Section ──────────────────────────────────────────
 
 function OverviewSection({ slug }: { slug: string }) {
+  const { t } = useTranslation();
   const [data, setData] = useState<Overview | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -73,19 +78,19 @@ function OverviewSection({ slug }: { slug: string }) {
     let active = true;
     api<Overview>(`/api/me/projects/${slug}/uh/overview`)
       .then(d => { if (active) setData(d); })
-      .catch(e => toast.error(e?.message || 'Laden fehlgeschlagen'))
+      .catch(e => toast.error(e?.message || t('dashComponents.common.loadFailed')))
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [slug]);
 
   if (loading) return <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div>;
-  if (!data?.ok) return <div className="card-premium p-8 text-sm text-ink-400">UH-Daten nicht erreichbar.</div>;
+  if (!data?.ok) return <div className="card-premium p-8 text-sm text-ink-400">{t('dashComponents.uh.notReachable')}</div>;
 
   const cards = [
-    { icon: Building2, label: 'Kunden / Lieferstellen', value: data.kpis.customers_total, color: 'text-blue-300' },
-    { icon: Building, label: 'Organisationen', value: data.kpis.orgs_total, color: 'text-purple-300' },
-    { icon: Zap, label: 'Teleson-Verträge', value: data.kpis.teleson_records_total, color: 'text-yellow-300' },
-    { icon: Download, label: 'Imports', value: data.kpis.imports_total, color: 'text-emerald-300' },
+    { icon: Building2, label: t('dashComponents.uh.customersLieferstellen'), value: data.kpis.customers_total, color: 'text-blue-300' },
+    { icon: Building, label: t('dashComponents.uh.organizations'), value: data.kpis.orgs_total, color: 'text-purple-300' },
+    { icon: Zap, label: t('dashComponents.uh.telesonContracts'), value: data.kpis.teleson_records_total, color: 'text-yellow-300' },
+    { icon: Download, label: t('dashComponents.uh.imports'), value: data.kpis.imports_total, color: 'text-emerald-300' },
   ];
 
   return (
@@ -95,33 +100,33 @@ function OverviewSection({ slug }: { slug: string }) {
           <Zap size={16} className="text-gold-300" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white">UtilityHub Dashboard</h1>
-          <p className="text-xs text-ink-400 mt-0.5">Energie-Daten-Hub · live aus UH-Supabase</p>
+          <h1 className="text-xl font-bold text-white">{t('dashComponents.uh.overviewTitle')}</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{t('dashComponents.uh.overviewSub')}</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 items-stretch">
         {cards.map((c, i) => (
-          <div key={c.label} className="card-premium p-5 animate-fade-up" style={stagger(i, 60, 60)}>
+          <div key={c.label} className="card-premium p-5 animate-fade-up h-full flex flex-col" style={stagger(i, 60, 60)}>
             <div className="flex items-center justify-between mb-3">
               <span className="text-[0.65rem] uppercase tracking-wider text-ink-400 font-semibold">{c.label}</span>
               <c.icon size={14} className={c.color} />
             </div>
-            <div className="text-3xl font-bold text-white">{c.value.toLocaleString('de-DE')}</div>
+            <div className="mt-auto text-3xl font-bold text-white">{c.value.toLocaleString('de-DE')}</div>
           </div>
         ))}
       </div>
 
       <section className="mb-8">
         <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <Download size={12} className="text-gold-300" /> Letzte Imports
+          <Download size={12} className="text-gold-300" /> {t('dashComponents.uh.recentImports')}
         </h2>
         <div className="card-premium p-4 space-y-2">
-          {data.recent_imports.length === 0 && <div className="text-sm text-ink-400 py-4 text-center">Noch keine Imports.</div>}
+          {data.recent_imports.length === 0 && <div className="text-sm text-ink-400 py-4 text-center">{t('dashComponents.uh.noImports')}</div>}
           {data.recent_imports.map(b => (
             <div key={b.id} className="flex items-center justify-between gap-4 px-2 py-2 rounded-md hover:bg-white/5 transition">
               <div className="min-w-0">
-                <div className="text-sm font-medium text-white">{b.total_rows} Rows</div>
+                <div className="text-sm font-medium text-white">{t('dashComponents.uh.rows', { n: b.total_rows })}</div>
                 <div className="text-xs text-ink-400 font-mono truncate">{b.id.slice(0, 8)}…</div>
               </div>
               <span className={statusBadge(b.status)}>
@@ -134,9 +139,9 @@ function OverviewSection({ slug }: { slug: string }) {
       </section>
 
       <div className="card-premium p-4 text-xs text-ink-400 flex items-center justify-between gap-4 flex-wrap">
-        <span>Du arbeitest jetzt im AEVUM-Portal. UH-Admin auf <code className="bg-white/5 px-1.5 py-0.5 rounded">utility-hub.one/app/*</code> bleibt parallel verfügbar.</span>
+        <span>{t('dashComponents.uh.portalNote')}</span>
         <a href="https://utility-hub.one/app/dashboard" target="_blank" rel="noopener" className="inline-flex items-center gap-1 text-gold-300 hover:text-gold-200 shrink-0">
-          Legacy-UI <ExternalLink size={11} />
+          {t('dashComponents.uh.legacyUi')} <ExternalLink size={11} />
         </a>
       </div>
     </>
@@ -146,6 +151,7 @@ function OverviewSection({ slug }: { slug: string }) {
 // ── Customers Section ──────────────────────────────────────────
 
 function CustomersSection({ slug }: { slug: string }) {
+  const { t } = useTranslation();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [total, setTotal] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -157,7 +163,7 @@ function CustomersSection({ slug }: { slug: string }) {
     const q = search ? `&q=${encodeURIComponent(search)}` : '';
     api<{ ok: boolean; customers: Customer[]; total: number | null }>(`/api/me/projects/${slug}/uh/customers?limit=50${q}`)
       .then(d => { if (active) { setCustomers(d.customers); setTotal(d.total); } })
-      .catch(e => toast.error(e?.message || 'Laden fehlgeschlagen'))
+      .catch(e => toast.error(e?.message || t('dashComponents.common.loadFailed')))
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [slug, search]);
@@ -169,8 +175,8 @@ function CustomersSection({ slug }: { slug: string }) {
           <Users size={16} className="text-gold-300" />
         </div>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-white">Kunden / Lieferstellen</h1>
-          <p className="text-xs text-ink-400 mt-0.5">{total !== null ? `${total} Einträge` : 'Lade …'}</p>
+          <h1 className="text-xl font-bold text-white">{t('dashComponents.uh.customersLieferstellen')}</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{total !== null ? t('dashComponents.uh.entriesCount', { n: total }) : t('dashComponents.uh.loading')}</p>
         </div>
       </div>
 
@@ -179,11 +185,11 @@ function CustomersSection({ slug }: { slug: string }) {
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
           <input
             type="search"
-            placeholder="Name, Email oder Stadt suchen…"
+            placeholder={t('dashComponents.uh.searchPlaceholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="input-premium pl-9 w-full"
-            aria-label="Kunden durchsuchen"
+            aria-label={t('dashComponents.uh.searchAria')}
           />
         </div>
       </div>
@@ -191,18 +197,18 @@ function CustomersSection({ slug }: { slug: string }) {
       {loading ? (
         <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div>
       ) : customers.length === 0 ? (
-        <div className="card-premium p-12 text-center text-sm text-ink-400">Keine Treffer.</div>
+        <div className="card-premium p-12 text-center text-sm text-ink-400">{t('dashComponents.uh.noHits')}</div>
       ) : (
         <div className="card-premium overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-[0.7rem] uppercase tracking-wider text-ink-400 border-b border-white/10">
-                  <th className="px-4 py-3 font-semibold">Lieferstelle</th>
-                  <th className="px-4 py-3 font-semibold">Adresse</th>
-                  <th className="px-4 py-3 font-semibold">Typ</th>
-                  <th className="px-4 py-3 font-semibold">Status</th>
-                  <th className="px-4 py-3 font-semibold">Quelle</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colLieferstelle')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colAddress')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colType')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colStatus')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colSource')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -220,7 +226,7 @@ function CustomersSection({ slug }: { slug: string }) {
                     <td className="px-4 py-3 text-ink-200 text-xs">
                       {c.address}{c.city ? `, ${c.postal_code || ''} ${c.city}` : ''}
                     </td>
-                    <td className="px-4 py-3"><span className="badge">{OBJ_LABEL[c.object_type || ''] || c.object_type || '–'}</span></td>
+                    <td className="px-4 py-3"><span className="badge">{objLabel(t, c.object_type)}</span></td>
                     <td className="px-4 py-3"><span className={statusBadge(c.status)}>{c.status}</span></td>
                     <td className="px-4 py-3 text-xs text-ink-400">{c.source || '–'}</td>
                   </tr>
@@ -237,6 +243,7 @@ function CustomersSection({ slug }: { slug: string }) {
 // ── Imports Section ──────────────────────────────────────────
 
 function ImportsSection({ slug }: { slug: string }) {
+  const { t } = useTranslation();
   const [imports, setImports] = useState<ImportBatch[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -244,7 +251,7 @@ function ImportsSection({ slug }: { slug: string }) {
     let active = true;
     api<{ ok: boolean; imports: ImportBatch[] }>(`/api/me/projects/${slug}/uh/imports?limit=50`)
       .then(d => { if (active) setImports(d.imports); })
-      .catch(e => toast.error(e?.message || 'Laden fehlgeschlagen'))
+      .catch(e => toast.error(e?.message || t('dashComponents.common.loadFailed')))
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [slug]);
@@ -256,26 +263,26 @@ function ImportsSection({ slug }: { slug: string }) {
           <Download size={16} className="text-gold-300" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white">Imports</h1>
-          <p className="text-xs text-ink-400 mt-0.5">CSV + Airtable + Notion Sync-Batches</p>
+          <h1 className="text-xl font-bold text-white">{t('dashComponents.uh.imports')}</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{t('dashComponents.uh.importsSub')}</p>
         </div>
       </div>
 
       {loading ? (
         <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div>
       ) : imports.length === 0 ? (
-        <div className="card-premium p-12 text-center text-sm text-ink-400">Noch keine Imports.</div>
+        <div className="card-premium p-12 text-center text-sm text-ink-400">{t('dashComponents.uh.noImports')}</div>
       ) : (
         <div className="card-premium overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-[0.7rem] uppercase tracking-wider text-ink-400 border-b border-white/10">
-                  <th className="px-4 py-3 font-semibold">Quelle</th>
-                  <th className="px-4 py-3 font-semibold">Rows</th>
-                  <th className="px-4 py-3 font-semibold">Errors</th>
-                  <th className="px-4 py-3 font-semibold">Status</th>
-                  <th className="px-4 py-3 font-semibold">Gestartet</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colSourceShort')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colRows')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colErrors')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colStatus')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colStarted')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -303,6 +310,7 @@ function ImportsSection({ slug }: { slug: string }) {
 // ── Teleson (FG Finanz) Section ──────────────────────────────────────────
 
 function TelesonSection({ slug }: { slug: string }) {
+  const { t } = useTranslation();
   const [records, setRecords] = useState<TelesonRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState<number | null>(null);
@@ -311,7 +319,7 @@ function TelesonSection({ slug }: { slug: string }) {
     let active = true;
     api<{ ok: boolean; records: TelesonRecord[]; total: number | null }>(`/api/me/projects/${slug}/uh/teleson?limit=100`)
       .then(d => { if (active) { setRecords(d.records); setTotal(d.total); } })
-      .catch(e => toast.error(e?.message || 'Laden fehlgeschlagen'))
+      .catch(e => toast.error(e?.message || t('dashComponents.common.loadFailed')))
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [slug]);
@@ -323,27 +331,27 @@ function TelesonSection({ slug }: { slug: string }) {
           <Zap size={16} className="text-gold-300" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white">FG Finanz / Provisionen</h1>
-          <p className="text-xs text-ink-400 mt-0.5">{total !== null ? `${total} Verträge` : 'Lade …'}</p>
+          <h1 className="text-xl font-bold text-white">{t('dashComponents.uh.fgFinanz')}</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{total !== null ? t('dashComponents.uh.contractsCount', { n: total }) : t('dashComponents.uh.loading')}</p>
         </div>
       </div>
 
       {loading ? (
         <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div>
       ) : records.length === 0 ? (
-        <div className="card-premium p-12 text-center text-sm text-ink-400">Noch keine Teleson-Records.</div>
+        <div className="card-premium p-12 text-center text-sm text-ink-400">{t('dashComponents.uh.noTeleson')}</div>
       ) : (
         <div className="card-premium overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-[0.7rem] uppercase tracking-wider text-ink-400 border-b border-white/10">
-                  <th className="px-4 py-3 font-semibold">Energie</th>
-                  <th className="px-4 py-3 font-semibold">Versorger</th>
-                  <th className="px-4 py-3 font-semibold">AP</th>
-                  <th className="px-4 py-3 font-semibold">Status</th>
-                  <th className="px-4 py-3 font-semibold">Belieferung</th>
-                  <th className="px-4 py-3 font-semibold">Gebunden bis</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colEnergie')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colVersorger')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colAp')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colStatus')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colBelieferung')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colGebundenBis')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -369,6 +377,13 @@ function TelesonSection({ slug }: { slug: string }) {
 // ── Settings Section ──────────────────────────────────────────
 
 function SettingsSection({ slug }: { slug: string }) {
+  const { t } = useTranslation();
+  const integrations = [
+    { name: 'Close.com', desc: t('dashComponents.uh.intCloseDesc'), active: false },
+    { name: 'Airtable', desc: t('dashComponents.uh.intAirtableDesc'), active: false },
+    { name: 'Notion', desc: t('dashComponents.uh.intNotionDesc'), active: false },
+    { name: 'Teleson', desc: t('dashComponents.uh.intTelesonDesc'), active: true },
+  ];
   return (
     <>
       <div className="flex items-center gap-3 mb-6">
@@ -376,29 +391,24 @@ function SettingsSection({ slug }: { slug: string }) {
           <FileText size={16} className="text-gold-300" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white">UH-Settings</h1>
-          <p className="text-xs text-ink-400 mt-0.5">Integrations und Sync-Konfiguration</p>
+          <h1 className="text-xl font-bold text-white">{t('dashComponents.uh.settingsTitle')}</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{t('dashComponents.uh.settingsSub')}</p>
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4 mb-6">
-        {[
-          { name: 'Close.com', desc: 'Read-only Leads-Sync (alle 15 min)', status: 'Bald verfügbar' },
-          { name: 'Airtable', desc: 'Live-Mirror Records', status: 'Bald verfügbar' },
-          { name: 'Notion', desc: 'Pages + DBs Live-Mirror', status: 'Bald verfügbar' },
-          { name: 'Teleson', desc: 'CSV-Import-Pipeline', status: 'Aktiv' },
-        ].map(int => (
-          <div key={int.name} className="card-premium p-4">
+      <div className="grid sm:grid-cols-2 gap-4 mb-6 items-stretch">
+        {integrations.map(int => (
+          <div key={int.name} className="card-premium p-4 h-full flex flex-col">
             <div className="font-medium text-white text-sm">{int.name}</div>
             <div className="text-xs text-ink-400 mt-1 mb-3">{int.desc}</div>
-            <span className={`badge ${int.status === 'Aktiv' ? 'badge-gold' : ''}`}>{int.status}</span>
+            <span className={`badge mt-auto self-start ${int.active ? 'badge-gold' : ''}`}>{int.active ? t('dashComponents.uh.statusActive') : t('dashComponents.uh.statusSoon')}</span>
           </div>
         ))}
       </div>
 
       <a href={`/projects/${slug}?s=apis`} className="block card-premium p-4 hover:bg-white/[0.02] transition">
-        <div className="font-medium text-white text-sm">API-Keys verwalten</div>
-        <div className="text-xs text-ink-400 mt-1">Close.com / Airtable / Notion Keys hier einreichen → AES-256-GCM verschlüsselt</div>
+        <div className="font-medium text-white text-sm">{t('dashComponents.uh.manageApiKeys')}</div>
+        <div className="text-xs text-ink-400 mt-1">{t('dashComponents.uh.manageApiKeysDesc')}</div>
       </a>
     </>
   );
@@ -413,6 +423,7 @@ type CloseLead = {
 };
 
 function CloseSection({ slug }: { slug: string }) {
+  const { t } = useTranslation();
   const [leads, setLeads] = useState<CloseLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -423,9 +434,9 @@ function CloseSection({ slug }: { slug: string }) {
       .then(d => {
         if (!active) return;
         if (d.ok && d.leads) { setLeads(d.leads); setError(null); }
-        else setError(d.hint || d.detail || d.error || 'Verbindung fehlgeschlagen');
+        else setError(d.hint || d.detail || d.error || t('dashComponents.uh.connectionFailed'));
       })
-      .catch(e => { if (active) setError(e?.message || 'Laden fehlgeschlagen'); })
+      .catch(e => { if (active) setError(e?.message || t('dashComponents.common.loadFailed')); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [slug]);
@@ -437,8 +448,8 @@ function CloseSection({ slug }: { slug: string }) {
           <Briefcase size={16} className="text-gold-300" />
         </div>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-white">Close.com Leads</h1>
-          <p className="text-xs text-ink-400 mt-0.5">Live-Sync · Read-only · {leads.length} Leads sichtbar</p>
+          <h1 className="text-xl font-bold text-white">{t('dashComponents.uh.closeTitle')}</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{t('dashComponents.uh.closeSub', { count: leads.length })}</p>
         </div>
       </div>
 
@@ -448,25 +459,25 @@ function CloseSection({ slug }: { slug: string }) {
         <div className="card-premium p-8">
           <div className="flex items-center gap-3 mb-4">
             <AlertCircle size={18} className="text-yellow-300" />
-            <h3 className="font-semibold text-white">Close.com nicht verbunden</h3>
+            <h3 className="font-semibold text-white">{t('dashComponents.uh.closeNotConnected')}</h3>
           </div>
           <p className="text-sm text-ink-300 mb-4">{error}</p>
           <a href={`/projects/${slug}?s=apis`} className="inline-flex items-center gap-2 btn-gold text-sm">
-            <KeyRound size={13} /> API-Key einreichen
+            <KeyRound size={13} /> {t('dashComponents.uh.submitApiKey')}
           </a>
         </div>
       ) : leads.length === 0 ? (
-        <div className="card-premium p-12 text-center text-sm text-ink-400">Keine Leads in Close.com.</div>
+        <div className="card-premium p-12 text-center text-sm text-ink-400">{t('dashComponents.uh.noCloseLeads')}</div>
       ) : (
         <div className="card-premium overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-[0.7rem] uppercase tracking-wider text-ink-400 border-b border-white/10">
-                  <th className="px-4 py-3 font-semibold">Lead</th>
-                  <th className="px-4 py-3 font-semibold">Status</th>
-                  <th className="px-4 py-3 font-semibold">Kontakt</th>
-                  <th className="px-4 py-3 font-semibold">Geändert</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colLead')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colStatus')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colContact')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('dashComponents.uh.colChanged')}</th>
                   <th className="px-4 py-3 font-semibold"></th>
                 </tr>
               </thead>
@@ -505,6 +516,7 @@ function CloseSection({ slug }: { slug: string }) {
 type AirtableRecord = { id: string; fields: Record<string, unknown>; created_at: string };
 
 function AirtableSection({ slug }: { slug: string }) {
+  const { t } = useTranslation();
   const [records, setRecords] = useState<AirtableRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -519,9 +531,9 @@ function AirtableSection({ slug }: { slug: string }) {
           setRecords(d.records);
           setMeta({ base_id: d.base_id || '', table_name: d.table_name || '' });
           setError(null);
-        } else setError(d.hint || d.detail || d.error || 'Verbindung fehlgeschlagen');
+        } else setError(d.hint || d.detail || d.error || t('dashComponents.uh.connectionFailed'));
       })
-      .catch(e => { if (active) setError(e?.message || 'Laden fehlgeschlagen'); })
+      .catch(e => { if (active) setError(e?.message || t('dashComponents.common.loadFailed')); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [slug]);
@@ -535,9 +547,9 @@ function AirtableSection({ slug }: { slug: string }) {
           <Database size={16} className="text-gold-300" />
         </div>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-white">Airtable Mirror</h1>
+          <h1 className="text-xl font-bold text-white">{t('dashComponents.uh.airtableTitle')}</h1>
           <p className="text-xs text-ink-400 mt-0.5">
-            {meta ? `${meta.base_id} · ${meta.table_name}` : 'Live-Mirror · Read-only · 1. Spalten sichtbar'}
+            {meta ? `${meta.base_id} · ${meta.table_name}` : t('dashComponents.uh.airtableSubDefault')}
           </p>
         </div>
       </div>
@@ -548,18 +560,18 @@ function AirtableSection({ slug }: { slug: string }) {
         <div className="card-premium p-8">
           <div className="flex items-center gap-3 mb-4">
             <AlertCircle size={18} className="text-yellow-300" />
-            <h3 className="font-semibold text-white">Airtable nicht verbunden</h3>
+            <h3 className="font-semibold text-white">{t('dashComponents.uh.airtableNotConnected')}</h3>
           </div>
           <p className="text-sm text-ink-300 mb-4">{error}</p>
           <p className="text-xs text-ink-400 mb-4">
-            <strong>Setup:</strong> API-Keys → Service <code className="bg-white/5 px-1 rounded">airtable</code>, Label <code className="bg-white/5 px-1 rounded">appXXX/TableName</code>, Key = Personal Access Token.
+            <strong>{t('dashComponents.uh.airtableSetup')}</strong>{t('dashComponents.uh.airtableSetupRest')}<code className="bg-white/5 px-1 rounded">airtable</code>{t('dashComponents.uh.airtableSetupLabel')}<code className="bg-white/5 px-1 rounded">appXXX/TableName</code>{t('dashComponents.uh.airtableSetupKey')}
           </p>
           <a href={`/projects/${slug}?s=apis`} className="inline-flex items-center gap-2 btn-gold text-sm">
-            <KeyRound size={13} /> API-Key einreichen
+            <KeyRound size={13} /> {t('dashComponents.uh.submitApiKey')}
           </a>
         </div>
       ) : records.length === 0 ? (
-        <div className="card-premium p-12 text-center text-sm text-ink-400">Keine Records in Airtable-Tabelle.</div>
+        <div className="card-premium p-12 text-center text-sm text-ink-400">{t('dashComponents.uh.noAirtableRecords')}</div>
       ) : (
         <div className="card-premium overflow-hidden">
           <div className="overflow-x-auto">
@@ -595,6 +607,7 @@ function AirtableSection({ slug }: { slug: string }) {
 type NotionDatabase = { id: string; title: string; url: string; created_time: string; last_edited_time: string };
 
 function NotionSection({ slug }: { slug: string }) {
+  const { t } = useTranslation();
   const [databases, setDatabases] = useState<NotionDatabase[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -605,9 +618,9 @@ function NotionSection({ slug }: { slug: string }) {
       .then(d => {
         if (!active) return;
         if (d.ok && d.databases) { setDatabases(d.databases); setError(null); }
-        else setError(d.hint || d.detail || d.error || 'Verbindung fehlgeschlagen');
+        else setError(d.hint || d.detail || d.error || t('dashComponents.uh.connectionFailed'));
       })
-      .catch(e => { if (active) setError(e?.message || 'Laden fehlgeschlagen'); })
+      .catch(e => { if (active) setError(e?.message || t('dashComponents.common.loadFailed')); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [slug]);
@@ -619,8 +632,8 @@ function NotionSection({ slug }: { slug: string }) {
           <BookOpen size={16} className="text-gold-300" />
         </div>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-white">Notion Workspace</h1>
-          <p className="text-xs text-ink-400 mt-0.5">Live-Mirror · {databases.length} Datenbanken sichtbar</p>
+          <h1 className="text-xl font-bold text-white">{t('dashComponents.uh.notionTitle')}</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{t('dashComponents.uh.notionSub', { count: databases.length })}</p>
         </div>
       </div>
 
@@ -630,19 +643,19 @@ function NotionSection({ slug }: { slug: string }) {
         <div className="card-premium p-8">
           <div className="flex items-center gap-3 mb-4">
             <AlertCircle size={18} className="text-yellow-300" />
-            <h3 className="font-semibold text-white">Notion nicht verbunden</h3>
+            <h3 className="font-semibold text-white">{t('dashComponents.uh.notionNotConnected')}</h3>
           </div>
           <p className="text-sm text-ink-300 mb-4">{error}</p>
           <p className="text-xs text-ink-400 mb-4">
-            <strong>Setup:</strong> Notion → Settings → Connections → Internal-Integration anlegen → Token kopieren → hier als API-Key Service <code className="bg-white/5 px-1 rounded">notion</code> einreichen. Dann Notion-Pages für die Integration freigeben.
+            <strong>{t('dashComponents.uh.notionSetup')}</strong>{t('dashComponents.uh.notionSetupRest')}<code className="bg-white/5 px-1 rounded">notion</code>{t('dashComponents.uh.notionSetupEnd')}
           </p>
           <a href={`/projects/${slug}?s=apis`} className="inline-flex items-center gap-2 btn-gold text-sm">
-            <KeyRound size={13} /> API-Key einreichen
+            <KeyRound size={13} /> {t('dashComponents.uh.submitApiKey')}
           </a>
         </div>
       ) : databases.length === 0 ? (
         <div className="card-premium p-12 text-center text-sm text-ink-400">
-          Keine Datenbanken sichtbar. Notion-Pages müssen für die Integration freigegeben werden.
+          {t('dashComponents.uh.noNotionDbs')}
         </div>
       ) : (
         <div className="space-y-2">
@@ -650,7 +663,7 @@ function NotionSection({ slug }: { slug: string }) {
             <a key={db.id} href={db.url} target="_blank" rel="noopener" className="card-premium p-4 flex items-center justify-between hover:bg-white/[0.02] transition animate-fade-up" style={stagger(i, 40, 40)}>
               <div className="min-w-0">
                 <div className="font-medium text-white">{db.title}</div>
-                <div className="text-xs text-ink-400 mt-1">Geändert: {new Date(db.last_edited_time).toLocaleDateString('de-DE')}</div>
+                <div className="text-xs text-ink-400 mt-1">{t('dashComponents.uh.changed', { date: new Date(db.last_edited_time).toLocaleDateString('de-DE') })}</div>
               </div>
               <ExternalLink size={13} className="text-gold-300 shrink-0" />
             </a>
@@ -671,6 +684,7 @@ type CustomerDetail = {
 };
 
 function CustomerDetailSection({ slug, customerId, onBack }: { slug: string; customerId: string; onBack: () => void }) {
+  const { t } = useTranslation();
   const [data, setData] = useState<CustomerDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -678,7 +692,7 @@ function CustomerDetailSection({ slug, customerId, onBack }: { slug: string; cus
     let active = true;
     api<{ ok: boolean } & CustomerDetail>(`/api/me/projects/${slug}/uh/customers/${customerId}`)
       .then(d => { if (active) setData(d); })
-      .catch(e => toast.error(e?.message || 'Laden fehlgeschlagen'))
+      .catch(e => toast.error(e?.message || t('dashComponents.common.loadFailed')))
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [slug, customerId]);
@@ -687,9 +701,9 @@ function CustomerDetailSection({ slug, customerId, onBack }: { slug: string; cus
   if (!data?.customer) return (
     <div className="card-premium p-8">
       <button onClick={onBack} className="text-xs text-ink-400 hover:text-white mb-4 inline-flex items-center gap-1">
-        <ArrowLeft size={11} /> Zurück zur Liste
+        <ArrowLeft size={11} /> {t('dashComponents.uh.backToList')}
       </button>
-      <div className="text-sm text-ink-400">Lieferstelle nicht gefunden.</div>
+      <div className="text-sm text-ink-400">{t('dashComponents.uh.lieferstelleNotFound')}</div>
     </div>
   );
 
@@ -697,7 +711,7 @@ function CustomerDetailSection({ slug, customerId, onBack }: { slug: string; cus
   return (
     <>
       <button onClick={onBack} className="text-xs text-ink-400 hover:text-white mb-4 inline-flex items-center gap-1">
-        <ArrowLeft size={11} /> Zurück zur Liste
+        <ArrowLeft size={11} /> {t('dashComponents.uh.backToList')}
       </button>
 
       <div className="card-premium p-6 mb-4">
@@ -710,20 +724,20 @@ function CustomerDetailSection({ slug, customerId, onBack }: { slug: string; cus
           </div>
           <div className="flex flex-col gap-2 items-end">
             <span className={statusBadge(c.status)}>{c.status}</span>
-            <span className="badge">{OBJ_LABEL[c.object_type || ''] || c.object_type || '–'}</span>
+            <span className="badge">{objLabel(t, c.object_type)}</span>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4 text-sm">
-          {c.email && <div><span className="text-ink-400 text-xs uppercase tracking-wider">Email</span><div className="text-white">{c.email}</div></div>}
-          {c.phone && <div><span className="text-ink-400 text-xs uppercase tracking-wider">Phone</span><div className="text-white">{c.phone}</div></div>}
-          <div><span className="text-ink-400 text-xs uppercase tracking-wider">Quelle</span><div className="text-white">{c.source || '–'}</div></div>
-          <div><span className="text-ink-400 text-xs uppercase tracking-wider">Angelegt</span><div className="text-white">{new Date(c.created_at).toLocaleDateString('de-DE')}</div></div>
+          {c.email && <div><span className="text-ink-400 text-xs uppercase tracking-wider">{t('dashComponents.uh.detailEmail')}</span><div className="text-white">{c.email}</div></div>}
+          {c.phone && <div><span className="text-ink-400 text-xs uppercase tracking-wider">{t('dashComponents.uh.detailPhone')}</span><div className="text-white">{c.phone}</div></div>}
+          <div><span className="text-ink-400 text-xs uppercase tracking-wider">{t('dashComponents.uh.detailSource')}</span><div className="text-white">{c.source || '–'}</div></div>
+          <div><span className="text-ink-400 text-xs uppercase tracking-wider">{t('dashComponents.uh.detailCreated')}</span><div className="text-white">{new Date(c.created_at).toLocaleDateString('de-DE')}</div></div>
         </div>
       </div>
 
       {data.identities.length > 0 && (
         <section className="mb-4">
-          <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3">Externe IDs ({data.identities.length})</h2>
+          <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3">{t('dashComponents.uh.externalIds', { count: data.identities.length })}</h2>
           <div className="card-premium p-4 space-y-2">
             {data.identities.map(id => (
               <div key={id.id} className="flex justify-between text-sm">
@@ -737,12 +751,12 @@ function CustomerDetailSection({ slug, customerId, onBack }: { slug: string; cus
 
       {data.teleson_records.length > 0 && (
         <section className="mb-4">
-          <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3">Teleson-Verträge ({data.teleson_records.length})</h2>
+          <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3">{t('dashComponents.uh.telesonContractsCount', { count: data.teleson_records.length })}</h2>
           <div className="card-premium overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-[0.7rem] uppercase tracking-wider text-ink-400 border-b border-white/10">
-                  <th className="px-4 py-3">Energie</th><th className="px-4 py-3">Versorger</th><th className="px-4 py-3">AP</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Belieferung</th>
+                  <th className="px-4 py-3">{t('dashComponents.uh.colEnergie')}</th><th className="px-4 py-3">{t('dashComponents.uh.colVersorger')}</th><th className="px-4 py-3">{t('dashComponents.uh.colAp')}</th><th className="px-4 py-3">{t('dashComponents.uh.colStatus')}</th><th className="px-4 py-3">{t('dashComponents.uh.colBelieferung')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -763,7 +777,7 @@ function CustomerDetailSection({ slug, customerId, onBack }: { slug: string; cus
 
       {data.notes.length > 0 && (
         <section className="mb-4">
-          <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3">Notizen ({data.notes.length})</h2>
+          <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3">{t('dashComponents.uh.notes', { count: data.notes.length })}</h2>
           <div className="card-premium p-4 space-y-3">
             {data.notes.map(n => (
               <div key={n.id} className="border-b border-white/5 last:border-0 pb-3 last:pb-0">
@@ -776,7 +790,7 @@ function CustomerDetailSection({ slug, customerId, onBack }: { slug: string; cus
       )}
 
       <a href={`https://utility-hub.one/app/customers/${c.id}`} target="_blank" rel="noopener" className="inline-flex items-center gap-1 text-xs text-gold-300 hover:text-gold-200">
-        Im Legacy-UI öffnen <ExternalLink size={11} />
+        {t('dashComponents.uh.openInLegacy')} <ExternalLink size={11} />
       </a>
     </>
   );
@@ -787,6 +801,7 @@ function CustomerDetailSection({ slug, customerId, onBack }: { slug: string; cus
 type Organization = { id: string; name: string; kind?: string; created_at: string };
 
 function OrganizationsSection({ slug }: { slug: string }) {
+  const { t } = useTranslation();
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -806,19 +821,19 @@ function OrganizationsSection({ slug }: { slug: string }) {
           <Building size={16} className="text-gold-300" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white">Organisationen</h1>
-          <p className="text-xs text-ink-400 mt-0.5">{orgs.length} Hausverwaltungen / Bestandshalter</p>
+          <h1 className="text-xl font-bold text-white">{t('dashComponents.uh.organizationsTitle')}</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{t('dashComponents.uh.orgsSub', { count: orgs.length })}</p>
         </div>
       </div>
 
       {loading ? <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div> :
-       orgs.length === 0 ? <div className="card-premium p-12 text-center text-sm text-ink-400">Noch keine Orgs.</div> :
+       orgs.length === 0 ? <div className="card-premium p-12 text-center text-sm text-ink-400">{t('dashComponents.uh.noOrgs')}</div> :
        <div className="space-y-2">
          {orgs.map((o, i) => (
            <div key={o.id} className="card-premium p-4 flex items-center justify-between animate-fade-up" style={stagger(i, 40, 40)}>
              <div>
                <div className="font-medium text-white">{o.name}</div>
-               <div className="text-xs text-ink-400 mt-0.5">{o.kind || 'Organisation'} · seit {new Date(o.created_at).toLocaleDateString('de-DE')}</div>
+               <div className="text-xs text-ink-400 mt-0.5">{t('dashComponents.uh.orgSince', { kind: o.kind || t('dashComponents.uh.organizationDefault'), date: new Date(o.created_at).toLocaleDateString('de-DE') })}</div>
              </div>
            </div>
          ))}
@@ -839,6 +854,7 @@ type ReportData = {
 };
 
 function ReportsSection({ slug }: { slug: string }) {
+  const { t } = useTranslation();
   const [data, setData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -852,14 +868,14 @@ function ReportsSection({ slug }: { slug: string }) {
   }, [slug]);
 
   if (loading) return <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div>;
-  if (!data) return <div className="card-premium p-8 text-sm text-ink-400">Reports nicht ladbar.</div>;
+  if (!data) return <div className="card-premium p-8 text-sm text-ink-400">{t('dashComponents.uh.reportsNotLoadable')}</div>;
 
   const groups = [
-    { title: 'Lieferstellen nach Typ', items: data.customers_by_object_type },
-    { title: 'Lieferstellen nach Status', items: data.customers_by_status },
-    { title: 'Lieferstellen nach Quelle', items: data.customers_by_source },
-    { title: 'Teleson nach Energie', items: data.teleson_by_energie },
-    { title: 'Teleson nach Status', items: data.teleson_by_status },
+    { title: t('dashComponents.uh.reportByType'), items: data.customers_by_object_type },
+    { title: t('dashComponents.uh.reportByStatus'), items: data.customers_by_status },
+    { title: t('dashComponents.uh.reportBySource'), items: data.customers_by_source },
+    { title: t('dashComponents.uh.reportTelesonEnergie'), items: data.teleson_by_energie },
+    { title: t('dashComponents.uh.reportTelesonStatus'), items: data.teleson_by_status },
   ];
   const totalFor = (items: Array<{ count: number }>) => items.reduce((s, i) => s + i.count, 0);
 
@@ -870,8 +886,8 @@ function ReportsSection({ slug }: { slug: string }) {
           <BarChart3 size={16} className="text-gold-300" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white">Reports</h1>
-          <p className="text-xs text-ink-400 mt-0.5">Live-Aggregate aus der UH-DB</p>
+          <h1 className="text-xl font-bold text-white">{t('dashComponents.uh.reportsTitle')}</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{t('dashComponents.uh.reportsSub')}</p>
         </div>
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
@@ -909,6 +925,7 @@ function ReportsSection({ slug }: { slug: string }) {
 type Contact = { id: string; full_name?: string; email?: string; phone?: string; organization_id?: string; role?: string };
 
 function ContactsSection({ slug }: { slug: string }) {
+  const { t } = useTranslation();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -928,12 +945,12 @@ function ContactsSection({ slug }: { slug: string }) {
           <Users size={16} className="text-gold-300" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white">Kontakte</h1>
-          <p className="text-xs text-ink-400 mt-0.5">{contacts.length} Ansprechpartner</p>
+          <h1 className="text-xl font-bold text-white">{t('dashComponents.uh.contactsTitle')}</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{t('dashComponents.uh.contactsSub', { count: contacts.length })}</p>
         </div>
       </div>
       {loading ? <div className="card-premium p-12 flex justify-center"><Spinner size="md" /></div> :
-       contacts.length === 0 ? <div className="card-premium p-12 text-center text-sm text-ink-400">Noch keine Kontakte.</div> :
+       contacts.length === 0 ? <div className="card-premium p-12 text-center text-sm text-ink-400">{t('dashComponents.uh.noContacts')}</div> :
        <div className="space-y-2">
          {contacts.map((c, i) => (
            <div key={c.id} className="card-premium p-4 animate-fade-up" style={stagger(i, 30, 30)}>
@@ -953,7 +970,8 @@ function ContactsSection({ slug }: { slug: string }) {
 
 // ── Coming-Soon Section (Documents/Incentives/Support/Roadmap) ─────────
 
-function ComingSoonSection({ slug, title, desc, legacyPath }: { slug: string; title: string; desc: string; legacyPath: string }) {
+function ComingSoonSection({ title, desc, legacyPath }: { title: string; desc: string; legacyPath: string }) {
+  const { t } = useTranslation();
   return (
     <div className="card-premium p-8">
       <div className="flex items-center gap-3 mb-4">
@@ -962,10 +980,10 @@ function ComingSoonSection({ slug, title, desc, legacyPath }: { slug: string; ti
       </div>
       <p className="text-sm text-ink-300 mb-6">{desc}</p>
       <p className="text-xs text-ink-400 mb-4">
-        Diese Section wird aktuell ins AEVUM-Portal portiert. Bis dahin verfügbar im Legacy-UI:
+        {t('dashComponents.uh.comingSoonNote')}
       </p>
       <a href={`https://utility-hub.one${legacyPath}`} target="_blank" rel="noopener" className="inline-flex items-center gap-2 btn-gold text-sm">
-        Im UH-Admin öffnen <ExternalLink size={13} />
+        {t('dashComponents.uh.openInUhAdmin')} <ExternalLink size={13} />
       </a>
     </div>
   );
@@ -991,6 +1009,7 @@ function CustomersWrapper({ slug }: { slug: string }) {
 // ── Router Switch ──────────────────────────────────────────
 
 export default function UtilityHubDashboard({ slug, section }: { slug: string; section: string }) {
+  const { t } = useTranslation();
   if (section === 'customers') return <CustomersWrapper slug={slug} />;
   if (section === 'organizations') return <OrganizationsSection slug={slug} />;
   if (section === 'contacts') return <ContactsSection slug={slug} />;
@@ -1000,10 +1019,10 @@ export default function UtilityHubDashboard({ slug, section }: { slug: string; s
   if (section === 'close') return <CloseSection slug={slug} />;
   if (section === 'airtable') return <AirtableSection slug={slug} />;
   if (section === 'notion') return <NotionSection slug={slug} />;
-  if (section === 'uh-documents') return <ComingSoonSection slug={slug} title="UH-Dokumente" desc="Dokumenten-Verwaltung pro Lieferstelle (Verträge, Rechnungen, Korrespondenz)." legacyPath="/app/documents" />;
-  if (section === 'uh-incentives') return <ComingSoonSection slug={slug} title="Incentives / Provisionen" desc="Provisions-Tracking für Vertriebsmitarbeiter." legacyPath="/app/incentives" />;
-  if (section === 'uh-support') return <ComingSoonSection slug={slug} title="Support" desc="Support-Tickets + Kunden-Anfragen." legacyPath="/app/support" />;
-  if (section === 'uh-roadmap') return <ComingSoonSection slug={slug} title="UH-Roadmap" desc="Produkt-Roadmap und Releases." legacyPath="/app/roadmap" />;
+  if (section === 'uh-documents') return <ComingSoonSection title={t('dashComponents.uh.uhDocuments')} desc={t('dashComponents.uh.uhDocumentsDesc')} legacyPath="/app/documents" />;
+  if (section === 'uh-incentives') return <ComingSoonSection title={t('dashComponents.uh.uhIncentives')} desc={t('dashComponents.uh.uhIncentivesDesc')} legacyPath="/app/incentives" />;
+  if (section === 'uh-support') return <ComingSoonSection title={t('dashComponents.uh.uhSupport')} desc={t('dashComponents.uh.uhSupportDesc')} legacyPath="/app/support" />;
+  if (section === 'uh-roadmap') return <ComingSoonSection title={t('dashComponents.uh.uhRoadmap')} desc={t('dashComponents.uh.uhRoadmapDesc')} legacyPath="/app/roadmap" />;
   if (section === 'uh-settings') return <SettingsSection slug={slug} />;
   return <OverviewSection slug={slug} />;
 }

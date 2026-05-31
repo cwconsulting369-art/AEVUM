@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams } from 'react-router';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { api, getAccessToken } from '@/lib/api';
 import { MarkdownViewer } from '@/components/markdown/MarkdownViewer';
 import Spinner from '@/components/Spinner';
@@ -29,10 +30,10 @@ type DocReadResponse = {
   content: string;
 };
 
-const FOLDER_LABELS: Record<DocMeta['folder'], { label: string; hint: string; Icon: typeof Inbox }> = {
-  inbox: { label: 'Inbox', hint: 'Du → Agent', Icon: Inbox },
-  outbox: { label: 'Outbox', hint: 'Agent → Du', Icon: Send },
-  shared: { label: 'Shared', hint: 'Bidirektional', Icon: Users },
+const FOLDER_META: Record<DocMeta['folder'], { labelKey: string; hintKey: string; Icon: typeof Inbox }> = {
+  inbox: { labelKey: 'documents.folderInbox', hintKey: 'documents.hintInbox', Icon: Inbox },
+  outbox: { labelKey: 'documents.folderOutbox', hintKey: 'documents.hintOutbox', Icon: Send },
+  shared: { labelKey: 'documents.folderShared', hintKey: 'documents.hintShared', Icon: Users },
 };
 
 function formatBytes(n: number) {
@@ -50,6 +51,7 @@ function formatDate(iso: string) {
 }
 
 export default function Documents() {
+  const { t } = useTranslation();
   const { slug = '' } = useParams();
 
   const [loading, setLoading] = useState(true);
@@ -73,7 +75,7 @@ export default function Documents() {
       const r = await api<DocsListResponse>(`/api/me/projects/${slug}/docs`);
       setDocs(r.docs);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Laden fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('documents.loadError'));
     }
   };
 
@@ -94,7 +96,7 @@ export default function Documents() {
       const r = await api<DocReadResponse>(`/api/me/projects/${slug}/docs/${d.folder}/${encodeURIComponent(d.filename)}`);
       setContent(r.content);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Lesen fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('documents.readError'));
     } finally {
       setLoadingContent(false);
     }
@@ -121,10 +123,10 @@ export default function Documents() {
       });
       setContent(draft);
       setEditMode(false);
-      toast.success('Gespeichert');
+      toast.success(t('documents.saved'));
       loadDocs();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Speichern fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('documents.saveError'));
     } finally {
       setSaving(false);
     }
@@ -133,7 +135,7 @@ export default function Documents() {
   const deleteDoc = async (d: DocMeta) => {
     try {
       await api(`/api/me/projects/${slug}/docs/${d.folder}/${encodeURIComponent(d.filename)}`, { method: 'DELETE' });
-      toast.success('Gelöscht');
+      toast.success(t('documents.deleted'));
       setConfirmDel(null);
       if (selected?.filename === d.filename && selected?.folder === d.folder) {
         setSelected(null);
@@ -141,7 +143,7 @@ export default function Documents() {
       }
       loadDocs();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Löschen fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('documents.deleteError'));
     }
   };
 
@@ -149,11 +151,11 @@ export default function Documents() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!/\.md$/i.test(file.name)) {
-      toast.error('Nur .md-Dateien erlaubt');
+      toast.error(t('documents.onlyMd'));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Max 5 MB');
+      toast.error(t('documents.maxSize5'));
       return;
     }
     const fd = new FormData();
@@ -170,11 +172,11 @@ export default function Documents() {
         const txt = await res.text();
         throw new Error(`Upload ${res.status}: ${txt.slice(0, 120)}`);
       }
-      toast.success(`${file.name} hochgeladen`);
+      toast.success(t('documents.uploaded', { name: file.name }));
       if (fileInputRef.current) fileInputRef.current.value = '';
       loadDocs();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Upload fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('documents.uploadError'));
     }
   };
 
@@ -183,7 +185,7 @@ export default function Documents() {
     let name = newName.trim();
     if (!/\.md$/i.test(name)) name = `${name}.md`;
     if (!/^[a-zA-Z0-9_.-]+\.md$/.test(name)) {
-      toast.error('Nur a-z, 0-9, _ . - erlaubt');
+      toast.error(t('documents.invalidName'));
       return;
     }
     try {
@@ -191,12 +193,12 @@ export default function Documents() {
         method: 'POST',
         body: JSON.stringify({ content: `# ${name.replace(/\.md$/i, '')}\n\n` }),
       });
-      toast.success('Erstellt');
+      toast.success(t('documents.created'));
       setCreating(false);
       setNewName('');
       loadDocs();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Erstellen fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('documents.createError'));
     }
   };
 
@@ -216,15 +218,15 @@ export default function Documents() {
 
   return (
     <>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center shrink-0">
           <FolderOpen size={16} className="text-gold-300" />
         </div>
-        <div>
-          <h1 className="text-xl font-bold text-white">Dokumente</h1>
-          <p className="text-xs text-ink-400 mt-0.5">Tausche Markdown-Files mit deinem AEVUM-Agent</p>
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold text-white">{t('documents.title')}</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{t('documents.subtitle')}</p>
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="w-full sm:w-auto sm:ml-auto flex items-center gap-2">
           <input
             ref={fileInputRef}
             type="file"
@@ -232,31 +234,33 @@ export default function Documents() {
             className="hidden"
             onChange={handleUpload}
           />
-          <button onClick={() => fileInputRef.current?.click()} className="btn-secondary text-sm">
-            <Upload size={13} /> Upload (Inbox)
+          <button onClick={() => fileInputRef.current?.click()} className="btn-secondary text-sm flex-1 sm:flex-none justify-center">
+            <Upload size={13} /> {t('documents.uploadInbox')}
           </button>
-          <button onClick={() => setCreating(true)} className="btn-gold text-sm">
-            <Plus size={13} /> Shared-Doc
+          <button onClick={() => setCreating(true)} className="btn-gold text-sm flex-1 sm:flex-none justify-center">
+            <Plus size={13} /> {t('documents.sharedDoc')}
           </button>
         </div>
       </div>
 
       {creating && (
-        <div className="card-premium p-4 mb-6 flex items-center gap-3">
+        <div className="card-premium p-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
           <input
             autoFocus
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && createInShared()}
-            placeholder="briefing-q2.md"
-            className="input-premium flex-1"
+            placeholder={t('documents.newDocPlaceholder')}
+            className="input-premium w-full sm:flex-1"
           />
-          <button onClick={createInShared} className="btn-gold text-sm" disabled={!newName}>
-            <Plus size={13} /> Erstellen
-          </button>
-          <button onClick={() => { setCreating(false); setNewName(''); }} className="text-xs text-ink-400 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/5 transition">
-            Abbrechen
-          </button>
+          <div className="flex items-center gap-3">
+            <button onClick={createInShared} className="btn-gold text-sm flex-1 sm:flex-none justify-center" disabled={!newName}>
+              <Plus size={13} /> {t('documents.createDoc')}
+            </button>
+            <button onClick={() => { setCreating(false); setNewName(''); }} className="text-xs text-ink-400 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/5 transition shrink-0">
+              {t('documents.cancel')}
+            </button>
+          </div>
         </div>
       )}
 
@@ -264,18 +268,18 @@ export default function Documents() {
         {/* ── Sidebar: list ─────────────────────────────── */}
         <aside className="col-span-12 lg:col-span-4 space-y-5">
           {(['inbox', 'outbox', 'shared'] as const).map((folder) => {
-            const { label, hint, Icon } = FOLDER_LABELS[folder];
+            const { labelKey, hintKey, Icon } = FOLDER_META[folder];
             const items = docs[folder];
             return (
               <section key={folder}>
                 <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-2 flex items-center gap-2">
                   <Icon size={12} className="text-gold-300" />
-                  {label}
-                  <span className="text-ink-500 normal-case font-normal">— {hint}</span>
+                  {t(labelKey)}
+                  <span className="text-ink-500 normal-case font-normal">— {t(hintKey)}</span>
                   <span className="badge ml-auto">{totals[folder]}</span>
                 </h2>
                 {items.length === 0 ? (
-                  <div className="card-premium p-4 text-xs text-ink-500 text-center">leer</div>
+                  <div className="card-premium p-4 text-xs text-ink-500 text-center">{t('documents.empty')}</div>
                 ) : (
                   <div className="space-y-1.5">
                     {items.map((d) => {
@@ -297,8 +301,8 @@ export default function Documents() {
                           {canDelete && (
                             confirmDel === `${folder}/${d.filename}` ? (
                               <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                <button onClick={() => setConfirmDel(null)} className="text-[0.65rem] text-ink-400 hover:text-white px-2 py-1 rounded">Nein</button>
-                                <button onClick={() => deleteDoc(d)} className="text-[0.65rem] text-rose-300 bg-rose-500/10 border border-rose-500/30 px-2 py-1 rounded hover:bg-rose-500/20">Löschen</button>
+                                <button onClick={() => setConfirmDel(null)} className="text-[0.65rem] text-ink-400 hover:text-white px-2 py-1 rounded">{t('documents.delConfirmNo')}</button>
+                                <button onClick={() => deleteDoc(d)} className="text-[0.65rem] text-rose-300 bg-rose-500/10 border border-rose-500/30 px-2 py-1 rounded hover:bg-rose-500/20">{t('documents.delConfirmYes')}</button>
                               </div>
                             ) : (
                               <button
@@ -324,34 +328,34 @@ export default function Documents() {
           {!selected ? (
             <div className="card-premium p-16 text-center text-ink-400 text-sm">
               <FileText size={28} className="mx-auto mb-3 text-ink-500" />
-              Wähle ein Dokument links aus oder lade eines hoch.
+              {t('documents.emptyReader')}
             </div>
           ) : (
             <div className="card-premium p-6">
-              <header className="flex items-center gap-3 mb-5 pb-4 border-b border-white/5">
+              <header className="flex flex-wrap items-center gap-3 mb-5 pb-4 border-b border-white/5">
                 <FileText size={18} className="text-gold-300 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <div className="text-base font-semibold text-white truncate">{selected.filename}</div>
                   <div className="text-[0.7rem] text-ink-400 mt-0.5 flex items-center gap-2 flex-wrap">
-                    <span className="badge">{FOLDER_LABELS[selected.folder].label}</span>
+                    <span className="badge">{t(FOLDER_META[selected.folder].labelKey)}</span>
                     <span>·</span>
                     <span>{formatBytes(selected.size_bytes)}</span>
                     <span>·</span>
-                    <span>geändert {formatDate(selected.modified_at)}</span>
+                    <span>{t('documents.modified', { date: formatDate(selected.modified_at) })}</span>
                   </div>
                 </div>
                 {!editMode && selected.folder === 'shared' && (
                   <button onClick={startEdit} className="btn-secondary text-xs">
-                    <Edit3 size={12} /> Bearbeiten
+                    <Edit3 size={12} /> {t('documents.edit')}
                   </button>
                 )}
                 {editMode && (
                   <>
                     <button onClick={cancelEdit} className="text-xs text-ink-400 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/5 transition">
-                      <X size={12} className="inline mr-1" /> Abbrechen
+                      <X size={12} className="inline mr-1" /> {t('documents.cancel')}
                     </button>
                     <button onClick={saveEdit} disabled={saving} className="btn-gold text-xs">
-                      {saving ? '…' : <><Save size={12} /> Speichern</>}
+                      {saving ? '…' : <><Save size={12} /> {t('documents.save')}</>}
                     </button>
                   </>
                 )}

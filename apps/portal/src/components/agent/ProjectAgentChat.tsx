@@ -4,6 +4,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { Bot, Send, Sparkles, Trash2, Eraser, BrainCircuit } from 'lucide-react';
 import { getAccessToken } from '@/lib/api';
 
@@ -54,14 +55,13 @@ function persistStored(slug: string, s: StoredSession) {
 }
 
 export default function ProjectAgentChat({ projectSlug, projectName, agentDisplayName, apiBase = API_DEFAULT }: Props) {
-  const displayName = agentDisplayName?.trim() || `${projectName} Assistant`;
+  const { t } = useTranslation();
+  const displayName = agentDisplayName?.trim() || t('agent.defaultName', { project: projectName });
 
   const welcome: ChatMsg = useMemo(() => ({
     role: 'assistant',
-    content:
-      `Hi — ich bin **${displayName}**, dein dedizierter KI-Assistent für *${projectName}*.\n\n` +
-      `Ich habe ein eigenes Gedächtnis (Lennox-style file memory), das über alle Kanäle (Portal, Telegram, Terminal) hinweg gleich bleibt. Sag mir kurz was ansteht, oder bitte mich Sachen zu merken ("merk dir, …").`
-  }), [displayName, projectName]);
+    content: t('agent.welcome', { name: displayName, project: projectName }),
+  }), [displayName, projectName, t]);
 
   const [session, setSession] = useState<StoredSession>(() => loadStored(projectSlug));
   const [input, setInput] = useState('');
@@ -127,8 +127,8 @@ export default function ProjectAgentChat({ projectSlug, projectName, agentDispla
 
       if (!res.ok || !res.body) {
         const errText = res.status === 429
-          ? 'Zu viele Anfragen kurz hintereinander. Bitte kurz warten.'
-          : `Verbindung verloren (Status ${res.status}).`;
+          ? t('agent.errTooMany')
+          : t('agent.errConnectionStatus', { status: res.status });
         setSession(s => ({
           ...s,
           messages: [...s.messages.filter(m => !m.streaming), { role: 'assistant', content: errText }]
@@ -167,8 +167,8 @@ export default function ProjectAgentChat({ projectSlug, projectName, agentDispla
             return { ...s, messages: msgs };
           });
         } else if (event === 'memory_saved') {
-          const label = parsed.summary || parsed.slug || 'Erinnerung';
-          toast.success(`Erinnerung gespeichert: ${label}`, {
+          const label = parsed.summary || parsed.slug || t('agent.memoryFallback');
+          toast.success(t('agent.memorySaved', { label }), {
             icon: <BrainCircuit size={16} />
           });
         } else if (event === 'done') {
@@ -185,7 +185,7 @@ export default function ProjectAgentChat({ projectSlug, projectName, agentDispla
             ...s,
             messages: [
               ...s.messages.filter(m => !m.streaming),
-              { role: 'assistant', content: 'Da ist gerade was schiefgelaufen. Bitte erneut versuchen.' }
+              { role: 'assistant', content: t('agent.errGeneric') }
             ]
           }));
         }
@@ -217,14 +217,14 @@ export default function ProjectAgentChat({ projectSlug, projectName, agentDispla
         ...s,
         messages: [
           ...s.messages.filter(m => !m.streaming),
-          { role: 'assistant', content: 'Verbindung verloren. Bitte erneut versuchen.' }
+          { role: 'assistant', content: t('agent.errConnectionLost') }
         ]
       }));
     } finally {
       setSending(false);
       abortRef.current = null;
     }
-  }, [apiBase, input, projectSlug, sending, session.messages, session.session_id, welcome.content]);
+  }, [apiBase, input, projectSlug, sending, session.messages, session.session_id, welcome.content, t]);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -235,11 +235,11 @@ export default function ProjectAgentChat({ projectSlug, projectName, agentDispla
 
   const clearLocal = () => {
     setSession({ session_id: null, messages: [welcome] });
-    toast.success('Lokaler Verlauf gelöscht');
+    toast.success(t('agent.localCleared'));
   };
 
   const eraseAll = async () => {
-    if (!confirm('Conversation + Agent-Memory komplett löschen? Das kann nicht rückgängig gemacht werden.')) return;
+    if (!confirm(t('agent.eraseConfirm'))) return;
     try {
       const token = getAccessToken();
       const res = await fetch(`${apiBase}/api/me/projects/${projectSlug}/agent/erase`, {
@@ -253,16 +253,16 @@ export default function ProjectAgentChat({ projectSlug, projectName, agentDispla
       const j = await res.json().catch(() => ({}));
       if (!res.ok || !j.ok) throw new Error(j.error || `HTTP ${res.status}`);
       setSession({ session_id: null, messages: [welcome] });
-      toast.success('Conversation + Memory komplett gelöscht');
+      toast.success(t('agent.erased'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Löschen fehlgeschlagen');
+      toast.error(err instanceof Error ? err.message : t('agent.eraseFailed'));
     }
   };
 
   return (
     <div className="card-premium p-0 overflow-hidden flex flex-col" style={{ minHeight: 520, maxHeight: 720 }}>
       {/* Header */}
-      <div className="px-5 py-4 border-b border-white/[0.06] flex items-center gap-3 bg-white/[0.015]">
+      <div className="px-3 sm:px-5 py-4 border-b border-white/[0.06] flex items-center gap-2 sm:gap-3 bg-white/[0.015]">
         <div className="w-9 h-9 rounded-lg bg-gold-400/12 border border-gold-400/30 flex items-center justify-center shrink-0">
           <Bot size={16} className="text-gold-300" />
         </div>
@@ -273,29 +273,29 @@ export default function ProjectAgentChat({ projectSlug, projectName, agentDispla
           </div>
           <div className="text-[0.7rem] text-ink-400 flex items-center gap-1.5">
             <Sparkles size={10} className="text-gold-300" />
-            persistent memory · multi-channel
+            {t('agent.badge')}
           </div>
         </div>
         <button
           type="button"
           onClick={clearLocal}
           className="text-[0.7rem] text-ink-400 hover:text-white px-2 py-1 rounded-md hover:bg-white/5 transition inline-flex items-center gap-1"
-          title="Lokalen Verlauf löschen (Memory bleibt)"
+          title={t('agent.clearLocalTitle')}
         >
-          <Trash2 size={11} /> Lokal
+          <Trash2 size={11} /> {t('agent.clearLocalLabel')}
         </button>
         <button
           type="button"
           onClick={eraseAll}
           className="text-[0.7rem] text-rose-300/80 hover:text-rose-200 px-2 py-1 rounded-md hover:bg-rose-500/10 transition inline-flex items-center gap-1"
-          title="Verlauf + Memory löschen (DSGVO)"
+          title={t('agent.eraseAllTitle')}
         >
-          <Eraser size={11} /> Alles
+          <Eraser size={11} /> {t('agent.eraseAllLabel')}
         </button>
       </div>
 
       {/* Messages */}
-      <div ref={messagesRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-3" role="log" aria-live="polite">
+      <div ref={messagesRef} className="flex-1 overflow-y-auto px-3 sm:px-5 py-4 space-y-3" role="log" aria-live="polite">
         {session.messages.map((m, i) => (
           <MessageBubble key={i} msg={m} />
         ))}
@@ -308,18 +308,18 @@ export default function ProjectAgentChat({ projectSlug, projectName, agentDispla
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={onKeyDown}
-            placeholder={`Schreib ${displayName}…  (Enter = senden, Shift+Enter = neue Zeile)`}
+            placeholder={t('agent.inputPlaceholder', { name: displayName })}
             rows={1}
             className="input-premium flex-1 resize-none min-h-[40px] max-h-32"
             disabled={sending}
-            aria-label="Nachricht eingeben"
+            aria-label={t('agent.inputAria')}
           />
           <button
             type="button"
             onClick={send}
             disabled={!canSend}
             className="btn-gold shrink-0"
-            aria-label="Senden"
+            aria-label={t('agent.sendAria')}
           >
             {sending ? (
               <span className="w-4 h-4 border-2 border-ink-950/50 border-t-ink-950 rounded-full animate-spin" aria-hidden />
@@ -352,8 +352,9 @@ function MessageBubble({ msg }: { msg: ChatMsg }) {
 }
 
 function StreamingDots() {
+  const { t } = useTranslation();
   return (
-    <span className="inline-flex items-center gap-1" aria-label="schreibt…">
+    <span className="inline-flex items-center gap-1" aria-label={t('agent.typing')}>
       <span className="w-1.5 h-1.5 rounded-full bg-gold-300 animate-pulse" style={{ animationDelay: '0ms' }} />
       <span className="w-1.5 h-1.5 rounded-full bg-gold-300 animate-pulse" style={{ animationDelay: '150ms' }} />
       <span className="w-1.5 h-1.5 rounded-full bg-gold-300 animate-pulse" style={{ animationDelay: '300ms' }} />

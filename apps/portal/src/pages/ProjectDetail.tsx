@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import { Trash2, Lock, Plus, Shield, KeyRound } from 'lucide-react';
 import Spinner from '@/components/Spinner';
@@ -20,6 +21,7 @@ type ApiRow = { id: string; service: string; key_label: string | null; scope: st
 type MeProject = { id: string; slug: string; name: string };
 
 export default function ProjectDetail() {
+  const { t } = useTranslation();
   const { slug = '' } = useParams();
   const [searchParams] = useSearchParams();
   const section = searchParams.get('s') || 'overview';
@@ -33,7 +35,7 @@ export default function ProjectDetail() {
       const data = await api<{ ok: boolean; apis: ApiRow[] }>(`/api/me/projects/${slug}/apis`);
       setApis(data.apis);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'Laden fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('projects.loadError'));
     }
   };
 
@@ -157,6 +159,7 @@ export default function ProjectDetail() {
 // ── APIs Section ────────────────────────────────────────────────────────────
 
 function ApisSection({ apis, slug, onRefresh }: { apis: ApiRow[]; slug: string; onRefresh: () => void }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState({ service: '', key_label: '', key: '' });
   const [submitting, setSubmitting] = useState(false);
   const [confirmId, setConfirmId] = useState<string | null>(null);
@@ -166,11 +169,11 @@ function ApisSection({ apis, slug, onRefresh }: { apis: ApiRow[]; slug: string; 
     setSubmitting(true);
     try {
       await api(`/api/me/projects/${slug}/apis`, { method: 'POST', body: JSON.stringify(form) });
-      toast.success(`API-Key "${form.service}" eingereicht — AES-256-GCM verschlüsselt`);
+      toast.success(t('projects.apiSubmitSuccess', { service: form.service }));
       setForm({ service: '', key_label: '', key: '' });
       onRefresh();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'Einreichen fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('projects.apiSubmitError'));
     } finally {
       setSubmitting(false);
     }
@@ -179,11 +182,11 @@ function ApisSection({ apis, slug, onRefresh }: { apis: ApiRow[]; slug: string; 
   const remove = async (id: string) => {
     try {
       await api(`/api/me/projects/${slug}/apis/${id}`, { method: 'DELETE' });
-      toast.success('API-Key entfernt');
+      toast.success(t('projects.apiRemoved'));
       setConfirmId(null);
       onRefresh();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'Löschen fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('projects.apiRemoveError'));
     }
   };
 
@@ -194,37 +197,37 @@ function ApisSection({ apis, slug, onRefresh }: { apis: ApiRow[]; slug: string; 
           <KeyRound size={16} className="text-gold-300" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white">API-Keys</h1>
-          <p className="text-xs text-ink-400 mt-0.5">Verbinde deine Plattformen — AES-256-GCM verschlüsselt</p>
+          <h1 className="text-xl font-bold text-white">{t('projects.apisTitle')}</h1>
+          <p className="text-xs text-ink-400 mt-0.5">{t('projects.apisSubtitle')}</p>
         </div>
         <span className="badge badge-gold ml-auto"><Shield size={11} /> AES-256-GCM</span>
       </div>
 
       <section className="mb-8">
         <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <Plus size={12} className="text-gold-300" /> Neuen Key einreichen
+          <Plus size={12} className="text-gold-300" /> {t('projects.apiSubmitHeading')}
         </h2>
         <form onSubmit={submit} className="card-premium p-6 space-y-4 max-w-2xl">
           <div className="grid sm:grid-cols-2 gap-4">
-            <Field label="Service">
+            <Field label={t('projects.fieldService')}>
               <input required value={form.service} onChange={e => setForm({ ...form, service: e.target.value })} placeholder="meta_ads, klaviyo, shopify" className="input-premium" />
             </Field>
-            <Field label="Label (optional)">
+            <Field label={t('projects.fieldLabel')}>
               <input value={form.key_label} onChange={e => setForm({ ...form, key_label: e.target.value })} placeholder="production read-only" className="input-premium" />
             </Field>
           </div>
-          <Field label="API-Key">
+          <Field label={t('projects.fieldApiKey')}>
             <div className="relative">
               <Lock size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gold-300 pointer-events-none" />
               <input required type="password" value={form.key} onChange={e => setForm({ ...form, key: e.target.value })} className="input-premium pl-9 font-mono" placeholder="••••••••••••••••" />
             </div>
           </Field>
-          <div className="flex items-center justify-between gap-4 pt-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pt-1">
             <p className="text-[0.65rem] text-ink-400 flex-1 leading-relaxed">
-              Schlüssel wird sofort AES-256-GCM verschlüsselt. Nur on-the-fly für API-Calls entschlüsselt.
+              {t('projects.encryptHint')}
             </p>
-            <button disabled={submitting || !form.service || !form.key} className="btn-gold shrink-0 text-sm">
-              {submitting ? <><span className="w-3.5 h-3.5 border-2 border-ink-950/50 border-t-ink-950 rounded-full animate-spin" /> Einreichen…</> : <><Lock size={13} /> Einreichen</>}
+            <button disabled={submitting || !form.service || !form.key} className="btn-gold shrink-0 text-sm w-full sm:w-auto justify-center">
+              {submitting ? <><span className="w-3.5 h-3.5 border-2 border-ink-950/50 border-t-ink-950 rounded-full animate-spin" /> {t('projects.submitting')}</> : <><Lock size={13} /> {t('projects.submit')}</>}
             </button>
           </div>
         </form>
@@ -232,23 +235,23 @@ function ApisSection({ apis, slug, onRefresh }: { apis: ApiRow[]; slug: string; 
 
       <section>
         <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <KeyRound size={12} className="text-gold-300" /> Verbundene Keys
+          <KeyRound size={12} className="text-gold-300" /> {t('projects.apiConnectedHeading')}
           <span className="badge ml-auto">{apis.length}</span>
         </h2>
         {apis.length === 0 ? (
-          <div className="card-premium p-10 text-center text-sm text-ink-400">Noch keine Keys eingereicht.</div>
+          <div className="card-premium p-10 text-center text-sm text-ink-400">{t('projects.apiEmpty')}</div>
         ) : (
           <div className="space-y-2">
             {apis.map((k, i) => (
-              <div key={k.id} className="card-premium p-4 flex items-center justify-between gap-4 animate-fade-up" style={stagger(i, 40, 40)}>
+              <div key={k.id} className="card-premium p-4 flex items-center justify-between gap-3 sm:gap-4 animate-fade-up" style={stagger(i, 40, 40)}>
                 <div className="min-w-0 flex-1 flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center shrink-0">
                     <Lock size={13} className="text-gold-300" />
                   </div>
                   <div className="min-w-0">
-                    <div className="font-medium text-white text-sm flex items-center gap-2 truncate">
-                      {k.service}
-                      {k.key_label && <span className="text-ink-400 text-xs">— {k.key_label}</span>}
+                    <div className="font-medium text-white text-sm flex items-center gap-2 min-w-0">
+                      <span className="truncate">{k.service}</span>
+                      {k.key_label && <span className="text-ink-400 text-xs truncate">— {k.key_label}</span>}
                     </div>
                     <div className="text-[0.65rem] text-ink-400 mt-0.5 flex items-center gap-2 flex-wrap">
                       <span className="badge">{k.scope}</span>
@@ -264,8 +267,8 @@ function ApisSection({ apis, slug, onRefresh }: { apis: ApiRow[]; slug: string; 
                 </div>
                 {confirmId === k.id ? (
                   <div className="flex items-center gap-2">
-                    <button onClick={() => setConfirmId(null)} className="text-xs text-ink-400 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/5 transition">Abbrechen</button>
-                    <button onClick={() => remove(k.id)} className="text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 px-3 py-1.5 rounded-md hover:bg-rose-500/20 transition">Löschen bestätigen</button>
+                    <button onClick={() => setConfirmId(null)} className="text-xs text-ink-400 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/5 transition">{t('projects.cancel')}</button>
+                    <button onClick={() => remove(k.id)} className="text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 px-3 py-1.5 rounded-md hover:bg-rose-500/20 transition">{t('projects.confirmDelete')}</button>
                   </div>
                 ) : (
                   <button onClick={() => setConfirmId(k.id)} className="text-ink-400 hover:text-rose-300 p-2 rounded-md hover:bg-rose-500/10 transition shrink-0">

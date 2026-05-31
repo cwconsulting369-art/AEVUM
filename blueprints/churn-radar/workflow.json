@@ -1,0 +1,408 @@
+{
+  "name": "AEVUM — Churn-Radar",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule: Täglich 07:00 (Mo-Fr)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "notes": "Läuft werktags morgens. Cron anpassbar im Parameter rule.interval."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-risk-threshold",
+              "name": "riskThreshold",
+              "value": 60,
+              "type": "number"
+            },
+            {
+              "id": "cfg-inactive-days-warn",
+              "name": "inactiveDaysWarn",
+              "value": 14,
+              "type": "number"
+            },
+            {
+              "id": "cfg-inactive-days-critical",
+              "name": "inactiveDaysCritical",
+              "value": 30,
+              "type": "number"
+            },
+            {
+              "id": "cfg-sender-name",
+              "name": "senderName",
+              "value": "{{INDIVIDUELL: Dein Name, z.B. Anna Schmidt}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-sender-company",
+              "name": "senderCompany",
+              "value": "{{INDIVIDUELL: Dein Unternehmen, z.B. Schmidt SaaS GmbH}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-sender-email",
+              "name": "senderEmail",
+              "value": "{{INDIVIDUELL: Absender-Adresse, z.B. success@deinefirma.de}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-product-name",
+              "name": "productName",
+              "value": "{{INDIVIDUELL: Produktname, z.B. dein SaaS-Tool}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-alert-channel",
+              "name": "slackChannel",
+              "value": "{{INDIVIDUELL: Slack-Channel-ID für Alerts, z.B. C0123456789}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-config",
+      "name": "Set: Churn-Konfiguration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  c.id            AS customer_id,\n  c.name          AS customer_name,\n  c.email         AS customer_email,\n  c.plan          AS plan,\n  c.mrr           AS mrr,\n  c.signup_date   AS signup_date,\n  MAX(a.last_login_at)                                  AS last_login_at,\n  COALESCE(SUM(a.sessions_last_30d), 0)                 AS sessions_30d,\n  COALESCE(SUM(a.sessions_prev_30d), 0)                 AS sessions_prev_30d,\n  COALESCE(MAX(a.open_support_tickets), 0)              AS open_tickets,\n  COALESCE(MAX(a.failed_payments_90d), 0)               AS failed_payments,\n  COALESCE(MAX(a.feature_adoption_pct), 0)              AS feature_adoption_pct\nFROM customers c\nLEFT JOIN customer_activity a ON a.customer_id = c.id\nWHERE c.status = 'active'\nGROUP BY c.id, c.name, c.email, c.plan, c.mrr, c.signup_date;",
+        "options": {}
+      },
+      "id": "pg-fetch-activity",
+      "name": "Postgres: Kunden-Aktivität laden",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [680, 300],
+      "credentials": {
+        "postgres": {
+          "id": "churn-radar-db",
+          "name": "Churn-Radar DB"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Passe Tabellen/Spalten an dein Schema an. Alternative: HTTP-Request gegen deine Product-Analytics-API (Mixpanel/PostHog/Stripe)."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Churn-Score-Berechnung pro Kunde (0-100, höher = mehr Churn-Risiko).\n// Heuristik-Modell — anpassbar an dein Geschäftsmodell.\nconst cfg = $('Set: Churn-Konfiguration').first().json;\nconst now = Date.now();\nconst out = [];\n\nfor (const item of $input.all()) {\n  const r = item.json;\n  let score = 0;\n  const reasons = [];\n\n  // 1) Inaktivität (Login)\n  const lastLogin = r.last_login_at ? new Date(r.last_login_at).getTime() : null;\n  const daysInactive = lastLogin ? Math.floor((now - lastLogin) / 86400000) : 999;\n  if (daysInactive >= cfg.inactiveDaysCritical) { score += 40; reasons.push(`${daysInactive} Tage kein Login`); }\n  else if (daysInactive >= cfg.inactiveDaysWarn) { score += 20; reasons.push(`${daysInactive} Tage kein Login`); }\n\n  // 2) Sinkende Nutzung (Sessions 30d vs. vorherige 30d)\n  const cur = Number(r.sessions_30d) || 0;\n  const prev = Number(r.sessions_prev_30d) || 0;\n  if (prev > 0) {\n    const drop = (prev - cur) / prev;\n    if (drop >= 0.7) { score += 25; reasons.push(`Nutzung -${Math.round(drop*100)}%`); }\n    else if (drop >= 0.4) { score += 15; reasons.push(`Nutzung -${Math.round(drop*100)}%`); }\n  } else if (cur === 0) { score += 15; reasons.push('Keine Sessions im 30d-Fenster'); }\n\n  // 3) Zahlungsausfälle\n  const failed = Number(r.failed_payments) || 0;\n  if (failed >= 2) { score += 20; reasons.push(`${failed} fehlgeschlagene Zahlungen`); }\n  else if (failed === 1) { score += 10; reasons.push('1 fehlgeschlagene Zahlung'); }\n\n  // 4) Offene Support-Tickets (Frust-Signal)\n  const tickets = Number(r.open_tickets) || 0;\n  if (tickets >= 3) { score += 10; reasons.push(`${tickets} offene Tickets`); }\n\n  // 5) Niedrige Feature-Adoption\n  const adoption = Number(r.feature_adoption_pct) || 0;\n  if (adoption < 20) { score += 10; reasons.push(`Feature-Adoption ${adoption}%`); }\n\n  score = Math.min(100, score);\n  let band = 'OK';\n  if (score >= 80) band = 'CRITICAL';\n  else if (score >= cfg.riskThreshold) band = 'AT_RISK';\n  else if (score >= 30) band = 'WATCH';\n\n  out.push({ json: {\n    customer_id: r.customer_id,\n    customer_name: r.customer_name,\n    customer_email: r.customer_email,\n    plan: r.plan,\n    mrr: Number(r.mrr) || 0,\n    days_inactive: daysInactive,\n    sessions_30d: cur,\n    sessions_prev_30d: prev,\n    failed_payments: failed,\n    open_tickets: tickets,\n    feature_adoption_pct: adoption,\n    churn_score: score,\n    risk_band: band,\n    risk_reasons: reasons,\n    risk_reasons_text: reasons.join('; ') || 'keine'\n  }});\n}\n\nreturn out;"
+      },
+      "id": "code-score",
+      "name": "Code: Churn-Score berechnen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-at-risk",
+              "leftValue": "={{ $json.churn_score }}",
+              "rightValue": "={{ $('Set: Churn-Konfiguration').first().json.riskThreshold }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-at-risk",
+      "name": "IF: Über Risiko-Schwelle?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"anthropic/claude-3.5-sonnet\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist Customer-Success-Analyst. Aus strukturierten Churn-Signalen erstellst du (1) eine kurze Risiko-Einschätzung in 1-2 Sätzen und (2) eine konkrete, freundliche Retention-Mail (max 90 Wörter, Deutsch, kein Marketing-Geschwurbel). WICHTIG: Erfinde keine Fakten, beziehe dich nur auf die gegebenen Signale. Antworte als reines JSON: {\\\"assessment\\\": \\\"...\\\", \\\"email_subject\\\": \\\"...\\\", \\\"email_body\\\": \\\"...\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Produkt: {{ $('Set: Churn-Konfiguration').first().json.productName }}\\nKunde: {{ $json.customer_name }}\\nPlan: {{ $json.plan }} (MRR {{ $json.mrr }} EUR)\\nChurn-Score: {{ $json.churn_score }}/100 ({{ $json.risk_band }})\\nSignale: {{ $json.risk_reasons_text }}\\nTage inaktiv: {{ $json.days_inactive }}\\nFeature-Adoption: {{ $json.feature_adoption_pct }}%\"\n    }\n  ],\n  \"max_tokens\": 500,\n  \"temperature\": 0.5,\n  \"response_format\": { \"type\": \"json_object\" }\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-ai-analysis",
+      "name": "HTTP: KI-Churn-Analyse",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 120],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "openrouter-api",
+          "name": "OpenRouter API"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Token NUR im Credential-Store. Spending-Cap bei OpenRouter setzen."
+    },
+    {
+      "parameters": {
+        "jsCode": "// KI-Antwort robust parsen. Fallback wenn KI-JSON kaputt. Reihenfolge bleibt erhalten\n// und wird im Merge (combineByPosition) wieder mit dem passenden Kunden gepaart.\nconst out = [];\nfor (const item of $input.all()) {\n  const base = item.json;\n  let ai = { assessment: '', email_subject: '', email_body: '' };\n  try {\n    const raw = base.choices?.[0]?.message?.content ?? '{}';\n    ai = typeof raw === 'string' ? JSON.parse(raw) : raw;\n  } catch (e) {\n    ai = {\n      assessment: 'KI-Analyse nicht verfügbar — manueller Review nötig.',\n      email_subject: 'Wir vermissen dich',\n      email_body: 'Hallo, wir haben gesehen, dass du eine Weile nicht aktiv warst. Können wir dir bei etwas helfen? Antworte einfach auf diese Mail.'\n    };\n  }\n  out.push({ json: { ai_assessment: ai.assessment || '', ai_email_subject: ai.email_subject || 'Können wir helfen?', ai_email_body: ai.email_body || '' } });\n}\nreturn out;"
+      },
+      "id": "code-parse-ai",
+      "name": "Code: KI-Antwort parsen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 120]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "merge-customer-ai",
+      "name": "Merge: Kunde + KI-Output",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1780, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Set: Churn-Konfiguration').first().json.senderEmail }}",
+        "toEmail": "={{ $json.customer_email }}",
+        "subject": "={{ $json.ai_email_subject }}",
+        "emailFormat": "html",
+        "html": "=<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:560px;line-height:1.6;color:#333;\">\n<p>Hallo {{ $json.customer_name }},</p>\n<p>{{ $json.ai_email_body }}</p>\n<p>Viele Grüße,<br><strong>{{ $('Set: Churn-Konfiguration').first().json.senderName }}</strong><br>{{ $('Set: Churn-Konfiguration').first().json.senderCompany }}</p>\n<hr style=\"border:none;border-top:1px solid #eee;margin:20px 0;\">\n<p style=\"font-size:11px;color:#999;\">Du erhältst diese Nachricht als aktiver Kunde von {{ $('Set: Churn-Konfiguration').first().json.productName }}. <a href=\"{{INDIVIDUELL: Abmelde-/Präferenz-Link}}\" style=\"color:#999;\">Benachrichtigungen verwalten</a></p>\n</body></html>",
+        "options": {}
+      },
+      "id": "email-retention",
+      "name": "Email: Retention-Sequenz",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2000, 120],
+      "credentials": {
+        "smtp": {
+          "id": "churn-smtp",
+          "name": "Churn SMTP"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Sendet automatische Retention-Mail. Bei MRR über X EUR ggf. NUR Alert (kein Auto-Mail) — siehe README."
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Set: Churn-Konfiguration').first().json.slackChannel }}",
+          "mode": "id"
+        },
+        "text": "=:rotating_light: *Churn-Alert* — {{ $json.customer_name }} ({{ $json.plan }}, MRR {{ $json.mrr }} EUR)\\nScore: *{{ $json.churn_score }}/100* ({{ $json.risk_band }})\\nSignale: {{ $json.risk_reasons_text }}\\nKI-Einschätzung: {{ $json.ai_assessment }}\\nRetention-Mail wurde automatisch gesendet.",
+        "otherOptions": {}
+      },
+      "id": "slack-alert",
+      "name": "Slack: Churn-Alert an CS-Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2000, 280],
+      "credentials": {
+        "slackApi": {
+          "id": "churn-slack",
+          "name": "Churn Slack"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO churn_events (customer_id, churn_score, risk_band, reasons, ai_assessment, retention_email_sent, detected_at)\nVALUES ($1, $2, $3, $4, $5, true, now())\nON CONFLICT (customer_id, detected_at) DO NOTHING;",
+        "options": {
+          "queryReplacement": "={{ $json.customer_id }},{{ $json.churn_score }},{{ $json.risk_band }},{{ JSON.stringify($json.risk_reasons || []) }},{{ $json.ai_assessment }}"
+        }
+      },
+      "id": "pg-log-event",
+      "name": "Postgres: Churn-Event protokollieren",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [2220, 200],
+      "credentials": {
+        "postgres": {
+          "id": "churn-radar-db",
+          "name": "Churn-Radar DB"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Audit-Trail. Verhindert Doppel-Alerts pro Tag via ON CONFLICT."
+    },
+    {
+      "parameters": {},
+      "id": "noop-healthy",
+      "name": "NoOp: Gesund — kein Alert",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1340, 320]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Set: Churn-Konfiguration').first().json.senderEmail }}",
+        "toEmail": "{{INDIVIDUELL: Ops-/Admin-Mail für Fehler-Benachrichtigung}}",
+        "subject": "=[Churn-Radar] Workflow-Fehler in Schritt: {{ $json.error?.node?.name || 'unbekannt' }}",
+        "emailFormat": "text",
+        "text": "=Churn-Radar ist auf einen Fehler gelaufen.\n\nNode: {{ $json.error?.node?.name }}\nMeldung: {{ $json.error?.message }}\nZeit: {{ $now.toISO() }}\n\nBitte n8n-Execution-Log prüfen.",
+        "options": {}
+      },
+      "id": "email-error",
+      "name": "Email: Fehler-Alert (Error-Pfad)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [900, 480],
+      "credentials": {
+        "smtp": {
+          "id": "churn-smtp",
+          "name": "Churn SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Churn-Radar\nTäglicher Scan der Kunden-Aktivität → Churn-Score → bei Über-Schwelle: KI-Analyse + automatische Retention-Mail + CS-Team-Alert + Audit-Log.\n\n**Vor Aktivierung:** alle {{INDIVIDUELL: ...}}-Platzhalter im Set-Node + Credentials setzen.",
+        "height": 200,
+        "width": 360
+      },
+      "id": "sticky-note",
+      "name": "Sticky: Übersicht",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [200, 60]
+    }
+  ],
+  "connections": {
+    "Schedule: Täglich 07:00 (Mo-Fr)": {
+      "main": [
+        [
+          { "node": "Set: Churn-Konfiguration", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Set: Churn-Konfiguration": {
+      "main": [
+        [
+          { "node": "Postgres: Kunden-Aktivität laden", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Postgres: Kunden-Aktivität laden": {
+      "main": [
+        [
+          { "node": "Code: Churn-Score berechnen", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Email: Fehler-Alert (Error-Pfad)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Code: Churn-Score berechnen": {
+      "main": [
+        [
+          { "node": "IF: Über Risiko-Schwelle?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "IF: Über Risiko-Schwelle?": {
+      "main": [
+        [
+          { "node": "HTTP: KI-Churn-Analyse", "type": "main", "index": 0 },
+          { "node": "Merge: Kunde + KI-Output", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "NoOp: Gesund — kein Alert", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "HTTP: KI-Churn-Analyse": {
+      "main": [
+        [
+          { "node": "Code: KI-Antwort parsen", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Email: Fehler-Alert (Error-Pfad)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Code: KI-Antwort parsen": {
+      "main": [
+        [
+          { "node": "Merge: Kunde + KI-Output", "type": "main", "index": 1 }
+        ]
+      ]
+    },
+    "Merge: Kunde + KI-Output": {
+      "main": [
+        [
+          { "node": "Email: Retention-Sequenz", "type": "main", "index": 0 },
+          { "node": "Slack: Churn-Alert an CS-Team", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Email: Retention-Sequenz": {
+      "main": [
+        [
+          { "node": "Postgres: Churn-Event protokollieren", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Slack: Churn-Alert an CS-Team": {
+      "main": [
+        [
+          { "node": "Postgres: Churn-Event protokollieren", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "staticData": null,
+  "meta": {
+    "instanceId": "aevum-blueprint"
+  },
+  "tags": [
+    { "name": "AEVUM Churn-Radar" }
+  ],
+  "versionId": "1.0.0",
+  "id": "churn-radar-v1",
+  "active": false
+}

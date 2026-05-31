@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { usePageSeo } from '@/hooks/use-page-seo';
 
 export default function Impressum() {
+  const { t } = useTranslation();
   useEffect(() => { window.scrollTo(0, 0); }, []);
   usePageSeo({
-    title: 'Impressum — AEVUM',
-    description: 'Impressum nach § 5 TMG für AEVUM (Carlos Wrusch, Federteilstr. 2e, 86517 Wehringen).',
+    title: t('legal.impressum.seoTitle'),
+    description: t('legal.impressum.seoDescription'),
     path: '/impressum',
     jsonLd: {
       '@context': 'https://schema.org',
@@ -18,22 +20,22 @@ export default function Impressum() {
   });
 
   return (
-    <section className="px-6 lg:px-16 py-24 max-w-3xl mx-auto">
+    <section className="px-4 sm:px-6 lg:px-16 py-20 sm:py-24 max-w-3xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
         <h1 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
-          Impressum
+          {t('legal.impressum.title')}
         </h1>
 
-        <p className="text-sm text-[#7a7a85] mb-12">Stand: 20. Mai 2026</p>
+        <p className="text-sm text-text-muted mb-12">{t('legal.impressum.version')}</p>
 
-        <article className="space-y-8 text-[#a4a4ad] leading-relaxed">
+        <article className="space-y-8 text-text-secondary leading-relaxed break-words">
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Angaben gemäß § 5 DDG</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">{t('legal.impressum.s1Title')}</h2>
             <p>
               Carlos Wrusch<br />
               Federteilstr. 2e<br />
@@ -43,89 +45,55 @@ export default function Impressum() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Kontakt</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">{t('legal.impressum.s2Title')}</h2>
             <p>
-              E-Mail: <a href="mailto:info@aevum-system.de" className="text-[#e0a458] hover:underline">info@aevum-system.de</a><br />
-              Telefon: <a href="tel:+491772288372" className="text-[#e0a458] hover:underline">+49 177 228 83 72</a>
+              {t('legal.impressum.s2Email')}<a href="mailto:info@aevum-system.de" className="text-theme-accent hover:underline">info@aevum-system.de</a><br />
+              {t('legal.impressum.s2Phone')}<a href="tel:+491772288372" className="text-theme-accent hover:underline">+49 177 228 83 72</a>
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Berufsbezeichnung</h2>
-            <p>
-              AI Fullstack Developer (selbstständig tätig, Bundesrepublik Deutschland).
-              Die Tätigkeit ist nicht reglementiert; es bestehen keine berufsständische
-              Kammer-Mitgliedschaft und keine Aufsichtsbehörde.
-            </p>
+            <h2 className="text-2xl font-light text-text-primary mb-3">{t('legal.impressum.s3Title')}</h2>
+            <p>{t('legal.impressum.s3p1')}</p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Umsatzsteuer</h2>
-            <p>
-              Als Kleinunternehmer im Sinne von § 19 UStG wird keine Umsatzsteuer
-              ausgewiesen. Eine Umsatzsteuer-Identifikationsnummer nach § 27a UStG
-              wird nicht geführt.
-            </p>
+            <h2 className="text-2xl font-light text-text-primary mb-3">{t('legal.impressum.s4Title')}</h2>
+            <p>{t('legal.impressum.s4p1')}</p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Inhaltlich verantwortlich gem. § 18 Abs 2 MStV</h2>
-            <p>Carlos Wrusch (Anschrift wie oben)</p>
+            <h2 className="text-2xl font-light text-text-primary mb-3">{t('legal.impressum.s5Title')}</h2>
+            <p>{t('legal.impressum.s5p1')}</p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">EU-Streitschlichtung</h2>
+            <h2 className="text-2xl font-light text-text-primary mb-3">{t('legal.impressum.s6Title')}</h2>
             <p>
-              Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:{' '}
-              <a href="https://ec.europa.eu/consumers/odr/" className="text-[#e0a458] hover:underline" target="_blank" rel="noopener noreferrer">
+              {t('legal.impressum.s6p1a')}
+              <a href="https://ec.europa.eu/consumers/odr/" className="text-theme-accent hover:underline" target="_blank" rel="noopener noreferrer">
                 https://ec.europa.eu/consumers/odr/
               </a>
               <br />
-              Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer
-              Verbraucherschlichtungsstelle teilzunehmen.
+              {t('legal.impressum.s6p1b')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Haftung für Inhalte</h2>
-            <p>
-              Als Diensteanbieter sind wir gemäß § 7 Abs 1 DDG für eigene Inhalte auf diesen
-              Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind
-              wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte
-              fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine
-              rechtswidrige Tätigkeit hinweisen.
-            </p>
-            <p>
-              Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach
-              den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung
-              ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung
-              möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir
-              diese Inhalte umgehend entfernen.
-            </p>
+            <h2 className="text-2xl font-light text-text-primary mb-3">{t('legal.impressum.s7Title')}</h2>
+            <p>{t('legal.impressum.s7p1')}</p>
+            <p>{t('legal.impressum.s7p2')}</p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Haftung für Links</h2>
-            <p>
-              Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir
-              keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine
-              Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige
-              Anbieter oder Betreiber der Seiten verantwortlich.
-            </p>
+            <h2 className="text-2xl font-light text-text-primary mb-3">{t('legal.impressum.s8Title')}</h2>
+            <p>{t('legal.impressum.s8p1')}</p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-light text-[#F8FAFC] mb-3">Urheberrecht</h2>
-            <p>
-              Die durch den Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten
-              unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung,
-              Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes
-              bedürfen der schriftlichen Zustimmung des Verfassers.
-            </p>
-            <p>
-              Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen
-              Gebrauch gestattet.
-            </p>
+            <h2 className="text-2xl font-light text-text-primary mb-3">{t('legal.impressum.s9Title')}</h2>
+            <p>{t('legal.impressum.s9p1')}</p>
+            <p>{t('legal.impressum.s9p2')}</p>
           </section>
 
         </article>

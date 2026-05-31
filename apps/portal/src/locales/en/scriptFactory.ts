@@ -1,0 +1,53 @@
+// scriptFactory namespace — EN
+
+export default {
+  settings: {
+    niche: 'Niche',
+    nichePlaceholder: 'e.g. Beauty, Coaching, SaaS-B2B, Solar',
+    icp: 'ICP (Who is the customer?)',
+    icpPlaceholder: 'e.g. Women 30-45, beauty-savvy, mid income, active on Instagram',
+    awarenessStage: 'Awareness Stage',
+    brandTone: 'Brand Tone (optional)',
+    brandTonePlaceholder: 'e.g. warm-direct, premium, edgy, friendly',
+    platform: 'Platform',
+    platformMeta: 'Meta (FB/Instagram)',
+    platformGoogle: 'Google Ads',
+    platformTiktok: 'TikTok',
+    platformAll: 'All Platforms',
+    knowledgeHubs: 'Knowledge Hubs (multi-select)',
+  },
+  awareness: {
+    unaware: "Unaware — doesn't know the problem",
+    problemAware: 'Problem-Aware — knows the pain',
+    solutionAware: 'Solution-Aware — knows the solutions',
+    productAware: 'Product-Aware — knows you',
+    mostAware: 'Most-Aware — ready to buy',
+  },
+  useCasePicker: {
+    hub: 'Hub',
+  },
+  compare: {
+    beforeLabel: 'Before (Original)',
+    afterLabel: 'After (Optimized)',
+    optimized: 'Optimized',
+    original: 'Original',
+    hookScore: 'Hook Score',
+    scoreBreakdown: 'Score Breakdown',
+    strengths: 'Strengths',
+    weaknesses: 'Weaknesses',
+    script: 'Script',
+    copy: 'Copy',
+    copied: 'Copied!',
+    noOutput: 'No script output.',
+    breakdownHook: 'Hook',
+    breakdownStructure: 'Structure',
+    breakdownSpecificity: 'Specificity',
+    breakdownIcpMatch: 'ICP Match',
+    breakdownCta: 'CTA',
+  },
+  differences: {
+    empty: 'No structured differences available — pipeline returned free-form output.',
+    title: '{{count}} improvements identified',
+    change: 'Change {{n}}',
+  },
+};

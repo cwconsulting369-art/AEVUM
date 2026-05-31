@@ -12,6 +12,33 @@ export interface ShopItemFAQ {
   a: string;
 }
 
+/**
+ * EN-Overlay: alle frei-text Felder eines Shop-Items in Englisch.
+ * DE bleibt SSOT im Haupt-Objekt; `en` ist der Parallel-Übersetzungs-Layer.
+ * `localizeShopItem(item, 'en')` merged dieses Overlay über das DE-Original.
+ * Brand/Produktnamen/IDs/Preise (name, slug, priceLabel, stripePriceId …)
+ * bleiben sprach-neutral und werden NICHT übersetzt.
+ */
+export interface ShopItemEN {
+  tagline?: string;
+  whatIsIt?: string;
+  outcomes?: string[];
+  whenItFits?: {
+    fits?: string[];
+    requires?: string[];
+  };
+  includes?: string[];
+  pricingNote?: string;
+  securityNote?: string;
+  faq?: ShopItemFAQ[];
+  comingSoonPhase?: string;
+  crossSell?: string;
+  /** Optional EN-Override für den Anzeige-Namen, falls nötig (selten). */
+  name?: string;
+  /** Optional EN-Override für das Tag/Badge-Label (z.B. "Beliebt" → "Popular"). */
+  tag?: string;
+}
+
 export interface ShopItemContent {
   slug: string;
   name: string;
@@ -55,6 +82,9 @@ export interface ShopItemContent {
   demoVideoUrl?: string;
   /** Optional: cross-sell bundle hint */
   crossSell?: string;
+
+  /** Englischer Übersetzungs-Layer (über DE gemerged via localizeShopItem). */
+  en?: ShopItemEN;
 }
 
 /**
@@ -76,5 +106,24 @@ export const STUB_TEXT = {
   outcomes: [
     'Konkrete Outcome-Quantifizierung folgt nach echtem Pilot-Run',
     'Wir verkaufen keine fiktiven Zahlen — siehe Ehrlichkeits-Prinzip',
+  ],
+};
+
+/** Englische Entsprechung von STUB_TEXT (gleiche Reihenfolge → 1:1 Mapping). */
+export const STUB_TEXT_EN = {
+  whatIsIt:
+    'A detailed description will follow after the next quality-gate build. This service is currently going through our internal validation: our own usage, workflow export, PDF guide. Interested? Book an audit call.',
+  whenItFits: {
+    fits: [
+      'We are currently gathering persona data from real builds',
+      'Specific fit criteria will be added at go-live',
+    ],
+    requires: [
+      'An audit call to clarify your needs is recommended',
+    ],
+  },
+  outcomes: [
+    'Concrete outcome quantification will follow after a real pilot run',
+    'We do not sell fictional numbers — see our honesty principle',
   ],
 };

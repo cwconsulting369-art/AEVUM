@@ -8,7 +8,7 @@
   :root {
     /* === AEVUM End-Stufe — Eye-Optimized Warm-Premium ===
      * WCAG: Text #f0e4d0 on #0a0a0c = 14.5:1 (AAA)
-     * Gold #d4b048 on #0a0a0c = 6.5:1 (AA Large + UI)
+     * Gold #c0894a on #0a0a0c = 6.5:1 (AA Large + UI)
      * Inspired by Linear/Stripe Atlas premium pattern, slightly warm for eye-comfort
      */
     --bg-primary: #0a0a0c;          /* Warm-black, weniger eye-strain als pure #000 */
@@ -21,19 +21,19 @@
     --text-muted: #6a6a72;
     --text-on-accent: #0a0a0c;      /* Dark text on gold buttons */
 
-    --theme-accent: #d4b048;        /* Brighter gold — 6.5:1 contrast */
-    --theme-accent-hover: #e6c878;  /* Softer hover */
-    --theme-accent-soft: rgba(212, 176, 72, 0.12);
-    --theme-accent-glow: rgba(212, 176, 72, 0.25);
+    --theme-accent: #c0894a;        /* Brighter gold — 6.5:1 contrast */
+    --theme-accent-hover: #d6a661;  /* Softer hover */
+    --theme-accent-soft: rgba(192, 137, 74, 0.12);
+    --theme-accent-glow: rgba(192, 137, 74, 0.25);
 
     --theme-border: #2a2a30;        /* Subtle */
     --theme-border-strong: #3a3a42;
-    --theme-border-accent: rgba(212, 176, 72, 0.3);
+    --theme-border-accent: rgba(192, 137, 74, 0.3);
 
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
-    --shadow-glow: 0 0 24px rgba(212, 176, 72, 0.15);
+    --shadow-glow: 0 0 24px rgba(192, 137, 74, 0.15);
 
     --radius-sm: 6px;
     --radius-md: 10px;
@@ -43,14 +43,14 @@
     /* Legacy AEVUM-Brand-Vars (gold + glass effects bleiben für Backwards-Compat) */
     --bg-void: #0a0a0c;
     --bg-glass: rgba(13, 13, 17, 0.6);
-    --accent-amber: #e6c878;
-    --accent-gold: #a86d27;
-    --gold: #d4b048;
-    --gold-soft: #f5d68d;
-    --gold-deep: #a86d27;
+    --accent-amber: #d6a661;
+    --accent-gold: #7a5326;
+    --gold: #c0894a;
+    --gold-soft: #e8c08a;
+    --gold-deep: #7a5326;
     --text-strong: #f0e4d0;
     --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-accent: rgba(212, 176, 72, 0.3);
+    --border-accent: rgba(192, 137, 74, 0.3);
     --danger: #EF4444;
     --success: #10B981;
 
@@ -78,7 +78,7 @@
 
   /* === Theme: Hell — End-Stufe Editorial (Linear-inspired) ===
    * Text #0a0a0a on #fafafa = 18.5:1 (AAA)
-   * Gold #b08818 on #fafafa = 4.6:1 (AA UI)
+   * Gold #8a5e2c on #fafafa = 4.6:1 (AA UI)
    */
   [data-theme="hell"] {
     --bg-primary: #fafafa;             /* Off-white, weniger blendend als pure white */
@@ -91,8 +91,8 @@
     --text-muted: #8a8a8a;
     --text-on-accent: #ffffff;
 
-    --theme-accent: #b08818;           /* Gold-Dark für Hell-BG-Kontrast */
-    --theme-accent-hover: #9a7510;
+    --theme-accent: #8a5e2c;           /* Gold-Dark für Hell-BG-Kontrast */
+    --theme-accent-hover: #835722;
     --theme-accent-soft: rgba(176, 136, 24, 0.08);
     --theme-accent-glow: rgba(176, 136, 24, 0.15);
 
@@ -107,9 +107,9 @@
 
     --bg-void: #fafafa;
     --bg-glass: rgba(255, 255, 255, 0.72);
-    --gold: #b08818;
-    --gold-soft: #d4a836;
-    --gold-deep: #8a6810;
+    --gold: #8a5e2c;
+    --gold-soft: #b9863f;
+    --gold-deep: #654320;
     --text-strong: #0a0a0a;
     --border-subtle: rgba(0, 0, 0, 0.08);
     --border-accent: rgba(176, 136, 24, 0.3);
@@ -263,9 +263,9 @@
 
   /* AEVUM only: keeping luxury gold-gradient look on default theme via override */
   :root .btn-primary {
-    background: linear-gradient(135deg, #f5d68d 0%, #d4b048 50%, #b08818 100%);
+    background: linear-gradient(135deg, #e8c08a 0%, #c0894a 50%, #8a5e2c 100%);
     color: #1a1208;
-    border: 1px solid rgba(212, 176, 72, 0.6);
+    border: 1px solid rgba(192, 137, 74, 0.6);
     box-shadow:
       0 1px 0 rgba(255, 255, 255, 0.35) inset,
       0 -1px 0 rgba(0, 0, 0, 0.15) inset,
@@ -273,7 +273,7 @@
   }
   :root .btn-primary:hover {
     filter: brightness(1.06);
-    background: linear-gradient(135deg, #f5d68d 0%, #e6c878 50%, #b08818 100%);
+    background: linear-gradient(135deg, #e8c08a 0%, #d6a661 50%, #8a5e2c 100%);
   }
 
   .btn-secondary {
@@ -412,7 +412,7 @@
   .mesh-bg::before {
     width: 520px; height: 520px;
     left: -10%; top: -20%;
-    background: radial-gradient(circle, rgba(224,164,88,0.45) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(192,137,74,0.45) 0%, transparent 70%);
     animation: meshShift 18s ease-in-out infinite;
   }
   .mesh-bg::after {
@@ -459,13 +459,13 @@
 
 @layer utilities {
   .text-gradient {
-    background: linear-gradient(135deg, #f5d68d 0%, #d4b048 50%, #b08818 100%);
+    background: linear-gradient(135deg, #e8c08a 0%, #c0894a 50%, #8a5e2c 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   [data-theme="hell"] .text-gradient {
-    background: linear-gradient(135deg, #b08818 0%, #8a6810 100%);
+    background: linear-gradient(135deg, #8a5e2c 0%, #654320 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -478,7 +478,7 @@
   }
 
   .text-gold-gradient {
-    background: linear-gradient(135deg, #f5d68d 0%, #d4b048 50%, #b08818 100%);
+    background: linear-gradient(135deg, #e8c08a 0%, #c0894a 50%, #8a5e2c 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

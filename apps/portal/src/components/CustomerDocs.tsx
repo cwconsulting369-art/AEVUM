@@ -15,6 +15,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { api, getAccessToken } from '@/lib/api';
 import { MarkdownViewer } from '@/components/markdown/MarkdownViewer';
 import Spinner from '@/components/Spinner';
@@ -39,10 +40,10 @@ type ReadResp = {
   content: string;
 };
 
-const BOXES: { id: Box; label: string; hint: string; Icon: typeof Inbox }[] = [
-  { id: 'inbox', label: 'Inbox', hint: 'Du → Agent', Icon: Inbox },
-  { id: 'outbox', label: 'Outbox', hint: 'Agent → Du', Icon: Send },
-  { id: 'shared', label: 'Shared', hint: 'Bidirektional', Icon: Users },
+const BOXES: { id: Box; labelKey: string; hintKey: string; Icon: typeof Inbox }[] = [
+  { id: 'inbox', labelKey: 'documents.folderInbox', hintKey: 'documents.hintInbox', Icon: Inbox },
+  { id: 'outbox', labelKey: 'documents.folderOutbox', hintKey: 'documents.hintOutbox', Icon: Send },
+  { id: 'shared', labelKey: 'documents.folderShared', hintKey: 'documents.hintShared', Icon: Users },
 ];
 
 const API_BASE = import.meta.env.VITE_AEVUM_API_BASE_URL || 'https://api.aevum-system.de';
@@ -68,6 +69,7 @@ function extIcon(ext: string) {
 }
 
 export default function CustomerDocs() {
+  const { t } = useTranslation();
   const [active, setActive] = useState<Box>('inbox');
   const [docs, setDocs] = useState<Record<Box, DocMeta[]>>({ inbox: [], outbox: [], shared: [] });
   const [loading, setLoading] = useState(true);
@@ -84,12 +86,12 @@ export default function CustomerDocs() {
       const r = await api<ListResp>('/api/me/docs');
       setDocs(r.boxes || { inbox: [], outbox: [], shared: [] });
     } catch (e) {
-      toast.error('Konnte Dokumente nicht laden');
+      toast.error(t('documents.loadErrorAlt'));
       console.error(e);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => { void loadList(); }, [loadList]);
 
@@ -114,7 +116,7 @@ export default function CustomerDocs() {
       const r = await api<ReadResp>(`/api/me/docs/file/${encodeURIComponent(d.filename)}?box=${d.box}`);
       setContent(r.content);
     } catch (e) {
-      toast.error('Konnte Datei nicht lesen');
+      toast.error(t('documents.readErrorAlt'));
       console.error(e);
     } finally {
       setLoadingContent(false);
@@ -123,11 +125,11 @@ export default function CustomerDocs() {
 
   const uploadFile = async (file: File, targetBox: Box) => {
     if (targetBox === 'outbox') {
-      toast.error('Outbox ist Agent → Du. Lade in Inbox oder Shared.');
+      toast.error(t('documents.outboxUploadBlocked'));
       return;
     }
     if (file.size > 8 * 1024 * 1024) {
-      toast.error('Datei zu groß (max 8 MB)');
+      toast.error(t('documents.fileTooBig'));
       return;
     }
     setUploading(true);
@@ -142,11 +144,11 @@ export default function CustomerDocs() {
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || 'upload_failed');
-      toast.success(`Hochgeladen: ${data.filename}`);
+      toast.success(t('documents.uploadedAlt', { name: data.filename }));
       await loadList();
     } catch (e) {
-      const msg = (e instanceof Error) ? e.message : 'upload failed';
-      toast.error(`Upload-Fehler: ${msg}`);
+      const msg = (e instanceof Error) ? e.message : t('documents.uploadFailed');
+      toast.error(t('documents.uploadErrorAlt', { msg }));
     } finally {
       setUploading(false);
     }
@@ -154,22 +156,22 @@ export default function CustomerDocs() {
 
   const deleteFile = async (d: DocMeta) => {
     if (d.box === 'outbox') {
-      toast.error('Outbox darfst du nicht löschen');
+      toast.error(t('documents.outboxDeleteBlocked'));
       return;
     }
-    if (!confirm(`"${d.filename}" wirklich löschen?`)) return;
+    if (!confirm(t('documents.confirmDeleteFile', { name: d.filename }))) return;
     try {
       await api(`/api/me/docs/file/${encodeURIComponent(d.filename)}?box=${d.box}`, {
         method: 'DELETE',
       });
-      toast.success('Gelöscht');
+      toast.success(t('documents.deletedAlt'));
       if (selected?.filename === d.filename && selected.box === d.box) {
         setSelected(null);
         setContent('');
       }
       await loadList();
     } catch (e) {
-      toast.error('Konnte nicht löschen');
+      toast.error(t('documents.deleteErrorAlt'));
       console.error(e);
     }
   };
@@ -192,8 +194,8 @@ export default function CustomerDocs() {
   return (
     <div className="space-y-4">
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-ink-800">
-        {BOXES.map(({ id, label, hint, Icon }) => {
+      <div className="flex gap-1 border-b border-ink-800 overflow-x-auto">
+        {BOXES.map(({ id, labelKey, hintKey, Icon }) => {
           const count = docs[id]?.length || 0;
           const isActive = active === id;
           return (
@@ -207,9 +209,9 @@ export default function CustomerDocs() {
               }`}
             >
               <Icon size={16} />
-              <span className="font-medium">{label}</span>
+              <span className="font-medium">{t(labelKey)}</span>
               <span className="text-xs text-ink-500">({count})</span>
-              <span className="text-xs text-ink-600 hidden md:inline">— {hint}</span>
+              <span className="text-xs text-ink-600 hidden md:inline">— {t(hintKey)}</span>
             </button>
           );
         })}
@@ -227,17 +229,17 @@ export default function CustomerDocs() {
         >
           <Upload className="mx-auto mb-2 text-ink-500" size={24} />
           <p className="text-sm text-ink-300">
-            Drag & Drop oder{' '}
+            {t('documents.dragDropPrefix')}
             <button
               type="button"
               className="text-aevum-gold underline-offset-2 hover:underline"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
             >
-              Datei auswählen
+              {t('documents.fileSelect')}
             </button>
           </p>
-          <p className="text-xs text-ink-500 mt-1">.md, .txt, .pdf · max 8 MB · → {active}</p>
+          <p className="text-xs text-ink-500 mt-1">{t('documents.uploadConstraints', { box: active })}</p>
           <input
             ref={fileInputRef}
             type="file"
@@ -256,7 +258,7 @@ export default function CustomerDocs() {
           {loading ? (
             <div className="flex justify-center py-8"><Spinner size="md" /></div>
           ) : list.length === 0 ? (
-            <p className="text-sm text-ink-500 py-8 text-center">Keine Dateien in {active}.</p>
+            <p className="text-sm text-ink-500 py-8 text-center">{t('documents.emptyBox', { box: active })}</p>
           ) : (
             list.map(d => {
               const Icon = extIcon(d.ext);
@@ -281,7 +283,7 @@ export default function CustomerDocs() {
                       type="button"
                       className="opacity-0 group-hover:opacity-100 text-ink-500 hover:text-red-400 p-1"
                       onClick={(e) => { e.stopPropagation(); void deleteFile(d); }}
-                      aria-label={`Lösche ${d.filename}`}
+                      aria-label={t('documents.deleteAria', { name: d.filename })}
                     >
                       <Trash2 size={14} />
                     </button>
@@ -293,9 +295,9 @@ export default function CustomerDocs() {
         </div>
 
         {/* Preview pane */}
-        <div className="border border-ink-800 rounded-lg p-4 min-h-[300px]">
+        <div className="border border-ink-800 rounded-lg p-4 min-h-[300px] min-w-0">
           {!selected ? (
-            <p className="text-sm text-ink-500 text-center py-12">Klick eine Datei zum Anzeigen</p>
+            <p className="text-sm text-ink-500 text-center py-12">{t('documents.selectFileToView')}</p>
           ) : loadingContent ? (
             <div className="flex justify-center py-12"><Spinner size="md" /></div>
           ) : (
@@ -306,7 +308,7 @@ export default function CustomerDocs() {
                   type="button"
                   onClick={() => { setSelected(null); setContent(''); }}
                   className="text-ink-500 hover:text-ink-200"
-                  aria-label="Schließen"
+                  aria-label={t('documents.closeAria')}
                 >
                   <X size={16} />
                 </button>

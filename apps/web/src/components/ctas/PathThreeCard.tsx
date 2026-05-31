@@ -10,6 +10,7 @@
  */
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ShoppingCart, Sparkles, MessageCircle, ArrowRight } from 'lucide-react';
 
 export type PathVariant = 'primary' | 'secondary' | 'tertiary';
@@ -31,21 +32,21 @@ const variantStyles: Record<PathVariant, {
 }> = {
   primary: {
     icon: ShoppingCart,
-    border: 'border-[#e0a458]/40 hover:border-[#e0a458]/70 hover:bg-[#e0a458]/[0.04]',
-    accent: 'text-[#e0a458]',
-    iconBg: 'bg-[#e0a458]/12',
+    border: 'border-theme-border-accent hover:border-theme-accent hover:bg-theme-accent/[0.04]',
+    accent: 'text-theme-accent',
+    iconBg: 'bg-theme-accent/[0.12]',
   },
   secondary: {
     icon: Sparkles,
-    border: 'border-white/12 hover:border-[#e0a458]/40 hover:bg-white/[0.02]',
-    accent: 'text-[#F9FAFB]',
-    iconBg: 'bg-white/8',
+    border: 'border-theme-border hover:border-theme-border-accent hover:bg-bg-elevated',
+    accent: 'text-text-primary',
+    iconBg: 'bg-bg-elevated',
   },
   tertiary: {
     icon: MessageCircle,
-    border: 'border-white/8 hover:border-white/20 hover:bg-white/[0.02]',
-    accent: 'text-[#a4a4ad]',
-    iconBg: 'bg-white/6',
+    border: 'border-theme-border hover:border-theme-border-strong hover:bg-bg-elevated',
+    accent: 'text-text-secondary',
+    iconBg: 'bg-bg-elevated',
   },
 };
 
@@ -63,14 +64,14 @@ function Card({ variant, href, onClick, title, subtitle, index }: CardProps) {
         </div>
         <div className="flex-1 min-w-0">
           <h3 className={`text-base font-medium leading-tight mb-1.5 ${s.accent}`}>{title}</h3>
-          <p className="text-xs text-[#a4a4ad] leading-snug">{subtitle}</p>
+          <p className="text-xs text-text-secondary leading-snug">{subtitle}</p>
         </div>
-        <ArrowRight size={16} className="text-[#7a7a85] group-hover:text-[#e0a458] group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1" />
+        <ArrowRight size={16} className="text-text-muted group-hover:text-theme-accent group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1" />
       </div>
     </>
   );
 
-  const baseClass = `block w-full text-left bg-bg-surface border p-6 transition-all group ${s.border}`;
+  const baseClass = `flex flex-col h-full w-full text-left bg-bg-surface border p-6 transition-all group ${s.border}`;
 
   return (
     <motion.div
@@ -78,6 +79,7 @@ function Card({ variant, href, onClick, title, subtitle, index }: CardProps) {
       initial={{ opacity: 0, y: 24 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: index * 0.08, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      className="h-full"
     >
       {href ? (
         <a href={href} className={baseClass}>
@@ -102,11 +104,15 @@ interface PathThreeCardProps {
 }
 
 export default function PathThreeCard({
-  eyebrow = 'Nächster Schritt',
-  headline = 'Drei Wege rein. Du wählst.',
-  subline = 'Blueprint kaufen, kostenloses Audit buchen, oder erstmal Fragen klären.',
+  eyebrow,
+  headline,
+  subline,
   compact = false,
 }: PathThreeCardProps = {}) {
+  const { t } = useTranslation();
+  const resolvedEyebrow = eyebrow ?? t('common.pathEyebrow');
+  const resolvedHeadline = headline ?? t('common.pathHeadline');
+  const resolvedSubline = subline ?? t('common.pathSubline');
   const openHelpbot = () => {
     if (typeof window === 'undefined') return;
     window.dispatchEvent(new CustomEvent('aevum:open-helpbot'));
@@ -116,15 +122,15 @@ export default function PathThreeCard({
     <div className="w-full">
       {!compact && (
         <div className="mb-8 text-center">
-          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#e0a458] mb-3 block">
-            {eyebrow}
+          <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block">
+            {resolvedEyebrow}
           </span>
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3">
-            {headline}
+          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3 text-text-primary">
+            {resolvedHeadline}
           </h2>
-          {subline && (
-            <p className="text-sm text-[#a4a4ad] max-w-xl mx-auto leading-relaxed">
-              {subline}
+          {resolvedSubline && (
+            <p className="text-sm text-text-secondary max-w-xl mx-auto leading-relaxed">
+              {resolvedSubline}
             </p>
           )}
         </div>
@@ -134,22 +140,22 @@ export default function PathThreeCard({
         <Card
           variant="primary"
           href="/#/shop"
-          title="Blueprint kaufen"
-          subtitle="€97-697 · Sofort downloadbar"
+          title={t('common.pathBuyTitle')}
+          subtitle={t('common.pathBuySubtitle')}
           index={0}
         />
         <Card
           variant="secondary"
           href="/#/audit"
-          title="Audit buchen"
-          subtitle="Kostenlos · 48h Auto-Plan"
+          title={t('common.pathAuditTitle')}
+          subtitle={t('common.pathAuditSubtitle')}
           index={1}
         />
         <Card
           variant="tertiary"
           onClick={openHelpbot}
-          title="Fragen klären"
-          subtitle="Helpbot · Antwort in 30 Sek."
+          title={t('common.pathHelpbotTitle')}
+          subtitle={t('common.pathHelpbotSubtitle')}
           index={2}
         />
       </div>

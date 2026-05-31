@@ -6,6 +6,7 @@
  */
 
 import { Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAevumConfig } from '@/hooks/use-config';
 
 interface Props {
@@ -15,20 +16,21 @@ interface Props {
 }
 
 export default function MaintenancePill({ variant = 'inline', className = '' }: Props) {
+  const { t } = useTranslation();
   const config = useAevumConfig();
   if (!config?.payments_paused) return null;
 
   const base =
-    'inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-[0.14em] px-2 py-0.5 rounded-full border bg-[#e0a458]/12 border-[#e0a458]/30 text-[#e0a458]';
+    'inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-[0.14em] px-2 py-0.5 rounded-full border bg-theme-accent/[0.12] border-theme-border-accent text-theme-accent';
   const positioned =
     variant === 'absolute'
       ? 'absolute top-3 left-3 z-10 backdrop-blur-sm'
       : '';
 
   return (
-    <span className={`${base} ${positioned} ${className}`} aria-label="In Wartung — Käufe pausiert">
+    <span className={`${base} ${positioned} ${className}`} aria-label={t('maintenance.pillAria')}>
       <Sparkles size={9} />
-      In Vorbereitung
+      {t('maintenance.pillLabel')}
     </span>
   );
 }

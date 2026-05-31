@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, useInView } from 'framer-motion';
 import {
   MessageCircle,
@@ -37,19 +38,20 @@ const fadeUp = {
 /* ──────────────────────── Hero Section ──────────────────────── */
 
 function HeroSection() {
+  const { t } = useTranslation();
   return (
-    <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden pt-32 pb-16">
+    <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden pt-28 sm:pt-32 pb-16 px-4">
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#e0a458]/15 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-theme-accent-soft via-transparent to-transparent" />
       </div>
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
         <motion.span
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="inline-block bg-[#e0a458]/10 border border-[#e0a458]/30 text-[#e0a458] font-mono text-xs uppercase tracking-[0.15em] px-4 py-2 mb-6"
+          className="inline-block bg-theme-accent-soft border border-theme-border-accent text-theme-accent font-mono text-xs uppercase tracking-[0.15em] px-4 py-2 mb-6"
         >
-          Kostenlos & unverbindlich
+          {t('workflowAudit.hero.badge')}
         </motion.span>
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
@@ -57,18 +59,16 @@ function HeroSection() {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight leading-[1.1] mb-6"
         >
-          Kostenloser
-          <span className="text-gradient font-medium block mt-2">Workflow Audit</span>
+          {t('workflowAudit.hero.titleLine1')}
+          <span className="text-gradient font-medium block mt-2">{t('workflowAudit.hero.titleLine2')}</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-base md:text-lg text-[#a4a4ad] max-w-2xl mx-auto leading-relaxed"
+          className="text-base md:text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed"
         >
-          Füllen Sie das Formular aus. Wir analysieren Ihre Prozesse und senden Ihnen
-          in der Regel innerhalb von 2 bis 3 Werktagen eine personalisierte Automatisierungs-Roadmap —
-          ohne Verkaufsgespräch-Druck, kostenlos.
+          {t('workflowAudit.hero.subtitle')}
         </motion.p>
       </div>
     </section>
@@ -78,6 +78,7 @@ function HeroSection() {
 /* ──────────────────────── Form Section ──────────────────────── */
 
 function FormSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
@@ -112,7 +113,7 @@ function FormSection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!consent) {
-      setSubmitError('Bitte stimmen Sie der Datenverarbeitung zu (DSGVO).');
+      setSubmitError(t('workflowAudit.form.consentError'));
       return;
     }
     setSubmitError(null);
@@ -134,19 +135,17 @@ function FormSection() {
       setSubmitted(true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
-      setSubmitError(
-        `Senden fehlgeschlagen: ${msg}. Bitte per WhatsApp/Email direkt kontaktieren.`
-      );
+      setSubmitError(t('workflowAudit.form.submitErrorPrefix', { msg }));
     } finally {
       setSubmitting(false);
     }
   };
 
   const inputClasses =
-    'w-full bg-bg-primary border border-white/10 px-4 py-3 text-sm text-[#F8FAFC] placeholder-[#52525B] focus:border-[#e0a458]/50 focus:outline-none transition-colors';
-  const labelClasses = 'flex items-center gap-2 text-sm text-[#a4a4ad] mb-2';
+    'input-base text-sm';
+  const labelClasses = 'flex items-center gap-2 text-sm text-text-secondary mb-2';
   const selectClasses =
-    'w-full bg-bg-primary border border-white/10 px-4 py-3 text-sm text-[#F8FAFC] focus:border-[#e0a458]/50 focus:outline-none transition-colors appearance-none cursor-pointer';
+    'input-base text-sm appearance-none cursor-pointer';
 
   if (submitted) {
     return (
@@ -156,32 +155,31 @@ function FormSection() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
-            className="bg-bg-surface border border-[#e0a458]/30 p-10 lg:p-16 text-center"
+            className="bg-bg-surface border border-theme-border-accent rounded-xl p-8 sm:p-10 lg:p-16 text-center"
           >
-            <div className="w-20 h-20 bg-[#e0a458]/10 border border-[#e0a458]/30 flex items-center justify-center mx-auto mb-8">
-              <CheckCircle size={40} className="text-[#e0a458]" />
+            <div className="w-20 h-20 bg-theme-accent-soft border border-theme-border-accent flex items-center justify-center mx-auto mb-8">
+              <CheckCircle size={40} className="text-theme-accent" />
             </div>
             <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-4">
-              Anfrage <span className="text-gradient">erhalten!</span>
+              {t('workflowAudit.success.titleBefore')} <span className="text-gradient">{t('workflowAudit.success.titleAccent')}</span>
             </h2>
-            <p className="text-[#a4a4ad] mb-8 leading-relaxed">
-              Vielen Dank, {formData.name || 'für Ihre Anfrage'}. Wir analysieren Ihre
-              Prozesse und senden Ihnen innerhalb von <strong className="text-[#F8FAFC]">48 Stunden</strong>{' '}
-              Ihre personalisierte Automatisierungs-Roadmap.
+            <p className="text-text-secondary mb-8 leading-relaxed">
+              {t('workflowAudit.success.textPrefix')}{formData.name || t('workflowAudit.success.textFallback')}{t('workflowAudit.success.textMiddle')} <strong className="text-text-primary">{t('workflowAudit.success.textHours')}</strong>{' '}
+              {t('workflowAudit.success.textSuffix')}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
                 href={CONTACT.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary flex items-center gap-2"
+                className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2"
               >
                 <MessageCircle size={18} />
-                WhatsApp für Rückfragen
+                {t('workflowAudit.success.whatsapp')}
               </a>
-              <a href="#/" className="btn-secondary flex items-center gap-2">
+              <a href="#/" className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-2">
                 <ArrowLeft size={18} />
-                Zur Startseite
+                {t('workflowAudit.success.backHome')}
               </a>
             </div>
           </motion.div>
@@ -191,14 +189,14 @@ function FormSection() {
   }
 
   return (
-    <section className="px-6 lg:px-16 py-24" ref={ref}>
+    <section className="px-4 sm:px-6 lg:px-16 py-20 sm:py-24" ref={ref}>
       <div className="max-w-3xl mx-auto">
         <motion.form
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
           onSubmit={handleSubmit}
-          className="bg-bg-surface border border-white/10 p-8 lg:p-12"
+          className="bg-bg-surface border border-theme-border rounded-xl p-6 sm:p-8 lg:p-12"
         >
           {/* Honeypot — visually hidden, off-screen. Real users never see/fill this. Bots auto-fill. */}
           <div
@@ -212,7 +210,7 @@ function FormSection() {
               overflow: 'hidden',
             }}
           >
-            <label htmlFor="website-hp">Website (do not fill)</label>
+            <label htmlFor="website-hp">{t('workflowAudit.form.honeypotLabel')}</label>
             <input
               type="text"
               id="website-hp"
@@ -225,10 +223,9 @@ function FormSection() {
           </div>
 
           {/* Intro text */}
-          <div className="mb-10 pb-8 border-b border-white/10">
-            <p className="text-[#a4a4ad] leading-relaxed">
-              Erzählen Sie uns von Ihrem Unternehmen. Je mehr wir wissen, desto präziser
-              wird Ihre Roadmap. Das dauert nur <strong className="text-[#F8FAFC]">3-5 Minuten</strong>.
+          <div className="mb-10 pb-8 border-b border-theme-border">
+            <p className="text-text-secondary leading-relaxed">
+              {t('workflowAudit.form.intro')} <strong className="text-text-primary">{t('workflowAudit.form.introBold')}</strong>{t('workflowAudit.form.introSuffix')}
             </p>
           </div>
 
@@ -236,8 +233,8 @@ function FormSection() {
             {/* 1. Name */}
             <motion.div custom={0} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="name" className={labelClasses}>
-                <User size={16} className="text-[#e0a458]" />
-                Wie heißen Sie? *
+                <User size={16} className="text-theme-accent" />
+                {t('workflowAudit.form.name')}
               </label>
               <input
                 type="text"
@@ -246,7 +243,7 @@ function FormSection() {
                 required
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Max Mustermann"
+                placeholder={t('workflowAudit.form.namePlaceholder')}
                 className={inputClasses}
               />
             </motion.div>
@@ -254,8 +251,8 @@ function FormSection() {
             {/* 2. Unternehmen */}
             <motion.div custom={1} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="company" className={labelClasses}>
-                <Building2 size={16} className="text-[#e0a458]" />
-                Wie heißt Ihr Unternehmen? *
+                <Building2 size={16} className="text-theme-accent" />
+                {t('workflowAudit.form.company')}
               </label>
               <input
                 type="text"
@@ -264,7 +261,7 @@ function FormSection() {
                 required
                 value={formData.company}
                 onChange={handleChange}
-                placeholder="Muster GmbH"
+                placeholder={t('workflowAudit.form.companyPlaceholder')}
                 className={inputClasses}
               />
             </motion.div>
@@ -272,8 +269,8 @@ function FormSection() {
             {/* 3. Branche */}
             <motion.div custom={2} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="industry" className={labelClasses}>
-                <Briefcase size={16} className="text-[#e0a458]" />
-                In welcher Branche sind Sie tätig? *
+                <Briefcase size={16} className="text-theme-accent" />
+                {t('workflowAudit.form.industry')}
               </label>
               <select
                 id="industry"
@@ -283,25 +280,25 @@ function FormSection() {
                 onChange={handleChange}
                 className={selectClasses}
               >
-                <option value="">Bitte wählen</option>
-                <option value="ecommerce">E-Commerce</option>
-                <option value="b2b">B2B / SaaS</option>
-                <option value="beratung">Beratung / Coaching</option>
-                <option value="realestate">Immobilien</option>
-                <option value="gesundheit">Gesundheit / Fitness</option>
-                <option value="finanzen">Finanzen / Versicherung</option>
-                <option value="handwerk">Handwerk / Bau</option>
-                <option value="marketing">Marketing / Agentur</option>
-                <option value="personalbrand">Personal Brand</option>
-                <option value="andere">Andere</option>
+                <option value="">{t('workflowAudit.form.selectPlaceholder')}</option>
+                <option value="ecommerce">{t('workflowAudit.form.industryOptions.ecommerce')}</option>
+                <option value="b2b">{t('workflowAudit.form.industryOptions.b2b')}</option>
+                <option value="beratung">{t('workflowAudit.form.industryOptions.beratung')}</option>
+                <option value="realestate">{t('workflowAudit.form.industryOptions.realestate')}</option>
+                <option value="gesundheit">{t('workflowAudit.form.industryOptions.gesundheit')}</option>
+                <option value="finanzen">{t('workflowAudit.form.industryOptions.finanzen')}</option>
+                <option value="handwerk">{t('workflowAudit.form.industryOptions.handwerk')}</option>
+                <option value="marketing">{t('workflowAudit.form.industryOptions.marketing')}</option>
+                <option value="personalbrand">{t('workflowAudit.form.industryOptions.personalbrand')}</option>
+                <option value="andere">{t('workflowAudit.form.industryOptions.andere')}</option>
               </select>
             </motion.div>
 
             {/* 4. Teamgröße */}
             <motion.div custom={3} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="teamSize" className={labelClasses}>
-                <Users size={16} className="text-[#e0a458]" />
-                Wie groß ist Ihr Team? *
+                <Users size={16} className="text-theme-accent" />
+                {t('workflowAudit.form.teamSize')}
               </label>
               <select
                 id="teamSize"
@@ -311,20 +308,20 @@ function FormSection() {
                 onChange={handleChange}
                 className={selectClasses}
               >
-                <option value="">Bitte wählen</option>
-                <option value="solo">Solo / Freelancer</option>
-                <option value="2-5">2 – 5 Mitarbeiter</option>
-                <option value="6-15">6 – 15 Mitarbeiter</option>
-                <option value="16-50">16 – 50 Mitarbeiter</option>
-                <option value="50+">50+ Mitarbeiter</option>
+                <option value="">{t('workflowAudit.form.selectPlaceholder')}</option>
+                <option value="solo">{t('workflowAudit.form.teamSizeOptions.solo')}</option>
+                <option value="2-5">{t('workflowAudit.form.teamSizeOptions.s2_5')}</option>
+                <option value="6-15">{t('workflowAudit.form.teamSizeOptions.s6_15')}</option>
+                <option value="16-50">{t('workflowAudit.form.teamSizeOptions.s16_50')}</option>
+                <option value="50+">{t('workflowAudit.form.teamSizeOptions.s50plus')}</option>
               </select>
             </motion.div>
 
             {/* 5. Was macht Ihr Unternehmen? */}
             <motion.div custom={4} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="description" className={labelClasses}>
-                <FileText size={16} className="text-[#e0a458]" />
-                Was macht Ihr Unternehmen? Was ist Ihr Angebot? *
+                <FileText size={16} className="text-theme-accent" />
+                {t('workflowAudit.form.description')}
               </label>
               <textarea
                 id="description"
@@ -333,7 +330,7 @@ function FormSection() {
                 rows={4}
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Wir bieten... unsere Zielgruppe ist... unsere größten Stärken sind..."
+                placeholder={t('workflowAudit.form.descriptionPlaceholder')}
                 className={`${inputClasses} resize-none`}
               />
             </motion.div>
@@ -341,8 +338,8 @@ function FormSection() {
             {/* 6. Größte Zeitfresser */}
             <motion.div custom={5} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="timeWasters" className={labelClasses}>
-                <Clock size={16} className="text-[#e0a458]" />
-                Was sind Ihre größten Zeitfresser? *
+                <Clock size={16} className="text-theme-accent" />
+                {t('workflowAudit.form.timeWasters')}
               </label>
               <textarea
                 id="timeWasters"
@@ -351,7 +348,7 @@ function FormSection() {
                 rows={4}
                 value={formData.timeWasters}
                 onChange={handleChange}
-                placeholder="z.B. Manuelle Datenpflege, Follow-ups, Content-Erstellung, Lead-Qualifizierung..."
+                placeholder={t('workflowAudit.form.timeWastersPlaceholder')}
                 className={`${inputClasses} resize-none`}
               />
             </motion.div>
@@ -359,8 +356,8 @@ function FormSection() {
             {/* 7. Aktuelle Tools */}
             <motion.div custom={6} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="tools" className={labelClasses}>
-                <Wrench size={16} className="text-[#e0a458]" />
-                Welche Tools nutzen Sie aktuell?
+                <Wrench size={16} className="text-theme-accent" />
+                {t('workflowAudit.form.tools')}
               </label>
               <input
                 type="text"
@@ -368,7 +365,7 @@ function FormSection() {
                 name="tools"
                 value={formData.tools}
                 onChange={handleChange}
-                placeholder="z.B. HubSpot, Salesforce, Notion, Slack, Zapier, Make..."
+                placeholder={t('workflowAudit.form.toolsPlaceholder')}
                 className={inputClasses}
               />
             </motion.div>
@@ -376,8 +373,8 @@ function FormSection() {
             {/* 8. Budgetrahmen */}
             <motion.div custom={7} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="budget" className={labelClasses}>
-                <Wallet size={16} className="text-[#e0a458]" />
-                Was ist Ihr Budgetrahmen? *
+                <Wallet size={16} className="text-theme-accent" />
+                {t('workflowAudit.form.budget')}
               </label>
               <select
                 id="budget"
@@ -387,19 +384,19 @@ function FormSection() {
                 onChange={handleChange}
                 className={selectClasses}
               >
-                <option value="">Bitte wählen</option>
-                <option value="under5k">Unter 5.000 €</option>
-                <option value="5k-15k">5.000 – 15.000 €</option>
-                <option value="15k-50k">15.000 – 50.000 €</option>
-                <option value="50k+">Über 50.000 €</option>
+                <option value="">{t('workflowAudit.form.selectPlaceholder')}</option>
+                <option value="under5k">{t('workflowAudit.form.budgetOptions.under5k')}</option>
+                <option value="5k-15k">{t('workflowAudit.form.budgetOptions.b5_15k')}</option>
+                <option value="15k-50k">{t('workflowAudit.form.budgetOptions.b15_50k')}</option>
+                <option value="50k+">{t('workflowAudit.form.budgetOptions.b50kplus')}</option>
               </select>
             </motion.div>
 
             {/* 9. Zeitrahmen */}
             <motion.div custom={8} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="timeline" className={labelClasses}>
-                <CalendarClock size={16} className="text-[#e0a458]" />
-                Wann soll das System live sein? *
+                <CalendarClock size={16} className="text-theme-accent" />
+                {t('workflowAudit.form.timeline')}
               </label>
               <select
                 id="timeline"
@@ -409,19 +406,19 @@ function FormSection() {
                 onChange={handleChange}
                 className={selectClasses}
               >
-                <option value="">Bitte wählen</option>
-                <option value="asap">So schnell wie möglich</option>
-                <option value="1-2months">In 1-2 Monaten</option>
-                <option value="3-6months">In 3-6 Monaten</option>
-                <option value="planning">Nur am Planen / Budgetierung</option>
+                <option value="">{t('workflowAudit.form.selectPlaceholder')}</option>
+                <option value="asap">{t('workflowAudit.form.timelineOptions.asap')}</option>
+                <option value="1-2months">{t('workflowAudit.form.timelineOptions.m1_2')}</option>
+                <option value="3-6months">{t('workflowAudit.form.timelineOptions.m3_6')}</option>
+                <option value="planning">{t('workflowAudit.form.timelineOptions.planning')}</option>
               </select>
             </motion.div>
 
             {/* 10. E-Mail */}
             <motion.div custom={9} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="email" className={labelClasses}>
-                <Mail size={16} className="text-[#e0a458]" />
-                Ihre E-Mail-Adresse *
+                <Mail size={16} className="text-theme-accent" />
+                {t('workflowAudit.form.email')}
               </label>
               <input
                 type="email"
@@ -430,7 +427,7 @@ function FormSection() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="max@beispiel.de"
+                placeholder={t('workflowAudit.form.emailPlaceholder')}
                 className={inputClasses}
               />
             </motion.div>
@@ -438,8 +435,8 @@ function FormSection() {
             {/* 11. Telefon */}
             <motion.div custom={10} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label htmlFor="phone" className={labelClasses}>
-                <Phone size={16} className="text-[#e0a458]" />
-                Ihre Telefonnummer
+                <Phone size={16} className="text-theme-accent" />
+                {t('workflowAudit.form.phone')}
               </label>
               <input
                 type="tel"
@@ -447,7 +444,7 @@ function FormSection() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="+49 123 456789"
+                placeholder={t('workflowAudit.form.phonePlaceholder')}
                 className={inputClasses}
               />
             </motion.div>
@@ -455,15 +452,15 @@ function FormSection() {
             {/* File Upload (visual only) */}
             <motion.div custom={11} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
               <label className={labelClasses}>
-                <Upload size={16} className="text-[#e0a458]" />
-                Dokumente hochladen (optional)
+                <Upload size={16} className="text-theme-accent" />
+                {t('workflowAudit.form.uploadLabel')}
               </label>
-              <div className="w-full bg-bg-primary border border-dashed border-white/20 hover:border-[#e0a458]/30 px-4 py-10 text-center transition-colors cursor-pointer group">
-                <Upload size={28} className="text-[#7a7a85] group-hover:text-[#e0a458] mx-auto mb-3 transition-colors" />
-                <p className="text-sm text-[#7a7a85] group-hover:text-[#a4a4ad] transition-colors">
-                  PDF, DOC, oder Bilder hierher ziehen
+              <div className="w-full bg-bg-elevated border border-dashed border-theme-border-strong hover:border-theme-border-accent px-4 py-10 text-center transition-colors cursor-pointer group rounded-lg">
+                <Upload size={28} className="text-text-muted group-hover:text-theme-accent mx-auto mb-3 transition-colors" />
+                <p className="text-sm text-text-muted group-hover:text-text-secondary transition-colors">
+                  {t('workflowAudit.form.uploadDrop')}
                 </p>
-                <p className="text-xs text-[#7a7a85] mt-1">Max. 10 MB</p>
+                <p className="text-xs text-text-muted mt-1">{t('workflowAudit.form.uploadMax')}</p>
               </div>
             </motion.div>
           </div>
@@ -474,7 +471,7 @@ function FormSection() {
             variants={fadeUp}
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
-            className="mt-8 pt-6 border-t border-white/10"
+            className="mt-8 pt-6 border-t border-theme-border"
           >
             <label className="flex items-start gap-3 cursor-pointer group">
               <input
@@ -482,14 +479,15 @@ function FormSection() {
                 checked={consent}
                 onChange={(e) => setConsent(e.target.checked)}
                 required
-                className="mt-1 w-4 h-4 accent-[#e0a458] cursor-pointer flex-shrink-0"
+                className="mt-1 w-4 h-4 cursor-pointer flex-shrink-0"
+                style={{ accentColor: 'var(--theme-accent)' }}
               />
-              <span className="text-sm text-[#a4a4ad] group-hover:text-[#F8FAFC] transition-colors">
-                Ich willige ein, dass meine Daten zum Zweck der Audit-Erstellung und Kontaktaufnahme verarbeitet werden. Mehr in der{' '}
-                <a href="#/datenschutz" className="text-[#e0a458] hover:underline">
-                  Datenschutzerklärung
+              <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
+                {t('workflowAudit.form.consentTextBefore')}{' '}
+                <a href="#/datenschutz" className="text-theme-accent hover:underline" data-link>
+                  {t('workflowAudit.form.consentLink')}
                 </a>
-                . Widerruf jederzeit möglich (Art 7 Abs 3 DSGVO).
+                {t('workflowAudit.form.consentTextAfter')}
               </span>
             </label>
           </motion.div>
@@ -500,7 +498,7 @@ function FormSection() {
             variants={fadeUp}
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
-            className="mt-10 pt-8 border-t border-white/10"
+            className="mt-10 pt-8 border-t border-theme-border"
           >
             <button
               type="submit"
@@ -509,23 +507,23 @@ function FormSection() {
             >
               {submitting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-[#0B0C10] border-t-transparent rounded-full animate-spin" />
-                  Wird gesendet...
+                  <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--text-on-accent)', borderTopColor: 'transparent' }} />
+                  {t('workflowAudit.form.submitting')}
                 </>
               ) : (
                 <>
                   <Sparkles size={18} />
-                  Meinen Roadmap generieren
+                  {t('workflowAudit.form.submit')}
                 </>
               )}
             </button>
             {submitError && (
-              <p className="text-center text-sm text-red-400 mt-4 px-4 py-3 bg-red-500/10 border border-red-500/30">
+              <p className="text-center text-sm text-red-400 mt-4 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg">
                 {submitError}
               </p>
             )}
-            <p className="text-center text-xs text-[#7a7a85] mt-4">
-              100% kostenlos und unverbindlich. Ihre Daten sind sicher.
+            <p className="text-center text-xs text-text-muted mt-4">
+              {t('workflowAudit.form.submitNote')}
             </p>
           </motion.div>
         </motion.form>
@@ -537,29 +535,16 @@ function FormSection() {
 /* ──────────────────────── What Happens Next ──────────────────────── */
 
 function NextStepsSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const steps = [
-    {
-      icon: FileText,
-      title: 'Analyse',
-      desc: 'Wir analysieren Ihre Antworten und identifizieren die größten Automatisierungspotenziale.',
-    },
-    {
-      icon: Sparkles,
-      title: 'Roadmap',
-      desc: 'Sie erhalten eine detaillierte, priorisierte Roadmap mit konkreten Use Cases und Zeitplan.',
-    },
-    {
-      icon: MessageCircle,
-      title: 'Strategy Call',
-      desc: 'Wir besprechen die Roadmap in einem 30-minütigen Call und beantworten alle Fragen.',
-    },
-  ];
+  const icons = [FileText, Sparkles, MessageCircle];
+  const items = t('workflowAudit.nextSteps.items', { returnObjects: true }) as { title: string; desc: string }[];
+  const steps = items.map((it, i) => ({ ...it, icon: icons[i] }));
 
   return (
-    <section className="px-6 lg:px-16 py-24 bg-bg-surface" ref={ref}>
+    <section className="px-4 sm:px-6 lg:px-16 py-20 sm:py-24 bg-bg-surface" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -567,11 +552,11 @@ function NextStepsSection() {
           transition={{ duration: 0.7 }}
           className="text-center mb-16"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[#e0a458] mb-4 block">
-            Der Ablauf
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
+            {t('workflowAudit.nextSteps.eyebrow')}
           </span>
           <h2 className="text-3xl md:text-5xl font-light tracking-tight">
-            Was passiert als Nächstes?
+            {t('workflowAudit.nextSteps.heading')}
           </h2>
         </motion.div>
 
@@ -583,19 +568,19 @@ function NextStepsSection() {
               variants={fadeUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
-              className="relative text-center p-8 bg-bg-primary border border-white/10 hover:border-[#e0a458]/30 transition-all hover:-translate-y-1"
+              className="relative flex h-full flex-col text-center p-8 bg-bg-primary border border-theme-border hover:border-theme-border-accent transition-all hover:-translate-y-1 rounded-xl"
             >
-              <div className="w-16 h-16 bg-bg-surface border border-[#e0a458]/30 flex items-center justify-center mx-auto mb-6">
-                <step.icon size={28} className="text-[#e0a458]" />
+              <div className="w-16 h-16 bg-bg-surface border border-theme-border-accent flex items-center justify-center mx-auto mb-6 rounded-lg">
+                <step.icon size={28} className="text-theme-accent" />
               </div>
-              <span className="font-mono text-xs text-[#7a7a85] uppercase tracking-wider block mb-3">
-                Schritt {i + 1}
+              <span className="font-mono text-xs text-text-muted uppercase tracking-wider block mb-3">
+                {t('workflowAudit.nextSteps.stepPrefix')} {i + 1}
               </span>
               <h3 className="text-lg font-medium mb-3">{step.title}</h3>
-              <p className="text-sm text-[#a4a4ad] leading-relaxed">{step.desc}</p>
+              <p className="text-sm text-text-secondary leading-relaxed">{step.desc}</p>
 
               {i < steps.length - 1 && (
-                <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-[#e0a458]">
+                <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-theme-accent">
                   <ArrowRight size={20} />
                 </div>
               )}
@@ -610,11 +595,12 @@ function NextStepsSection() {
 /* ──────────────────────── Kevin Testimonial ──────────────────────── */
 
 function TestimonialSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section className="px-6 lg:px-16 py-24" ref={ref}>
+    <section className="px-4 sm:px-6 lg:px-16 py-20 sm:py-24" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -622,37 +608,35 @@ function TestimonialSection() {
           transition={{ duration: 0.7 }}
           className="max-w-3xl mx-auto"
         >
-          <div className="bg-bg-surface border border-[#e0a458]/20 p-10 lg:p-12">
+          <div className="bg-bg-surface border border-theme-border-accent rounded-xl p-8 sm:p-10 lg:p-12">
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#e0a458] to-[#a86d27] flex items-center justify-center text-black font-bold text-xl">
+              <div className="w-16 h-16 rounded-full bg-gold-gradient flex items-center justify-center text-black font-bold text-xl">
                 K
               </div>
               <div>
-                <h3 className="text-lg font-medium">Kevin</h3>
-                <span className="font-mono text-xs text-[#e0a458] uppercase tracking-wider">
-                  Ketolabs — E-Commerce
+                <h3 className="text-lg font-medium">{t('workflowAudit.testimonial.name')}</h3>
+                <span className="font-mono text-xs text-theme-accent uppercase tracking-wider">
+                  {t('workflowAudit.testimonial.role')}
                 </span>
               </div>
             </div>
 
-            <blockquote className="text-lg md:text-xl text-[#a4a4ad] leading-relaxed mb-8 italic">
-              &ldquo;Der Workflow Audit war der Wendepunkt. Innerhalb von 48 Stunden hatten wir eine
-              Roadmap, die exakt zeigte, wo wir mit KI ansetzen können. Seitdem laufen 6 AI Agents
-              und wir machen €2.847 pro Tag — automatisiert.&rdquo;
+            <blockquote className="text-base sm:text-lg md:text-xl text-text-secondary leading-relaxed mb-8 italic">
+              {t('workflowAudit.testimonial.quote')}
             </blockquote>
 
             <div className="flex flex-wrap gap-6">
               <div className="flex items-center gap-2">
-                <TrendingUp size={18} className="text-[#e0a458]" />
-                <span className="text-sm text-[#a4a4ad]">€2.847/Tag</span>
+                <TrendingUp size={18} className="text-theme-accent" />
+                <span className="text-sm text-text-secondary">{t('workflowAudit.testimonial.stat1')}</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle size={18} className="text-[#e0a458]" />
-                <span className="text-sm text-[#a4a4ad]">6 AI Agents</span>
+                <CheckCircle size={18} className="text-theme-accent" />
+                <span className="text-sm text-text-secondary">{t('workflowAudit.testimonial.stat2')}</span>
               </div>
               <div className="flex items-center gap-2">
-                <TrendingUp size={18} className="text-[#e0a458]" />
-                <span className="text-sm text-[#a4a4ad]">3.45x ROAS</span>
+                <TrendingUp size={18} className="text-theme-accent" />
+                <span className="text-sm text-text-secondary">{t('workflowAudit.testimonial.stat3')}</span>
               </div>
             </div>
           </div>
@@ -665,26 +649,26 @@ function TestimonialSection() {
 /* ──────────────────────── Final CTA ──────────────────────── */
 
 function FinalCTA() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section className="px-6 lg:px-16 py-24 bg-bg-surface" ref={ref}>
+    <section className="px-4 sm:px-6 lg:px-16 py-20 sm:py-24 bg-bg-surface" ref={ref}>
       <div className="max-w-[1440px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="relative overflow-hidden bg-gradient-to-br from-[#0B0C10] to-[#15161A] border border-[#e0a458]/30 p-10 lg:p-16 text-center"
+          className="relative overflow-hidden bg-bg-elevated border border-theme-border-accent rounded-xl p-8 sm:p-10 lg:p-16 text-center"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-[#e0a458]/5 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-br from-theme-accent-soft to-transparent" />
           <div className="relative z-10 max-w-2xl mx-auto">
             <h2 className="text-3xl md:text-5xl font-light tracking-tight mb-6">
-              Noch Fragen?
+              {t('workflowAudit.finalCta.heading')}
             </h2>
-            <p className="text-[#a4a4ad] text-lg mb-10">
-              Schreiben Sie uns direkt auf WhatsApp oder buchen Sie einen Call.
-              Wir antworten innerhalb von 2 Stunden.
+            <p className="text-text-secondary text-lg mb-10">
+              {t('workflowAudit.finalCta.subtitle')}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -692,19 +676,19 @@ function FinalCTA() {
                 href={CONTACT.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary flex items-center gap-2"
+                className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2"
               >
                 <MessageCircle size={18} />
-                WhatsApp schreiben
+                {t('workflowAudit.finalCta.whatsapp')}
               </a>
               <a
                 href={CONTACT.calendly}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-secondary flex items-center gap-2"
+                className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-2"
               >
                 <Calendar size={18} />
-                Call buchen
+                {t('workflowAudit.finalCta.bookCall')}
               </a>
             </div>
           </div>

@@ -2,9 +2,12 @@
  * AEVUM Brand-Mark — premium SVG monogram + wordmark.
  * Custom-drawn: stylized "A" inside hexagonal frame, gold-gradient.
  */
+import { useTranslation } from 'react-i18next';
+
 type Props = { size?: number; showWordmark?: boolean; className?: string };
 
 export default function Brand({ size = 32, showWordmark = true, className = '' }: Props) {
+  const { t } = useTranslation();
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-label="AEVUM logo">
@@ -42,7 +45,7 @@ export default function Brand({ size = 32, showWordmark = true, className = '' }
       {showWordmark && (
         <div className="leading-none">
           <div className="text-[1.05rem] font-bold tracking-tight text-white">AEVUM</div>
-          <div className="text-[0.65rem] uppercase tracking-[0.18em] text-ink-400 mt-1">Customer Portal</div>
+          <div className="text-[0.65rem] uppercase tracking-[0.18em] text-ink-400 mt-1">{t('common.customerPortal')}</div>
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import {
@@ -37,53 +38,54 @@ type AuditEntry = {
 };
 
 const PERMISSION_GROUPS: Array<{
-  title: string;
-  hint?: string;
-  items: Array<{ key: keyof CasePage; label: string; desc?: string }>;
+  titleKey: string;
+  hintKey?: string;
+  items: Array<{ key: keyof CasePage; labelKey: string; descKey?: string }>;
 }> = [
   {
-    title: 'Identitaet',
-    hint: 'Was AEVUM ueber dich namentlich zeigen darf.',
+    titleKey: 'testimonial.groupIdentityTitle',
+    hintKey: 'testimonial.groupIdentityHint',
     items: [
-      { key: 'allow_show_brand_name', label: 'Brand-Name + Projekt-URL zeigen', desc: 'Ohne dies bleibt der Case anonym.' },
-      { key: 'allow_show_logo',       label: 'Logo / Hero-Bild zeigen' }
+      { key: 'allow_show_brand_name', labelKey: 'testimonial.itemBrandName', descKey: 'testimonial.itemBrandNameDesc' },
+      { key: 'allow_show_logo',       labelKey: 'testimonial.itemLogo' }
     ]
   },
   {
-    title: 'Inhalte',
+    titleKey: 'testimonial.groupContentTitle',
     items: [
-      { key: 'allow_show_services',            label: 'Aktivierte AEVUM-Services',  desc: 'Welche Bausteine bei dir live sind.' },
-      { key: 'allow_show_collaboration_story', label: 'Zusammenarbeits-Story' },
-      { key: 'allow_show_vision',              label: 'Vision-Section' },
-      { key: 'allow_show_testimonial',         label: 'Testimonial-Zitat + Autor' }
+      { key: 'allow_show_services',            labelKey: 'testimonial.itemServices',  descKey: 'testimonial.itemServicesDesc' },
+      { key: 'allow_show_collaboration_story', labelKey: 'testimonial.itemCollabStory' },
+      { key: 'allow_show_vision',              labelKey: 'testimonial.itemVision' },
+      { key: 'allow_show_testimonial',         labelKey: 'testimonial.itemTestimonial' }
     ]
   },
   {
-    title: 'Live-KPIs',
-    hint: 'Echte Zahlen aus deinem Dashboard, nicht Marketing-Stories.',
+    titleKey: 'testimonial.groupKpiTitle',
+    hintKey: 'testimonial.groupKpiHint',
     items: [
-      { key: 'show_revenue', label: 'Revenue / MRR' },
-      { key: 'show_users',   label: 'User-Counts' },
-      { key: 'show_growth',  label: 'Growth-Metrics' }
+      { key: 'show_revenue', labelKey: 'testimonial.itemRevenue' },
+      { key: 'show_users',   labelKey: 'testimonial.itemUsers' },
+      { key: 'show_growth',  labelKey: 'testimonial.itemGrowth' }
     ]
   }
 ];
 
-const FIELD_LABEL: Record<string, string> = {
-  allow_show_brand_name: 'Brand-Name zeigen',
-  allow_show_logo: 'Logo zeigen',
-  allow_show_testimonial: 'Testimonial zeigen',
-  allow_show_services: 'Services zeigen',
-  allow_show_collaboration_story: 'Story zeigen',
-  allow_show_vision: 'Vision zeigen',
-  show_revenue: 'Revenue zeigen',
-  show_users: 'User-Counts zeigen',
-  show_growth: 'Growth zeigen',
-  testimonial_quote: 'Testimonial-Quote',
-  testimonial_author: 'Testimonial-Autor'
+const FIELD_LABEL_KEY: Record<string, string> = {
+  allow_show_brand_name: 'testimonial.fieldBrandName',
+  allow_show_logo: 'testimonial.fieldLogo',
+  allow_show_testimonial: 'testimonial.fieldTestimonial',
+  allow_show_services: 'testimonial.fieldServices',
+  allow_show_collaboration_story: 'testimonial.fieldStory',
+  allow_show_vision: 'testimonial.fieldVision',
+  show_revenue: 'testimonial.fieldRevenue',
+  show_users: 'testimonial.fieldUsers',
+  show_growth: 'testimonial.fieldGrowth',
+  testimonial_quote: 'testimonial.fieldTestimonialQuote',
+  testimonial_author: 'testimonial.fieldTestimonialAuthor'
 };
 
 export default function Testimonial() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [casePage, setCasePage] = useState<CasePage | null>(null);
   const [hasCasePage, setHasCasePage] = useState(false);
@@ -104,7 +106,7 @@ export default function Testimonial() {
       setDraft(r.case_page ? { ...r.case_page } : {});
     } catch (e) {
       console.error(e);
-      toast.error('Konnte Testimonial-Daten nicht laden');
+      toast.error(t('testimonial.loadError'));
     } finally {
       setLoading(false);
     }
@@ -131,7 +133,7 @@ export default function Testimonial() {
     setConfirm(false);
     try {
       const patch: Record<string, unknown> = {};
-      const permKeys = PERMISSION_GROUPS.flatMap(g => g.items.map(i => i.key));
+      const permKeys = PERMISSION_GROUPS.flatMap(g => g.items.map((i) => i.key));
       for (const k of permKeys) {
         if (draft[k] !== casePage[k]) patch[k] = !!draft[k];
       }
@@ -142,21 +144,21 @@ export default function Testimonial() {
         patch.testimonial_author = draft.testimonial_author ?? null;
       }
       if (Object.keys(patch).length === 0) {
-        toast.info('Keine Aenderungen');
+        toast.info(t('testimonial.noChanges'));
         return;
       }
       await api('/api/me/testimonial', { method: 'PATCH', body: JSON.stringify(patch) });
-      toast.success('Permissions gespeichert + signiert');
+      toast.success(t('testimonial.saved'));
       await load();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'Speichern fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('testimonial.saveError'));
     } finally {
       setSaving(false);
     }
   };
 
   if (loading) {
-    return <div className="text-ink-400 text-sm">Lade Testimonial-Permissions…</div>;
+    return <div className="text-ink-400 text-sm">{t('testimonial.loading')}</div>;
   }
 
   if (!hasCasePage) {
@@ -164,19 +166,18 @@ export default function Testimonial() {
       <div>
         <header className="mb-8">
           <div className="flex items-center gap-2 text-xs text-gold-300 mb-3 uppercase tracking-wider font-semibold">
-            <Megaphone size={12} /> Testimonial
+            <Megaphone size={12} /> {t('testimonial.eyebrow')}
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">Public-Case</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">{t('testimonial.emptyTitle')}</h1>
         </header>
         <div className="card-premium p-6 max-w-2xl flex items-start gap-3">
           <AlertCircle size={18} className="text-gold-300 mt-0.5 shrink-0" />
           <div className="text-sm text-ink-300 leading-relaxed">
-            Fuer deinen Account gibt es noch keine Case-Page.
+            {t('testimonial.emptyBody1')}
             <br />
-            Sobald AEVUM intern eine Case-Page fuer dich anlegt, kannst du hier steuern,
-            was oeffentlich gezeigt werden darf.
+            {t('testimonial.emptyBody2')}
             <br /><br />
-            Default ist immer: <strong className="text-white">alles privat</strong>.
+            {t('testimonial.emptyDefaultPrefix')}<strong className="text-white">{t('testimonial.emptyDefaultStrong')}</strong>.
           </div>
         </div>
       </div>
@@ -190,49 +191,47 @@ export default function Testimonial() {
     <div className="pb-32">
       <header className="mb-8">
         <div className="flex items-center gap-2 text-xs text-gold-300 mb-3 uppercase tracking-wider font-semibold">
-          <Megaphone size={12} /> Testimonial
+          <Megaphone size={12} /> {t('testimonial.eyebrow')}
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
-          Was AEVUM public ueber uns zeigen darf
+          {t('testimonial.title')}
         </h1>
         <p className="text-ink-400 mt-2 max-w-2xl">
-          Default: alles privat. Jeder Schalter ist ein expliziter Opt-in. Aenderungen werden
-          mit Timestamp + Account-Slug digital signiert und in einem Audit-Trail festgehalten.
+          {t('testimonial.subtitle')}
         </p>
         {casePage?.consent_signed_at && (
           <div className="mt-4 inline-flex items-center gap-2 badge badge-gold">
             <Lock size={11} />
-            Zuletzt signiert: {new Date(casePage.consent_signed_at).toLocaleString('de-DE')}
+            {t('testimonial.lastSigned', { date: new Date(casePage.consent_signed_at).toLocaleString('de-DE') })}
             {casePage.consent_signed_by ? ` · ${casePage.consent_signed_by}` : ''}
           </div>
         )}
         {casePage?.public === false && (
           <div className="mt-3 text-[11px] text-ink-500">
-            Hinweis: Diese Case-Page ist intern noch nicht veroeffentlicht
-            <code className="mx-1 text-ink-400">public=false</code>. Selbst mit aktivierten
-            Permissions wird sie erst sichtbar, wenn AEVUM sie freischaltet.
+            {t('testimonial.notPublishedPrefix')}
+            <code className="mx-1 text-ink-400">public=false</code>{t('testimonial.notPublishedSuffix')}
           </div>
         )}
       </header>
 
       <div className="space-y-6 max-w-3xl">
         {PERMISSION_GROUPS.map(group => (
-          <div key={group.title} className="card-premium p-5 sm:p-6">
+          <div key={group.titleKey} className="card-premium p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-1 pb-3 border-b border-white/5">
               <ShieldCheck size={14} className="text-gold-300" />
               <h2 className="text-sm font-semibold text-white uppercase tracking-wider">
-                {group.title}
+                {t(group.titleKey)}
               </h2>
             </div>
-            {group.hint && (
-              <p className="text-[11px] text-ink-500 mt-2 mb-3">{group.hint}</p>
+            {group.hintKey && (
+              <p className="text-[11px] text-ink-500 mt-2 mb-3">{t(group.hintKey)}</p>
             )}
             <div className="space-y-1.5 mt-2">
               {group.items.map(item => (
                 <Toggle
                   key={String(item.key)}
-                  label={item.label}
-                  desc={item.desc}
+                  label={t(item.labelKey)}
+                  desc={item.descKey ? t(item.descKey) : undefined}
                   on={!!draft[item.key]}
                   onToggle={() => toggle(item.key)}
                 />
@@ -246,18 +245,18 @@ export default function Testimonial() {
           <div className="flex items-center gap-2 mb-3 pb-3 border-b border-white/5">
             <Quote size={14} className="text-gold-300" />
             <h2 className="text-sm font-semibold text-white uppercase tracking-wider">
-              Dein Testimonial
+              {t('testimonial.yourTestimonial')}
             </h2>
           </div>
           <p className="text-[11px] text-ink-500 mb-3">
-            Wird nur public angezeigt wenn oben &laquo;Testimonial-Zitat&raquo; aktiviert.
+            {t('testimonial.quoteHint')}
           </p>
           <textarea
             value={quote}
             onChange={(e) => updateField('testimonial_quote', e.target.value)}
             maxLength={500}
             rows={4}
-            placeholder="„Mit AEVUM haben wir in 6 Monaten …"
+            placeholder={t('testimonial.quotePlaceholder')}
             className="w-full bg-ink-900/60 border border-white/10 focus:border-gold-400/40 rounded-md text-sm text-white placeholder-ink-600 p-3 outline-none transition"
           />
           <div className="flex items-center justify-between mt-2">
@@ -265,7 +264,7 @@ export default function Testimonial() {
               value={author}
               onChange={(e) => updateField('testimonial_author', e.target.value)}
               maxLength={200}
-              placeholder="Dein Name + Rolle"
+              placeholder={t('testimonial.authorPlaceholder')}
               className="bg-ink-900/60 border border-white/10 focus:border-gold-400/40 rounded-md text-sm text-white placeholder-ink-600 px-3 py-2 outline-none transition flex-1 mr-3"
             />
             <span className="text-[11px] text-ink-500 whitespace-nowrap">
@@ -279,11 +278,11 @@ export default function Testimonial() {
           <div className="flex items-center gap-2 mb-3 pb-3 border-b border-white/5">
             <History size={14} className="text-gold-300" />
             <h2 className="text-sm font-semibold text-white uppercase tracking-wider">
-              Audit-Trail (letzte 10)
+              {t('testimonial.auditTitle')}
             </h2>
           </div>
           {audit.length === 0 ? (
-            <p className="text-[12px] text-ink-500">Noch keine Aenderungen geloggt.</p>
+            <p className="text-[12px] text-ink-500">{t('testimonial.auditEmpty')}</p>
           ) : (
             <ul className="space-y-1.5 text-[12px]">
               {audit.map(a => (
@@ -292,7 +291,7 @@ export default function Testimonial() {
                     {new Date(a.ts).toLocaleString('de-DE')}
                   </span>
                   <span className="text-white">
-                    {FIELD_LABEL[a.changed_field] || a.changed_field}
+                    {FIELD_LABEL_KEY[a.changed_field] ? t(FIELD_LABEL_KEY[a.changed_field]) : a.changed_field}
                   </span>
                   <span className="text-ink-500">
                     {String(a.old_value)} → <span className="text-gold-300">{String(a.new_value)}</span>
@@ -308,7 +307,7 @@ export default function Testimonial() {
         <div className="sticky bottom-4 z-10">
           <div className="glass rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
             <div className="text-xs text-ink-300">
-              {dirty ? 'Aenderungen werden digital signiert.' : 'Keine ungespeicherten Aenderungen.'}
+              {dirty ? t('testimonial.dirty') : t('testimonial.notDirty')}
             </div>
             <button
               disabled={saving || !dirty}
@@ -318,11 +317,11 @@ export default function Testimonial() {
               {saving ? (
                 <>
                   <span className="w-4 h-4 border-2 border-ink-950/50 border-t-ink-950 rounded-full animate-spin" />
-                  Speichere…
+                  {t('testimonial.saving')}
                 </>
               ) : (
                 <>
-                  <Save size={16} /> Speichern + Signieren
+                  <Save size={16} /> {t('testimonial.saveSign')}
                 </>
               )}
             </button>
@@ -337,15 +336,13 @@ export default function Testimonial() {
             <div className="w-12 h-12 rounded-full bg-gold-400/15 border border-gold-400/30 flex items-center justify-center mb-4">
               <ShieldCheck size={22} className="text-gold-300" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Signieren bestaetigen</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('testimonial.confirmTitle')}</h3>
             <p className="text-sm text-ink-300 leading-relaxed">
-              Diese Permissions werden mit Timestamp + Account-Slug digital signiert.
-              Jede Aenderung landet im Audit-Trail (DSGVO-konform). Du kannst sie jederzeit
-              zurueckziehen.
+              {t('testimonial.confirmBody')}
             </p>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setConfirm(false)} className="btn-ghost flex-1">Abbrechen</button>
-              <button onClick={doSave} className="btn-gold flex-1">Bestaetigen</button>
+              <button onClick={() => setConfirm(false)} className="btn-ghost flex-1">{t('testimonial.cancel')}</button>
+              <button onClick={doSave} className="btn-gold flex-1">{t('testimonial.confirm')}</button>
             </div>
           </div>
         </div>

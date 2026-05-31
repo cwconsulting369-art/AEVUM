@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Coins, Star, Gift, TrendingUp, Zap, Lock, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import Spinner from '@/components/Spinner';
 
@@ -28,6 +29,7 @@ interface Transaction {
 }
 
 export default function Credits() {
+  const { t } = useTranslation();
   const [data, setData] = useState<CreditsData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -56,10 +58,10 @@ export default function Credits() {
       <div>
         <h1 className="text-2xl font-bold text-white flex items-center gap-3">
           <Coins size={22} className="text-gold-300" />
-          AEVUM Credits
+          {t('credits.title')}
         </h1>
         <p className="text-sm text-ink-400 mt-1">
-          Dein Loyalitätssystem — für jede Zusammenarbeit wachsen deine Vorteile.
+          {t('credits.subtitle')}
         </p>
       </div>
 
@@ -69,12 +71,12 @@ export default function Credits() {
           <Coins size={28} className="text-gold-300" />
         </div>
         <div className="flex-1">
-          <div className="text-[0.6rem] uppercase tracking-[0.3em] text-gold-400/70 mb-1">Aktuelles Guthaben</div>
+          <div className="text-[0.6rem] uppercase tracking-[0.3em] text-gold-400/70 mb-1">{t('credits.currentBalance')}</div>
           <div className="text-5xl font-bold text-gold-gradient tabular-nums">
             {(data?.balance ?? 0).toLocaleString('de-DE')}
           </div>
           <div className="text-xs text-ink-400 mt-1">
-            Credits · Gesamt verdient: {(data?.lifetime_earned ?? 0).toLocaleString('de-DE')} Credits
+            {t('credits.balanceFooter', { lifetime: (data?.lifetime_earned ?? 0).toLocaleString('de-DE') })}
           </div>
         </div>
       </div>
@@ -82,26 +84,26 @@ export default function Credits() {
       {/* How it works */}
       <section>
         <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-          <Zap size={12} className="text-gold-300" /> Wie es funktioniert
+          <Zap size={12} className="text-gold-300" /> {t('credits.howItWorks')}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             {
               icon: TrendingUp,
-              title: 'Credits verdienen',
-              desc: 'Für jede abgeschlossene Maßnahme, pünktliche Zahlung oder Feedback erhältst du Credits automatisch gutgeschrieben.',
+              title: t('credits.earnTitle'),
+              desc: t('credits.earnDesc'),
               color: 'text-emerald-300'
             },
             {
               icon: Star,
-              title: 'Treuemarken sammeln',
-              desc: 'Jede Zusammenarbeit bringt eine Marke auf deiner Treuekarte. Bei vollem Set wartet eine Belohnung.',
+              title: t('credits.stampsTitle'),
+              desc: t('credits.stampsDesc'),
               color: 'text-gold-300'
             },
             {
               icon: Gift,
-              title: 'Credits einlösen',
-              desc: 'Nutze Credits für Rabatte auf Retainer, Bonus-Leistungen oder zusätzliche Analyse-Reports.',
+              title: t('credits.redeemTitle'),
+              desc: t('credits.redeemDesc'),
               color: 'text-purple-300'
             },
           ].map(({ icon: Icon, title, desc, color }) => (
@@ -120,7 +122,7 @@ export default function Credits() {
       {(data?.stamp_cards?.length ?? 0) > 0 && (
         <section>
           <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-            <Star size={12} className="text-gold-300" /> Treuekarten
+            <Star size={12} className="text-gold-300" /> {t('credits.loyaltyCards')}
           </h2>
           <div className="space-y-3">
             {data!.stamp_cards.map(card => (
@@ -133,16 +135,16 @@ export default function Credits() {
       {/* Credit rates */}
       <section>
         <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-          <TrendingUp size={12} className="text-gold-300" /> Wie Credits berechnet werden
+          <TrendingUp size={12} className="text-gold-300" /> {t('credits.howCalculated')}
         </h2>
         <div className="card-premium divide-y divide-white/5">
           {[
-            { action: 'Audit abgeschlossen',           credits: '+50 Credits' },
-            { action: 'Onboarding abgeschlossen',       credits: '+100 Credits' },
-            { action: 'Pünktliche Zahlung (Monat)',     credits: '+20 Credits' },
-            { action: 'Testimonial / Feedback gegeben', credits: '+150 Credits' },
-            { action: 'Referral (Weiterempfehlung)',    credits: '+500 Credits' },
-            { action: 'Retainer-Verlängerung (+3 Mo)',  credits: '+200 Credits' },
+            { action: t('credits.rateAudit'),       credits: t('credits.creditsUnit', { n: '+50' }) },
+            { action: t('credits.rateOnboarding'),  credits: t('credits.creditsUnit', { n: '+100' }) },
+            { action: t('credits.ratePayment'),     credits: t('credits.creditsUnit', { n: '+20' }) },
+            { action: t('credits.rateTestimonial'), credits: t('credits.creditsUnit', { n: '+150' }) },
+            { action: t('credits.rateReferral'),    credits: t('credits.creditsUnit', { n: '+500' }) },
+            { action: t('credits.rateRenewal'),     credits: t('credits.creditsUnit', { n: '+200' }) },
           ].map(({ action, credits }) => (
             <div key={action} className="flex items-center justify-between px-5 py-3">
               <span className="text-sm text-ink-300">{action}</span>
@@ -155,14 +157,14 @@ export default function Credits() {
       {/* Redeem options */}
       <section>
         <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-          <Gift size={12} className="text-gold-300" /> Einlösen
+          <Gift size={12} className="text-gold-300" /> {t('credits.redeemHeading')}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
-            { label: '1 Monat Retainer −10%', cost: '500 Credits', available: true },
-            { label: 'Bonus Analytics-Report',  cost: '300 Credits', available: true },
-            { label: 'Extra Strategie-Call (30 Min)', cost: '400 Credits', available: true },
-            { label: 'Priority Support (1 Mo)',   cost: '200 Credits', available: false },
+            { label: t('credits.redeemRetainer'), cost: t('credits.costCredits', { n: '500' }), available: true },
+            { label: t('credits.redeemReport'),   cost: t('credits.costCredits', { n: '300' }), available: true },
+            { label: t('credits.redeemCall'),     cost: t('credits.costCredits', { n: '400' }), available: true },
+            { label: t('credits.redeemPriority'), cost: t('credits.costCredits', { n: '200' }), available: false },
           ].map(({ label, cost, available }) => (
             <div key={label} className={`card-premium p-4 flex items-center justify-between gap-4 ${!available ? 'opacity-50' : ''}`}>
               <div>
@@ -171,19 +173,18 @@ export default function Credits() {
               </div>
               {available ? (
                 <button className="btn-gold py-1.5 px-3 text-[0.65rem] tracking-wide shrink-0">
-                  Einlösen
+                  {t('credits.redeemButton')}
                 </button>
               ) : (
                 <div className="flex items-center gap-1 text-[0.65rem] text-ink-500 shrink-0">
-                  <Lock size={11} /> Bald
+                  <Lock size={11} /> {t('credits.soon')}
                 </div>
               )}
             </div>
           ))}
         </div>
         <p className="text-[0.65rem] text-ink-500 mt-3">
-          Einlösungen werden von deinem AEVUM-Ansprechpartner bestätigt.
-          Credits verfallen nicht, sind nicht übertragbar und haben keinen Geldwert.
+          {t('credits.redeemFooter')}
         </p>
       </section>
 
@@ -191,7 +192,7 @@ export default function Credits() {
       {(data?.recent_transactions?.length ?? 0) > 0 && (
         <section>
           <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-4">
-            Letzte Transaktionen
+            {t('credits.recentTransactions')}
           </h2>
           <div className="card-premium divide-y divide-white/5">
             {data!.recent_transactions.map(tx => (
@@ -221,6 +222,7 @@ export default function Credits() {
 }
 
 function StampCardRow({ card }: { card: StampCard }) {
+  const { t } = useTranslation();
   const pct = Math.min(card.current_stamps / card.required_stamps, 1);
 
   return (
@@ -259,7 +261,7 @@ function StampCardRow({ card }: { card: StampCard }) {
       </div>
 
       <div className="text-[0.65rem] text-ink-400 mt-2">
-        Belohnung: <span className="text-gold-300">{card.reward_description}</span>
+        {t('credits.rewardPrefix')}<span className="text-gold-300">{card.reward_description}</span>
       </div>
     </div>
   );

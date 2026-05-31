@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Trans, useTranslation } from 'react-i18next';
 import { CheckCircle, Mail, Calendar, Sparkles, ArrowRight } from 'lucide-react';
 import CONTACT from '../config/contact';
 import { track } from '../lib/shop-track';
@@ -13,6 +14,7 @@ function readQueryFromHash(): URLSearchParams {
 }
 
 export default function CheckoutSuccess() {
+  const { t } = useTranslation();
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [type, setType] = useState<string | null>(null);
 
@@ -31,67 +33,65 @@ export default function CheckoutSuccess() {
   if (isSaasSignup) return <SaasSignupSuccess sessionId={sessionId} />;
 
   return (
-    <section className="min-h-[80vh] flex items-center justify-center px-6 py-24">
+    <section className="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 py-20 sm:py-24">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-2xl mx-auto text-center"
       >
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#e0a458]/10 mb-8">
-          <CheckCircle size={32} className="text-[#e0a458]" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-theme-accent-soft mb-8">
+          <CheckCircle size={32} className="text-theme-accent" />
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-light tracking-tight mb-6">
-          Vielen Dank für deinen{' '}
-          <span className="text-gradient">Kauf</span>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight mb-6 text-text-primary">
+          {t('checkout.successTitle1')}
+          <span className="text-gradient">{t('checkout.successTitle2')}</span>
         </h1>
 
-        <p className="text-[#a4a4ad] text-lg leading-relaxed mb-10">
-          Wir haben deine Bestellung erhalten. Eine Bestätigung mit Rechnung wurde per E-Mail
-          versendet. Innerhalb von <strong>1 Werktag</strong> melde ich mich persönlich mit
-          den nächsten Onboarding-Schritten.
+        <p className="text-text-secondary text-lg leading-relaxed mb-10">
+          <Trans i18nKey="checkout.successIntro" components={{ strong: <strong /> }} />
         </p>
 
         {sessionId && (
-          <p className="text-xs text-[#7a7a85] font-mono mb-10">
-            Order-ID: {sessionId.slice(0, 24)}…
+          <p className="text-xs text-text-muted font-mono mb-10 break-all">
+            {t('checkout.orderId', { id: sessionId.slice(0, 24) })}
           </p>
         )}
 
-        <div className="bg-bg-surface border border-white/10 p-8 mb-10 text-left">
-          <h2 className="text-lg font-medium mb-4">Was passiert jetzt?</h2>
-          <ol className="space-y-3 text-sm text-[#a4a4ad] list-decimal pl-5">
-            <li>Du erhältst innerhalb weniger Minuten eine Stripe-Zahlungsbestätigung per E-Mail.</li>
-            <li>Innerhalb von 1 Werktag schicke ich dir eine Onboarding-Mail mit Kickoff-Terminvorschlag.</li>
-            <li>Wir richten gemeinsame Kommunikationswege ein (Slack/TG/E-Mail nach deiner Wahl).</li>
-            <li>Bei Pilot-Programm-Slot: Wir vereinbaren auch Termine für die Testimonial-Video-Aufnahme nach 90 Tagen.</li>
+        <div className="bg-bg-surface border border-theme-border p-6 sm:p-8 mb-10 text-left rounded-xl">
+          <h2 className="text-lg font-medium mb-4 text-text-primary">{t('checkout.whatNextTitle')}</h2>
+          <ol className="space-y-3 text-sm text-text-secondary list-decimal pl-5">
+            <li>{t('checkout.whatNext1')}</li>
+            <li>{t('checkout.whatNext2')}</li>
+            <li>{t('checkout.whatNext3')}</li>
+            <li>{t('checkout.whatNext4')}</li>
           </ol>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a
             href={`mailto:${CONTACT.email}`}
-            className="btn-secondary flex items-center justify-center gap-2"
+            className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-2"
           >
             <Mail size={16} />
-            Fragen? Schreib direkt
+            {t('checkout.ctaWrite')}
           </a>
           <a
             href={CONTACT.calendly}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary flex items-center justify-center gap-2"
+            className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2"
           >
             <Calendar size={16} />
-            Kickoff schon jetzt buchen
+            {t('checkout.ctaBookKickoff')}
           </a>
         </div>
 
-        <p className="text-xs text-[#7a7a85] mt-12">
-          Hinweis: Bei Verbrauchern (B2C) besteht ein gesetzliches Widerrufsrecht von 14 Tagen
-          (siehe <a href="#/widerrufsbelehrung" className="text-[#e0a458] hover:underline">Widerrufsbelehrung</a>).
-          Bei Unternehmen (B2B) gilt das vereinbarte Refund-Window aus den AGB.
+        <p className="text-xs text-text-muted mt-12">
+          {t('checkout.successFootnote1')}
+          <a href="#/widerrufsbelehrung" className="text-theme-accent hover:underline">{t('checkout.successFootnoteLink')}</a>
+          {t('checkout.successFootnote2')}
         </p>
       </motion.div>
     </section>
@@ -101,39 +101,37 @@ export default function CheckoutSuccess() {
 /* ──────────────────── SaaS-Signup Variant ──────────────────── */
 
 function SaasSignupSuccess({ sessionId }: { sessionId: string | null }) {
+  const { t } = useTranslation();
   return (
-    <section className="min-h-[80vh] flex items-center justify-center px-6 py-24">
+    <section className="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 py-20 sm:py-24">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="max-w-2xl mx-auto text-center"
       >
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#e0a458]/10 mb-8">
-          <Sparkles size={28} className="text-[#e0a458]" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-theme-accent-soft mb-8">
+          <Sparkles size={28} className="text-theme-accent" />
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-light tracking-tight mb-6">
-          Willkommen bei <span className="text-gradient">AEVUM</span>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight mb-6 text-text-primary">
+          {t('checkout.saasTitle1')}<span className="text-gradient">{t('checkout.saasTitle2')}</span>
         </h1>
 
-        <p className="text-[#a4a4ad] text-lg leading-relaxed mb-8">
-          Deine Zahlung ist eingegangen. Dein Account wird gerade automatisch erstellt
-          und die Credits werden aufgeladen.
+        <p className="text-text-secondary text-lg leading-relaxed mb-8">
+          {t('checkout.saasIntro')}
         </p>
 
-        <div className="bg-bg-surface border border-white/10 p-7 mb-10 text-left rounded-lg">
+        <div className="bg-bg-surface border border-theme-border p-6 sm:p-7 mb-10 text-left rounded-lg">
           <h2 className="text-lg font-medium mb-4 flex items-center gap-2 text-text-primary">
-            <Mail size={18} className="text-[#e0a458]" /> Check deine Mail
+            <Mail size={18} className="text-theme-accent" /> {t('checkout.saasCheckMail')}
           </h2>
-          <p className="text-sm text-[#a4a4ad] leading-relaxed">
-            Wir haben dir gerade einen <strong>Login-Link (Magic-Link)</strong> an deine
-            Email geschickt. Ein Klick und du bist im Portal.
+          <p className="text-sm text-text-secondary leading-relaxed">
+            {t('checkout.saasMailBody1')}<strong>{t('checkout.saasMailBodyBold')}</strong>{t('checkout.saasMailBody2')}
             <br />
             <br />
-            Mail nicht da? Check den Spam-Ordner. Falls nichts ankommt, schreib uns kurz
-            an{' '}
-            <a href={`mailto:${CONTACT.email}`} className="text-[#e0a458] hover:underline">
+            {t('checkout.saasMailBody3')}
+            <a href={`mailto:${CONTACT.email}`} className="text-theme-accent hover:underline">
               {CONTACT.email}
             </a>
             .
@@ -141,8 +139,8 @@ function SaasSignupSuccess({ sessionId }: { sessionId: string | null }) {
         </div>
 
         {sessionId && (
-          <p className="text-xs text-[#7a7a85] font-mono mb-8">
-            Order-ID: {sessionId.slice(0, 24)}…
+          <p className="text-xs text-text-muted font-mono mb-8 break-all">
+            {t('checkout.orderId', { id: sessionId.slice(0, 24) })}
           </p>
         )}
 
@@ -151,23 +149,21 @@ function SaasSignupSuccess({ sessionId }: { sessionId: string | null }) {
             href="https://app.aevum-system.de/auth/login"
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary flex items-center justify-center gap-2"
+            className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2"
           >
-            <ArrowRight size={16} /> Zum Portal-Login
+            <ArrowRight size={16} /> {t('checkout.saasPortalLogin')}
           </a>
-          <a href="#/saas" className="btn-secondary flex items-center justify-center gap-2">
-            Weitere SaaS-Tools ansehen
+          <a href="#/saas" className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-2">
+            {t('checkout.saasMoreTools')}
           </a>
         </div>
 
-        <p className="text-xs text-[#7a7a85] mt-12 leading-relaxed">
-          Hinweis: Mit Aktivierung deines Accounts hast du dem Sofort-Beginn deiner SaaS-Nutzung
-          ausdrücklich zugestimmt. Dein gesetzliches Widerrufsrecht erlischt damit gemäß § 356
-          Abs. 4 BGB nach vollständiger Erbringung. Details in den{' '}
-          <a href="#/agb" className="text-[#e0a458] hover:underline">
-            AGB
+        <p className="text-xs text-text-muted mt-12 leading-relaxed">
+          {t('checkout.saasFootnote1')}
+          <a href="#/agb" className="text-theme-accent hover:underline">
+            {t('checkout.saasFootnoteLink')}
           </a>
-          .
+          {t('checkout.saasFootnote2')}
         </p>
       </motion.div>
     </section>

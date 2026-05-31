@@ -1,0 +1,536 @@
+{
+  "name": "AEVUM — Lead-Enrichment",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-enrichment-intake",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-intake",
+      "name": "Webhook: Roh-Lead Intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 320],
+      "webhookId": "lead-enrichment-intake-webhook",
+      "notes": "Empfaengt rohe Leads als POST-JSON: { name, company, domain, email? }. Quelle = Formular / Zapier / CRM-Webhook / CSV-Loop."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-company-enrich-url",
+              "name": "companyEnrichUrl",
+              "value": "{{INDIVIDUELL: Firmendaten-API Base-URL, z.B. https://company.abstractapi.com/v1/ ODER https://api.thecompaniesapi.com/v2/companies}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-socials-url",
+              "name": "socialsLookupUrl",
+              "value": "{{INDIVIDUELL: Socials/Domain-Intel-API, z.B. https://api.peopledatalabs.com/v5/company/enrich}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-icp-definition",
+              "name": "icpDefinition",
+              "value": "{{INDIVIDUELL: Dein ICP in 3-5 Saetzen. Beispiel: B2B-SaaS in DACH, 20-200 Mitarbeiter, Tech-Branche, Entscheider in Marketing/Sales, jaehrlicher Umsatz 2-50 Mio EUR. Disqualifiziert: Agenturen, Freelancer, Konzerne >1000 MA.}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-score-threshold",
+              "name": "scoreThreshold",
+              "value": 70,
+              "type": "number"
+            },
+            {
+              "id": "cfg-notify-email",
+              "name": "notifyEmail",
+              "value": "{{INDIVIDUELL: E-Mail fuer Hot-Lead-Alerts, z.B. sales@deinefirma.de}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-from-email",
+              "name": "fromEmail",
+              "value": "{{INDIVIDUELL: Absender-Adresse fuer interne Alerts, z.B. enrichment@deinefirma.de}}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-crm-sink-url",
+              "name": "crmSinkUrl",
+              "value": "{{INDIVIDUELL: CRM/Sheet-Webhook fuer angereicherte Leads, z.B. https://api.airtable.com/v0/BASE_ID/leads_enriched}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-config",
+      "name": "Set: Enrichment-Konfiguration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalisiere + validiere rohen Lead. Domain ist Pflicht fuer Enrichment.\nconst out = [];\nfor (const item of $input.all()) {\n  const b = item.json.body ?? item.json; // Webhook legt Payload unter .body ab\n  const rawDomain = (b.domain || b.website || '').toString().trim().toLowerCase();\n  // Domain aus E-Mail ableiten falls fehlend\n  let domain = rawDomain.replace(/^https?:\\/\\//, '').replace(/^www\\./, '').split('/')[0];\n  if (!domain && b.email && b.email.includes('@')) {\n    domain = b.email.split('@')[1].trim().toLowerCase();\n  }\n  const freemail = ['gmail.com','gmx.de','web.de','yahoo.com','hotmail.com','outlook.com','t-online.de','icloud.com'];\n  const valid = !!domain && domain.includes('.') && !freemail.includes(domain);\n  out.push({\n    json: {\n      leadName: (b.name || b.fullName || '').toString().trim(),\n      company: (b.company || b.companyName || '').toString().trim(),\n      domain,\n      email: (b.email || '').toString().trim().toLowerCase(),\n      source: (b.source || 'webhook').toString(),\n      receivedAt: new Date().toISOString(),\n      isValid: valid,\n      validationReason: valid ? 'ok' : (!domain ? 'no_domain' : (freemail.includes(domain) ? 'freemail_domain' : 'malformed_domain')),\n      config: $('Set: Enrichment-Konfiguration').first().json\n    }\n  });\n}\nreturn out;"
+      },
+      "id": "code-normalize",
+      "name": "Code: Lead normalisieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 320]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-is-valid",
+              "leftValue": "={{ $json.isValid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-valid-lead",
+      "name": "IF: Lead anreicherbar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 320]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.config.companyEnrichUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "domain",
+              "value": "={{ $json.domain }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-company-enrich",
+      "name": "HTTP: Firmendaten anreichern",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1140, 220],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "company-enrich-api",
+          "name": "Company-Enrich API"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Firmografische Daten: Mitarbeiterzahl, Branche, Umsatz, Standort, Tech-Stack. Provider via Set-Node konfigurierbar (TheCompaniesAPI / Abstract / PeopleDataLabs)."
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Code: Lead normalisieren').item.json.config.socialsLookupUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "website",
+              "value": "={{ $('Code: Lead normalisieren').item.json.domain }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-socials",
+      "name": "HTTP: Socials & Domain-Intel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1140, 420],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "socials-api",
+          "name": "Socials-Intel API"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "LinkedIn/Twitter/Facebook-Profile + Domain-Metadaten. Laeuft parallel zur Firmendaten-Anreicherung, beide muenden in Merge."
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "merge-enrichment",
+      "name": "Merge: Anreicherung zusammenfuehren",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1380, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Baue ein flaches, robustes Enrichment-Profil aus beiden API-Antworten.\n// API-Antworten koennen je nach Provider verschachtelt/leer sein -> defensiv lesen.\nconst lead = $('Code: Lead normalisieren').item.json;\nconst all = $input.all();\nconst pick = (...vals) => vals.find(v => v !== undefined && v !== null && v !== '') ?? null;\n\n// Merge-by-position liefert beide API-Objekte im selben item (combineByPosition)\nconst j = all[0]?.json ?? {};\n// Firmendaten koennen unter j, j.company, j.data, j.result liegen\nconst c = j.company ?? j.data ?? j.result ?? j;\nconst s = j.socials ?? j.social ?? j;\n\nconst profile = {\n  ...lead,\n  enrichment: {\n    legalName: pick(c.name, c.legalName, c.companyName),\n    industry: pick(c.industry, c.sector, c.category),\n    employees: pick(c.employees, c.employeeCount, c.size, c.headcount),\n    revenue: pick(c.revenue, c.annualRevenue, c.estimatedRevenue),\n    country: pick(c.country, c.location?.country, c.geo?.country),\n    city: pick(c.city, c.location?.city),\n    founded: pick(c.founded, c.foundedYear),\n    techStack: pick(c.tech, c.technologies, c.techStack) || [],\n    linkedin: pick(s.linkedin, s.linkedinUrl, c.linkedin, j.linkedin),\n    twitter: pick(s.twitter, s.twitterUrl, c.twitter),\n    facebook: pick(s.facebook, c.facebook),\n    description: pick(c.description, c.summary, c.about)\n  }\n};\nprofile.enrichmentCompleteness = Object.values(profile.enrichment).filter(v => v && (Array.isArray(v) ? v.length : true)).length;\nreturn [{ json: profile }];"
+      },
+      "id": "code-build-profile",
+      "name": "Code: Enrichment-Profil bauen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1600, 320]
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "options": {
+          "maxTokensToSample": 600,
+          "temperature": 0.2
+        }
+      },
+      "id": "lm-anthropic",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [1820, 520],
+      "credentials": {
+        "anthropicApi": {
+          "id": "anthropic-api",
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Bewerte diesen angereicherten Lead gegen das ICP. Antworte AUSSCHLIESSLICH mit gueltigem JSON, keine Erklaerung davor/danach.\n\nICP-Definition:\n{{ $json.config.icpDefinition }}\n\nLead-Profil:\nFirma: {{ $json.enrichment.legalName || $json.company }}\nDomain: {{ $json.domain }}\nBranche: {{ $json.enrichment.industry }}\nMitarbeiter: {{ $json.enrichment.employees }}\nUmsatz: {{ $json.enrichment.revenue }}\nLand: {{ $json.enrichment.country }}\nTech-Stack: {{ JSON.stringify($json.enrichment.techStack) }}\nBeschreibung: {{ $json.enrichment.description }}\n\nRegeln:\n- icpScore: Ganzzahl 0-100 (Fit mit ICP)\n- tier: \"A\" (>=85), \"B\" (70-84), \"C\" (50-69), \"D\" (<50)\n- reasons: Array mit max 3 kurzen Begruendungen (Fakten aus Profil, NICHTS erfinden)\n- disqualified: true/false (harte Ausschlusskriterien aus ICP getroffen?)\n- Wenn Daten fehlen: konservativ bewerten, im Feld dataGaps benennen\n\nAntwortformat (exakt):\n{\"icpScore\": <int>, \"tier\": \"<A|B|C|D>\", \"disqualified\": <bool>, \"reasons\": [\"...\"], \"dataGaps\": [\"...\"]}",
+        "options": {
+          "systemMessage": "Du bist ein praeziser B2B-Lead-Scoring-Analyst. Du erfindest keine Firmendaten. Fehlende Felder fuehren zu konservativem Score, nicht zu Spekulation. Du gibst ausschliesslich valides JSON zurueck."
+        }
+      },
+      "id": "agent-icp-score",
+      "name": "AI Agent: ICP-Scoring",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1820, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse LLM-JSON robust + merge mit Enrichment-Profil. Niemals throw -> Fallback-Score.\nconst profile = $('Code: Enrichment-Profil bauen').item.json;\nconst raw = $input.first().json;\nconst text = raw.output ?? raw.text ?? raw.response ?? JSON.stringify(raw);\n\nlet parsed = { icpScore: 0, tier: 'D', disqualified: false, reasons: ['llm_parse_failed'], dataGaps: ['scoring_unavailable'] };\ntry {\n  const match = (typeof text === 'string' ? text : JSON.stringify(text)).match(/\\{[\\s\\S]*\\}/);\n  if (match) parsed = { ...parsed, ...JSON.parse(match[0]) };\n} catch (e) {\n  parsed.reasons = ['llm_parse_error: ' + e.message];\n}\nconst score = Math.max(0, Math.min(100, parseInt(parsed.icpScore, 10) || 0));\nconst threshold = profile.config.scoreThreshold ?? 70;\nreturn [{\n  json: {\n    leadName: profile.leadName,\n    company: profile.enrichment.legalName || profile.company,\n    domain: profile.domain,\n    email: profile.email,\n    source: profile.source,\n    enrichment: profile.enrichment,\n    enrichmentCompleteness: profile.enrichmentCompleteness,\n    icpScore: score,\n    tier: parsed.tier,\n    disqualified: !!parsed.disqualified,\n    reasons: parsed.reasons,\n    dataGaps: parsed.dataGaps,\n    isHotLead: !parsed.disqualified && score >= threshold,\n    scoredAt: new Date().toISOString(),\n    config: profile.config\n  }\n}];"
+      },
+      "id": "code-parse-score",
+      "name": "Code: Score parsen & flaggen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2040, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.config.crmSinkUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": {\n    \"name\": \"{{ $json.leadName }}\",\n    \"company\": \"{{ $json.company }}\",\n    \"domain\": \"{{ $json.domain }}\",\n    \"email\": \"{{ $json.email }}\",\n    \"icpScore\": {{ $json.icpScore }},\n    \"tier\": \"{{ $json.tier }}\",\n    \"industry\": \"{{ $json.enrichment.industry }}\",\n    \"employees\": \"{{ $json.enrichment.employees }}\",\n    \"linkedin\": \"{{ $json.enrichment.linkedin }}\",\n    \"isHotLead\": {{ $json.isHotLead }},\n    \"scoredAt\": \"{{ $json.scoredAt }}\"\n  }\n}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "http-crm-sink",
+      "name": "HTTP: In CRM/Sheet schreiben",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2260, 320],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "crm-sink-api",
+          "name": "CRM-Sink API"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Schreibt jeden angereicherten + gescorten Lead ins CRM/Sheet. Error-Output (zweiter Ausgang) geht an Fehler-Alert."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-hot-lead",
+              "leftValue": "={{ $json.isHotLead }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-hot-lead",
+      "name": "IF: Hot-Lead (ueber Threshold)?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2480, 320]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.config.fromEmail }}",
+        "toEmail": "={{ $json.config.notifyEmail }}",
+        "subject": "=Hot-Lead {{ $json.tier }} ({{ $json.icpScore }}/100): {{ $json.company }}",
+        "emailFormat": "html",
+        "message": "=<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:600px;line-height:1.6;color:#222;\">\n<h2 style=\"margin:0 0 4px;\">Neuer Hot-Lead: {{ $json.company }}</h2>\n<p style=\"color:#666;margin:0 0 16px;\">ICP-Score <strong>{{ $json.icpScore }}/100</strong> &middot; Tier <strong>{{ $json.tier }}</strong> &middot; Quelle: {{ $json.source }}</p>\n<table style=\"border-collapse:collapse;width:100%;font-size:14px;\">\n<tr><td style=\"padding:4px 8px;color:#888;\">Kontakt</td><td style=\"padding:4px 8px;\">{{ $json.leadName }} &lt;{{ $json.email }}&gt;</td></tr>\n<tr><td style=\"padding:4px 8px;color:#888;\">Domain</td><td style=\"padding:4px 8px;\"><a href=\"https://{{ $json.domain }}\">{{ $json.domain }}</a></td></tr>\n<tr><td style=\"padding:4px 8px;color:#888;\">Branche</td><td style=\"padding:4px 8px;\">{{ $json.enrichment.industry }}</td></tr>\n<tr><td style=\"padding:4px 8px;color:#888;\">Mitarbeiter</td><td style=\"padding:4px 8px;\">{{ $json.enrichment.employees }}</td></tr>\n<tr><td style=\"padding:4px 8px;color:#888;\">LinkedIn</td><td style=\"padding:4px 8px;\"><a href=\"{{ $json.enrichment.linkedin }}\">{{ $json.enrichment.linkedin }}</a></td></tr>\n</table>\n<p style=\"margin:16px 0 4px;font-weight:bold;\">Warum relevant:</p>\n<ul>{{ ($json.reasons || []).map(r => '<li>' + r + '</li>').join('') }}</ul>\n<p style=\"font-size:12px;color:#999;\">Datenluecken: {{ ($json.dataGaps || []).join(', ') || 'keine' }} &middot; Vollstaendigkeit {{ $json.enrichmentCompleteness }} Felder</p>\n</body></html>",
+        "options": {}
+      },
+      "id": "email-hot-lead",
+      "name": "Email: Hot-Lead-Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2700, 220],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Set: Enrichment-Konfiguration').first().json.fromEmail }}",
+        "toEmail": "={{ $('Set: Enrichment-Konfiguration').first().json.notifyEmail }}",
+        "subject": "=[Lead-Enrichment] Fehler in Pipeline — manueller Check noetig",
+        "emailFormat": "html",
+        "message": "=<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:600px;line-height:1.6;color:#222;\">\n<h2 style=\"color:#b00;\">Lead-Enrichment Pipeline-Fehler</h2>\n<p>Ein Lead konnte nicht vollstaendig verarbeitet / ins CRM geschrieben werden. Bitte manuell pruefen.</p>\n<pre style=\"background:#f5f5f5;padding:12px;border-radius:6px;font-size:12px;overflow:auto;\">{{ JSON.stringify($json, null, 2).slice(0, 1500) }}</pre>\n<p style=\"font-size:12px;color:#999;\">Zeitpunkt: {{ $now.toISO() }}</p>\n</body></html>",
+        "options": {}
+      },
+      "id": "email-error-alert",
+      "name": "Email: Fehler-Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2480, 560],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook: Roh-Lead Intake": {
+      "main": [
+        [
+          {
+            "node": "Set: Enrichment-Konfiguration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Enrichment-Konfiguration": {
+      "main": [
+        [
+          {
+            "node": "Code: Lead normalisieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Lead normalisieren": {
+      "main": [
+        [
+          {
+            "node": "IF: Lead anreicherbar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Lead anreicherbar?": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Firmendaten anreichern",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP: Socials & Domain-Intel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email: Fehler-Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Firmendaten anreichern": {
+      "main": [
+        [
+          {
+            "node": "Merge: Anreicherung zusammenfuehren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Socials & Domain-Intel": {
+      "main": [
+        [
+          {
+            "node": "Merge: Anreicherung zusammenfuehren",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge: Anreicherung zusammenfuehren": {
+      "main": [
+        [
+          {
+            "node": "Code: Enrichment-Profil bauen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Enrichment-Profil bauen": {
+      "main": [
+        [
+          {
+            "node": "AI Agent: ICP-Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent: ICP-Scoring",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent: ICP-Scoring": {
+      "main": [
+        [
+          {
+            "node": "Code: Score parsen & flaggen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Score parsen & flaggen": {
+      "main": [
+        [
+          {
+            "node": "HTTP: In CRM/Sheet schreiben",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: In CRM/Sheet schreiben": {
+      "main": [
+        [
+          {
+            "node": "IF: Hot-Lead (ueber Threshold)?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email: Fehler-Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Hot-Lead (ueber Threshold)?": {
+      "main": [
+        [
+          {
+            "node": "Email: Hot-Lead-Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "staticData": null,
+  "meta": {
+    "instanceId": "aevum-blueprint"
+  },
+  "tags": [
+    {
+      "name": "AEVUM Lead-Enrichment"
+    }
+  ],
+  "versionId": "1.0.0",
+  "id": "lead-enrichment-v1",
+  "active": false
+}

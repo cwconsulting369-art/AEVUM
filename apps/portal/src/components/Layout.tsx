@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useLocation, useMatch } from 'react-router';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/auth';
 import {
   LogOut, LayoutDashboard, User, ShieldCheck, FolderGit2,
@@ -11,6 +12,7 @@ import {
 import { Link } from 'react-router';
 import Footer from './Footer';
 import Brand from './Brand';
+import LanguageToggle from './LanguageToggle';
 import { getManifestByProjectSlug } from '@/lib/manifests';
 
 // ── Generic portal nav ────────────────────────────────────────
@@ -22,114 +24,114 @@ const POWER_USER_EMAILS = (import.meta.env.VITE_POWER_USER_EMAILS || '')
 const TIM_WHITELIST = new Set<string>(POWER_USER_EMAILS);
 
 const portalNav = [
-  { to: '/dashboard',   label: 'Dashboard',   icon: LayoutDashboard },
-  { to: '/projects',    label: 'Projekte',     icon: FolderGit2 },
-  { to: '/documents',   label: 'Dokumente',    icon: FolderOpen },
-  { to: '/credits',     label: 'Credits',      icon: Coins },
-  { to: '/profile',     label: 'Profil',       icon: User },
-  { to: '/permissions', label: 'Freigaben',    icon: ShieldCheck },
-  { to: '/testimonial', label: 'Testimonial',  icon: Megaphone },
+  { to: '/dashboard',   labelKey: 'nav.dashboard',   icon: LayoutDashboard },
+  { to: '/projects',    labelKey: 'nav.projects',    icon: FolderGit2 },
+  { to: '/documents',   labelKey: 'nav.documents',   icon: FolderOpen },
+  { to: '/credits',     labelKey: 'nav.credits',     icon: Coins },
+  { to: '/profile',     labelKey: 'nav.profile',     icon: User },
+  { to: '/permissions', labelKey: 'nav.permissions', icon: ShieldCheck },
+  { to: '/testimonial', labelKey: 'nav.testimonial', icon: Megaphone },
 ];
 
 const toolsNav = [
-  { to: '/tools/script-factory', label: 'Script-Factory', icon: Film },
-  { to: '/tools/dsgvo-factory',  label: 'DSGVO-Factory',  icon: ShieldAlert },
+  { to: '/tools/script-factory', labelKey: 'nav.scriptFactory', icon: Film },
+  { to: '/tools/dsgvo-factory',  labelKey: 'nav.dsgvoFactory',  icon: ShieldAlert },
 ];
 const toolsNavTimOnly = [
-  { to: '/tools/script-factory/customers', label: "Tim's Customers", icon: Users },
+  { to: '/tools/script-factory/customers', labelKey: 'nav.timsCustomers', icon: Users },
 ];
 
 // ── Per-project sidebar config ───────────────────────────────
-type ProjectSection = { s: string; label: string; icon: React.ElementType; dividerBefore?: boolean };
+type ProjectSection = { s: string; labelKey: string; icon: React.ElementType; dividerBefore?: boolean };
 
 const PROJECT_SECTIONS: Record<string, ProjectSection[]> = {
   collaglow: [
-    { s: 'overview',      label: 'Übersicht',    icon: LayoutDashboard },
-    { s: 'ads',           label: 'Ads',          icon: BarChart2 },
-    { s: 'spend',         label: 'Spend',        icon: DollarSign },
-    { s: 'email',         label: 'E-Mail',       icon: Mail },
-    { s: 'shop',          label: 'Shop',         icon: ShoppingBag },
-    { s: 'intelligence',  label: 'Intelligence', icon: Globe, dividerBefore: true },
-    { s: 'quicklinks',    label: 'Quicklinks',   icon: LinkIcon },
-    { s: 'docs',          label: 'Dokumente',    icon: FolderOpen },
-    { s: 'activity',      label: 'Aktivität',    icon: Activity },
-    { s: 'agent',         label: 'Agent',        icon: Bot },
-    { s: 'apis',          label: 'API-Keys',     icon: KeyRound },
+    { s: 'overview',      labelKey: 'nav.overview',     icon: LayoutDashboard },
+    { s: 'ads',           labelKey: 'nav.ads',          icon: BarChart2 },
+    { s: 'spend',         labelKey: 'nav.spend',        icon: DollarSign },
+    { s: 'email',         labelKey: 'nav.email',        icon: Mail },
+    { s: 'shop',          labelKey: 'nav.shop',         icon: ShoppingBag },
+    { s: 'intelligence',  labelKey: 'nav.intelligence', icon: Globe, dividerBefore: true },
+    { s: 'quicklinks',    labelKey: 'nav.quicklinks',   icon: LinkIcon },
+    { s: 'docs',          labelKey: 'nav.docs',         icon: FolderOpen },
+    { s: 'activity',      labelKey: 'nav.activity',     icon: Activity },
+    { s: 'agent',         labelKey: 'nav.agent',        icon: Bot },
+    { s: 'apis',          labelKey: 'nav.apis',         icon: KeyRound },
   ],
   aevum: [
-    { s: 'overview',   label: 'Übersicht',  icon: LayoutDashboard },
-    { s: 'pipeline',   label: 'Pipeline',   icon: TrendingUp },
-    { s: 'revenue',    label: 'Revenue',    icon: DollarSign },
-    { s: 'kunden',     label: 'Kunden',     icon: Users },
-    { s: 'content',    label: 'Content',    icon: Globe },
-    { s: 'quicklinks', label: 'Quicklinks', icon: LinkIcon, dividerBefore: true },
-    { s: 'docs',       label: 'Dokumente',  icon: FolderOpen },
-    { s: 'activity',   label: 'Aktivität',  icon: Activity },
-    { s: 'agent',      label: 'Agent',      icon: Bot },
-    { s: 'apis',       label: 'API-Keys',   icon: KeyRound },
+    { s: 'overview',   labelKey: 'nav.overview',   icon: LayoutDashboard },
+    { s: 'pipeline',   labelKey: 'nav.pipeline',   icon: TrendingUp },
+    { s: 'revenue',    labelKey: 'nav.revenue',    icon: DollarSign },
+    { s: 'kunden',     labelKey: 'nav.kunden',     icon: Users },
+    { s: 'content',    labelKey: 'nav.content',    icon: Globe },
+    { s: 'quicklinks', labelKey: 'nav.quicklinks', icon: LinkIcon, dividerBefore: true },
+    { s: 'docs',       labelKey: 'nav.docs',       icon: FolderOpen },
+    { s: 'activity',   labelKey: 'nav.activity',   icon: Activity },
+    { s: 'agent',      labelKey: 'nav.agent',      icon: Bot },
+    { s: 'apis',       labelKey: 'nav.apis',       icon: KeyRound },
   ],
   'thailand-re-leadfunnel': [
-    { s: 'overview',    label: 'Übersicht',    icon: LayoutDashboard },
-    { s: 'lead-funnel', label: 'Lead Funnel',  icon: Funnel },
-    { s: 'quicklinks',  label: 'Quicklinks',   icon: LinkIcon, dividerBefore: true },
-    { s: 'docs',        label: 'Dokumente',    icon: FolderOpen },
-    { s: 'activity',    label: 'Aktivität',    icon: Activity },
-    { s: 'agent',       label: 'Agent',        icon: Bot },
-    { s: 'apis',        label: 'API-Keys',     icon: KeyRound },
+    { s: 'overview',    labelKey: 'nav.overview',   icon: LayoutDashboard },
+    { s: 'lead-funnel', labelKey: 'nav.leadFunnel', icon: Funnel },
+    { s: 'quicklinks',  labelKey: 'nav.quicklinks', icon: LinkIcon, dividerBefore: true },
+    { s: 'docs',        labelKey: 'nav.docs',       icon: FolderOpen },
+    { s: 'activity',    labelKey: 'nav.activity',   icon: Activity },
+    { s: 'agent',       labelKey: 'nav.agent',      icon: Bot },
+    { s: 'apis',        labelKey: 'nav.apis',       icon: KeyRound },
   ],
   'utilityhub-platform': [
-    { s: 'overview',       label: 'Übersicht',     icon: LayoutDashboard },
-    { s: 'customers',      label: 'Lieferstellen', icon: Users },
-    { s: 'organizations',  label: 'Organisationen',icon: Globe },
-    { s: 'contacts',       label: 'Kontakte',      icon: Users },
-    { s: 'imports',        label: 'Imports',       icon: FolderOpen },
-    { s: 'fg-finanz',      label: 'FG Finanz',     icon: DollarSign },
-    { s: 'reports',        label: 'Reports',       icon: TrendingUp },
-    { s: 'uh-documents',   label: 'Dokumente UH',  icon: FolderOpen, dividerBefore: true },
-    { s: 'uh-incentives',  label: 'Incentives',    icon: DollarSign },
-    { s: 'uh-support',     label: 'Support',       icon: Bot },
-    { s: 'uh-roadmap',     label: 'UH-Roadmap',    icon: Activity },
-    { s: 'close',          label: 'Close.com',     icon: Globe, dividerBefore: true },
-    { s: 'airtable',       label: 'Airtable',      icon: FolderOpen },
-    { s: 'notion',         label: 'Notion',        icon: FolderOpen },
-    { s: 'uh-settings',    label: 'Integrations',  icon: Globe },
-    { s: 'quicklinks',     label: 'Quicklinks',    icon: LinkIcon, dividerBefore: true },
-    { s: 'docs',           label: 'Portal-Docs',   icon: FolderOpen },
-    { s: 'activity',       label: 'Aktivität',     icon: Activity },
-    { s: 'agent',          label: 'Agent',         icon: Bot },
-    { s: 'apis',           label: 'API-Keys',      icon: KeyRound },
+    { s: 'overview',       labelKey: 'nav.overview',      icon: LayoutDashboard },
+    { s: 'customers',      labelKey: 'nav.customers',     icon: Users },
+    { s: 'organizations',  labelKey: 'nav.organizations', icon: Globe },
+    { s: 'contacts',       labelKey: 'nav.contacts',      icon: Users },
+    { s: 'imports',        labelKey: 'nav.imports',       icon: FolderOpen },
+    { s: 'fg-finanz',      labelKey: 'nav.fgFinanz',      icon: DollarSign },
+    { s: 'reports',        labelKey: 'nav.reports',       icon: TrendingUp },
+    { s: 'uh-documents',   labelKey: 'nav.uhDocuments',   icon: FolderOpen, dividerBefore: true },
+    { s: 'uh-incentives',  labelKey: 'nav.uhIncentives',  icon: DollarSign },
+    { s: 'uh-support',     labelKey: 'nav.uhSupport',     icon: Bot },
+    { s: 'uh-roadmap',     labelKey: 'nav.uhRoadmap',     icon: Activity },
+    { s: 'close',          labelKey: 'nav.close',         icon: Globe, dividerBefore: true },
+    { s: 'airtable',       labelKey: 'nav.airtable',      icon: FolderOpen },
+    { s: 'notion',         labelKey: 'nav.notion',        icon: FolderOpen },
+    { s: 'uh-settings',    labelKey: 'nav.integrations',  icon: Globe },
+    { s: 'quicklinks',     labelKey: 'nav.quicklinks',    icon: LinkIcon, dividerBefore: true },
+    { s: 'docs',           labelKey: 'nav.portalDocs',    icon: FolderOpen },
+    { s: 'activity',       labelKey: 'nav.activity',      icon: Activity },
+    { s: 'agent',          labelKey: 'nav.agent',         icon: Bot },
+    { s: 'apis',           labelKey: 'nav.apis',          icon: KeyRound },
   ],
   utilityhub: [
-    { s: 'overview',       label: 'Übersicht',     icon: LayoutDashboard },
-    { s: 'customers',      label: 'Lieferstellen', icon: Users },
-    { s: 'organizations',  label: 'Organisationen',icon: Globe },
-    { s: 'contacts',       label: 'Kontakte',      icon: Users },
-    { s: 'imports',        label: 'Imports',       icon: FolderOpen },
-    { s: 'fg-finanz',      label: 'FG Finanz',     icon: DollarSign },
-    { s: 'reports',        label: 'Reports',       icon: TrendingUp },
-    { s: 'uh-documents',   label: 'Dokumente UH',  icon: FolderOpen, dividerBefore: true },
-    { s: 'uh-incentives',  label: 'Incentives',    icon: DollarSign },
-    { s: 'uh-support',     label: 'Support',       icon: Bot },
-    { s: 'uh-roadmap',     label: 'UH-Roadmap',    icon: Activity },
-    { s: 'close',          label: 'Close.com',     icon: Globe, dividerBefore: true },
-    { s: 'airtable',       label: 'Airtable',      icon: FolderOpen },
-    { s: 'notion',         label: 'Notion',        icon: FolderOpen },
-    { s: 'uh-settings',    label: 'Integrations',  icon: Globe },
-    { s: 'quicklinks',     label: 'Quicklinks',    icon: LinkIcon, dividerBefore: true },
-    { s: 'docs',           label: 'Portal-Docs',   icon: FolderOpen },
-    { s: 'activity',       label: 'Aktivität',     icon: Activity },
-    { s: 'agent',          label: 'Agent',         icon: Bot },
-    { s: 'apis',           label: 'API-Keys',      icon: KeyRound },
+    { s: 'overview',       labelKey: 'nav.overview',      icon: LayoutDashboard },
+    { s: 'customers',      labelKey: 'nav.customers',     icon: Users },
+    { s: 'organizations',  labelKey: 'nav.organizations', icon: Globe },
+    { s: 'contacts',       labelKey: 'nav.contacts',      icon: Users },
+    { s: 'imports',        labelKey: 'nav.imports',       icon: FolderOpen },
+    { s: 'fg-finanz',      labelKey: 'nav.fgFinanz',      icon: DollarSign },
+    { s: 'reports',        labelKey: 'nav.reports',       icon: TrendingUp },
+    { s: 'uh-documents',   labelKey: 'nav.uhDocuments',   icon: FolderOpen, dividerBefore: true },
+    { s: 'uh-incentives',  labelKey: 'nav.uhIncentives',  icon: DollarSign },
+    { s: 'uh-support',     labelKey: 'nav.uhSupport',     icon: Bot },
+    { s: 'uh-roadmap',     labelKey: 'nav.uhRoadmap',     icon: Activity },
+    { s: 'close',          labelKey: 'nav.close',         icon: Globe, dividerBefore: true },
+    { s: 'airtable',       labelKey: 'nav.airtable',      icon: FolderOpen },
+    { s: 'notion',         labelKey: 'nav.notion',        icon: FolderOpen },
+    { s: 'uh-settings',    labelKey: 'nav.integrations',  icon: Globe },
+    { s: 'quicklinks',     labelKey: 'nav.quicklinks',    icon: LinkIcon, dividerBefore: true },
+    { s: 'docs',           labelKey: 'nav.portalDocs',    icon: FolderOpen },
+    { s: 'activity',       labelKey: 'nav.activity',      icon: Activity },
+    { s: 'agent',          labelKey: 'nav.agent',         icon: Bot },
+    { s: 'apis',           labelKey: 'nav.apis',          icon: KeyRound },
   ],
 };
 
 const DEFAULT_PROJECT_SECTIONS: ProjectSection[] = [
-  { s: 'overview',    label: 'Übersicht',  icon: TrendingUp },
-  { s: 'quicklinks',  label: 'Quicklinks', icon: LinkIcon },
-  { s: 'docs',        label: 'Dokumente',  icon: FolderOpen },
-  { s: 'activity',    label: 'Aktivität',  icon: Activity },
-  { s: 'agent',       label: 'Agent',      icon: Bot },
-  { s: 'apis',        label: 'API-Keys',   icon: KeyRound },
+  { s: 'overview',    labelKey: 'nav.overview',   icon: TrendingUp },
+  { s: 'quicklinks',  labelKey: 'nav.quicklinks', icon: LinkIcon },
+  { s: 'docs',        labelKey: 'nav.docs',       icon: FolderOpen },
+  { s: 'activity',    labelKey: 'nav.activity',   icon: Activity },
+  { s: 'agent',       labelKey: 'nav.agent',      icon: Bot },
+  { s: 'apis',        labelKey: 'nav.apis',       icon: KeyRound },
 ];
 
 function initials(name?: string, email?: string) {
@@ -139,6 +141,7 @@ function initials(name?: string, email?: string) {
 }
 
 export default function Layout() {
+  const { t } = useTranslation();
   const { me, logout } = useAuth();
   const loc = useLocation();
   const projectMatch = useMatch('/projects/:slug');
@@ -151,9 +154,10 @@ export default function Layout() {
   const inProject = !!slug;
   const sections = slug ? (PROJECT_SECTIONS[slug] ?? DEFAULT_PROJECT_SECTIONS) : null;
   const currentSection = new URLSearchParams(loc.search).get('s') || (sections?.[0]?.s ?? '');
-  const currentLabel = inProject
-    ? (sections?.find(s => s.s === currentSection)?.label ?? 'Übersicht')
-    : portalNav.find(n => loc.pathname.startsWith(n.to))?.label;
+  const currentSectionKey = inProject
+    ? (sections?.find(s => s.s === currentSection)?.labelKey ?? 'nav.overview')
+    : portalNav.find(n => loc.pathname.startsWith(n.to))?.labelKey;
+  const currentLabel = currentSectionKey ? t(currentSectionKey) : undefined;
 
   // War-Room CommandShell-Projekte bringen ihre EIGENE linke Nav (cmd-nav) mit.
   // Für sie die generische Portal-Sidebar weglassen → genau EINE übersichtliche
@@ -169,16 +173,17 @@ export default function Layout() {
               to="/projects"
               className="inline-flex items-center gap-2 text-xs text-ink-400 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/5 transition"
             >
-              <ChevronLeft size={13} /> Projekte
+              <ChevronLeft size={13} /> {t('nav.back')}
             </Link>
             <div className="flex items-center gap-3">
+              <LanguageToggle />
               <span className="text-[0.65rem] text-ink-500 hidden sm:block">{me?.account.email}</span>
               <button
                 onClick={logout}
                 className="inline-flex items-center gap-1.5 text-xs text-ink-400 hover:text-rose-300 transition px-3 py-1.5 rounded-lg hover:bg-white/5"
-                title="Abmelden"
+                title={t('nav.logout')}
               >
-                <LogOut size={13} /> <span className="hidden sm:inline">Abmelden</span>
+                <LogOut size={13} /> <span className="hidden sm:inline">{t('nav.logout')}</span>
               </button>
             </div>
           </div>
@@ -227,17 +232,17 @@ export default function Layout() {
                 to="/projects"
                 className="flex items-center gap-2 text-[0.7rem] text-ink-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/5 transition"
               >
-                <ChevronLeft size={12} /> Projekte
+                <ChevronLeft size={12} /> {t('nav.back')}
               </Link>
             </div>
 
             <div className="px-4 mb-4">
-              <div className="text-[0.6rem] uppercase tracking-widest text-ink-500 font-semibold mb-1">Projekt</div>
+              <div className="text-[0.6rem] uppercase tracking-widest text-ink-500 font-semibold mb-1">{t('nav.project')}</div>
               <div className="text-sm font-semibold text-white capitalize">{slug}</div>
             </div>
 
             <nav className="flex-1 px-3 space-y-0.5 pb-4">
-              {sections.map(({ s, label, icon: Icon, dividerBefore }, i) => {
+              {sections.map(({ s, labelKey, icon: Icon, dividerBefore }, i) => {
                 const isActive = s === currentSection;
                 return (
                   <div key={s}>
@@ -251,7 +256,7 @@ export default function Layout() {
                       style={{ animationDelay: `${50 + i * 40}ms` }}
                     >
                       <Icon size={15} strokeWidth={1.8} />
-                      <span>{label}</span>
+                      <span>{t(labelKey)}</span>
                       {isActive && <span className="ml-auto w-1 h-4 rounded-full bg-gold-400 opacity-70" />}
                     </Link>
                   </div>
@@ -262,7 +267,7 @@ export default function Layout() {
         ) : (
           /* Generic portal nav */
           <nav className="flex-1 px-3 space-y-0.5 pb-4 overflow-y-auto">
-            {portalNav.map(({ to, label, icon: Icon }, i) => (
+            {portalNav.map(({ to, labelKey, icon: Icon }, i) => (
               <NavLink
                 key={to}
                 to={to}
@@ -270,16 +275,16 @@ export default function Layout() {
                 style={{ animationDelay: `${60 + i * 50}ms` }}
               >
                 <Icon size={15} strokeWidth={1.8} />
-                <span>{label}</span>
+                <span>{t(labelKey)}</span>
               </NavLink>
             ))}
 
             {me?.account.account_type !== 'shop' && (
               <>
                 <div className="mt-4 mb-1.5 px-3 flex items-center gap-1.5 text-[0.55rem] uppercase tracking-widest text-ink-500 font-semibold">
-                  <Wrench size={10} /> Tools
+                  <Wrench size={10} /> {t('nav.tools')}
                 </div>
-                {toolsNav.map(({ to, label, icon: Icon }, i) => (
+                {toolsNav.map(({ to, labelKey, icon: Icon }, i) => (
                   <NavLink
                     key={to}
                     to={to}
@@ -287,18 +292,18 @@ export default function Layout() {
                     style={{ animationDelay: `${60 + (portalNav.length + i) * 50}ms` }}
                   >
                     <Icon size={15} strokeWidth={1.8} />
-                    <span>{label}</span>
+                    <span>{t(labelKey)}</span>
                   </NavLink>
                 ))}
                 {!!(me?.account.email && TIM_WHITELIST.has(me.account.email.toLowerCase())) &&
-                  toolsNavTimOnly.map(({ to, label, icon: Icon }) => (
+                  toolsNavTimOnly.map(({ to, labelKey, icon: Icon }) => (
                     <NavLink
                       key={to}
                       to={to}
                       className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
                     >
                       <Icon size={15} strokeWidth={1.8} />
-                      <span>{label}</span>
+                      <span>{t(labelKey)}</span>
                     </NavLink>
                   ))
                 }
@@ -327,15 +332,16 @@ export default function Layout() {
               </>
             ) : (
               <>
-                <span className="text-ink-400 text-xs">Portal</span>
+                <span className="text-ink-400 text-xs">{t('nav.portal')}</span>
                 <span className="text-ink-700">/</span>
-                <span className="text-white font-medium text-sm">{currentLabel || 'Übersicht'}</span>
+                <span className="text-white font-medium text-sm">{currentLabel || t('nav.overview')}</span>
               </>
             )}
           </div>
           <div className="flex items-center gap-2.5">
+            <LanguageToggle />
             <div className="text-[0.65rem] text-ink-500 hidden sm:block">{me?.account.email}</div>
-            <div className="dot dot-ok" title="Online" />
+            <div className="dot dot-ok" title={t('nav.online')} />
           </div>
         </header>
 
@@ -361,7 +367,7 @@ export default function Layout() {
           <button
             onClick={logout}
             className="p-1.5 text-ink-400 hover:text-rose-300 transition rounded-md hover:bg-white/5"
-            title="Abmelden"
+            title={t('nav.logout')}
           >
             <LogOut size={13} />
           </button>

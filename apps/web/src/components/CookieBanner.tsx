@@ -14,10 +14,12 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const STORAGE_KEY = 'aevum_cookie_notice_ack_v1';
 
 export default function CookieBanner() {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -65,7 +67,7 @@ export default function CookieBanner() {
         <motion.div
           role="dialog"
           aria-modal="false"
-          aria-label="Hinweis zu Cookies und Datenverarbeitung"
+          aria-label={t('common.cookieAria')}
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
@@ -80,22 +82,17 @@ export default function CookieBanner() {
             <div className="flex flex-col md:flex-row md:items-start gap-4">
               <div className="flex-1 text-sm text-text-secondary leading-relaxed">
                 <p className="text-text-primary font-medium mb-2">
-                  Hinweis zu Cookies und Datenverarbeitung
+                  {t('common.cookieTitle')}
                 </p>
                 <p>
-                  AEVUM setzt <strong>keine</strong> Tracking-, Analyse- oder
-                  Marketing-Cookies. Lediglich beim Checkout-Vorgang verwendet
-                  unser Zahlungsdienstleister <strong>Stripe</strong> technisch
-                  zwingend erforderliche Cookies zur Betrugsprävention
-                  (einwilligungsfrei nach § 25 Abs 2 Nr 2 TTDSG). Details in
-                  unserer{' '}
+                  {t('common.cookieBody1')}<strong>{t('common.cookieBodyBold1')}</strong>{t('common.cookieBody2')}<strong>{t('common.cookieBodyBold2')}</strong>{t('common.cookieBody3')}
                   <a
                     href="#/datenschutz"
                     className="text-theme-accent hover:underline whitespace-nowrap"
                   >
-                    Datenschutzerklärung
+                    {t('common.cookieLink')}
                   </a>
-                  .
+                  {t('common.cookieBody4')}
                 </p>
               </div>
               <div className="flex flex-col gap-2 md:items-end md:min-w-[180px]">
@@ -104,14 +101,14 @@ export default function CookieBanner() {
                   onClick={acknowledge}
                   className="btn-primary w-full md:w-auto text-sm px-5 py-2.5"
                 >
-                  Verstanden
+                  {t('common.cookieAccept')}
                 </button>
                 <a
                   href="#/datenschutz"
                   onClick={acknowledge}
                   className="w-full md:w-auto text-center px-5 py-2 rounded-lg border border-theme-border hover:border-theme-border-strong text-text-secondary hover:text-text-primary text-sm transition-colors"
                 >
-                  Details ansehen
+                  {t('common.cookieDetails')}
                 </a>
               </div>
             </div>
