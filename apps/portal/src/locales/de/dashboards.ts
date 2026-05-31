@@ -266,6 +266,8 @@ export default {
     monthPlanTitle: 'Monatsplan',
     noScheduled: 'Noch kein Content terminiert.',
     contentLoadFailed: 'Content laden fehlgeschlagen',
+    tabErrorTitle: 'Dieser Bereich konnte nicht geladen werden',
+    tabErrorHint: 'Die übrigen Tabs funktionieren weiter. Lade die Seite neu oder wechsle den Tab.',
     published30d: 'Veröffentlicht (30d)',
     scheduled: 'Geplant',
     drafts: 'Entwürfe',

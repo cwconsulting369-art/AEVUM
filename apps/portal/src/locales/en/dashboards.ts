@@ -260,6 +260,8 @@ export default {
     monthPlanTitle: 'Monthly plan',
     noScheduled: 'No content scheduled yet.',
     contentLoadFailed: 'Failed to load content',
+    tabErrorTitle: 'This section could not be loaded',
+    tabErrorHint: 'The other tabs still work. Reload the page or switch tabs.',
     published30d: 'Published (30d)',
     scheduled: 'Scheduled',
     drafts: 'Drafts',

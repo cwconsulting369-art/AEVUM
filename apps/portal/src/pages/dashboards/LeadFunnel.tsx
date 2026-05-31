@@ -2,7 +2,7 @@
 // 5 Sektionen: Metrics · Leads · Spend · Content · Referrals
 // Data: /api/me/projects/:slug/lead-funnel (aggregated endpoint)
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, Component, type ReactNode } from 'react';
 import {
   Activity, TrendingUp, Users, DollarSign, FileText, Gift,
   ChevronRight, Sparkles, Award, AlertCircle, ExternalLink,
@@ -206,6 +206,35 @@ function isGatedErr(e: unknown): boolean {
     /gated|oauth_not_configured|not[_ ]configured/i.test(e.message);
 }
 
+/** Coerce DB-Werte defensiv zu string[] — schützt vor `.map is not a function`
+ *  wenn ein Feld als String/null statt Array zurückkommt (Schema-Drift). */
+function toArr(v: unknown): string[] {
+  if (Array.isArray(v)) return v as string[];
+  if (v == null || v === '') return [];
+  return [String(v)];
+}
+
+/** Fallback-Anzeige wenn ein Tab beim Rendern crasht (statt Black-Screen). */
+function TabErrorFallback() {
+  const { t } = useTranslation();
+  return (
+    <div className="card-premium p-8 text-center">
+      <AlertCircle size={26} className="mx-auto text-amber-400 mb-3" />
+      <p className="text-sm text-white font-medium">{t('dashboards.funnel.tabErrorTitle')}</p>
+      <p className="text-xs text-ink-400 mt-1.5">{t('dashboards.funnel.tabErrorHint')}</p>
+    </div>
+  );
+}
+
+/** Error-Boundary pro Tab: ein Render-Fehler bleibt im Tab, der Rest des
+ *  Dashboards (Nav, andere Tabs) lebt weiter. Reset via key={tab}. */
+class TabErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch(err: unknown) { console.error('[LeadFunnel tab crashed]', err); }
+  render() { return this.state.failed ? <TabErrorFallback /> : this.props.children; }
+}
+
 export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: string; projectName: string }) {
   const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>('metrics');
@@ -274,19 +303,21 @@ export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: 
         ))}
       </nav>
 
-      {tab === 'metrics' && <MetricsSection metrics={data.metrics} leadsCount={data.leads.length} />}
-      {tab === 'leads' && <LeadsSection leads={data.leads} onRefresh={load} />}
-      {tab === 'content' && <ContentSection content={data.content} />}
-      {tab === 'channels' && <ChannelsSection />}
-      {tab === 'audience' && <AudienceSection />}
-      {tab === 'akquise' && <AkquiseSection onRefresh={load} />}
-      {tab === 'spend' && <SpendSection spend={data.spend} />}
-      {tab === 'referrals' && <ReferralsSection
-        programs={data.referrals.programs}
-        stats={data.referrals.stats}
-        projectSlug={projectSlug}
-        onRefresh={load}
-      />}
+      <TabErrorBoundary key={tab}>
+        {tab === 'metrics' && <MetricsSection metrics={data.metrics} leadsCount={data.leads.length} />}
+        {tab === 'leads' && <LeadsSection leads={data.leads} onRefresh={load} />}
+        {tab === 'content' && <ContentSection content={data.content} />}
+        {tab === 'channels' && <ChannelsSection />}
+        {tab === 'audience' && <AudienceSection />}
+        {tab === 'akquise' && <AkquiseSection onRefresh={load} />}
+        {tab === 'spend' && <SpendSection spend={data.spend} />}
+        {tab === 'referrals' && <ReferralsSection
+          programs={data.referrals.programs}
+          stats={data.referrals.stats}
+          projectSlug={projectSlug}
+          onRefresh={load}
+        />}
+      </TabErrorBoundary>
     </div>
   );
 }
@@ -1651,20 +1682,21 @@ function AudienceSection() {
 function ListEditor({ label, items, onChange }: { label: string; items: string[]; onChange: (next: string[]) => void }) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState('');
+  const list = toArr(items);
   return (
     <div>
       <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mb-1.5">{label}</div>
       <div className="space-y-1.5">
-        {items.map((it, i) => (
+        {list.map((it, i) => (
           <div key={i} className="flex items-center gap-2">
-            <input value={it} onChange={e => { const next = [...items]; next[i] = e.target.value; onChange(next); }} className="input-premium text-xs flex-1" />
-            <button type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} className="text-rose-300 hover:text-rose-200 p-1"><Trash2 size={12} /></button>
+            <input value={it} onChange={e => { const next = [...list]; next[i] = e.target.value; onChange(next); }} className="input-premium text-xs flex-1" />
+            <button type="button" onClick={() => onChange(list.filter((_, j) => j !== i))} className="text-rose-300 hover:text-rose-200 p-1"><Trash2 size={12} /></button>
           </div>
         ))}
         <div className="flex items-center gap-2">
           <input value={draft} onChange={e => setDraft(e.target.value)} placeholder={t('dashboards.funnel.addPlaceholder', { label })} className="input-premium text-xs flex-1"
-            onKeyDown={e => { if (e.key === 'Enter' && draft.trim()) { e.preventDefault(); onChange([...items, draft.trim()]); setDraft(''); } }} />
-          <button type="button" onClick={() => { if (draft.trim()) { onChange([...items, draft.trim()]); setDraft(''); } }} className="text-gold-300 hover:text-gold-200 p-1"><Plus size={14} /></button>
+            onKeyDown={e => { if (e.key === 'Enter' && draft.trim()) { e.preventDefault(); onChange([...list, draft.trim()]); setDraft(''); } }} />
+          <button type="button" onClick={() => { if (draft.trim()) { onChange([...list, draft.trim()]); setDraft(''); } }} className="text-gold-300 hover:text-gold-200 p-1"><Plus size={14} /></button>
         </div>
       </div>
     </div>
@@ -1674,9 +1706,9 @@ function ListEditor({ label, items, onChange }: { label: string; items: string[]
 function IcpCard({ profile, index, onRefresh }: { profile: IcpProfile; index: number; onRefresh: () => void }) {
   const { t } = useTranslation();
   const [edit, setEdit] = useState(false);
-  const [pains, setPains] = useState<string[]>(profile.pains || []);
-  const [desires, setDesires] = useState<string[]>(profile.desires || []);
-  const [objections, setObjections] = useState<string[]>(profile.objections || []);
+  const [pains, setPains] = useState<string[]>(toArr(profile.pains));
+  const [desires, setDesires] = useState<string[]>(toArr(profile.desires));
+  const [objections, setObjections] = useState<string[]>(toArr(profile.objections));
   const [awareness, setAwareness] = useState(profile.awareness_default || '');
   const [langNotes, setLangNotes] = useState(profile.language_notes || '');
   const [saving, setSaving] = useState(false);
@@ -1746,13 +1778,14 @@ function IcpCard({ profile, index, onRefresh }: { profile: IcpProfile; index: nu
 }
 
 function PreviewList({ label, items }: { label: string; items: string[] }) {
+  const arr = toArr(items);
   return (
     <div>
       <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mb-1.5">{label}</div>
-      {(!items || items.length === 0) ? (
+      {arr.length === 0 ? (
         <p className="text-ink-400 italic">—</p>
       ) : (
-        <ul className="space-y-1 list-disc list-inside text-ink-200">{items.map((it, i) => <li key={i}>{it}</li>)}</ul>
+        <ul className="space-y-1 list-disc list-inside text-ink-200">{arr.map((it, i) => <li key={i}>{it}</li>)}</ul>
       )}
     </div>
   );
@@ -1762,16 +1795,16 @@ function BrandVoiceCard({ voice, onRefresh }: { voice: BrandVoice | null; onRefr
   const { t } = useTranslation();
   const [edit, setEdit] = useState(false);
   const [tone, setTone] = useState(voice?.tone || '');
-  const [dos, setDos] = useState<string[]>(voice?.dos || []);
-  const [donts, setDonts] = useState<string[]>(voice?.donts || []);
-  const [examples, setExamples] = useState<string[]>(voice?.examples || []);
+  const [dos, setDos] = useState<string[]>(toArr(voice?.dos));
+  const [donts, setDonts] = useState<string[]>(toArr(voice?.donts));
+  const [examples, setExamples] = useState<string[]>(toArr(voice?.examples));
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setTone(voice?.tone || '');
-    setDos(voice?.dos || []);
-    setDonts(voice?.donts || []);
-    setExamples(voice?.examples || []);
+    setDos(toArr(voice?.dos));
+    setDonts(toArr(voice?.donts));
+    setExamples(toArr(voice?.examples));
   }, [voice]);
 
   const save = async () => {
