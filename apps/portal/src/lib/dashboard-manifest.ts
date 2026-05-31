@@ -24,26 +24,26 @@ export type IconKey =
 export type ZoneStatus = 'live' | 'wip' | 'soon';
 
 export interface ZoneStat {
-  label: string;
+  label: LText;
   value: string;
   /** CSS-Color/Var für Akzent (z.B. 'var(--status-success)') */
   accent?: string;
 }
 
-export interface ZoneBar { label: string; pct: number; color?: string; }
+export interface ZoneBar { label: LText; pct: number; color?: string; }
 
 /** Eine Bento-Kachel im Hauptbereich. */
 export interface ZoneSpec {
   key: string;
-  label: string;
+  label: LText;
   icon: IconKey;
   color?: DomainColor;
   badge?: string;
   status?: ZoneStatus;     // 'soon'/'wip' → gedimmt dargestellt
   stats?: ZoneStat[];
   bars?: ZoneBar[];
-  chips?: string[];
-  note?: string;
+  chips?: LText[];
+  note?: LText;
 }
 
 /** Custom-Pane-Keys (Escape-Hatch, ADR-002 R4) — echte Komponente statt Zonen. */
@@ -51,10 +51,10 @@ export type CustomPaneKey = 'lead-funnel' | 'funnel-facebook' | 'funnel-linkedin
 
 /** Inhalts-Pane eines Bereichs (Bento aus Zonen). Leer → Placeholder. */
 export interface PaneSpec {
-  title: string;
-  description?: string;
+  title: LText;
+  description?: LText;
   /** Backlog-Hinweis wenn Inhalt noch von Spec abhängt (gated) */
-  gatedNote?: string;
+  gatedNote?: LText;
   /** Escape-Hatch: rendert eine echte Komponente (z.B. bestehender LeadFunnel) statt Zonen. */
   custom?: CustomPaneKey;
   zones: ZoneSpec[];
@@ -62,21 +62,21 @@ export interface PaneSpec {
 
 export interface NavSub {
   slug: string;
-  label: string;
+  label: LText;
   icon?: IconKey;
   pane: PaneSpec;
 }
 
 export interface NavArea {
   slug: string;
-  label: string;
+  label: LText;
   icon?: IconKey;
   pane?: PaneSpec;       // optional wenn nur Container für children
   children?: NavSub[];
 }
 
 /** Ein Live-Feed-Eintrag für die rechte Rail. */
-export interface FeedItem { time: string; text: string; }
+export interface FeedItem { time: LText; text: LText; }
 
 export interface DashboardManifest {
   project: { slug: string; label: string; tagline?: string };

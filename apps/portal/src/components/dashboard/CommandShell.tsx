@@ -13,6 +13,7 @@ import {
 import DomainTile, { Stat, Pill } from './cc/DomainTile';
 import LeadFunnel from '@/pages/dashboards/LeadFunnel';
 import type { DashboardManifest, IconKey, PaneSpec, ZoneSpec } from '@/lib/dashboard-manifest';
+import { localizeText } from '@/lib/dashboard-manifest';
 import '@/styles/command-shell.css';
 
 /** Daten-Kontext für Custom-Panes (z.B. LeadFunnel braucht den Projekt-Slug). */
@@ -39,19 +40,22 @@ function StatusBadge({ status }: { status?: ZoneSpec['status'] }) {
 }
 
 function Zone({ z }: { z: ZoneSpec }) {
+  const { i18n } = useTranslation();
+  const L = i18n.language;
+  const loc = (x: Parameters<typeof localizeText>[0]) => localizeText(x, L);
   const dim = z.status === 'soon';
   return (
-    <DomainTile label={z.label} icon={icon(z.icon)} color={z.color} dim={dim} badge={<StatusBadge status={z.status} />}>
+    <DomainTile label={loc(z.label)} icon={icon(z.icon)} color={z.color} dim={dim} badge={<StatusBadge status={z.status} />}>
       {z.stats && z.stats.length > 0 && (
         <div className={z.stats.length >= 3 ? 'cc-row-3' : 'cc-row-2'}>
-          {z.stats.map((s) => <Stat key={s.label} label={s.label} accent={s.accent}>{s.value}</Stat>)}
+          {z.stats.map((s, i) => <Stat key={i} label={loc(s.label)} accent={s.accent}>{s.value}</Stat>)}
         </div>
       )}
       {z.bars && z.bars.length > 0 && (
         <div className="cc-bars">
-          {z.bars.map((b) => (
-            <div key={b.label} className="cc-bar">
-              <span className="cc-bar__label">{b.label}</span>
+          {z.bars.map((b, i) => (
+            <div key={i} className="cc-bar">
+              <span className="cc-bar__label">{loc(b.label)}</span>
               <div className="cc-bar__track">
                 <div className="cc-bar__fill" style={{ width: `${b.pct}%`, background: b.color || 'linear-gradient(90deg, rgba(224,164,88,0.5), rgba(224,164,88,0.9))' }} />
               </div>
@@ -61,10 +65,10 @@ function Zone({ z }: { z: ZoneSpec }) {
       )}
       {z.chips && z.chips.length > 0 && (
         <div className="cc-chips">
-          {z.chips.map((c) => <span key={c} className="cc-chip">{c}</span>)}
+          {z.chips.map((c, i) => <span key={i} className="cc-chip">{loc(c)}</span>)}
         </div>
       )}
-      {z.note && <div className="cc-placeholder__hint" style={{ margin: 0 }}>{z.note}</div>}
+      {z.note && <div className="cc-placeholder__hint" style={{ margin: 0 }}>{loc(z.note)}</div>}
     </DomainTile>
   );
 }
@@ -89,17 +93,18 @@ function CustomPane({ pane, ctx }: { pane: PaneSpec; ctx: ShellContext }) {
 }
 
 function PaneView({ pane, ctx }: { pane: PaneSpec; ctx: ShellContext }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const loc = (x: Parameters<typeof localizeText>[0]) => localizeText(x, i18n.language);
   return (
     <div className="cmd-main">
       <div className="cmd-main__head">
-        <span className="cmd-main__title">{pane.title}</span>
-        {pane.description && <span className="cmd-main__crumb">{pane.description}</span>}
+        <span className="cmd-main__title">{loc(pane.title)}</span>
+        {pane.description && <span className="cmd-main__crumb">{loc(pane.description)}</span>}
       </div>
       {pane.gatedNote && (
         <div className="cc-placeholder" style={{ padding: '14px 18px', flexDirection: 'row', justifyContent: 'flex-start', gap: 10 }}>
           <Clock size={14} style={{ color: 'var(--accent-glow)', flexShrink: 0 }} />
-          <span className="cc-placeholder__hint" style={{ margin: 0, textAlign: 'left' }}>{pane.gatedNote}</span>
+          <span className="cc-placeholder__hint" style={{ margin: 0, textAlign: 'left' }}>{loc(pane.gatedNote)}</span>
         </div>
       )}
       {pane.custom ? (
@@ -117,7 +122,8 @@ function PaneView({ pane, ctx }: { pane: PaneSpec; ctx: ShellContext }) {
 }
 
 export default function CommandShell({ manifest, ctx = {} }: { manifest: DashboardManifest; ctx?: ShellContext }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const loc = (x: Parameters<typeof localizeText>[0]) => localizeText(x, i18n.language);
   const [sel, setSel] = useState<Selection>(manifest.areas[0]?.slug ?? 'agent');
 
   // Resolve current pane from selection
@@ -158,7 +164,7 @@ export default function CommandShell({ manifest, ctx = {} }: { manifest: Dashboa
               <div key={area.slug}>
                 <button className={`cmd-nav__item ${sel === area.slug ? 'cmd-nav__item--active' : active ? 'cmd-nav__item--active' : ''}`} onClick={() => setSel(area.slug)}>
                   <AIcon size={15} className="cmd-nav__item-ic" />
-                  <span>{area.label}</span>
+                  <span>{loc(area.label)}</span>
                 </button>
                 {area.children?.map((sub) => {
                   const SIcon = icon(sub.icon);
@@ -166,7 +172,7 @@ export default function CommandShell({ manifest, ctx = {} }: { manifest: Dashboa
                   return (
                     <button key={sub.slug} className={`cmd-nav__item cmd-nav__item--sub ${sel === subSel ? 'cmd-nav__item--active' : ''}`} onClick={() => setSel(subSel)}>
                       <SIcon size={13} className="cmd-nav__item-ic" />
-                      <span>{sub.label}</span>
+                      <span>{loc(sub.label)}</span>
                     </button>
                   );
                 })}
@@ -202,8 +208,8 @@ export default function CommandShell({ manifest, ctx = {} }: { manifest: Dashboa
               {manifest.feed && manifest.feed.length > 0 ? (
                 manifest.feed.map((f, i) => (
                   <div key={i} className="cc-feed-row">
-                    <span className="cc-feed-row__time">{f.time}</span>
-                    <span>{f.text}</span>
+                    <span className="cc-feed-row__time">{loc(f.time)}</span>
+                    <span>{loc(f.text)}</span>
                   </div>
                 ))
               ) : (

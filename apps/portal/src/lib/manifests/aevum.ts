@@ -13,8 +13,8 @@ export const aevumManifest: DashboardManifest = {
       label: 'Lead-Funnel',
       icon: 'target',
       pane: {
-        title: 'Lead-Funnel · Cockpit',
-        description: 'Content, Leads, Kanäle & Zielgruppe — voll editierbar (Gesamt = FB + LinkedIn).',
+        title: { de: 'Lead-Funnel · Cockpit', en: 'Lead funnel · cockpit' },
+        description: { de: 'Content, Leads, Kanäle & Zielgruppe — voll editierbar (Gesamt = FB + LinkedIn).', en: 'Content, leads, channels & audience — fully editable (total = FB + LinkedIn).' },
         custom: 'lead-funnel',
         zones: [],
       },
@@ -29,12 +29,12 @@ export const aevumManifest: DashboardManifest = {
 
   agent: {
     title: 'Agent · AEVUM',
-    description: 'Conversation-Logs, Inbox, Memory/State des AEVUM-Agents.',
+    description: { de: 'Conversation-Logs, Inbox, Memory/State des AEVUM-Agents.', en: 'Conversation logs, inbox, memory/state of the AEVUM agent.' },
     zones: [],
   },
   docs: {
-    title: 'Dokumente · AEVUM',
-    description: 'Alle AEVUM-Dokumente — scope/origin-gekennzeichnet.',
+    title: { de: 'Dokumente · AEVUM', en: 'Documents · AEVUM' },
+    description: { de: 'Alle AEVUM-Dokumente — scope/origin-gekennzeichnet.', en: 'All AEVUM documents — scope/origin tagged.' },
     zones: [],
   },
 };

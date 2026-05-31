@@ -1,103 +1,87 @@
 // Patrick "Thailand RE" Dashboard-Manifest (ADR-002 D3).
 // 1 Projekt, intern getrennt: Website + Lead-Funnel(→ FB/LinkedIn) + Agent + Docs.
-// Zonen sind PLATZHALTER (status 'soon'/'wip') — Inhalte/Metriken kommen aus der
-// Patrick-Session-Spec (gated, ADR-002 Follow-up 4). Struktur steht, Daten folgen.
+// UI-Texte sind {de,en} (LText) → CommandShell rendert via localizeText. Marken/
+// Eigennamen/Daten bleiben sprachneutrale Strings.
 import type { DashboardManifest } from '@/lib/dashboard-manifest';
 
 export const patrickManifest: DashboardManifest = {
-  // project.slug = DB-Projekt-Slug (für /api/me/projects/:slug/lead-funnel + ProjectDetail-Routing)
   project: { slug: 'thailand-re-leadfunnel', label: 'Thailand RE', tagline: 'Patrick Roth · Real Estate Concierge · Pattaya/Rayong' },
 
   areas: [
-    // ── Bereich: Website ───────────────────────────────────
+    // ── Website ───────────────────────────────────
     {
       slug: 'website',
       label: 'Website',
       icon: 'globe',
       pane: {
         title: 'Website',
-        description: 'Live-Site, Traffic, Content-Status — leben-in-thailand.',
-        gatedNote: 'Metriken-Wiring folgt aus Patrick-Session (Analytics/Content-Quellen).',
+        description: { de: 'Live-Site, Traffic, Content-Status — leben-in-thailand.', en: 'Live site, traffic, content status — leben-in-thailand.' },
+        gatedNote: { de: 'Metriken-Wiring folgt aus Patrick-Session (Analytics/Content-Quellen).', en: 'Metrics wiring follows from the Patrick session (analytics/content sources).' },
         zones: [
-          { key: 'site-health', label: 'Site-Status', icon: 'globe', color: 'gold', status: 'wip',
-            stats: [{ label: 'Deploy', value: 'live', accent: 'var(--status-success)' }, { label: 'Seiten', value: '—' }],
-            chips: ['Home', 'Auswanderer', 'Investor', 'Über Patrick', 'Objekte'] },
+          { key: 'site-health', label: { de: 'Site-Status', en: 'Site status' }, icon: 'globe', color: 'gold', status: 'wip',
+            stats: [{ label: 'Deploy', value: 'live', accent: 'var(--status-success)' }, { label: { de: 'Seiten', en: 'Pages' }, value: '—' }],
+            chips: ['Home', { de: 'Auswanderer', en: 'Expats' }, 'Investor', { de: 'Über Patrick', en: 'About Patrick' }, { de: 'Objekte', en: 'Properties' }] },
           { key: 'traffic', label: 'Traffic 30d', icon: 'trendingUp', color: 'info', status: 'soon',
-            stats: [{ label: 'Besucher', value: '—' }, { label: 'Conversion', value: '—' }] },
-          { key: 'content', label: 'Content-Pipeline', icon: 'image', color: 'violet', status: 'soon',
-            stats: [{ label: 'Objekte', value: '—' }, { label: 'Blog', value: '—' }] },
+            stats: [{ label: { de: 'Besucher', en: 'Visitors' }, value: '—' }, { label: 'Conversion', value: '—' }] },
+          { key: 'content', label: { de: 'Content-Pipeline', en: 'Content pipeline' }, icon: 'image', color: 'violet', status: 'soon',
+            stats: [{ label: { de: 'Objekte', en: 'Properties' }, value: '—' }, { label: 'Blog', value: '—' }] },
         ],
       },
     },
 
-    // ── Bereich: Lead-Funnel (mit Sub-Kanälen) ─────────────
+    // ── Lead-Funnel (mit Sub-Kanälen) ─────────────
     {
       slug: 'lead-funnel',
       label: 'Lead-Funnel',
       icon: 'target',
       pane: {
-        title: 'Lead-Funnel · Cockpit',
-        description: 'Vollständig editierbar: Leads, Content, Kanäle & Zielgruppe — echte Live-Daten.',
-        // Escape-Hatch: rendert das volle LeadFunnel-Cockpit (Metriken/Leads/Content/Kanäle/Zielgruppe), kein Platzhalter.
+        title: { de: 'Lead-Funnel · Cockpit', en: 'Lead funnel · cockpit' },
+        description: { de: 'Vollständig editierbar: Leads, Content, Kanäle & Zielgruppe — echte Live-Daten (Gesamt = FB + LinkedIn).', en: 'Fully editable: leads, content, channels & audience — real live data (total = FB + LinkedIn).' },
         custom: 'lead-funnel',
         zones: [],
       },
       children: [
-        {
-          slug: 'facebook', label: 'Facebook-Funnel', icon: 'facebook',
-          pane: {
-            title: 'Facebook-Funnel',
-            custom: 'funnel-facebook',
-            zones: [],
-          },
-        },
-        {
-          slug: 'linkedin', label: 'LinkedIn-Funnel', icon: 'linkedin',
-          pane: {
-            title: 'LinkedIn-Funnel',
-            custom: 'funnel-linkedin',
-            zones: [],
-          },
-        },
+        { slug: 'facebook', label: 'Facebook-Funnel', icon: 'facebook',
+          pane: { title: 'Facebook-Funnel', custom: 'funnel-facebook', zones: [] } },
+        { slug: 'linkedin', label: 'LinkedIn-Funnel', icon: 'linkedin',
+          pane: { title: 'LinkedIn-Funnel', custom: 'funnel-linkedin', zones: [] } },
       ],
     },
   ],
 
-  // ── Achse 2: Agent-Bereich (D4.2) ────────────────────────
   agent: {
     title: 'Agent · Thailand RE Bot',
-    description: 'Nur der Agent: Gespräche, Inbox (TG-Uploads), Memory/State. Getrennt vom Projekt-Inhalt.',
-    gatedNote: 'Live-Anbindung an thailandre-bot (chats/, inbox/, state.json) folgt in Etappe B.',
+    description: { de: 'Nur der Agent: Gespräche, Inbox (TG-Uploads), Memory/State. Getrennt vom Projekt-Inhalt.', en: 'Just the agent: conversations, inbox (TG uploads), memory/state. Separate from project content.' },
+    gatedNote: { de: 'Live-Anbindung an thailandre-bot (chats/, inbox/, state.json) folgt in Etappe B.', en: 'Live connection to thailandre-bot (chats/, inbox/, state.json) follows in stage B.' },
     zones: [
-      { key: 'agent-convos', label: 'Conversation-Logs', icon: 'messageSquare', color: 'violet', status: 'wip',
-        stats: [{ label: 'Threads', value: '—' }, { label: 'Letzte', value: '—' }] },
-      { key: 'agent-inbox', label: 'Agent-Inbox', icon: 'inbox', color: 'violet', status: 'soon',
-        note: 'Dateien aus dem TG-Bot-Chat (scope=agent).' },
+      { key: 'agent-convos', label: { de: 'Conversation-Logs', en: 'Conversation logs' }, icon: 'messageSquare', color: 'violet', status: 'wip',
+        stats: [{ label: 'Threads', value: '—' }, { label: { de: 'Letzte', en: 'Latest' }, value: '—' }] },
+      { key: 'agent-inbox', label: { de: 'Agent-Inbox', en: 'Agent inbox' }, icon: 'inbox', color: 'violet', status: 'soon',
+        note: { de: 'Dateien aus dem TG-Bot-Chat (scope=agent).', en: 'Files from the TG bot chat (scope=agent).' } },
       { key: 'agent-state', label: 'Memory / State', icon: 'database', color: 'violet', status: 'soon',
-        stats: [{ label: 'Modell', value: 'sonnet-4-5' }, { label: 'Persona', value: 'Trust-Funnel' }] },
+        stats: [{ label: { de: 'Modell', en: 'Model' }, value: 'sonnet-4-5' }, { label: 'Persona', value: 'Trust-Funnel' }] },
     ],
   },
 
-  // ── Achse 3: Doc-Überbereich (D4.3 / D5) ─────────────────
   docs: {
-    title: 'Dokumente · Überbereich',
-    description: 'Alle Dokumente in einer Sicht — jede Zeile mit Scope-Badge + Origin-Tag (was-gehört-wohin).',
-    gatedNote: 'scope/origin-Felder + Storage-Konsolidierung = Etappe B (D5/D6).',
+    title: { de: 'Dokumente · Überbereich', en: 'Documents · overview' },
+    description: { de: 'Alle Dokumente in einer Sicht — jede Zeile mit Scope-Badge + Origin-Tag (was-gehört-wohin).', en: 'All documents in one view — each row with scope badge + origin tag (what-belongs-where).' },
+    gatedNote: { de: 'scope/origin-Felder + Storage-Konsolidierung = Etappe B (D5/D6).', en: 'scope/origin fields + storage consolidation = stage B (D5/D6).' },
     zones: [
-      { key: 'docs-agent', label: 'Agent-Docs', icon: 'bot', color: 'violet', status: 'soon',
-        note: '🤖 agent · TG-Upload / Agent-generiert' },
-      { key: 'docs-project', label: 'Projekt-Docs', icon: 'folder', color: 'gold', status: 'soon',
-        note: '📁 project · website / funnel-kanal' },
-      { key: 'docs-customer', label: 'Kunden-Docs', icon: 'users', color: 'info', status: 'soon',
-        note: '👤 customer · Upload' },
-      { key: 'docs-shared', label: 'Geteilt', icon: 'mail', color: 'emerald', status: 'soon',
-        note: '🔗 shared · projektübergreifend' },
+      { key: 'docs-agent', label: { de: 'Agent-Docs', en: 'Agent docs' }, icon: 'bot', color: 'violet', status: 'soon',
+        note: { de: '🤖 agent · TG-Upload / Agent-generiert', en: '🤖 agent · TG upload / agent-generated' } },
+      { key: 'docs-project', label: { de: 'Projekt-Docs', en: 'Project docs' }, icon: 'folder', color: 'gold', status: 'soon',
+        note: { de: '📁 project · website / funnel-kanal', en: '📁 project · website / funnel channel' } },
+      { key: 'docs-customer', label: { de: 'Kunden-Docs', en: 'Customer docs' }, icon: 'users', color: 'info', status: 'soon',
+        note: { de: '👤 customer · Upload', en: '👤 customer · upload' } },
+      { key: 'docs-shared', label: { de: 'Geteilt', en: 'Shared' }, icon: 'mail', color: 'emerald', status: 'soon',
+        note: { de: '🔗 shared · projektübergreifend', en: '🔗 shared · cross-project' } },
     ],
   },
 
   feed: [
-    { time: 'jetzt', text: 'Lead-Funnel-Cockpit live: Content, Leads, Kanäle & Zielgruppe editierbar.' },
-    { time: 'heute', text: 'Lead-Funnel-Repair production-verified — Pipeline läuft A/B/C/D.' },
-    { time: 'gated', text: 'Bezahlte Ad-Metriken (Meta/LinkedIn Ads) folgen mit der API-Freischaltung.' },
+    { time: { de: 'jetzt', en: 'now' }, text: { de: 'Lead-Funnel-Cockpit live: Content, Leads, Kanäle & Zielgruppe editierbar.', en: 'Lead-funnel cockpit live: content, leads, channels & audience editable.' } },
+    { time: { de: 'heute', en: 'today' }, text: { de: 'Lead-Funnel-Repair production-verified — Pipeline läuft A/B/C/D.', en: 'Lead-funnel repair production-verified — pipeline running A/B/C/D.' } },
+    { time: { de: 'gated', en: 'gated' }, text: { de: 'Bezahlte Ad-Metriken (Meta/LinkedIn Ads) folgen mit der API-Freischaltung.', en: 'Paid ad metrics (Meta/LinkedIn Ads) follow once the API is enabled.' } },
   ],
 };
