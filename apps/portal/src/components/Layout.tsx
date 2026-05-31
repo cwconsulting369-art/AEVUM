@@ -13,6 +13,7 @@ import { Link } from 'react-router';
 import Footer from './Footer';
 import Brand from './Brand';
 import LanguageToggle from './LanguageToggle';
+import CustomerSwitcher from './CustomerSwitcher';
 import { getManifestByProjectSlug } from '@/lib/manifests';
 
 // ── Generic portal nav ────────────────────────────────────────
@@ -176,6 +177,7 @@ export default function Layout() {
               <ChevronLeft size={13} /> {t('nav.back')}
             </Link>
             <div className="flex items-center gap-3">
+              <CustomerSwitcher />
               <LanguageToggle />
               <span className="text-[0.65rem] text-ink-500 hidden sm:block">{me?.account.email}</span>
               <button
@@ -339,6 +341,7 @@ export default function Layout() {
             )}
           </div>
           <div className="flex items-center gap-2.5">
+            <CustomerSwitcher />
             <LanguageToggle />
             <div className="text-[0.65rem] text-ink-500 hidden sm:block">{me?.account.email}</div>
             <div className="dot dot-ok" title={t('nav.online')} />

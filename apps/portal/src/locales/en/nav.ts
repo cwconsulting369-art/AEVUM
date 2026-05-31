@@ -54,4 +54,5 @@ export default {
   logout: 'Log out',
   online: 'Online',
   portal: 'Portal',
+  openCustomer: 'Open customer…',
 } as const;
