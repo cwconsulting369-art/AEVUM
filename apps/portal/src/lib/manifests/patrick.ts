@@ -47,28 +47,16 @@ export const patrickManifest: DashboardManifest = {
           slug: 'facebook', label: 'Facebook-Funnel', icon: 'facebook',
           pane: {
             title: 'Facebook-Funnel',
-            description: 'Meta-Kampagnen → Leads → Qualifizierung.',
-            gatedNote: 'Account-Verbindung & organische Posts steuerst du im Cockpit (Tabs „Kanäle“ + „Content“). Hier folgen die bezahlten Ad-Metriken (CPL, Reichweite, Creatives), sobald die Meta-Ads-Schnittstelle freigeschaltet ist.',
-            zones: [
-              { key: 'fb-spend', label: 'Ad-Performance', icon: 'megaphone', color: 'info', status: 'soon',
-                stats: [{ label: 'Spend 30d', value: '—' }, { label: 'CPL', value: '—' }] },
-              { key: 'fb-leads', label: 'FB-Leads', icon: 'target', color: 'gold', status: 'soon',
-                stats: [{ label: 'Leads', value: '—' }, { label: 'A-Quote', value: '—' }] },
-            ],
+            custom: 'funnel-facebook',
+            zones: [],
           },
         },
         {
           slug: 'linkedin', label: 'LinkedIn-Funnel', icon: 'linkedin',
           pane: {
             title: 'LinkedIn-Funnel',
-            description: 'Organisch + Outreach → Investoren-Leads.',
-            gatedNote: 'Account-Verbindung & organische Posts steuerst du im Cockpit (Tabs „Kanäle“ + „Content“). Hier folgen SSI, Outreach-Sequenzen & Reply-Raten, sobald die LinkedIn-Schnittstelle freigeschaltet ist.',
-            zones: [
-              { key: 'li-reach', label: 'Reichweite', icon: 'trendingUp', color: 'info', status: 'soon',
-                stats: [{ label: 'SSI', value: '—' }, { label: 'Impressions', value: '—' }] },
-              { key: 'li-leads', label: 'LinkedIn-Leads', icon: 'target', color: 'gold', status: 'soon',
-                stats: [{ label: 'Leads', value: '—' }, { label: 'Reply-Rate', value: '—' }] },
-            ],
+            custom: 'funnel-linkedin',
+            zones: [],
           },
         },
       ],

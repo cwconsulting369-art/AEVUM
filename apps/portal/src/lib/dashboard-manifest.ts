@@ -3,6 +3,15 @@
 // der Übergang zu JSON/config.json/API ist trivial (Icons sind String-Keys).
 import type { DomainColor } from '@/components/dashboard/cc/DomainTile';
 
+/** Lokalisierbarer Text: entweder ein String (sprachneutral/Marke) oder {de,en}.
+ *  Manifest-Chrome (Labels/Beschreibungen) nutzt {de,en}; CommandShell rendert via localizeText. */
+export type LText = string | { de: string; en?: string };
+export function localizeText(v: LText | undefined | null, lang: string): string {
+  if (v == null) return '';
+  if (typeof v === 'string') return v;
+  return lang === 'en' ? (v.en ?? v.de) : v.de;
+}
+
 /** Doc-Taxonomie (D5) — jedes Dokument trägt scope + origin. */
 export type DocScope = 'agent' | 'project' | 'customer' | 'shared';
 
@@ -38,7 +47,7 @@ export interface ZoneSpec {
 }
 
 /** Custom-Pane-Keys (Escape-Hatch, ADR-002 R4) — echte Komponente statt Zonen. */
-export type CustomPaneKey = 'lead-funnel';
+export type CustomPaneKey = 'lead-funnel' | 'funnel-facebook' | 'funnel-linkedin';
 
 /** Inhalts-Pane eines Bereichs (Bento aus Zonen). Leer → Placeholder. */
 export interface PaneSpec {

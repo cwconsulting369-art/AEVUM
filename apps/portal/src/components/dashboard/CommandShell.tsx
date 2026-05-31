@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import DomainTile, { Stat, Pill } from './cc/DomainTile';
 import LeadFunnel from '@/pages/dashboards/LeadFunnel';
+import PlatformFunnel from './PlatformFunnel';
 import type { DashboardManifest, IconKey, PaneSpec, ZoneSpec } from '@/lib/dashboard-manifest';
 import '@/styles/command-shell.css';
 
@@ -72,6 +73,8 @@ function Zone({ z }: { z: ZoneSpec }) {
 /** Custom-Pane: rendert eine echte Daten-Komponente statt Bento-Zonen (ADR R4). */
 function CustomPane({ pane, ctx }: { pane: PaneSpec; ctx: ShellContext }) {
   const { t } = useTranslation();
+  if (pane.custom === 'funnel-facebook') return <PlatformFunnel platform="facebook" />;
+  if (pane.custom === 'funnel-linkedin') return <PlatformFunnel platform="linkedin" />;
   if (pane.custom === 'lead-funnel') {
     if (ctx.leadFunnel) {
       return <LeadFunnel projectSlug={ctx.leadFunnel.slug} projectName={ctx.leadFunnel.name} />;
