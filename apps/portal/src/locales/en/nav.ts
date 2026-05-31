@@ -1,0 +1,57 @@
+// Namespace: nav — layout chrome, sidebar sections, top-bar.
+export default {
+  // Portal nav
+  dashboard: 'Dashboard',
+  projects: 'Projects',
+  documents: 'Documents',
+  credits: 'Credits',
+  profile: 'Profile',
+  permissions: 'Permissions',
+  testimonial: 'Testimonial',
+
+  // Tools
+  tools: 'Tools',
+  scriptFactory: 'Script Factory',
+  dsgvoFactory: 'GDPR Factory',
+  timsCustomers: "Tim's Customers",
+
+  // Recurring section terms
+  overview: 'Overview',
+  ads: 'Ads',
+  spend: 'Spend',
+  email: 'Email',
+  shop: 'Shop',
+  intelligence: 'Intelligence',
+  quicklinks: 'Quicklinks',
+  docs: 'Documents',
+  activity: 'Activity',
+  agent: 'Agent',
+  apis: 'API Keys',
+  pipeline: 'Pipeline',
+  revenue: 'Revenue',
+  kunden: 'Customers',
+  content: 'Content',
+  leadFunnel: 'Lead Funnel',
+  customers: 'Delivery Points',
+  organizations: 'Organizations',
+  contacts: 'Contacts',
+  imports: 'Imports',
+  fgFinanz: 'FG Finance',
+  reports: 'Reports',
+  uhDocuments: 'Documents UH',
+  uhIncentives: 'Incentives',
+  uhSupport: 'Support',
+  uhRoadmap: 'UH Roadmap',
+  close: 'Close.com',
+  airtable: 'Airtable',
+  notion: 'Notion',
+  integrations: 'Integrations',
+  portalDocs: 'Portal Docs',
+
+  // UI strings
+  back: 'Projects',
+  project: 'Project',
+  logout: 'Log out',
+  online: 'Online',
+  portal: 'Portal',
+} as const;

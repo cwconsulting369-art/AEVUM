@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { setTokens } from '@/lib/api';
 import Spinner from '@/components/Spinner';
 import MeshBackground from '@/components/MeshBackground';
@@ -13,6 +14,7 @@ import Brand from '@/components/Brand';
 // Backward compat: also reads ?t= but strips it from the URL after consume.
 // Only for internal admin use (tokens issued server-side, not sent over email).
 export default function AuthToken() {
+  const { t } = useTranslation();
   const nav = useNavigate();
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export default function AuthToken() {
       <div className="relative z-10 text-center">
         <div className="mb-8 flex justify-center"><Brand size={36} showWordmark={false} /></div>
         <Spinner size="lg" />
-        <div className="text-sm text-ink-400 mt-4">Einloggen…</div>
+        <div className="text-sm text-ink-400 mt-4">{t('auth.signingIn')}</div>
       </div>
     </div>
   );
