@@ -20,6 +20,7 @@ import '@/styles/command-shell.css';
 /** Daten-Kontext für Custom-Panes (z.B. LeadFunnel braucht den Projekt-Slug). */
 export interface ShellContext {
   leadFunnel?: { slug: string; name: string };
+  siteUrl?: string;
 }
 
 const ICONS: Record<IconKey, LucideIcon> = {
@@ -77,7 +78,7 @@ function Zone({ z }: { z: ZoneSpec }) {
 /** Custom-Pane: rendert eine echte Daten-Komponente statt Bento-Zonen (ADR R4). */
 function CustomPane({ pane, ctx }: { pane: PaneSpec; ctx: ShellContext }) {
   const { t } = useTranslation();
-  if (pane.custom === 'website') return <WebsiteSection />;
+  if (pane.custom === 'website') return <WebsiteSection siteUrl={ctx.siteUrl} />;
   const plat = pane.custom === 'funnel-facebook' ? 'facebook' : pane.custom === 'funnel-linkedin' ? 'linkedin' : undefined;
   if (pane.custom === 'lead-funnel' || plat) {
     if (ctx.leadFunnel) {

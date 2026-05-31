@@ -79,7 +79,7 @@ export interface NavArea {
 export interface FeedItem { time: LText; text: LText; }
 
 export interface DashboardManifest {
-  project: { slug: string; label: string; tagline?: string };
+  project: { slug: string; label: string; tagline?: string; siteUrl?: string };
   /** Achse 1 — fachliche Projekt-Bereiche, hierarchisch (D4.1) */
   areas: NavArea[];
   /** Achse 2 — Agent-Bereich (D4.2): Conversation-Logs, Inbox, State */

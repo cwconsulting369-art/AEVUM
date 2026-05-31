@@ -61,7 +61,7 @@ export default function ProjectDetail() {
   // Admin-Parität: gleicher Projekt-Slug → gleiches Manifest, egal welcher Account.
   const manifest = getManifestByProjectSlug(slug);
   if (manifest) {
-    return <CommandShell manifest={manifest} ctx={{ leadFunnel: { slug, name: project?.name || manifest.project.label } }} />;
+    return <CommandShell manifest={manifest} ctx={{ leadFunnel: { slug, name: project?.name || manifest.project.label }, siteUrl: manifest.project.siteUrl }} />;
   }
 
   const isCollaGlow = slug === 'collaglow';

@@ -16,7 +16,7 @@ type Code = {
   qualified_count?: number; closed_won_count?: number; total_reward_earned_eur?: number;
 };
 
-export default function WebsiteSection({ siteUrl = 'leben-in-thailand.de' }: { siteUrl?: string }) {
+export default function WebsiteSection({ siteUrl = 'leben-in-thailand.vercel.app' }: { siteUrl?: string }) {
   // Geteilter Reflink = Patricks EIGENE Domain (?ref wird von der Site getrackt),
   // NICHT die AEVUM-API-URL. Dynamisch pro Kunde via siteUrl.
   const refLink = (code: string) => `https://${siteUrl}/?ref=${code}`;

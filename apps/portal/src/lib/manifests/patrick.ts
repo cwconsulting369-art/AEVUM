@@ -5,7 +5,8 @@
 import type { DashboardManifest } from '@/lib/dashboard-manifest';
 
 export const patrickManifest: DashboardManifest = {
-  project: { slug: 'thailand-re-leadfunnel', label: 'Thailand RE', tagline: 'Patrick Roth · Real Estate Concierge · Pattaya/Rayong' },
+  // siteUrl = AKTUELLE Live-Domain (noch vercel-alias; bei eigener Domain hier EINMAL ändern → Reflinks/Site-Links ziehen global mit)
+  project: { slug: 'thailand-re-leadfunnel', label: 'Thailand RE', tagline: 'Patrick Roth · Real Estate Concierge · Pattaya/Rayong', siteUrl: 'leben-in-thailand.vercel.app' },
 
   areas: [
     // ── Website ───────────────────────────────────
