@@ -3,3 +3,4 @@ pm2.log
 pm2.err.log
 .env
 data/
+*.log
