@@ -235,9 +235,9 @@ class TabErrorBoundary extends Component<{ children: ReactNode }, { failed: bool
   render() { return this.state.failed ? <TabErrorFallback /> : this.props.children; }
 }
 
-export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: string; projectName: string }) {
+export default function LeadFunnel({ projectSlug, projectName, platform }: { projectSlug: string; projectName: string; platform?: 'facebook' | 'linkedin' }) {
   const { t } = useTranslation();
-  const [tab, setTab] = useState<Tab>('metrics');
+  const [tab, setTab] = useState<Tab>(platform ? 'content' : 'metrics');
   const [data, setData] = useState<LeadFunnelData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -305,8 +305,8 @@ export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: 
       <TabErrorBoundary key={tab}>
         {tab === 'metrics' && <MetricsSection metrics={data.metrics} leadsCount={data.leads.length} />}
         {tab === 'leads' && <LeadsSection leads={data.leads} onRefresh={load} />}
-        {tab === 'content' && <ContentSection content={data.content} />}
-        {tab === 'channels' && <ChannelsSection />}
+        {tab === 'content' && <ContentSection content={data.content} platform={platform} />}
+        {tab === 'channels' && <ChannelsSection platform={platform} />}
         {tab === 'audience' && <AudienceSection />}
         {tab === 'spend' && <SpendSection spend={data.spend} />}
         {tab === 'referrals' && <ReferralsSection
@@ -1114,12 +1114,12 @@ function ContentRoadmap({ pieces }: { pieces: ContentPiece[] }) {
   );
 }
 
-function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
+function ContentSection({ content, platform }: { content: LeadFunnelData['content']; platform?: 'facebook' | 'linkedin' }) {
   const { t } = useTranslation();
   const [pieces, setPieces] = useState<ContentPiece[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [platformFilter, setPlatformFilter] = useState<string>('all');
+  const [platformFilter, setPlatformFilter] = useState<string>(platform ?? 'all');
   const [showGen, setShowGen] = useState(false);
 
   const load = async () => {
@@ -1180,7 +1180,7 @@ function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
         </button>
       </div>
 
-      {showGen && <GeneratePieceForm onDone={() => { setShowGen(false); load(); }} />}
+      {showGen && <GeneratePieceForm onDone={() => { setShowGen(false); load(); }} platform={platform} />}
 
       {/* Filters */}
       <div className="flex gap-2 flex-wrap items-center">
@@ -1190,12 +1190,14 @@ function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
           options={[['all', t('dashboards.funnel.filterAll')], ['draft', t('dashboards.funnel.pieceDraft')], ['approved', t('dashboards.funnel.pieceApproved')], ['scheduled', t('dashboards.funnel.pieceScheduled')], ['published', t('dashboards.funnel.piecePublished')], ['archived', t('dashboards.funnel.pieceArchived')]]}
           onChange={setStatusFilter}
         />
-        <FilterChips
-          label={t('dashboards.funnel.filterPlatform')}
-          value={platformFilter}
-          options={[['all', t('dashboards.funnel.filterAll')], ['linkedin', 'LinkedIn'], ['facebook', 'Facebook']]}
-          onChange={setPlatformFilter}
-        />
+        {!platform && (
+          <FilterChips
+            label={t('dashboards.funnel.filterPlatform')}
+            value={platformFilter}
+            options={[['all', t('dashboards.funnel.filterAll')], ['linkedin', 'LinkedIn'], ['facebook', 'Facebook']]}
+            onChange={setPlatformFilter}
+          />
+        )}
       </div>
 
       {/* Pieces list */}
@@ -1218,10 +1220,10 @@ function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
   );
 }
 
-function GeneratePieceForm({ onDone }: { onDone: () => void }) {
+function GeneratePieceForm({ onDone, platform: lockPlatform }: { onDone: () => void; platform?: 'facebook' | 'linkedin' }) {
   const { t } = useTranslation();
   const [segment, setSegment] = useState<string>('auswanderer');
-  const [platform, setPlatform] = useState<string>('linkedin');
+  const [platform, setPlatform] = useState<string>(lockPlatform ?? 'linkedin');
   const [awareness, setAwareness] = useState<string>('problem_aware');
   const [n, setN] = useState(1);
   const [running, setRunning] = useState(false);
@@ -1256,7 +1258,7 @@ function GeneratePieceForm({ onDone }: { onDone: () => void }) {
           </select>
         </Field>
         <Field label={t('dashboards.funnel.fieldPlatform')}>
-          <select value={platform} onChange={e => setPlatform(e.target.value)} className="input-premium">
+          <select value={platform} onChange={e => setPlatform(e.target.value)} className="input-premium" disabled={!!lockPlatform}>
             <option value="linkedin">LinkedIn</option>
             <option value="facebook">Facebook</option>
           </select>
@@ -1412,16 +1414,17 @@ function PieceCard({ piece, index, onRefresh }: { piece: ContentPiece; index: nu
 }
 
 // ─── Channels Section (FB + LinkedIn connect/disconnect/enable/first-post) ──
-function ChannelsSection() {
+function ChannelsSection({ platform }: { platform?: 'facebook' | 'linkedin' }) {
   const { t } = useTranslation();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [pieces, setPieces] = useState<ContentPiece[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const PLATFORMS: Array<{ platform: string; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = [
+  const ALL_PLATFORMS: Array<{ platform: string; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = [
     { platform: 'facebook', label: 'Facebook', icon: Facebook },
     { platform: 'linkedin', label: 'LinkedIn', icon: Linkedin },
   ];
+  const PLATFORMS = platform ? ALL_PLATFORMS.filter(p => p.platform === platform) : ALL_PLATFORMS;
 
   const load = async () => {
     setLoading(true);
