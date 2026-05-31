@@ -12,6 +12,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Sparkles, X, Loader2, Check, AlertCircle } from 'lucide-react';
 import { useAevumConfig } from '@/hooks/use-config';
 import { track } from '@/lib/shop-track';
@@ -33,6 +34,7 @@ function isDismissed(): boolean {
 }
 
 export default function MaintenanceBanner() {
+  const { t } = useTranslation();
   const config = useAevumConfig();
   const [dismissed, setDismissed] = useState(true); // start hidden until we know
   const [email, setEmail] = useState('');
@@ -52,7 +54,7 @@ export default function MaintenanceBanner() {
     e.preventDefault();
     setErr(null);
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-      setErr('E-Mail prüfen.');
+      setErr(t('maintenance.errCheckEmail'));
       return;
     }
     setSubmitting(true);
@@ -70,7 +72,7 @@ export default function MaintenanceBanner() {
       });
       const j = await res.json().catch(() => ({}));
       if (!res.ok || j.ok !== true) {
-        setErr('Eintragung fehlgeschlagen.');
+        setErr(t('maintenance.errSignupFailed'));
         setSubmitting(false);
         return;
       }
@@ -78,7 +80,7 @@ export default function MaintenanceBanner() {
       setDone(true);
       setSubmitting(false);
     } catch {
-      setErr('Netzwerk-Fehler.');
+      setErr(t('maintenance.errNetwork'));
       setSubmitting(false);
     }
   }
@@ -110,11 +112,10 @@ export default function MaintenanceBanner() {
             </div>
             <div className="min-w-0">
               <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-theme-accent block leading-tight">
-                AEVUM · Launch-Vorbereitung
+                {t('maintenance.bannerEyebrow')}
               </span>
               <p className="text-[13px] text-text-secondary leading-tight mt-0.5 truncate sm:whitespace-normal">
-                {config.payments_paused_message ||
-                  'Käufe pausiert — wir sammeln Daten der Pilot-Kunden bevor wir öffnen. Trag dich für die erste Welle ein.'}
+                {config.payments_paused_message || t('maintenance.bannerDefaultMessage')}
               </p>
             </div>
           </div>
@@ -129,8 +130,8 @@ export default function MaintenanceBanner() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="du@firma.de"
-                  aria-label="E-Mail für Launch-Benachrichtigung"
+                  placeholder={t('maintenance.emailPlaceholder')}
+                  aria-label={t('maintenance.emailAria')}
                   className="input-base flex-1 sm:w-56 min-w-0 py-1.5 text-xs"
                 />
                 <button
@@ -138,19 +139,19 @@ export default function MaintenanceBanner() {
                   disabled={submitting}
                   className="inline-flex items-center justify-center gap-1.5 text-xs font-medium bg-theme-accent text-text-on-accent hover:bg-theme-accent-hover disabled:opacity-60 disabled:cursor-not-allowed px-3 py-1.5 rounded-md transition-all whitespace-nowrap"
                 >
-                  {submitting ? <Loader2 size={12} className="animate-spin" /> : 'Benachrichtige mich'}
+                  {submitting ? <Loader2 size={12} className="animate-spin" /> : t('maintenance.notifyMe')}
                 </button>
               </form>
             ) : (
               <span className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-mono">
-                <Check size={13} /> Eingetragen
+                <Check size={13} /> {t('maintenance.entered')}
               </span>
             )}
 
             <button
               type="button"
               onClick={dismiss}
-              aria-label="Banner schließen"
+              aria-label={t('maintenance.closeBannerAria')}
               className="text-text-muted hover:text-text-primary transition-colors flex-shrink-0 p-1"
             >
               <X size={14} />

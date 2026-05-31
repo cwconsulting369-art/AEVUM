@@ -10,6 +10,7 @@
  */
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ShoppingCart, Sparkles, MessageCircle, ArrowRight } from 'lucide-react';
 
 export type PathVariant = 'primary' | 'secondary' | 'tertiary';
@@ -103,11 +104,15 @@ interface PathThreeCardProps {
 }
 
 export default function PathThreeCard({
-  eyebrow = 'Nächster Schritt',
-  headline = 'Drei Wege rein. Du wählst.',
-  subline = 'Blueprint kaufen, kostenloses Audit buchen, oder erstmal Fragen klären.',
+  eyebrow,
+  headline,
+  subline,
   compact = false,
 }: PathThreeCardProps = {}) {
+  const { t } = useTranslation();
+  const resolvedEyebrow = eyebrow ?? t('common.pathEyebrow');
+  const resolvedHeadline = headline ?? t('common.pathHeadline');
+  const resolvedSubline = subline ?? t('common.pathSubline');
   const openHelpbot = () => {
     if (typeof window === 'undefined') return;
     window.dispatchEvent(new CustomEvent('aevum:open-helpbot'));
@@ -118,14 +123,14 @@ export default function PathThreeCard({
       {!compact && (
         <div className="mb-8 text-center">
           <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block">
-            {eyebrow}
+            {resolvedEyebrow}
           </span>
           <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3 text-text-primary">
-            {headline}
+            {resolvedHeadline}
           </h2>
-          {subline && (
+          {resolvedSubline && (
             <p className="text-sm text-text-secondary max-w-xl mx-auto leading-relaxed">
-              {subline}
+              {resolvedSubline}
             </p>
           )}
         </div>
@@ -135,22 +140,22 @@ export default function PathThreeCard({
         <Card
           variant="primary"
           href="/#/shop"
-          title="Blueprint kaufen"
-          subtitle="€97-697 · Sofort downloadbar"
+          title={t('common.pathBuyTitle')}
+          subtitle={t('common.pathBuySubtitle')}
           index={0}
         />
         <Card
           variant="secondary"
           href="/#/audit"
-          title="Audit buchen"
-          subtitle="Kostenlos · 48h Auto-Plan"
+          title={t('common.pathAuditTitle')}
+          subtitle={t('common.pathAuditSubtitle')}
           index={1}
         />
         <Card
           variant="tertiary"
           onClick={openHelpbot}
-          title="Fragen klären"
-          subtitle="Helpbot · Antwort in 30 Sek."
+          title={t('common.pathHelpbotTitle')}
+          subtitle={t('common.pathHelpbotSubtitle')}
           index={2}
         />
       </div>

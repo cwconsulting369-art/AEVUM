@@ -13,6 +13,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { X, Loader2, CheckCircle2, Mail, AlertCircle, Sparkles } from 'lucide-react';
 import { track } from '@/lib/shop-track';
 import { useAevumConfig } from '@/hooks/use-config';
@@ -37,10 +38,12 @@ export default function MaintenanceModal({
   onClose,
   interest,
   source,
-  title = 'AEVUM ist gerade in Vorbereitung',
+  title,
   message,
 }: MaintenanceModalProps) {
+  const { t } = useTranslation();
   const config = useAevumConfig();
+  const resolvedTitle = title ?? t('maintenance.defaultTitle');
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -71,7 +74,7 @@ export default function MaintenanceModal({
     e.preventDefault();
     setErr(null);
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-      setErr('Bitte eine gültige E-Mail-Adresse eingeben.');
+      setErr(t('maintenance.errInvalidEmail'));
       return;
     }
     setSubmitting(true);
@@ -87,7 +90,7 @@ export default function MaintenanceModal({
       });
       const j = await res.json().catch(() => ({}));
       if (!res.ok || j.ok !== true) {
-        setErr(j.error === 'invalid_input' ? 'Bitte E-Mail prüfen.' : 'Eintragung fehlgeschlagen — bitte gleich nochmal probieren.');
+        setErr(j.error === 'invalid_input' ? t('maintenance.errCheckEmailModal') : t('maintenance.errSignupFailedModal'));
         setSubmitting(false);
         return;
       }
@@ -95,13 +98,12 @@ export default function MaintenanceModal({
       setDone(true);
       setSubmitting(false);
     } catch {
-      setErr('Netzwerk-Fehler — bitte später erneut.');
+      setErr(t('maintenance.errNetworkModal'));
       setSubmitting(false);
     }
   }
 
-  const body = message ?? config?.payments_paused_message ??
-    'Wir sammeln gerade fokussiert Daten aus den Pilot-Kunden und stellen sicher dass jedes System messbar Wirkung zeigt — bevor wir öffnen. Trag dich ein, dann gehörst du zur ersten Welle wenn wir den Shop wieder aufmachen.';
+  const body = message ?? config?.payments_paused_message ?? t('maintenance.defaultBody');
 
   return (
     <AnimatePresence>
@@ -116,7 +118,7 @@ export default function MaintenanceModal({
           {/* Backdrop */}
           <button
             type="button"
-            aria-label="Schließen"
+            aria-label={t('maintenance.closeAria')}
             onClick={onClose}
             className="absolute inset-0 bg-black/80 backdrop-blur-md"
           />
@@ -137,7 +139,7 @@ export default function MaintenanceModal({
             <button
               type="button"
               onClick={onClose}
-              aria-label="Schließen"
+              aria-label={t('maintenance.closeAria')}
               className="absolute top-4 right-4 text-text-muted hover:text-text-primary transition-colors z-10"
             >
               <X size={18} />
@@ -146,7 +148,7 @@ export default function MaintenanceModal({
             <div className="relative p-7 sm:p-9">
               <div className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-theme-accent bg-theme-accent/10 border border-theme-border-accent px-3 py-1 rounded-full mb-5">
                 <Sparkles size={11} />
-                Launch-Vorbereitung
+                {t('maintenance.badge')}
               </div>
 
               {!done ? (
@@ -155,7 +157,7 @@ export default function MaintenanceModal({
                     id="maintenance-title"
                     className="text-2xl sm:text-[26px] font-light tracking-tight leading-[1.15] mb-3 text-text-primary"
                   >
-                    {title}
+                    {resolvedTitle}
                   </h2>
                   <p className="text-sm text-text-secondary leading-relaxed mb-6">
                     {body}
@@ -164,7 +166,7 @@ export default function MaintenanceModal({
                   <form onSubmit={submit} className="space-y-3">
                     <label className="block">
                       <span className="font-mono text-[10px] uppercase tracking-widest text-text-muted mb-1.5 block">
-                        Deine E-Mail
+                        {t('maintenance.yourEmail')}
                       </span>
                       <div className="relative">
                         <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted z-10" />
@@ -176,7 +178,7 @@ export default function MaintenanceModal({
                           autoComplete="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          placeholder="du@firma.de"
+                          placeholder={t('maintenance.emailPlaceholder')}
                           className="input-base pl-9"
                         />
                       </div>
@@ -197,17 +199,17 @@ export default function MaintenanceModal({
                       {submitting ? (
                         <>
                           <Loader2 size={14} className="animate-spin" />
-                          Wird gesichert…
+                          {t('maintenance.saving')}
                         </>
                       ) : (
                         <>
-                          Benachrichtige mich beim Launch
+                          {t('maintenance.notifyAtLaunch')}
                         </>
                       )}
                     </button>
 
                     <p className="text-[11px] text-text-muted font-mono leading-relaxed pt-1">
-                      Eine Mail beim Go-Live. Kein Newsletter. Jederzeit per Klick wieder austragbar.
+                      {t('maintenance.modalFootnote')}
                     </p>
                   </form>
                 </>
@@ -218,19 +220,18 @@ export default function MaintenanceModal({
                       <CheckCircle2 size={20} className="text-emerald-400" />
                     </div>
                     <h2 id="maintenance-title" className="text-2xl font-light tracking-tight text-text-primary">
-                      Eingetragen.
+                      {t('maintenance.successTitle')}
                     </h2>
                   </div>
                   <p className="text-sm text-text-secondary leading-relaxed mb-6">
-                    Wir melden uns sobald der Shop wieder live geht — typischerweise ein paar Wochen. Bis dahin:
-                    arbeite weiter, wir sammeln Daten und bauen.
+                    {t('maintenance.successBody')}
                   </p>
                   <button
                     type="button"
                     onClick={onClose}
                     className="w-full inline-flex items-center justify-center text-sm font-medium border border-theme-border text-text-secondary hover:text-text-primary hover:border-theme-border-accent px-5 py-3 rounded-md transition-all"
                   >
-                    Schließen
+                    {t('maintenance.close')}
                   </button>
                 </>
               )}

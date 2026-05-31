@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Trans, useTranslation } from 'react-i18next';
 import { CheckCircle, Mail, Calendar, Sparkles, ArrowRight } from 'lucide-react';
 import CONTACT from '../config/contact';
 import { track } from '../lib/shop-track';
@@ -13,6 +14,7 @@ function readQueryFromHash(): URLSearchParams {
 }
 
 export default function CheckoutSuccess() {
+  const { t } = useTranslation();
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [type, setType] = useState<string | null>(null);
 
@@ -43,29 +45,27 @@ export default function CheckoutSuccess() {
         </div>
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight mb-6 text-text-primary">
-          Vielen Dank für deinen{' '}
-          <span className="text-gradient">Kauf</span>
+          {t('checkout.successTitle1')}
+          <span className="text-gradient">{t('checkout.successTitle2')}</span>
         </h1>
 
         <p className="text-text-secondary text-lg leading-relaxed mb-10">
-          Wir haben deine Bestellung erhalten. Eine Bestätigung mit Rechnung wurde per E-Mail
-          versendet. Innerhalb von <strong>1 Werktag</strong> melde ich mich persönlich mit
-          den nächsten Onboarding-Schritten.
+          <Trans i18nKey="checkout.successIntro" components={{ strong: <strong /> }} />
         </p>
 
         {sessionId && (
           <p className="text-xs text-text-muted font-mono mb-10 break-all">
-            Order-ID: {sessionId.slice(0, 24)}…
+            {t('checkout.orderId', { id: sessionId.slice(0, 24) })}
           </p>
         )}
 
         <div className="bg-bg-surface border border-theme-border p-6 sm:p-8 mb-10 text-left rounded-xl">
-          <h2 className="text-lg font-medium mb-4 text-text-primary">Was passiert jetzt?</h2>
+          <h2 className="text-lg font-medium mb-4 text-text-primary">{t('checkout.whatNextTitle')}</h2>
           <ol className="space-y-3 text-sm text-text-secondary list-decimal pl-5">
-            <li>Du erhältst innerhalb weniger Minuten eine Stripe-Zahlungsbestätigung per E-Mail.</li>
-            <li>Innerhalb von 1 Werktag schicke ich dir eine Onboarding-Mail mit Kickoff-Terminvorschlag.</li>
-            <li>Wir richten gemeinsame Kommunikationswege ein (Slack/TG/E-Mail nach deiner Wahl).</li>
-            <li>Bei Pilot-Programm-Slot: Wir vereinbaren auch Termine für die Testimonial-Video-Aufnahme nach 90 Tagen.</li>
+            <li>{t('checkout.whatNext1')}</li>
+            <li>{t('checkout.whatNext2')}</li>
+            <li>{t('checkout.whatNext3')}</li>
+            <li>{t('checkout.whatNext4')}</li>
           </ol>
         </div>
 
@@ -75,7 +75,7 @@ export default function CheckoutSuccess() {
             className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-2"
           >
             <Mail size={16} />
-            Fragen? Schreib direkt
+            {t('checkout.ctaWrite')}
           </a>
           <a
             href={CONTACT.calendly}
@@ -84,14 +84,14 @@ export default function CheckoutSuccess() {
             className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2"
           >
             <Calendar size={16} />
-            Kickoff schon jetzt buchen
+            {t('checkout.ctaBookKickoff')}
           </a>
         </div>
 
         <p className="text-xs text-text-muted mt-12">
-          Hinweis: Bei Verbrauchern (B2C) besteht ein gesetzliches Widerrufsrecht von 14 Tagen
-          (siehe <a href="#/widerrufsbelehrung" className="text-theme-accent hover:underline">Widerrufsbelehrung</a>).
-          Bei Unternehmen (B2B) gilt das vereinbarte Refund-Window aus den AGB.
+          {t('checkout.successFootnote1')}
+          <a href="#/widerrufsbelehrung" className="text-theme-accent hover:underline">{t('checkout.successFootnoteLink')}</a>
+          {t('checkout.successFootnote2')}
         </p>
       </motion.div>
     </section>
@@ -101,6 +101,7 @@ export default function CheckoutSuccess() {
 /* ──────────────────── SaaS-Signup Variant ──────────────────── */
 
 function SaasSignupSuccess({ sessionId }: { sessionId: string | null }) {
+  const { t } = useTranslation();
   return (
     <section className="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 py-20 sm:py-24">
       <motion.div
@@ -114,25 +115,22 @@ function SaasSignupSuccess({ sessionId }: { sessionId: string | null }) {
         </div>
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight mb-6 text-text-primary">
-          Willkommen bei <span className="text-gradient">AEVUM</span>
+          {t('checkout.saasTitle1')}<span className="text-gradient">{t('checkout.saasTitle2')}</span>
         </h1>
 
         <p className="text-text-secondary text-lg leading-relaxed mb-8">
-          Deine Zahlung ist eingegangen. Dein Account wird gerade automatisch erstellt
-          und die Credits werden aufgeladen.
+          {t('checkout.saasIntro')}
         </p>
 
         <div className="bg-bg-surface border border-theme-border p-6 sm:p-7 mb-10 text-left rounded-lg">
           <h2 className="text-lg font-medium mb-4 flex items-center gap-2 text-text-primary">
-            <Mail size={18} className="text-theme-accent" /> Check deine Mail
+            <Mail size={18} className="text-theme-accent" /> {t('checkout.saasCheckMail')}
           </h2>
           <p className="text-sm text-text-secondary leading-relaxed">
-            Wir haben dir gerade einen <strong>Login-Link (Magic-Link)</strong> an deine
-            Email geschickt. Ein Klick und du bist im Portal.
+            {t('checkout.saasMailBody1')}<strong>{t('checkout.saasMailBodyBold')}</strong>{t('checkout.saasMailBody2')}
             <br />
             <br />
-            Mail nicht da? Check den Spam-Ordner. Falls nichts ankommt, schreib uns kurz
-            an{' '}
+            {t('checkout.saasMailBody3')}
             <a href={`mailto:${CONTACT.email}`} className="text-theme-accent hover:underline">
               {CONTACT.email}
             </a>
@@ -142,7 +140,7 @@ function SaasSignupSuccess({ sessionId }: { sessionId: string | null }) {
 
         {sessionId && (
           <p className="text-xs text-text-muted font-mono mb-8 break-all">
-            Order-ID: {sessionId.slice(0, 24)}…
+            {t('checkout.orderId', { id: sessionId.slice(0, 24) })}
           </p>
         )}
 
@@ -153,21 +151,19 @@ function SaasSignupSuccess({ sessionId }: { sessionId: string | null }) {
             rel="noopener noreferrer"
             className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2"
           >
-            <ArrowRight size={16} /> Zum Portal-Login
+            <ArrowRight size={16} /> {t('checkout.saasPortalLogin')}
           </a>
           <a href="#/saas" className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-2">
-            Weitere SaaS-Tools ansehen
+            {t('checkout.saasMoreTools')}
           </a>
         </div>
 
         <p className="text-xs text-text-muted mt-12 leading-relaxed">
-          Hinweis: Mit Aktivierung deines Accounts hast du dem Sofort-Beginn deiner SaaS-Nutzung
-          ausdrücklich zugestimmt. Dein gesetzliches Widerrufsrecht erlischt damit gemäß § 356
-          Abs. 4 BGB nach vollständiger Erbringung. Details in den{' '}
+          {t('checkout.saasFootnote1')}
           <a href="#/agb" className="text-theme-accent hover:underline">
-            AGB
+            {t('checkout.saasFootnoteLink')}
           </a>
-          .
+          {t('checkout.saasFootnote2')}
         </p>
       </motion.div>
     </section>

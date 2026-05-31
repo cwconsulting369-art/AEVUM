@@ -10,6 +10,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, RotateCcw, Sparkles, Trash2 } from 'lucide-react';
 
@@ -175,6 +176,7 @@ function getCurrentHash(): string {
 }
 
 export default function Helpbot() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [session, setSession] = useState<StoredSession>(() => loadSession());
   const [input, setInput] = useState('');
@@ -200,7 +202,7 @@ export default function Helpbot() {
 
   const eraseHistory = useCallback(async () => {
     const sid = session.session_id;
-    if (typeof window !== 'undefined' && !window.confirm('Verlauf wirklich löschen? Diese Aktion ist endgültig.')) return;
+    if (typeof window !== 'undefined' && !window.confirm(t('helpbot.eraseConfirm'))) return;
     if (sid) {
       try {
         await fetch(`${API_BASE}/api/helpbot/erase`, {
@@ -216,7 +218,7 @@ export default function Helpbot() {
     setSending(false);
     setInput('');
     setOpen(false);
-  }, [session.session_id]);
+  }, [session.session_id, t]);
 
   // Hash-route watcher (hides on /audit + /checkout/*)
   useEffect(() => {
@@ -335,7 +337,7 @@ export default function Helpbot() {
       });
 
       if (!res.ok || !res.body) {
-        const errText = res.status === 429 ? 'Hoppla, du hast das Stunden-Limit erreicht. Versuch es später nochmal oder buche direkt ein Audit unter /audit.' : `Verbindung verloren (Status ${res.status}). Bitte erneut versuchen.`;
+        const errText = res.status === 429 ? t('helpbot.errRateLimit') : t('helpbot.errStatus', { status: res.status });
         setSession((s) => ({
           ...s,
           messages: [
@@ -387,7 +389,7 @@ export default function Helpbot() {
           } else if (event === 'error') {
             setSession((s) => {
               const msgs = s.messages.filter((m) => !m.streaming);
-              msgs.push({ role: 'assistant', content: 'Sorry, da ist gerade was schiefgelaufen. Probier es bitte gleich nochmal.' });
+              msgs.push({ role: 'assistant', content: t('helpbot.errGeneric') });
               return { ...s, messages: msgs };
             });
           }
@@ -421,14 +423,14 @@ export default function Helpbot() {
         ...s,
         messages: [
           ...s.messages.filter((m) => !m.streaming),
-          { role: 'assistant', content: 'Verbindung verloren. Bitte erneut versuchen.' },
+          { role: 'assistant', content: t('helpbot.errConnection') },
         ],
       }));
     } finally {
       setSending(false);
       abortRef.current = null;
     }
-  }, [input, sending, session, hasConsent]);
+  }, [input, sending, session, hasConsent, t]);
 
   const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -487,13 +489,13 @@ export default function Helpbot() {
             exit={{ opacity: 0, x: 20 }}
             transition={{ type: 'spring', stiffness: 180, damping: 22 }}
             className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-[calc(1.25rem+env(safe-area-inset-right))] lg:right-6 z-[90] max-w-[260px] rounded-2xl border border-theme-border-accent bg-bg-elevated/95 backdrop-blur-md px-4 py-3 text-left shadow-theme-lg cursor-pointer hover:border-theme-accent transition-colors"
-            aria-label="Helpbot öffnen"
+            aria-label={t('helpbot.fabAriaTip')}
           >
             <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-theme-accent font-medium mb-1">
-              <Sparkles className="w-3 h-3" /> AEVUM Assistant
+              <Sparkles className="w-3 h-3" /> {t('helpbot.tipEyebrow')}
             </div>
             <div className="text-sm text-text-primary leading-snug">
-              Frag mich was zu KI in deinem Unternehmen.
+              {t('helpbot.tipText')}
             </div>
             <div className="absolute -bottom-1.5 right-7 w-3 h-3 rotate-45 bg-bg-elevated border-r border-b border-theme-border-accent" />
           </motion.button>
@@ -513,7 +515,7 @@ export default function Helpbot() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.94 }}
             className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] right-[calc(1.25rem+env(safe-area-inset-right))] lg:bottom-6 lg:right-6 z-[95] w-14 h-14 rounded-full bg-theme-accent text-text-on-accent flex items-center justify-center shadow-theme-glow hover:bg-theme-accent-hover focus:outline-none focus:ring-2 focus:ring-theme-accent focus:ring-offset-2 focus:ring-offset-bg-primary group"
-            aria-label="AEVUM Assistant öffnen"
+            aria-label={t('helpbot.fabAriaOpen')}
           >
             <span className="absolute inset-0 rounded-full bg-theme-accent/40 animate-ping opacity-40 group-hover:opacity-0 pointer-events-none" />
             <MessageCircle className="w-6 h-6 relative" strokeWidth={2.2} />
@@ -542,7 +544,7 @@ export default function Helpbot() {
               exit={{ opacity: 0, y: 18, scale: 0.97 }}
               transition={{ type: 'spring', stiffness: 240, damping: 26 }}
               role="dialog"
-              aria-label="AEVUM Assistant Chat"
+              aria-label={t('helpbot.dialogAria')}
               className="fixed z-[99] inset-0 sm:inset-auto sm:bottom-5 sm:right-5 lg:bottom-6 lg:right-6 sm:w-[420px] sm:max-w-[calc(100vw-2.5rem)] sm:h-[600px] sm:max-h-[calc(100dvh-3rem)] flex flex-col bg-bg-primary sm:rounded-2xl overflow-hidden border-0 sm:border sm:border-theme-border shadow-theme-lg"
               style={{ fontFamily: 'inherit' }}
             >
@@ -557,10 +559,10 @@ export default function Helpbot() {
                       <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#22C55E] border-2 border-bg-primary" />
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-text-primary tracking-tight">AEVUM Assistant</div>
+                      <div className="text-sm font-semibold text-text-primary tracking-tight">{t('helpbot.assistantName')}</div>
                       <div className="text-[11px] text-text-muted flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />
-                        Online · Antwort in Sekunden
+                        {t('helpbot.statusOnline')}
                       </div>
                     </div>
                   </div>
@@ -569,27 +571,27 @@ export default function Helpbot() {
                     <button
                       type="button"
                       onClick={clearChat}
-                      title="Neuer Chat"
+                      title={t('helpbot.newChatTitle')}
                       className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-elevated transition-colors"
-                      aria-label="Neuer Chat starten"
+                      aria-label={t('helpbot.newChatAria')}
                     >
                       <RotateCcw className="w-4 h-4" strokeWidth={2} />
                     </button>
                     <button
                       type="button"
                       onClick={eraseHistory}
-                      title="Verlauf endgültig löschen (DSGVO)"
+                      title={t('helpbot.eraseTitle')}
                       className="p-2 rounded-lg text-text-muted hover:text-[#EF4444] hover:bg-bg-elevated transition-colors"
-                      aria-label="Verlauf löschen"
+                      aria-label={t('helpbot.eraseAria')}
                     >
                       <Trash2 className="w-4 h-4" strokeWidth={2} />
                     </button>
                     <button
                       type="button"
                       onClick={() => setOpen(false)}
-                      title="Schließen"
+                      title={t('helpbot.closeTitle')}
                       className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-elevated transition-colors"
-                      aria-label="Chat schließen"
+                      aria-label={t('helpbot.closeAria')}
                     >
                       <X className="w-4 h-4" strokeWidth={2} />
                     </button>
@@ -606,39 +608,43 @@ export default function Helpbot() {
                 {!hasConsent && (
                   <div className="rounded-xl border border-theme-border-accent bg-theme-accent/[0.04] p-4 text-[13px] leading-relaxed text-text-secondary">
                     <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-theme-accent font-medium mb-2">
-                      <Sparkles className="w-3 h-3" /> Bevor wir loslegen
+                      <Sparkles className="w-3 h-3" /> {t('helpbot.consentEyebrow')}
                     </div>
                     <p className="mb-3">
-                      Hi! Kurz zur Transparenz: Deine Nachrichten werden <strong>anonymisiert</strong>
-                      {' '}(IP gekürzt /24) gespeichert, um den Bot zu verbessern. Nach <strong>30 Tagen</strong>{' '}
-                      wird alles automatisch gelöscht. Du kannst den Verlauf jederzeit über das{' '}
-                      <Trash2 className="inline w-3 h-3 -mt-0.5" />-Symbol löschen.
+                      {t('helpbot.consentText1')}<strong>{t('helpbot.consentTextBold1')}</strong>
+                      {t('helpbot.consentText2')}<strong>{t('helpbot.consentTextBold2')}</strong>
+                      {t('helpbot.consentText3')}
+                      <Trash2 className="inline w-3 h-3 -mt-0.5" />{t('helpbot.consentText4')}
                     </p>
                     <p className="mb-3 text-text-muted">
-                      Mehr Details unter{' '}
+                      {t('helpbot.consentMore1')}
                       <a
                         href="#/datenschutz"
                         onClick={() => setOpen(false)}
                         className="text-theme-accent hover:underline"
                       >
-                        Datenschutz
-                      </a>.
+                        {t('helpbot.consentMoreLink')}
+                      </a>{t('helpbot.consentMore2')}
                     </p>
                     <button
                       type="button"
                       onClick={acceptConsent}
                       className="w-full rounded-lg bg-theme-accent text-text-on-accent text-[13px] font-semibold py-2.5 hover:bg-theme-accent-hover transition-colors focus:outline-none focus:ring-2 focus:ring-theme-accent focus:ring-offset-2 focus:ring-offset-bg-primary"
                     >
-                      Verstanden, los geht&apos;s
+                      {t('helpbot.consentAccept')}
                     </button>
                   </div>
                 )}
                 {session.messages.map((m, i) => (
                   <MessageBubble
                     key={i}
-                    msg={m}
+                    msg={
+                      m.role === 'assistant' && m.content === WELCOME.content
+                        ? { ...m, content: t('helpbot.welcome') }
+                        : m
+                    }
                     onCta={goToHash}
-                    onHandoff={handoffToAudit}
+                    onHandoff={() => handoffDispatch({ to: 'audit' })}
                     isLast={i === session.messages.length - 1}
                   />
                 ))}
@@ -660,7 +666,7 @@ export default function Helpbot() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKey}
-                    placeholder="Frag mich etwas …"
+                    placeholder={t('helpbot.inputPlaceholder')}
                     rows={1}
                     maxLength={2000}
                     className="flex-1 bg-transparent px-3.5 py-3 text-sm text-text-primary placeholder-text-muted outline-none resize-none max-h-32"
@@ -672,13 +678,13 @@ export default function Helpbot() {
                     onClick={sendMessage}
                     disabled={!input.trim() || sending}
                     className="mb-1.5 mr-1.5 w-9 h-9 rounded-lg bg-theme-accent text-text-on-accent flex-shrink-0 flex items-center justify-center disabled:bg-bg-elevated disabled:text-text-muted hover:bg-theme-accent-hover transition-colors focus:outline-none focus:ring-2 focus:ring-theme-accent focus:ring-offset-2 focus:ring-offset-bg-primary"
-                    aria-label="Nachricht senden"
+                    aria-label={t('helpbot.sendAria')}
                   >
                     <Send className="w-4 h-4" strokeWidth={2.4} />
                   </button>
                 </div>
                 <div className="mt-2 px-1 text-[10px] text-text-muted tracking-wide">
-                  Powered by Claude Sonnet 4.5 · keine Daten an Dritte
+                  {t('helpbot.poweredBy')}
                 </div>
               </div>
             </motion.div>
@@ -698,6 +704,7 @@ interface BubbleProps {
 }
 
 function MessageBubble({ msg, onCta, onHandoff, isLast }: BubbleProps) {
+  const { t } = useTranslation();
   const isUser = msg.role === 'user';
 
   // Parse the optional <aevum-handoff>…</aevum-handoff> marker.  The marker is
@@ -741,10 +748,10 @@ function MessageBubble({ msg, onCta, onHandoff, isLast }: BubbleProps) {
               onClick={() => (onHandoff ? onHandoff() : onCta('/audit'))}
               className="w-full px-4 py-3 rounded-xl bg-theme-accent hover:bg-theme-accent-hover text-text-on-accent text-[14px] font-semibold transition-all shadow-theme-glow focus:outline-none focus:ring-2 focus:ring-theme-accent focus:ring-offset-2 focus:ring-offset-bg-primary"
             >
-              → Audit starten (Vorab-Daten werden übernommen)
+              {t('helpbot.handoffStart')}
             </button>
             <div className="mt-1.5 px-1 text-[10px] text-text-muted tracking-wide">
-              15-20 Min · Pitch-Report binnen 24-48h
+              {t('helpbot.handoffNote')}
             </div>
           </div>
         )}
@@ -757,7 +764,7 @@ function MessageBubble({ msg, onCta, onHandoff, isLast }: BubbleProps) {
                 onClick={() => (onHandoff ? onHandoff() : onCta('/audit'))}
                 className="px-3.5 py-1.5 rounded-lg bg-theme-accent/10 hover:bg-theme-accent/20 border border-theme-border-accent hover:border-theme-accent text-theme-accent text-[12px] font-medium transition-all"
               >
-                → Audit starten
+                {t('helpbot.ctaAudit')}
               </button>
             )}
             {ctas.call && (
@@ -766,7 +773,7 @@ function MessageBubble({ msg, onCta, onHandoff, isLast }: BubbleProps) {
                 onClick={() => onCta('/audit')}
                 className="px-3.5 py-1.5 rounded-lg bg-bg-elevated hover:bg-bg-surface border border-theme-border hover:border-theme-border-strong text-text-primary text-[12px] font-medium transition-all"
               >
-                → Erstgespräch buchen
+                {t('helpbot.ctaCall')}
               </button>
             )}
           </div>

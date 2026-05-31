@@ -14,6 +14,7 @@
  * Diese hier ist die volle Review-Grid-Variante.
  */
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Star, Quote, ExternalLink, Clock } from 'lucide-react';
 
 interface TrustpilotReview {
@@ -33,8 +34,9 @@ interface TrustpilotReviewsResponse {
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'https://api.aevum-system.de';
 
 function StarRow({ rating, size = 14 }: { rating: number; size?: number }) {
+  const { t } = useTranslation();
   return (
-    <div className="flex items-center gap-0.5" aria-label={`${rating} von 5 Sternen`}>
+    <div className="flex items-center gap-0.5" aria-label={t('common.tpStarsAria', { rating })}>
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
@@ -58,6 +60,7 @@ function formatDate(iso: string | null): string {
 }
 
 function ReviewCard({ r }: { r: TrustpilotReview }) {
+  const { t } = useTranslation();
   return (
     <article className="bg-bg-surface border border-theme-border hover:border-[#00b67a]/30 transition-colors p-6 flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -71,47 +74,48 @@ function ReviewCard({ r }: { r: TrustpilotReview }) {
         {r.text || '—'}
       </p>
       <div className="mt-auto pt-3 border-t border-theme-border text-xs text-text-secondary">
-        {r.author_name || 'Verifizierter Kunde'}
+        {r.author_name || t('common.tpVerifiedCustomer')}
       </div>
     </article>
   );
 }
 
 function PlaceholderCard({ slot }: { slot: number }) {
+  const { t } = useTranslation();
   const headlines = [
-    'Werde Founding-Customer',
-    'Reviews kommen mit den ersten Cases',
-    'Public-Launch: Q3 2026',
+    t('common.tpHeadline0'),
+    t('common.tpHeadline1'),
+    t('common.tpHeadline2'),
   ];
   const bodies = [
-    'AEVUM startet öffentlich im Sommer 2026. Founding-Customer bekommen einen Early-Adopter-Rabatt und sehen ihre echten Bewertungen hier zuerst.',
-    'Wir veröffentlichen keine erfundenen Testimonials. Echte Reviews erscheinen sobald die ersten Customer-Projekte abgeschlossen sind.',
-    'Trustpilot-Profile geht zeitgleich mit dem Public-Launch live. Bis dahin: transparenter Pre-Launch-Modus.',
+    t('common.tpBody0'),
+    t('common.tpBody1'),
+    t('common.tpBody2'),
   ];
   return (
     <article
       className="relative bg-bg-surface/30 border border-dashed border-theme-border p-6 flex flex-col gap-3 opacity-85"
-      aria-label="Platzhalter — noch keine echte Review verfügbar"
+      aria-label={t('common.tpPlaceholderAria')}
     >
       {/* Prominent Coming-Soon Badge — top-right corner */}
       <span
         className="absolute -top-2.5 right-4 inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-[0.12em] px-2 py-1 rounded-sm bg-theme-accent text-text-on-accent font-semibold shadow-sm"
-        aria-label="Coming Soon"
+        aria-label={t('common.tpComingSoonAria')}
       >
-        <Clock size={10} /> Bald verfügbar
+        <Clock size={10} /> {t('common.tpComingSoon')}
       </span>
 
       <div className="flex items-center justify-between">
         <div
           className="flex items-center gap-0.5"
-          aria-label="Noch keine Bewertung"
+          aria-label={t('common.tpNoRatingAria')}
         >
           {[1, 2, 3, 4, 5].map((i) => (
             <Star key={i} size={14} className="text-theme-border-strong" fill="currentColor" />
           ))}
         </div>
         <span className="text-[10px] font-mono uppercase tracking-wider text-text-muted">
-          Platzhalter
+          {t('common.tpPlaceholder')}
         </span>
       </div>
       <h3 className="text-sm font-medium text-text-primary">
@@ -121,7 +125,7 @@ function PlaceholderCard({ slot }: { slot: number }) {
         {bodies[slot % bodies.length]}
       </p>
       <div className="mt-auto pt-3 border-t border-theme-border text-[10px] font-mono uppercase tracking-wider text-theme-accent/70">
-        Noch keine echte Review · Pre-Launch
+        {t('common.tpNoReviewYet')}
       </div>
     </article>
   );
@@ -140,6 +144,7 @@ export default function TrustpilotReviews({
   limit = 3,
   showPlaceholders = true,
 }: TrustpilotReviewsProps) {
+  const { t } = useTranslation();
   const [reviews, setReviews] = useState<TrustpilotReview[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
 
@@ -196,11 +201,11 @@ export default function TrustpilotReviews({
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-text-muted">
-            Kundenstimmen
+            {t('common.tpKundenstimmen')}
           </span>
           {!hasReal && (
             <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-theme-accent/15 text-theme-accent border border-theme-border-accent">
-              <Clock size={10} /> Coming Soon · Pre-Launch
+              <Clock size={10} /> {t('common.tpComingSoonPreLaunch')}
             </span>
           )}
         </div>
@@ -210,7 +215,7 @@ export default function TrustpilotReviews({
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-xs font-mono uppercase tracking-wider text-text-muted hover:text-theme-accent transition-colors"
         >
-          Trustpilot
+          {t('common.tpTrustpilot')}
           <ExternalLink size={11} />
         </a>
       </div>
@@ -219,10 +224,10 @@ export default function TrustpilotReviews({
       {!hasReal && (
         <div className="mb-6">
           <h2 className="text-lg font-medium text-text-primary">
-            Trustpilot-Reviews — verfügbar nach Launch
+            {t('common.tpSectionHeadline')}
           </h2>
           <p className="text-xs text-text-muted mt-1">
-            Diese Sektion zeigt aktuell Platzhalter. Echte Reviews erscheinen sobald die ersten Customer-Projekte live sind.
+            {t('common.tpSectionSub')}
           </p>
         </div>
       )}
@@ -240,9 +245,7 @@ export default function TrustpilotReviews({
       {!hasReal && showPlaceholders && (
         <div className="mt-6 text-center">
           <p className="text-xs text-text-muted max-w-2xl mx-auto leading-relaxed">
-            Wir veröffentlichen keine erfundenen Testimonials. Echte Trustpilot-Reviews
-            erscheinen hier sobald die ersten Customer-Projekte abgeschlossen und freigegeben
-            sind — voraussichtlich zum Public-Launch im Sommer 2026.
+            {t('common.tpFooterNote')}
           </p>
         </div>
       )}

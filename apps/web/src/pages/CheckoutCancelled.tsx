@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { XCircle, ArrowLeft, MessageCircle } from 'lucide-react';
 import CONTACT from '../config/contact';
 import { track } from '../lib/shop-track';
 
 export default function CheckoutCancelled() {
+  const { t } = useTranslation();
   useEffect(() => {
     window.scrollTo(0, 0);
     track('checkout_abandon', { meta: { source: 'stripe_cancel_redirect' } });
@@ -23,19 +25,17 @@ export default function CheckoutCancelled() {
         </div>
 
         <h1 className="text-3xl sm:text-4xl font-light tracking-tight mb-6 text-text-primary">
-          Kauf abgebrochen
+          {t('checkout.cancelTitle')}
         </h1>
 
         <p className="text-text-secondary leading-relaxed mb-10">
-          Du hast den Checkout vorzeitig verlassen. Es wurde keine Zahlung ausgelöst und keine
-          Daten ausser deiner E-Mail-Adresse gespeichert (Pilot-Slot-Reservierung aufgehoben).
-          Kannst gern jederzeit wiederkommen — oder direkt sprechen.
+          {t('checkout.cancelBody')}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a href="#/services" className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-2">
             <ArrowLeft size={16} />
-            Zurück zu Services
+            {t('checkout.cancelBackToServices')}
           </a>
           <a
             href={CONTACT.whatsapp}
@@ -44,7 +44,7 @@ export default function CheckoutCancelled() {
             className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2"
           >
             <MessageCircle size={16} />
-            Direkt schreiben
+            {t('checkout.cancelWriteDirect')}
           </a>
         </div>
       </motion.div>

@@ -1,34 +1,8 @@
 
 import { MessageCircle, Calendar, Mail, Phone, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import CONTACT from '../config/contact';
 import WaitlistForm from './WaitlistForm';
-
-const shopLinks = [
-  { label: 'Blueprints', path: '/shop' },
-  { label: 'Done-For-You', path: '/shop' },
-  { label: 'Bundle', path: '/shop' },
-];
-
-const saasLinks = [
-  { label: 'Alle Tools', path: '/saas' },
-  { label: 'Credit-Pakete', path: '/saas' },
-  { label: 'Self-Service-Signup', path: '/saas' },
-];
-
-const auditLinks = [
-  { label: 'Kostenloses Audit', path: '/audit' },
-  { label: 'Pre-Launch-Liste', path: '/waitlist' },
-  { label: 'Cases', path: '/cases' },
-  { label: 'Method', path: '/method' },
-  { label: 'About', path: '/about' },
-];
-
-const legalLinks = [
-  { label: 'Datenschutz', path: '/datenschutz' },
-  { label: 'Impressum', path: '/impressum' },
-  { label: 'AGB', path: '/agb' },
-  { label: 'Widerruf', path: '/widerrufsbelehrung' },
-];
 
 interface FooterColumnProps {
   title: string;
@@ -58,6 +32,35 @@ function FooterColumn({ title, links }: FooterColumnProps) {
 }
 
 export default function Footer() {
+  const { t } = useTranslation();
+
+  const shopLinks = [
+    { label: t('footer.shopBlueprints'), path: '/shop' },
+    { label: t('footer.shopDoneForYou'), path: '/shop' },
+    { label: t('footer.shopBundle'), path: '/shop' },
+  ];
+
+  const saasLinks = [
+    { label: t('footer.saasAllTools'), path: '/saas' },
+    { label: t('footer.saasCreditPackages'), path: '/saas' },
+    { label: t('footer.saasSelfServiceSignup'), path: '/saas' },
+  ];
+
+  const auditLinks = [
+    { label: t('footer.auditFree'), path: '/audit' },
+    { label: t('footer.auditPreLaunchList'), path: '/waitlist' },
+    { label: t('footer.auditCases'), path: '/cases' },
+    { label: t('footer.auditMethod'), path: '/method' },
+    { label: t('footer.auditAbout'), path: '/about' },
+  ];
+
+  const legalLinks = [
+    { label: t('footer.legalDatenschutz'), path: '/datenschutz' },
+    { label: t('footer.legalImpressum'), path: '/impressum' },
+    { label: t('footer.legalAgb'), path: '/agb' },
+    { label: t('footer.legalWiderruf'), path: '/widerrufsbelehrung' },
+  ];
+
   return (
     <footer className="bg-bg-surface border-t border-theme-border">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 py-16 lg:py-20">
@@ -66,17 +69,16 @@ export default function Footer() {
           <div>
             <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-theme-accent mb-3 border border-theme-border-accent bg-theme-accent/[0.06] px-2.5 py-1">
               <Sparkles size={11} />
-              Pre-Launch · Foundation Window
+              {t('footer.preLaunchBadge')}
             </span>
             <h3 className="text-xl md:text-2xl font-light tracking-tight text-text-primary mb-3 leading-snug">
-              Public-Launch in Vorbereitung.
-              <span className="block text-gradient font-medium">Early-Access vorbestellen.</span>
+              {t('footer.preLaunchHeadline1')}
+              <span className="block text-gradient font-medium">{t('footer.preLaunchHeadline2')}</span>
             </h3>
             <p className="text-sm text-text-secondary leading-relaxed">
-              ~1 Woche vor Public-Opening + Setup-Discount für die erste Welle.
-              Kein Newsletter-Spam — 2-3 Updates max.{' '}
+              {t('footer.preLaunchText')}
               <a href="#/waitlist" className="text-theme-accent hover:underline">
-                Mehr erfahren →
+                {t('footer.preLaunchLink')}
               </a>
             </p>
           </div>
@@ -95,11 +97,10 @@ export default function Footer() {
               <span className="w-2 h-2 rounded-full bg-theme-accent" />
             </a>
             <p className="text-sm text-text-secondary leading-relaxed mb-3 max-w-md">
-              Operating-System für Unternehmen. Drei Wege rein: Shop · SaaS · Full-Partnership.
+              {t('footer.brandTagline')}
             </p>
             <p className="text-xs text-text-muted leading-relaxed max-w-md">
-              Solo gefuehrt aus Augsburg. Wenn dir jemand schreibt — ich bin's selbst.
-              Keine Account-Manager-Kette, keine Uebergaben.
+              {t('footer.brandSolo')}
             </p>
           </div>
 
@@ -129,7 +130,7 @@ export default function Footer() {
                 className="btn-secondary text-sm py-2.5 px-5 inline-flex items-center justify-center gap-2"
               >
                 <MessageCircle size={16} />
-                WhatsApp
+                {t('footer.whatsapp')}
               </a>
               <a
                 href={CONTACT.calendly}
@@ -138,7 +139,7 @@ export default function Footer() {
                 className="btn-primary text-sm py-2.5 px-5 inline-flex items-center justify-center gap-2"
               >
                 <Calendar size={16} />
-                Call buchen
+                {t('footer.bookCall')}
               </a>
             </div>
           </div>
@@ -146,19 +147,19 @@ export default function Footer() {
 
         {/* 4 Spalten: Shop · SaaS · Audit · Rechtliches */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
-          <FooterColumn title="Shop" links={shopLinks} />
-          <FooterColumn title="SaaS" links={saasLinks} />
-          <FooterColumn title="Audit" links={auditLinks} />
-          <FooterColumn title="Rechtliches" links={legalLinks} />
+          <FooterColumn title={t('footer.colShop')} links={shopLinks} />
+          <FooterColumn title={t('footer.colSaas')} links={saasLinks} />
+          <FooterColumn title={t('footer.colAudit')} links={auditLinks} />
+          <FooterColumn title={t('footer.colLegal')} links={legalLinks} />
         </div>
 
         {/* Bottom Bar */}
         <div className="mt-14 pt-8 border-t border-theme-border flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <p className="text-xs text-text-muted">
-            &copy; 2026 {CONTACT.company}. Alle Rechte vorbehalten.
+            {t('footer.copyright', { company: CONTACT.company })}
           </p>
           <p className="text-xs text-text-muted font-mono">
-            Deutsch · DSGVO · Maßgeschneidert
+            {t('footer.bottomMeta')}
           </p>
         </div>
       </div>

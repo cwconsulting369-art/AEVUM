@@ -14,6 +14,7 @@
  * Script wird nur 1× geladen (Idempotent), respektiert Privacy (defer, no async-eval).
  */
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Star } from 'lucide-react';
 
 const TP_SCRIPT_SRC = 'https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js';
@@ -49,11 +50,12 @@ function loadTrustpilotScript(): Promise<void> {
 }
 
 function TrustpilotPlaceholder({ className = '' }: { className?: string }) {
+  const { t } = useTranslation();
   return (
     <div
       className={`inline-flex max-w-full flex-wrap items-center gap-3 px-5 py-3 bg-bg-surface border border-theme-border rounded-md ${className}`}
       role="status"
-      aria-label="Trustpilot-Reviews kommen bald"
+      aria-label={t('common.tpWidgetAria')}
     >
       <div className="flex items-center gap-0.5">
         {[1, 2, 3, 4, 5].map((i) => (
@@ -66,7 +68,7 @@ function TrustpilotPlaceholder({ className = '' }: { className?: string }) {
         ))}
       </div>
       <span className="text-xs font-mono uppercase tracking-wider text-text-muted">
-        Trustpilot-Reviews bald verfügbar
+        {t('common.tpWidgetSoon')}
       </span>
     </div>
   );
@@ -79,6 +81,7 @@ export default function TrustpilotWidget({
   height = '24px',
   className = '',
 }: TrustpilotWidgetProps) {
+  const { t } = useTranslation();
   const widgetRef = useRef<HTMLDivElement | null>(null);
   const [scriptReady, setScriptReady] = useState(false);
 
@@ -132,7 +135,7 @@ export default function TrustpilotWidget({
         rel="noopener noreferrer"
         className="text-xs font-mono uppercase tracking-wider text-text-muted hover:text-theme-accent transition-colors"
       >
-        Trustpilot-Reviews lesen →
+        {t('common.tpWidgetRead')}
       </a>
     </div>
   );
