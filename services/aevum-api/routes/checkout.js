@@ -589,6 +589,22 @@ checkoutRouter.post('/blueprint', async (req, res) => {
   }
   const f = parsed.data;
 
+  // Anti-Scheintechnik + Anti-Tampering: die Price-ID MUSS zu einem aktiven,
+  // Stripe-verifizierten shop_products-Eintrag gehören. Verhindert (a) Checkout
+  // mit erfundener/kaputter Price (Scheintechnik-Falle) und (b) Client-seitiges
+  // Unterschieben fremder Price-IDs.
+  const allow = await supabase.select(
+    'shop_products',
+    `stripe_price_id=eq.${encodeURIComponent(f.stripe_price_id)}&is_active=eq.true&stripe_price_verified=eq.true&select=slug&limit=1`
+  );
+  if (!allow.ok) {
+    return res.status(500).json({ ok: false, error: 'price_check_failed' });
+  }
+  if (!Array.isArray(allow.data) || allow.data.length === 0) {
+    console.warn(`[blueprint-checkout] abgelehnt: price_id ${f.stripe_price_id} nicht aktiv/verifiziert in shop_products`);
+    return res.status(400).json({ ok: false, error: 'price_not_purchasable' });
+  }
+
   try {
     const session = await stripe.checkout.sessions.create({
       mode: f.mode,
@@ -696,7 +712,7 @@ checkoutRouter.post('/credit-purchase', async (req, res) => {
 });
 
 // ─── POST /api/checkout/subscribe ───────────────────────────────
-// Wave I4 — Subscription-Signup (Knightvision-Style)
+// Wave I4 — Subscription-Signup
 // Anonymer Visitor wählt Subscription-Plan, kriegt Stripe-Subscription-Checkout-URL.
 // Nach Zahlung: Webhook erzeugt Account + setzt subscription_plan + Initial-Credit-Grant + Magic-Link-Mail.
 //

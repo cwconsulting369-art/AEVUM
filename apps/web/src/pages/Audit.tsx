@@ -22,7 +22,7 @@ import CONTACT from '@/config/contact';
 import { track } from '@/lib/shop-track';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import TrustpilotWidget from '@/components/TrustpilotWidget';
-import { MouseGlow, NumberCounter, GradientBorder, Magnetic } from '@/components/showcase-fx';
+import { MouseGlow, NumberCounter, Magnetic } from '@/components/showcase-fx';
 
 /* ------------------------------------------------------------------ */
 /*  TYPES                                                             */

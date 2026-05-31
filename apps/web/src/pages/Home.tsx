@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, useInView } from 'framer-motion';
 import {
@@ -27,7 +27,7 @@ import { usePageSeo } from '@/hooks/use-page-seo';
 import PathThreeCard from '@/components/ctas/PathThreeCard';
 import TrustpilotWidget from '@/components/TrustpilotWidget';
 import TrustpilotReviews from '@/components/TrustpilotReviews';
-import { AuroraBg, TiltCard, Magnetic, NumberCounter, Spotlight } from '@/components/showcase-fx';
+import { AuroraBg, TiltCard } from '@/components/showcase-fx';
 import {
   Accordion,
   AccordionItem,

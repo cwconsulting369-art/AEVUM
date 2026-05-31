@@ -29,12 +29,12 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import { createCheckoutSession, PaymentsPausedError } from '@/lib/api';
+import { createCheckoutSession, PaymentsPausedError, api } from '@/lib/api';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import { track } from '@/lib/shop-track';
 import { useAevumConfig } from '@/hooks/use-config';
 import MaintenancePill from '@/components/MaintenancePill';
-import { TiltCard, Magnetic, GradientBorder, Reveal } from '@/components/showcase-fx';
+import { TiltCard } from '@/components/showcase-fx';
 
 /* ──────────────────────── Types ──────────────────────── */
 
@@ -63,18 +63,23 @@ interface Blueprint {
   price: number;
   stripePriceId: string;
   tag?: string;
+  /** true = ehrliche "in Vorbereitung"-Card, NICHT kaufbar (keine Stripe-Price) */
+  comingSoon?: boolean;
+  /** true = aktiv + coming_soon=false + Stripe-Price real verifiziert */
+  sellable?: boolean;
 }
 
 interface DFYService {
   id: number;
   slug: string;
   name: string;
-  category: Exclude<ServiceCategory, 'Alle'>;
+  category: string;
   icp: ICP[];
   description: string;
   priceLabel: string;
   tierHint: string;
   tag?: string;
+  comingSoon?: boolean;
 }
 
 /* ──────────────────────── Data ──────────────────────── */
@@ -299,6 +304,74 @@ const CATEGORY_KEY: Record<string, string> = {
 function catLabel(t: TFunction, cat: string): string {
   const key = CATEGORY_KEY[cat];
   return key ? t(`shop.${key}`) : cat;
+}
+
+/* ─── Catalog: dynamisch aus shop_products (SSOT) via /api/shop-items/catalog ───
+ * Statische `blueprints`/`dfyServices` oben dienen NUR als Resilienz-Fallback,
+ * falls die API nicht lädt — keine zweite Wahrheit. Coming-Soon-Produkte ("in
+ * Vorbereitung") kommen ausschließlich aus der DB und erscheinen als gedimmte,
+ * NICHT kaufbare Cards. So ist die gerenderte Seite == /catalog == der echte
+ * Zustand (vom scheintechnik-guard verifiziert). */
+interface CatalogItem {
+  slug: string; name: string; type: string; tag?: string;
+  priceLabel?: string; price?: number; stripePriceId?: string;
+  securityLevel?: SecurityLevel; icp?: ICP[]; category?: string;
+  tagline?: string; includes?: string[]; comingSoon?: boolean; sellable?: boolean;
+}
+
+function useCatalog() {
+  const [data, setData] = useState<{ blueprints: Blueprint[]; dfyServices: DFYService[] } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    api<{ ok: boolean; items: CatalogItem[] }>('/api/shop-items/catalog')
+      .then((res) => {
+        if (!alive || !res?.ok || !Array.isArray(res.items) || res.items.length === 0) return;
+        const bps: Blueprint[] = [];
+        const dfy: DFYService[] = [];
+        res.items.forEach((it, i) => {
+          if (it.type === 'bundle') return; // Bundle hat eigene CTA
+          if (it.type === 'blueprint') {
+            bps.push({
+              id: i + 1,
+              slug: it.slug,
+              name: it.name,
+              category: (it.category as Exclude<BlueprintCategory, 'Alle'>) || 'Automatisierung',
+              security: it.securityLevel || 'business',
+              description: it.tagline || '',
+              includes: it.includes || [],
+              price: it.price ?? 0,
+              stripePriceId: it.stripePriceId || '',
+              tag: it.tag,
+              comingSoon: it.comingSoon === true,
+              sellable: it.sellable === true,
+            });
+          } else {
+            dfy.push({
+              id: i + 1,
+              slug: it.slug,
+              name: it.name,
+              category: it.category || 'Infrastruktur',
+              icp: it.icp || [],
+              description: it.tagline || '',
+              priceLabel: it.priceLabel || (it.comingSoon ? 'In Vorbereitung' : 'Auf Anfrage'),
+              tierHint: '',
+              tag: it.tag,
+              comingSoon: it.comingSoon === true,
+            });
+          }
+        });
+        // Live-Produkte zuerst, "in Vorbereitung" ans Ende
+        bps.sort((a, b) => Number(a.comingSoon) - Number(b.comingSoon));
+        dfy.sort((a, b) => Number(a.comingSoon) - Number(b.comingSoon));
+        setData({ blueprints: bps, dfyServices: dfy });
+      })
+      .catch(() => { /* Fallback auf statische Listen */ });
+    return () => { alive = false; };
+  }, []);
+  return {
+    blueprints: data?.blueprints ?? blueprints,
+    dfyServices: data?.dfyServices ?? dfyServices,
+  };
 }
 
 const fadeUp = {
@@ -672,6 +745,7 @@ function BlueprintCard({
   const config = useAevumConfig();
   const paused = config?.payments_paused === true;
   const tagLabel = blueprint.tag ? t(`shopItems.${blueprint.slug}.tag`, { defaultValue: blueprint.tag }) : null;
+  const coming = blueprint.comingSoon === true;
 
   return (
     <TiltCard intensity={8} className="h-full">
@@ -681,19 +755,23 @@ function BlueprintCard({
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className={`relative h-full bg-bg-surface border border-theme-border p-6 sm:p-7 flex flex-col hover:border-theme-accent/40 transition-all group ${paused ? 'opacity-90' : ''}`}
+      className={`relative h-full bg-bg-surface border border-theme-border p-6 sm:p-7 flex flex-col hover:border-theme-accent/40 transition-all group ${paused ? 'opacity-90' : ''} ${coming ? 'opacity-65' : ''}`}
     >
-      {tagLabel && (
+      {coming ? (
+        <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-text-muted bg-bg-base border border-theme-border px-2 py-0.5">
+          {t('shop.comingSoonBadge', { defaultValue: 'In Vorbereitung' })}
+        </span>
+      ) : tagLabel ? (
         <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-2 py-0.5">
           {tagLabel}
         </span>
-      )}
-      <MaintenancePill variant="absolute" />
+      ) : null}
+      {!coming && <MaintenancePill variant="absolute" />}
 
       <a
-        href={`/#/shop/blueprint/${blueprint.slug}`}
-        className="block mb-5 group/title"
-        aria-label={`${blueprint.name} — ${t('shop.detailsAriaSuffix')}`}
+        href={coming ? undefined : `/#/shop/blueprint/${blueprint.slug}`}
+        className={`block mb-5 ${coming ? 'cursor-default' : 'group/title'}`}
+        aria-label={coming ? undefined : `${blueprint.name} — ${t('shop.detailsAriaSuffix')}`}
       >
         <div className="flex items-start justify-between gap-3 mb-3">
           <h3 className="text-lg font-medium tracking-tight text-text-primary leading-tight pr-12 break-words group-hover/title:text-theme-accent transition-colors">
@@ -722,48 +800,59 @@ function BlueprintCard({
         ))}
       </ul>
 
-      <div className="mb-5">
-        <div className="flex items-baseline gap-2">
-          <span className="text-2xl font-light text-text-primary">
-            &euro;{blueprint.price}
-          </span>
+      {coming ? (
+        <div className="mt-auto">
+          <div className="flex items-center gap-2 text-sm text-text-muted border border-theme-border px-5 py-2.5 min-h-[44px] justify-center font-mono">
+            <Wrench size={14} />
+            {t('shop.comingSoonBuildingNotBuyable', { defaultValue: 'In Vorbereitung — noch nicht kaufbar' })}
+          </div>
         </div>
-        <span className="text-xs text-theme-accent/80 font-mono mt-0.5 block">
-          {t('shop.creditsWithAccount', { credits: credits.toLocaleString('de-DE') })}
-        </span>
-      </div>
+      ) : (
+        <>
+          <div className="mb-5">
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-light text-text-primary">
+                &euro;{blueprint.price}
+              </span>
+            </div>
+            <span className="text-xs text-theme-accent/80 font-mono mt-0.5 block">
+              {t('shop.creditsWithAccount', { credits: credits.toLocaleString('de-DE') })}
+            </span>
+          </div>
 
-      <div className="flex flex-col gap-2 mt-auto">
-        <button
-          onClick={() => onBuy(blueprint, false)}
-          disabled={isLoading}
-          className="btn-primary text-sm px-5 py-2.5 min-h-[44px] inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {isLoading ? (
-            <>
-              <span className="w-3.5 h-3.5 rounded-full border-2 border-on-accent/40 border-t-on-accent animate-spin" />
-              {paused ? t('shop.maintenance') : t('shop.starting')}
-            </>
-          ) : paused ? (
-            <>
-              <Sparkles size={14} />
-              {t('shop.comingSoonNotify')}
-            </>
-          ) : (
-            <>
-              <ShoppingCart size={14} />
-              {t('shop.buyNow')}
-            </>
-          )}
-        </button>
-        <a
-          href={`/#/shop/blueprint/${blueprint.slug}`}
-          className="inline-flex items-center justify-center gap-2 text-xs font-medium text-text-secondary border border-theme-border px-5 py-2 min-h-[40px] hover:border-theme-accent/40 hover:text-theme-accent transition-all"
-        >
-          {t('shop.viewDetails')}
-          <ArrowRight size={11} />
-        </a>
-      </div>
+          <div className="flex flex-col gap-2 mt-auto">
+            <button
+              onClick={() => onBuy(blueprint, false)}
+              disabled={isLoading}
+              className="btn-primary text-sm px-5 py-2.5 min-h-[44px] inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <>
+                  <span className="w-3.5 h-3.5 rounded-full border-2 border-on-accent/40 border-t-on-accent animate-spin" />
+                  {paused ? t('shop.maintenance') : t('shop.starting')}
+                </>
+              ) : paused ? (
+                <>
+                  <Sparkles size={14} />
+                  {t('shop.comingSoonNotify')}
+                </>
+              ) : (
+                <>
+                  <ShoppingCart size={14} />
+                  {t('shop.buyNow')}
+                </>
+              )}
+            </button>
+            <a
+              href={`/#/shop/blueprint/${blueprint.slug}`}
+              className="inline-flex items-center justify-center gap-2 text-xs font-medium text-text-secondary border border-theme-border px-5 py-2 min-h-[40px] hover:border-theme-accent/40 hover:text-theme-accent transition-all"
+            >
+              {t('shop.viewDetails')}
+              <ArrowRight size={11} />
+            </a>
+          </div>
+        </>
+      )}
     </motion.div>
     </TiltCard>
   );
@@ -777,11 +866,12 @@ function BlueprintsSection() {
   const isInView = useInView(ref, { once: true, margin: '-80px' });
   const config = useAevumConfig();
   const paused = config?.payments_paused === true;
+  const { blueprints: catalogBlueprints } = useCatalog();
 
   const filtered =
     activeCategory === 'Alle'
-      ? blueprints
-      : blueprints.filter((b) => b.category === activeCategory);
+      ? catalogBlueprints
+      : catalogBlueprints.filter((b) => b.category === activeCategory);
 
   return (
     <section className="px-4 sm:px-6 lg:px-16 pb-24 pt-10" ref={ref}>
@@ -1027,6 +1117,7 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
   const tagLabel = service.tag ? t(`shopItems.${service.slug}.tag`, { defaultValue: service.tag }) : null;
+  const coming = service.comingSoon === true;
 
   return (
     <motion.div
@@ -1035,17 +1126,21 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
       variants={fadeUp}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      className="relative h-full bg-bg-surface border border-theme-border p-6 sm:p-7 flex flex-col hover:border-theme-accent/40 transition-all group"
+      className={`relative h-full bg-bg-surface border border-theme-border p-6 sm:p-7 flex flex-col hover:border-theme-accent/40 transition-all group ${coming ? 'opacity-65' : ''}`}
     >
-      {tagLabel && (
+      {coming ? (
+        <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-text-muted bg-bg-base border border-theme-border px-2 py-0.5">
+          {t('shop.comingSoonBadge', { defaultValue: 'In Vorbereitung' })}
+        </span>
+      ) : tagLabel ? (
         <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-2 py-0.5">
           {tagLabel}
         </span>
-      )}
+      ) : null}
 
       <a
-        href={`/#/shop/dfy/${service.slug}`}
-        className="block mb-4 group/title"
+        href={coming ? undefined : `/#/shop/dfy/${service.slug}`}
+        className={`block mb-4 ${coming ? 'cursor-default' : 'group/title'}`}
       >
         <h3 className="text-lg font-medium tracking-tight text-text-primary leading-tight mb-3 pr-16 break-words group-hover/title:text-theme-accent transition-colors">
           {t(`shopItems.${service.slug}.name`, { defaultValue: service.name })}
@@ -1071,22 +1166,29 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
         </span>
       </div>
 
-      <div className="flex flex-col gap-2 mt-auto">
-        <a
-          href={`/#/audit?service=${service.slug}`}
-          className="inline-flex items-center justify-center gap-2 text-sm font-medium text-on-accent bg-theme-accent hover:bg-theme-accent/90 px-5 py-2.5 min-h-[44px] transition-all"
-        >
-          {t('shop.dfyRequestViaAudit')}
-          <ArrowRight size={13} />
-        </a>
-        <a
-          href={`/#/shop/dfy/${service.slug}`}
-          className="inline-flex items-center justify-center gap-2 text-xs font-medium text-text-secondary border border-theme-border px-5 py-2 min-h-[40px] hover:border-theme-accent/40 hover:text-theme-accent transition-all"
-        >
-          {t('shop.viewDetails')}
-          <ArrowRight size={11} />
-        </a>
-      </div>
+      {coming ? (
+        <div className="flex items-center gap-2 text-sm text-text-muted border border-theme-border px-5 py-2.5 min-h-[44px] justify-center font-mono mt-auto">
+          <Wrench size={14} />
+          {t('shop.comingSoonBuildingNotBuyable', { defaultValue: 'In Vorbereitung — noch nicht buchbar' })}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2 mt-auto">
+          <a
+            href={`/#/audit?service=${service.slug}`}
+            className="inline-flex items-center justify-center gap-2 text-sm font-medium text-on-accent bg-theme-accent hover:bg-theme-accent/90 px-5 py-2.5 min-h-[44px] transition-all"
+          >
+            {t('shop.dfyRequestViaAudit')}
+            <ArrowRight size={13} />
+          </a>
+          <a
+            href={`/#/shop/dfy/${service.slug}`}
+            className="inline-flex items-center justify-center gap-2 text-xs font-medium text-text-secondary border border-theme-border px-5 py-2 min-h-[40px] hover:border-theme-accent/40 hover:text-theme-accent transition-all"
+          >
+            {t('shop.viewDetails')}
+            <ArrowRight size={11} />
+          </a>
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -1143,11 +1245,12 @@ function DFYSection() {
   const [activeCategory, setActiveCategory] = useState<ServiceCategory>('Alle');
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
+  const { dfyServices: catalogServices } = useCatalog();
 
   const filtered =
     activeCategory === 'Alle'
-      ? dfyServices
-      : dfyServices.filter((s) => s.category === activeCategory);
+      ? catalogServices
+      : catalogServices.filter((s) => s.category === activeCategory);
 
   return (
     <section className="px-4 sm:px-6 lg:px-16 pb-24 pt-10" ref={ref}>
