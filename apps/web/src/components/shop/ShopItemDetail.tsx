@@ -27,9 +27,10 @@ import {
   Sparkles,
   AlertCircle,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api, createCheckoutSession, PaymentsPausedError } from '@/lib/api';
 import { track } from '@/lib/shop-track';
-import { getShopItem } from '@/data/shop-items';
+import { getShopItem, localizeShopItem } from '@/data/shop-items';
 import type { ShopItemContent, ShopItemType, SecurityLevel } from '@/data/shop-items/types';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import { TiltCard, Magnetic } from '@/components/showcase-fx';
@@ -98,6 +99,7 @@ function HeroSection({
   onBuy: (withAccount: boolean) => void;
   isBuying: boolean;
 }) {
+  const { t } = useTranslation();
   const gatePassed = !!status?.gate_passed;
   const isComingSoon = !!item.comingSoon;
   const isBuyable = (item.type === 'blueprint' || item.type === 'bundle') && !isComingSoon;
@@ -111,15 +113,15 @@ function HeroSection({
           className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-text-muted hover:text-theme-accent transition-colors mb-8"
         >
           <ArrowLeft size={12} />
-          Zurück zum Shop
+          {t('shop.detailBackToShop')}
         </button>
 
         <div className="flex flex-wrap items-center gap-2 mb-4">
           <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent">
-            {item.type === 'blueprint' && '01 — Blueprint'}
-            {item.type === 'bundle' && 'Bundle'}
-            {item.type === 'dfy' && '02 — Done-For-You'}
-            {item.type === 'saas' && '03 — SaaS Tool'}
+            {item.type === 'blueprint' && t('shop.detailTypeBlueprint')}
+            {item.type === 'bundle' && t('shop.detailTypeBundle')}
+            {item.type === 'dfy' && t('shop.detailTypeDfy')}
+            {item.type === 'saas' && t('shop.detailTypeSaas')}
           </span>
           <span className="text-text-muted">·</span>
           <span className="text-xs font-mono text-text-muted">{item.category}</span>
@@ -141,21 +143,21 @@ function HeroSection({
               <SecurityBadge level={item.securityLevel} />
               {item.icp.map((i) => (
                 <span key={i} className="font-mono text-[10px] uppercase tracking-wider text-text-secondary bg-bg-elevated border border-theme-border px-2 py-1 rounded">
-                  {i === 'AG' && 'Agentur'}
-                  {i === 'PB' && 'Personal Brand'}
-                  {i === 'FI' && 'Firma'}
+                  {i === 'AG' && t('shop.icpAgency')}
+                  {i === 'PB' && t('shop.icpPersonalBrand')}
+                  {i === 'FI' && t('shop.icpCompany')}
                 </span>
               ))}
               {!gatePassed && !isComingSoon && (
                 <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-amber-300 bg-amber-300/10 border border-amber-300/20 px-2 py-1 rounded">
                   <Sparkles size={10} />
-                  Beta — wird gerade gebaut + getestet
+                  {t('shop.detailBetaBadge')}
                 </span>
               )}
               {isComingSoon && (
                 <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-sky-300 bg-sky-300/10 border border-sky-300/20 px-2 py-1 rounded">
                   <Clock size={10} />
-                  {item.comingSoonPhase || 'Coming Soon'}
+                  {item.comingSoonPhase || t('shop.detailComingSoon')}
                 </span>
               )}
             </div>
@@ -167,7 +169,7 @@ function HeroSection({
               <span className="block text-3xl font-light text-text-primary">{item.priceLabel}</span>
               {credits > 0 && (
                 <span className="text-xs text-theme-accent/70 font-mono block">
-                  +{credits.toLocaleString('de-DE')} Credits mit Account
+                  {t('shop.creditsWithAccount', { credits: credits.toLocaleString('de-DE') })}
                 </span>
               )}
             </div>
@@ -182,12 +184,12 @@ function HeroSection({
                   {isBuying ? (
                     <>
                       <span className="w-3.5 h-3.5 rounded-full border-2 border-text-on-accent/40 border-t-text-on-accent animate-spin" />
-                      Wird gestartet...
+                      {t('shop.starting')}
                     </>
                   ) : (
                     <>
                       <ShoppingCart size={14} />
-                      Jetzt kaufen
+                      {t('shop.buyNow')}
                     </>
                   )}
                 </button>
@@ -197,7 +199,7 @@ function HeroSection({
                   className="inline-flex items-center justify-center gap-2 text-xs font-medium text-text-secondary border border-theme-border px-5 py-2 hover:border-theme-border-accent hover:text-theme-accent transition-all disabled:opacity-50"
                 >
                   <UserPlus size={12} />
-                  Mit Account kaufen
+                  {t('shop.detailBuyWithAccount')}
                 </button>
               </div>
             ) : isComingSoon ? (
@@ -205,7 +207,7 @@ function HeroSection({
                 href="/#/audit"
                 className="inline-flex items-center justify-center gap-2 text-sm font-medium border border-theme-border-accent text-theme-accent px-6 py-3 hover:bg-theme-accent/[0.08] transition-all"
               >
-                Wait-List via Audit-Call
+                {t('shop.detailWaitlistViaAudit')}
                 <ArrowRight size={13} />
               </a>
             ) : (
@@ -214,7 +216,7 @@ function HeroSection({
                 href="/#/audit"
                 className="btn-primary text-sm px-6 py-3 inline-flex items-center justify-center gap-2"
               >
-                Kostenlosen Audit buchen
+                {t('shop.detailBookFreeAudit')}
                 <ArrowRight size={13} />
               </a>
             )}
@@ -293,22 +295,20 @@ function FAQItem({ q, a, idx }: { q: string; a: string; idx: number }) {
 /* ──────────────────── Section: Downloads (gate_passed only) ──────────────────── */
 
 function DownloadsSection({ status }: { status: BuildStatus }) {
+  const { t } = useTranslation();
   if (!status.gate_passed) return null;
   const hasFiles = status.n8n_export_url || status.pdf_url || status.demo_video_url;
   if (!hasFiles) return null;
   return (
-    <ContentSection index="10" label="Downloads" title="Sofort-Zugriff nach Kauf" bg>
-      <p className="mb-5">
-        Nach erfolgreichem Kauf bekommst du direkten Download-Link zu allen Files. Diese Preview zeigt
-        was im Paket enthalten ist:
-      </p>
+    <ContentSection index="10" label={t('shop.detailDownloadsLabel')} title={t('shop.detailDownloadsTitle')} bg>
+      <p className="mb-5">{t('shop.detailDownloadsIntro')}</p>
       <div className="grid gap-3 sm:grid-cols-2 items-stretch">
         {status.n8n_export_url && (
           <div className="border border-theme-border bg-bg-surface p-4 rounded-lg flex h-full items-center gap-3">
             <FileJson size={20} className="text-theme-accent flex-shrink-0" />
             <div className="flex-1">
               <span className="block text-sm font-medium text-text-primary">n8n-Workflow JSON</span>
-              <span className="block text-xs text-text-muted mt-0.5">Verfügbar nach Kauf</span>
+              <span className="block text-xs text-text-muted mt-0.5">{t('shop.detailAvailableAfterPurchase')}</span>
             </div>
             <Lock size={14} className="text-text-muted" />
           </div>
@@ -317,8 +317,8 @@ function DownloadsSection({ status }: { status: BuildStatus }) {
           <div className="border border-theme-border bg-bg-surface p-4 rounded-lg flex h-full items-center gap-3">
             <FileText size={20} className="text-theme-accent flex-shrink-0" />
             <div className="flex-1">
-              <span className="block text-sm font-medium text-text-primary">Setup-Anleitung PDF</span>
-              <span className="block text-xs text-text-muted mt-0.5">Verfügbar nach Kauf</span>
+              <span className="block text-sm font-medium text-text-primary">{t('shop.detailSetupPdf')}</span>
+              <span className="block text-xs text-text-muted mt-0.5">{t('shop.detailAvailableAfterPurchase')}</span>
             </div>
             <Lock size={14} className="text-text-muted" />
           </div>
@@ -327,8 +327,8 @@ function DownloadsSection({ status }: { status: BuildStatus }) {
           <div className="border border-theme-border bg-bg-surface p-4 rounded-lg flex items-center gap-3 sm:col-span-2">
             <Video size={20} className="text-theme-accent flex-shrink-0" />
             <div className="flex-1">
-              <span className="block text-sm font-medium text-text-primary">Demo-Video</span>
-              <span className="block text-xs text-text-muted mt-0.5">Walk-Through verfügbar nach Kauf</span>
+              <span className="block text-sm font-medium text-text-primary">{t('shop.detailDemoVideo')}</span>
+              <span className="block text-xs text-text-muted mt-0.5">{t('shop.detailWalkthroughAfterPurchase')}</span>
             </div>
             <Lock size={14} className="text-text-muted" />
           </div>
@@ -349,6 +349,7 @@ function InstallOptionSection({
   onBuy: (withAccount: boolean) => void;
   isBuying: boolean;
 }) {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
@@ -362,16 +363,15 @@ function InstallOptionSection({
         >
           <div className="flex items-center gap-4 mb-3">
             <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent">
-              05b — Installation
+              {t('shop.installEyebrow')}
             </span>
             <div className="h-px flex-1 bg-theme-border max-w-xs" />
           </div>
           <h2 className="text-xl md:text-2xl font-light tracking-tight mb-2 text-text-primary">
-            Möchtest du Hilfe bei der Installation?
+            {t('shop.installTitle')}
           </h2>
           <p className="text-sm text-text-muted mb-8 max-w-xl">
-            Du wählst: Self-Setup mit Guide und Prompts — oder wir installieren komplett für dich
-            inkl. Übergabe-Call.
+            {t('shop.installIntro')}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -381,29 +381,29 @@ function InstallOptionSection({
               <div className="flex items-center justify-between mb-4">
                 <span className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-text-secondary bg-bg-elevated border border-theme-border px-2.5 py-1 rounded">
                   <Download size={11} />
-                  Selbst installieren
+                  {t('shop.installSelfBadge')}
                 </span>
               </div>
-              <h3 className="text-lg font-medium text-text-primary mb-2">Self-Setup</h3>
+              <h3 className="text-lg font-medium text-text-primary mb-2">{t('shop.installSelfTitle')}</h3>
               <div className="text-2xl font-light text-text-primary mb-1">{item.priceLabel}</div>
-              <span className="text-xs text-text-muted font-mono mb-5">Einmalig, kein Retainer</span>
+              <span className="text-xs text-text-muted font-mono mb-5">{t('shop.installSelfPriceNote')}</span>
 
               <ul className="space-y-2.5 mb-6 flex-1">
                 <li className="flex items-start gap-2.5 text-sm text-text-secondary">
                   <span className="text-emerald-400 flex-shrink-0 mt-0.5">✓</span>
-                  <span>n8n-JSON + PDF-Guide + Prompt-Library</span>
+                  <span>{t('shop.installSelfBullet1')}</span>
                 </li>
                 <li className="flex items-start gap-2.5 text-sm text-text-secondary">
                   <span className="text-emerald-400 flex-shrink-0 mt-0.5">✓</span>
-                  <span>Self-Setup ~30-90 Minuten</span>
+                  <span>{t('shop.installSelfBullet2')}</span>
                 </li>
                 <li className="flex items-start gap-2.5 text-sm text-text-secondary">
                   <span className="text-emerald-400 flex-shrink-0 mt-0.5">✓</span>
-                  <span>Eigene API-Keys verbinden</span>
+                  <span>{t('shop.installSelfBullet3')}</span>
                 </li>
                 <li className="flex items-start gap-2.5 text-sm text-text-secondary">
                   <span className="text-emerald-400 flex-shrink-0 mt-0.5">✓</span>
-                  <span>Helpbot bei Fragen (frei)</span>
+                  <span>{t('shop.installSelfBullet4')}</span>
                 </li>
               </ul>
 
@@ -416,12 +416,12 @@ function InstallOptionSection({
                 {isBuying ? (
                   <>
                     <span className="w-3.5 h-3.5 rounded-full border-2 border-text-on-accent/40 border-t-text-on-accent animate-spin" />
-                    Wird gestartet...
+                    {t('shop.starting')}
                   </>
                 ) : (
                   <>
                     <ShoppingCart size={14} />
-                    Jetzt kaufen — {item.priceLabel}
+                    {t('shop.installBuyNowPrice', { price: item.priceLabel })}
                   </>
                 )}
               </button>
@@ -437,36 +437,36 @@ function InstallOptionSection({
                 <div className="flex items-center justify-between mb-4">
                   <span className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-theme-accent bg-theme-accent/10 border border-theme-border-accent px-2.5 py-1 rounded">
                     <Sparkles size={11} />
-                    Installation durch AEVUM
+                    {t('shop.installAevumBadge')}
                   </span>
                   <span className="font-mono text-[10px] uppercase tracking-widest text-theme-accent bg-theme-accent/15 border border-theme-border-accent px-2 py-0.5">
-                    Empfohlen
+                    {t('shop.installRecommended')}
                   </span>
                 </div>
-                <h3 className="text-lg font-medium text-text-primary mb-2">Done-For-You Setup</h3>
+                <h3 className="text-lg font-medium text-text-primary mb-2">{t('shop.installDfyTitle')}</h3>
                 <div className="text-2xl font-light text-text-primary mb-1">
-                  + ab €497 <span className="text-base text-text-secondary">Setup-Service</span>
+                  + ab €497 <span className="text-base text-text-secondary">{t('shop.installSetupService')}</span>
                 </div>
                 <span className="text-xs text-theme-accent/80 font-mono mb-5">
-                  Festpreis, finale Quote nach Audit-Call
+                  {t('shop.installDfyPriceNote')}
                 </span>
 
                 <ul className="space-y-2.5 mb-6 flex-1">
                   <li className="flex items-start gap-2.5 text-sm text-text-secondary">
                     <span className="text-theme-accent flex-shrink-0 mt-0.5">✓</span>
-                    <span>Komplett-Setup inkl. API-Verbindungen + Test-Run</span>
+                    <span>{t('shop.installDfyBullet1')}</span>
                   </li>
                   <li className="flex items-start gap-2.5 text-sm text-text-secondary">
                     <span className="text-theme-accent flex-shrink-0 mt-0.5">✓</span>
-                    <span>30-min Übergabe-Call (Live-Demo + Q&amp;A)</span>
+                    <span>{t('shop.installDfyBullet2')}</span>
                   </li>
                   <li className="flex items-start gap-2.5 text-sm text-text-secondary">
                     <span className="text-theme-accent flex-shrink-0 mt-0.5">✓</span>
-                    <span>30-Tage Setup-Support nach Übergabe</span>
+                    <span>{t('shop.installDfyBullet3')}</span>
                   </li>
                   <li className="flex items-start gap-2.5 text-sm text-text-secondary">
                     <span className="text-theme-accent flex-shrink-0 mt-0.5">✓</span>
-                    <span>Brand-Voice / Prompts angepasst auf dich</span>
+                    <span>{t('shop.installDfyBullet4')}</span>
                   </li>
                 </ul>
 
@@ -475,7 +475,7 @@ function InstallOptionSection({
                   href={`/#/audit?service=${item.slug}&type=installation`}
                   className="inline-flex items-center justify-center gap-2 text-sm font-medium text-text-on-accent bg-theme-accent hover:bg-theme-accent-hover px-5 py-2.5 transition-all w-full"
                 >
-                  Setup anfragen
+                  {t('shop.installRequestSetup')}
                   <ArrowRight size={13} />
                 </a>
                 </Magnetic>
@@ -496,6 +496,7 @@ interface ShopItemDetailProps {
 }
 
 export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) {
+  const { t, i18n } = useTranslation();
   const [{ type, slug }, setRoute] = useState(parseRoute());
   const [status, setStatus] = useState<BuildStatus | null>(null);
   const [statusLoaded, setStatusLoaded] = useState(false);
@@ -512,8 +513,9 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
   const effectiveType = typeProp || type;
   const item = useMemo(() => {
     if (!slug) return null;
-    return getShopItem(slug, effectiveType || undefined);
-  }, [slug, effectiveType]);
+    const base = getShopItem(slug, effectiveType || undefined);
+    return base ? localizeShopItem(base, i18n.language) : null;
+  }, [slug, effectiveType, i18n.language]);
 
   // Fetch live build-status
   useEffect(() => {
@@ -542,7 +544,7 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
   // Wave H4 — per-item SEO + Schema.org Product/Service JSON-LD
   usePageSeo({
     title: item ? `${item.name} — AEVUM Shop` : 'Shop — AEVUM',
-    description: item ? item.tagline : 'AEVUM Shop — Blueprints, DFY-Services, SaaS-Tools, Bundles.',
+    description: item ? item.tagline : t('shop.detailFallbackSeoDescription'),
     path: item ? `/shop/${item.type}/${item.slug}` : '/shop',
     jsonLd: item ? {
       '@context': 'https://schema.org',
@@ -576,11 +578,11 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-6 text-center">
         <AlertCircle size={40} className="text-theme-accent mb-4" />
-        <h1 className="text-2xl font-light mb-2">Produkt nicht gefunden</h1>
+        <h1 className="text-2xl font-light mb-2">{t('shop.detailNotFoundTitle')}</h1>
         <p className="text-sm text-text-muted mb-6">
-          Der angefragte Shop-Item existiert nicht oder wurde umbenannt.
+          {t('shop.detailNotFoundText')}
         </p>
-        <a href="/#/shop" className="btn-primary px-6 py-2.5 text-sm">Zum Shop</a>
+        <a href="/#/shop" className="btn-primary px-6 py-2.5 text-sm">{t('shop.detailToShop')}</a>
       </div>
     );
   }
@@ -600,16 +602,16 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
       let buyerName = '';
       if (withAccount) {
         const email = window.prompt(
-          `🎁 Mit AEVUM-Account bekommst du:\n\n` +
-          `• 10 Credits pro 1€ (für SaaS-Tools nutzbar)\n` +
-          `• Stempelkarte: 5 Käufe = 1 Blueprint gratis\n` +
-          `• Wiederkehr-Login via TG oder Email\n` +
-          `• Persönliches Customer-Portal\n\n` +
-          `Deine E-Mail-Adresse:`
+          `${t('shop.promptAccountIntro')}\n\n` +
+          `${t('shop.promptAccountBullet1')}\n` +
+          `${t('shop.promptAccountBullet2')}\n` +
+          `${t('shop.promptAccountBullet3')}\n` +
+          `${t('shop.promptAccountBullet4')}\n\n` +
+          `${t('shop.promptEmailLabel')}`
         );
         if (!email || !email.includes('@')) { setBuying(false); return; }
         buyerEmail = email.trim().toLowerCase();
-        const name = window.prompt('Dein Vorname (optional):') || '';
+        const name = window.prompt(t('shop.detailPromptNameLabel')) || '';
         buyerName = name.trim();
       }
       const { url } = await createCheckoutSession({
@@ -635,7 +637,7 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
         setBuying(false);
         return;
       }
-      setBuyError(err instanceof Error ? err.message : 'Checkout fehlgeschlagen.');
+      setBuyError(err instanceof Error ? err.message : t('shop.detailCheckoutError'));
       setBuying(false);
     }
   };
@@ -660,12 +662,9 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
           <div className="border border-amber-300/25 bg-amber-300/5 p-5 rounded-lg flex items-start gap-3">
             <Sparkles size={18} className="text-amber-300 flex-shrink-0 mt-0.5" />
             <div>
-              <span className="block text-sm font-medium text-amber-200 mb-1">Quality-Gate läuft</span>
+              <span className="block text-sm font-medium text-amber-200 mb-1">{t('shop.detailGateTitle')}</span>
               <p className="text-sm text-text-secondary leading-relaxed">
-                Dieser Service durchläuft gerade unser Quality-Gate: eigene Anwendung,
-                Workflow-Export, PDF-Anleitung. Kaufen ist möglich — du bekommst die
-                fertigen Files sobald das Gate (üblicherweise 7-14 Tage) durch ist.
-                Anti-Fake-it-Brand: wir verkaufen nichts was wir nicht selbst getestet haben.
+                {t('shop.detailGateText')}
               </p>
             </div>
           </div>
@@ -679,22 +678,21 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
             <Clock size={18} className="text-sky-300 flex-shrink-0 mt-0.5" />
             <div>
               <span className="block text-sm font-medium text-sky-200 mb-1">
-                {item.comingSoonPhase || 'In Konzept-Phase'}
+                {item.comingSoonPhase || t('shop.detailConceptPhase')}
               </span>
               <p className="text-sm text-text-secondary leading-relaxed">
-                Dieses Tool ist noch nicht live. Du kannst dich über den Audit-Call auf die
-                Beta-Wait-List setzen lassen — Early-Adopter kriegen Bonus-Credits beim Launch.
+                {t('shop.detailComingSoonText')}
               </p>
             </div>
           </div>
         </div>
       )}
 
-      <ContentSection index="02" label="Was ist es" title={`${item.name} im Detail`}>
+      <ContentSection index="02" label={t('shop.detailSec02Label')} title={t('shop.detailSec02Title', { name: item.name })}>
         <p>{item.whatIsIt}</p>
       </ContentSection>
 
-      <ContentSection index="03" label="Was bringt es" title="Konkrete Outcomes" bg>
+      <ContentSection index="03" label={t('shop.detailSec03Label')} title={t('shop.detailSec03Title')} bg>
         <ul className="space-y-2.5">
           {item.outcomes.map((o, i) => (
             <li key={i} className="flex items-start gap-3">
@@ -705,11 +703,11 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
         </ul>
       </ContentSection>
 
-      <ContentSection index="04" label="Wann macht es Sinn" title="Fit-Check">
+      <ContentSection index="04" label={t('shop.detailSec04Label')} title={t('shop.detailSec04Title')}>
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <span className="block font-mono text-[10px] uppercase tracking-widest text-emerald-400 mb-3">
-              Passt zu dir wenn
+              {t('shop.detailFitsHeading')}
             </span>
             <ul className="space-y-2.5">
               {item.whenItFits.fits.map((f, i) => (
@@ -722,7 +720,7 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
           </div>
           <div>
             <span className="block font-mono text-[10px] uppercase tracking-widest text-text-muted mb-3">
-              Voraussetzungen
+              {t('shop.detailRequiresHeading')}
             </span>
             <ul className="space-y-2.5">
               {item.whenItFits.requires.map((r, i) => (
@@ -736,7 +734,7 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
         </div>
       </ContentSection>
 
-      <ContentSection index="05" label="Was bekommst du" title="Komplette Lieferung" bg>
+      <ContentSection index="05" label={t('shop.detailSec05Label')} title={t('shop.detailSec05Title')} bg>
         <ul className="space-y-3">
           {item.includes.map((inc, i) => (
             <li key={i} className="flex items-start gap-3">
@@ -752,17 +750,17 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
         <InstallOptionSection item={item} onBuy={handleBuy} isBuying={buying} />
       )}
 
-      <ContentSection index="06" label="Was kostet es" title={item.priceLabel}>
+      <ContentSection index="06" label={t('shop.detailSec06Label')} title={item.priceLabel}>
         {item.pricingNote && <p className="mb-3">{item.pricingNote}</p>}
         {item.price && (
           <p className="text-sm text-text-muted font-mono">
-            +{(item.price * 10).toLocaleString('de-DE')} Credits mit Account &middot; Frühbucher-Rabatt automatisch
+            {t('shop.detailCreditsEarlybird', { credits: (item.price * 10).toLocaleString('de-DE') })}
           </p>
         )}
         {item.crossSell && (
           <div className="mt-5 border border-theme-border-accent bg-theme-accent/5 p-4 rounded-lg">
             <span className="block font-mono text-[10px] uppercase tracking-widest text-theme-accent mb-1">
-              Cross-Sell-Tipp
+              {t('shop.detailCrossSellTip')}
             </span>
             <span className="text-sm text-text-secondary">{item.crossSell}</span>
           </div>
@@ -771,27 +769,27 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
 
       <ContentSection
         index="07"
-        label="Sicherheits-Stufe"
+        label={t('shop.detailSec07Label')}
         title={
           item.securityLevel === 'basic'
-            ? 'Basic — Solo / Hobby'
+            ? t('shop.detailSecLevelBasicTitle')
             : item.securityLevel === 'business'
-              ? 'Business — KMU-Standard'
-              : 'DSGVO — Unternehmens-Compliance'
+              ? t('shop.detailSecLevelBusinessTitle')
+              : t('shop.detailSecLevelDsgvoTitle')
         }
         bg
       >
         <p>
           {item.securityNote ||
             (item.securityLevel === 'basic'
-              ? 'Basic-Level: HTTPS, Passwort-Schutz, Basis-Setup. Für Solo / Hobby ausreichend.'
+              ? t('shop.detailSecLevelBasicText')
               : item.securityLevel === 'business'
-                ? 'Business-Level: Token-Encryption, Access-Control, Backup-Logik. Für KMU-Standard.'
-                : 'DSGVO-Level: EU-Hosting, DPA-ready, Audit-Log + Erasure-API. Für Unternehmens-Compliance.')}
+                ? t('shop.detailSecLevelBusinessText')
+                : t('shop.detailSecLevelDsgvoText'))}
         </p>
       </ContentSection>
 
-      <ContentSection index="08" label="FAQ" title="Häufige Fragen">
+      <ContentSection index="08" label={t('shop.detailSec08Label')} title={t('shop.detailSec08Title')}>
         <div className="space-y-3 mt-2">
           {item.faq.map((f, i) => (
             <FAQItem key={i} q={f.q} a={f.a} idx={i} />
@@ -810,14 +808,14 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
             <div className="absolute -top-12 right-0 w-64 h-64 rounded-full bg-theme-accent/[0.04] blur-3xl pointer-events-none" />
             <div className="flex-1">
               <h3 className="text-xl md:text-2xl font-light tracking-tight mb-2">
-                {isBuyable ? 'Bereit zum Start?' : item.comingSoon ? 'Sei früh dabei.' : 'Fragen vor dem Audit?'}
+                {isBuyable ? t('shop.detailFinalTitleBuyable') : item.comingSoon ? t('shop.detailFinalTitleComingSoon') : t('shop.detailFinalTitleDfy')}
               </h3>
               <p className="text-sm text-text-muted max-w-md">
                 {isBuyable
-                  ? `Direkt-Kauf, Sofort-Download, 30-90 Minuten zum Live-Status. Bei Fragen: kostenlosen Audit-Call buchen.`
+                  ? t('shop.detailFinalTextBuyable')
                   : item.comingSoon
-                    ? `Audit-Call buchen mit "Wait-List ${item.name}". Early-Adopter kriegen Credits-Bonus beim Launch.`
-                    : `Beratungsfreier Audit-Call: wir analysieren ob ${item.name} der richtige Service für dich ist.`}
+                    ? t('shop.detailFinalTextComingSoon', { name: item.name })
+                    : t('shop.detailFinalTextDfy', { name: item.name })}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
@@ -828,14 +826,14 @@ export default function ShopItemDetail({ type: typeProp }: ShopItemDetailProps) 
                   className="btn-primary px-6 py-3 text-sm inline-flex items-center justify-center gap-2"
                 >
                   <ShoppingCart size={14} />
-                  Jetzt kaufen — {item.priceLabel}
+                  {t('shop.installBuyNowPrice', { price: item.priceLabel })}
                 </button>
               )}
               <a
                 href="/#/audit"
                 className="inline-flex items-center justify-center gap-2 text-sm font-medium text-theme-accent border border-theme-border-accent px-6 py-3 hover:bg-theme-accent/[0.08] transition-all"
               >
-                {item.comingSoon ? 'Wait-List' : isBuyable ? 'Bei Fragen: Audit' : 'Audit-Call buchen'}
+                {item.comingSoon ? t('shop.detailFinalCtaWaitlist') : isBuyable ? t('shop.detailFinalCtaAudit') : t('shop.detailFinalCtaBookAudit')}
                 <ArrowRight size={13} />
               </a>
             </div>

@@ -27,6 +27,8 @@ import {
   Database,
   TrendingUp,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { createCheckoutSession, PaymentsPausedError } from '@/lib/api';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import { track } from '@/lib/shop-track';
@@ -278,6 +280,27 @@ const serviceCategories: ServiceCategory[] = [
 
 /* ──────────────────────── Helpers ──────────────────────── */
 
+// Kategorie-Werte sind kanonisch deutsch (Filter-Logik) → Display-Label via i18n.
+const CATEGORY_KEY: Record<string, string> = {
+  'Alle': 'catAll',
+  'Content': 'catContent',
+  'Leads': 'catLeads',
+  'Reporting': 'catReporting',
+  'Automatisierung': 'catAutomatisierung',
+  'Infrastruktur': 'catInfrastruktur',
+  'Analyse': 'catAnalyse',
+  'E-Commerce': 'catECommerce',
+  'Sales': 'catSales',
+  'Premium': 'catPremium',
+  'Compliance': 'catCompliance',
+  'Bundle': 'catBundle',
+};
+
+function catLabel(t: TFunction, cat: string): string {
+  const key = CATEGORY_KEY[cat];
+  return key ? t(`shop.${key}`) : cat;
+}
+
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
   visible: (i: number) => ({
@@ -324,21 +347,22 @@ function SecurityBadge({ level }: { level: SecurityLevel }) {
 }
 
 function ICPBadge({ icp }: { icp: ICP }) {
+  const { t } = useTranslation();
   const map: Record<ICP, { label: string; icon: typeof Building2; color: string; bg: string }> = {
     AG: {
-      label: 'Agentur',
+      label: t('shop.icpAgency'),
       icon: Briefcase,
       color: 'text-violet-400',
       bg: 'bg-violet-400/10 border-violet-400/20',
     },
     PB: {
-      label: 'Personal Brand',
+      label: t('shop.icpPersonalBrand'),
       icon: User,
       color: 'text-sky-400',
       bg: 'bg-sky-400/10 border-sky-400/20',
     },
     FI: {
-      label: 'Firma',
+      label: t('shop.icpCompany'),
       icon: Building2,
       color: 'text-teal-400',
       bg: 'bg-teal-400/10 border-teal-400/20',
@@ -356,9 +380,10 @@ function ICPBadge({ icp }: { icp: ICP }) {
 }
 
 function CategoryChip({ label }: { label: string }) {
+  const { t } = useTranslation();
   return (
     <span className="font-mono text-[10px] uppercase tracking-wider text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-2 py-0.5 rounded">
-      {label}
+      {catLabel(t, label)}
     </span>
   );
 }
@@ -392,6 +417,7 @@ function setTabInHash(tab: ShopTab) {
 /* ──────────────────────── Hero ──────────────────────── */
 
 function HeroStrip() {
+  const { t } = useTranslation();
   return (
     <section className="pt-28 pb-10 px-4 sm:px-6 text-center">
       <motion.span
@@ -400,7 +426,7 @@ function HeroStrip() {
         transition={{ duration: 0.55 }}
         className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block"
       >
-        AEVUM Shop
+        {t('shop.heroEyebrow')}
       </motion.span>
       <motion.h1
         initial={{ opacity: 0, y: 24 }}
@@ -408,8 +434,8 @@ function HeroStrip() {
         transition={{ duration: 0.7, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
         className="text-[clamp(1.875rem,6vw,3rem)] font-light tracking-tight leading-[1.1] mb-4 text-text-primary"
       >
-        KI-Systeme für dein Business.{' '}
-        <span className="text-gradient font-medium">Sofort einsetzbar.</span>
+        {t('shop.heroTitlePre')}{' '}
+        <span className="text-gradient font-medium">{t('shop.heroTitleAccent')}</span>
       </motion.h1>
       <motion.p
         initial={{ opacity: 0, y: 16 }}
@@ -417,7 +443,7 @@ function HeroStrip() {
         transition={{ duration: 0.65, delay: 0.18 }}
         className="text-base text-text-secondary max-w-2xl mx-auto"
       >
-        Blueprints zum Selbst-Implementieren · Done-For-You Services · Full-Audit-Partnerschaft.
+        {t('shop.heroSubtitle')}
       </motion.p>
     </section>
   );
@@ -426,10 +452,11 @@ function HeroStrip() {
 /* ──────────────────────── Tab Bar ──────────────────────── */
 
 function TabBar({ active, onChange }: { active: ShopTab; onChange: (t: ShopTab) => void }) {
+  const { t } = useTranslation();
   const tabs: { id: ShopTab; label: string; sub: string; icon: typeof Package }[] = [
-    { id: 'blueprints', label: 'Blueprints', sub: 'Direkt kaufen', icon: Download },
-    { id: 'dfy', label: 'Done-For-You', sub: 'Wir bauen für dich', icon: Wrench },
-    { id: 'audit', label: 'Full-Audit', sub: 'Premium-Partnerschaft', icon: Star },
+    { id: 'blueprints', label: t('shop.tabBlueprintsLabel'), sub: t('shop.tabBlueprintsSub'), icon: Download },
+    { id: 'dfy', label: t('shop.tabDfyLabel'), sub: t('shop.tabDfySub'), icon: Wrench },
+    { id: 'audit', label: t('shop.tabAuditLabel'), sub: t('shop.tabAuditSub'), icon: Star },
   ];
 
   return (
@@ -483,6 +510,7 @@ function TabBar({ active, onChange }: { active: ShopTab; onChange: (t: ShopTab) 
 /* ──────────────────────── Credit Incentive Banner ──────────────────────── */
 
 function CreditIncentiveBanner() {
+  const { t } = useTranslation();
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;
@@ -499,7 +527,7 @@ function CreditIncentiveBanner() {
         <button
           onClick={() => setDismissed(true)}
           className="absolute top-3 right-3 text-text-muted hover:text-text-primary transition-colors p-1"
-          aria-label="Banner schließen"
+          aria-label={t('shop.bannerDismiss')}
         >
           <X size={14} />
         </button>
@@ -508,10 +536,10 @@ function CreditIncentiveBanner() {
           <Star size={16} className="text-theme-accent flex-shrink-0 mt-0.5" />
           <div className="min-w-0">
             <span className="font-mono text-xs uppercase tracking-widest text-theme-accent block mb-1">
-              AEVUM Credits — Sammle bei jedem Kauf
+              {t('shop.bannerEyebrow')}
             </span>
             <p className="text-sm text-text-secondary">
-              10 Credits pro €1 &middot; Einlösbar gegen Tools &amp; Demos &middot; 5 Käufe = 1 Blueprint gratis
+              {t('shop.bannerText')}
             </p>
           </div>
         </div>
@@ -522,7 +550,7 @@ function CreditIncentiveBanner() {
             className="inline-flex items-center justify-center gap-1.5 text-xs font-medium bg-theme-accent text-on-accent px-4 py-2 min-h-[40px] w-full sm:w-auto hover:bg-theme-accent/90 transition-colors whitespace-nowrap"
           >
             <UserPlus size={13} />
-            Account erstellen — kostenlos
+            {t('shop.bannerCta')}
           </a>
         </div>
       </div>
@@ -533,6 +561,7 @@ function CreditIncentiveBanner() {
 /* ──────────────────────── Checkout Hook ──────────────────────── */
 
 function useBuyBlueprint() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -550,16 +579,16 @@ function useBuyBlueprint() {
       let buyerName = '';
       if (withAccount) {
         const email = window.prompt(
-          `🎁 Mit AEVUM-Account bekommst du:\n\n` +
-          `• 10 Credits pro 1€ (für SaaS-Tools nutzbar)\n` +
-          `• Stempelkarte: 5 Käufe = 1 Blueprint gratis\n` +
-          `• Wiederkehr-Login via TG oder Email\n` +
-          `• Persönliches Customer-Portal\n\n` +
-          `Deine E-Mail-Adresse:`
+          `${t('shop.promptAccountIntro')}\n\n` +
+          `${t('shop.promptAccountBullet1')}\n` +
+          `${t('shop.promptAccountBullet2')}\n` +
+          `${t('shop.promptAccountBullet3')}\n` +
+          `${t('shop.promptAccountBullet4')}\n\n` +
+          `${t('shop.promptEmailLabel')}`
         );
         if (!email || !email.includes('@')) { setLoading(null); return; }
         buyerEmail = email.trim().toLowerCase();
-        const name = window.prompt('Dein Vorname (optional, für Personalisierung):') || '';
+        const name = window.prompt(t('shop.promptNameLabel')) || '';
         buyerName = name.trim();
       }
       const { url } = await createCheckoutSession({
@@ -586,7 +615,7 @@ function useBuyBlueprint() {
         setLoading(null);
         return;
       }
-      setError(err instanceof Error ? err.message : 'Checkout fehlgeschlagen. Bitte erneut versuchen.');
+      setError(err instanceof Error ? err.message : t('shop.checkoutError'));
       setLoading(null);
     }
   };
@@ -603,9 +632,10 @@ function BlueprintFilterBar({
   active: BlueprintCategory;
   onChange: (c: BlueprintCategory) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-wrap items-center gap-2 justify-center mb-10">
-      <Filter size={14} className="text-text-muted mr-1" />
+      <Filter size={14} className="text-text-muted mr-1" aria-label={t('shop.filterIconHint')} />
       {blueprintCategories.map((cat) => (
         <button
           key={cat}
@@ -616,7 +646,7 @@ function BlueprintFilterBar({
               : 'bg-transparent text-text-secondary border-theme-border hover:border-theme-accent/40 hover:text-text-primary'
           }`}
         >
-          {cat}
+          {catLabel(t, cat)}
         </button>
       ))}
     </div>
@@ -634,12 +664,14 @@ function BlueprintCard({
   onBuy: (bp: Blueprint, withAccount?: boolean) => void;
   buyLoading: number | null;
 }) {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
   const isLoading = buyLoading === blueprint.id;
   const credits = blueprint.price * 10;
   const config = useAevumConfig();
   const paused = config?.payments_paused === true;
+  const tagLabel = blueprint.tag ? t(`shopItems.${blueprint.slug}.tag`, { defaultValue: blueprint.tag }) : null;
 
   return (
     <TiltCard intensity={8} className="h-full">
@@ -651,9 +683,9 @@ function BlueprintCard({
       animate={isInView ? 'visible' : 'hidden'}
       className={`relative h-full bg-bg-surface border border-theme-border p-6 sm:p-7 flex flex-col hover:border-theme-accent/40 transition-all group ${paused ? 'opacity-90' : ''}`}
     >
-      {blueprint.tag && (
+      {tagLabel && (
         <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-2 py-0.5">
-          {blueprint.tag}
+          {tagLabel}
         </span>
       )}
       <MaintenancePill variant="absolute" />
@@ -661,7 +693,7 @@ function BlueprintCard({
       <a
         href={`/#/shop/blueprint/${blueprint.slug}`}
         className="block mb-5 group/title"
-        aria-label={`${blueprint.name} — Details`}
+        aria-label={`${blueprint.name} — ${t('shop.detailsAriaSuffix')}`}
       >
         <div className="flex items-start justify-between gap-3 mb-3">
           <h3 className="text-lg font-medium tracking-tight text-text-primary leading-tight pr-12 break-words group-hover/title:text-theme-accent transition-colors">
@@ -671,18 +703,18 @@ function BlueprintCard({
         <div className="flex items-center gap-2 flex-wrap">
           <SecurityBadge level={blueprint.security} />
           <span className="font-mono text-xs text-text-muted uppercase tracking-wider">
-            {blueprint.category}
+            {catLabel(t, blueprint.category)}
           </span>
         </div>
       </a>
 
       <p
         className="text-sm text-text-secondary leading-relaxed mb-5 flex-1"
-        dangerouslySetInnerHTML={{ __html: blueprint.description }}
+        dangerouslySetInnerHTML={{ __html: t(`shopItems.${blueprint.slug}.desc`, { defaultValue: blueprint.description }) }}
       />
 
       <ul className="space-y-2 mb-6">
-        {blueprint.includes.map((item) => (
+        {(t(`shopItems.${blueprint.slug}.includes`, { returnObjects: true, defaultValue: blueprint.includes }) as string[]).map((item) => (
           <li key={item} className="flex items-start gap-2 text-xs text-text-secondary">
             <IncludesIcon text={item} />
             <span className="break-words">{item}</span>
@@ -697,7 +729,7 @@ function BlueprintCard({
           </span>
         </div>
         <span className="text-xs text-theme-accent/80 font-mono mt-0.5 block">
-          +{credits.toLocaleString('de-DE')} Credits mit Account
+          {t('shop.creditsWithAccount', { credits: credits.toLocaleString('de-DE') })}
         </span>
       </div>
 
@@ -710,17 +742,17 @@ function BlueprintCard({
           {isLoading ? (
             <>
               <span className="w-3.5 h-3.5 rounded-full border-2 border-on-accent/40 border-t-on-accent animate-spin" />
-              {paused ? 'Wartung…' : 'Wird gestartet...'}
+              {paused ? t('shop.maintenance') : t('shop.starting')}
             </>
           ) : paused ? (
             <>
               <Sparkles size={14} />
-              Bald verfügbar — benachrichtige mich
+              {t('shop.comingSoonNotify')}
             </>
           ) : (
             <>
               <ShoppingCart size={14} />
-              Jetzt kaufen
+              {t('shop.buyNow')}
             </>
           )}
         </button>
@@ -728,7 +760,7 @@ function BlueprintCard({
           href={`/#/shop/blueprint/${blueprint.slug}`}
           className="inline-flex items-center justify-center gap-2 text-xs font-medium text-text-secondary border border-theme-border px-5 py-2 min-h-[40px] hover:border-theme-accent/40 hover:text-theme-accent transition-all"
         >
-          Details ansehen
+          {t('shop.viewDetails')}
           <ArrowRight size={11} />
         </a>
       </div>
@@ -738,6 +770,7 @@ function BlueprintCard({
 }
 
 function BlueprintsSection() {
+  const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState<BlueprintCategory>('Alle');
   const { buy, loading: buyLoading, error: buyError } = useBuyBlueprint();
   const ref = useRef(null);
@@ -763,16 +796,16 @@ function BlueprintsSection() {
         >
           <div className="flex items-center gap-4 mb-3">
             <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent">
-              Blueprints · Direkt-Kauf
+              {t('shop.blueprintsEyebrow')}
             </span>
             <div className="h-px flex-1 bg-theme-border max-w-xs" />
           </div>
           <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-2 text-text-primary">
-            Sofort downloadbar.{' '}
-            <span className="text-gradient font-medium">Mit oder ohne Account.</span>
+            {t('shop.blueprintsTitlePre')}{' '}
+            <span className="text-gradient font-medium">{t('shop.blueprintsTitleAccent')}</span>
           </h2>
           <p className="text-sm text-text-muted max-w-lg">
-            n8n-Workflows mit Setup-Guide. Nach Kauf erhältst du Workflow-Datei + Anleitung. Setup-Zeit hängt von deiner n8n-Erfahrung und den benötigten Credentials ab — plan realistisch 30-90 Minuten ein. Kein Retainer, kein Abo.
+            {t('shop.blueprintsIntro')}
           </p>
         </motion.div>
 
@@ -797,7 +830,7 @@ function BlueprintsSection() {
         </div>
         {filtered.length === 0 && (
           <p className="text-center text-text-muted py-20">
-            Keine Blueprints in dieser Kategorie.
+            {t('shop.blueprintsEmpty')}
           </p>
         )}
 
@@ -811,17 +844,17 @@ function BlueprintsSection() {
           <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-theme-accent/5 blur-3xl pointer-events-none" />
           <div className="min-w-0 relative">
             <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-2 block">
-              Bundle Deal
+              {t('shop.bundleEyebrow')}
             </span>
             <h3 className="text-xl md:text-2xl font-light tracking-tight mb-1 text-text-primary">
-              Alle 6 Blueprints.{' '}
-              <span className="text-gradient font-medium">Ein Preis.</span>
+              {t('shop.bundleTitlePre')}{' '}
+              <span className="text-gradient font-medium">{t('shop.bundleTitleAccent')}</span>
             </h3>
             <p className="text-sm text-text-muted">
-              Content, Leads, Reporting + Automatisierung — komplett.
+              {t('shop.bundleSubtitle')}
             </p>
             <span className="text-xs text-theme-accent/80 font-mono mt-1 block">
-              +{(BUNDLE_PRICE * 10).toLocaleString('de-DE')} Credits mit Account
+              {t('shop.creditsWithAccount', { credits: (BUNDLE_PRICE * 10).toLocaleString('de-DE') })}
             </span>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-4 flex-shrink-0 relative w-full md:w-auto">
@@ -830,7 +863,7 @@ function BlueprintsSection() {
                 &euro;{BUNDLE_PRICE}
               </span>
               <span className="text-xs text-text-muted font-mono">
-                statt &euro;{FULL_PRICE} (
+                {t('shop.bundleInsteadOf')} &euro;{FULL_PRICE} (
                 <span className="text-emerald-400">
                   -{Math.round(100 - (BUNDLE_PRICE / FULL_PRICE) * 100)}%
                 </span>
@@ -860,12 +893,12 @@ function BlueprintsSection() {
                 {paused ? (
                   <>
                     <Sparkles size={14} />
-                    Bald verfügbar — benachrichtige mich
+                    {t('shop.comingSoonNotify')}
                   </>
                 ) : (
                   <>
                     <ShoppingCart size={14} />
-                    Bundle kaufen
+                    {t('shop.bundleBuy')}
                   </>
                 )}
               </button>
@@ -873,7 +906,7 @@ function BlueprintsSection() {
                 href="/#/shop/bundle/bundle-all"
                 className="inline-flex items-center justify-center gap-2 text-xs text-text-secondary border border-theme-border px-5 py-2 min-h-[40px] hover:border-theme-accent/40 hover:text-theme-accent transition-all"
               >
-                Details ansehen
+                {t('shop.viewDetails')}
                 <ArrowRight size={11} />
               </a>
             </div>
@@ -890,6 +923,7 @@ function BlueprintsSection() {
 /* ──────────────────────── How It Works (Blueprints) ──────────────────────── */
 
 function HowItWorksStrip() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
@@ -897,20 +931,20 @@ function HowItWorksStrip() {
     {
       icon: Package,
       label: '01',
-      title: 'Kaufen',
-      desc: 'Zahle einmalig. Direkt-Download, kein Abo, kein Lock-in.',
+      title: t('shop.howStep1Title'),
+      desc: t('shop.howStep1Desc'),
     },
     {
       icon: Download,
       label: '02',
-      title: 'Herunterladen',
-      desc: 'ZIP mit n8n-JSON, PDF-Guide und allen Assets — sofort nutzbar.',
+      title: t('shop.howStep2Title'),
+      desc: t('shop.howStep2Desc'),
     },
     {
       icon: Zap,
       label: '03',
-      title: 'In 30 Min live',
-      desc: 'Importiere den Workflow, folge dem Setup-Guide, fertig.',
+      title: t('shop.howStep3Title'),
+      desc: t('shop.howStep3Desc'),
     },
   ];
 
@@ -923,11 +957,11 @@ function HowItWorksStrip() {
         className="text-center mb-10"
       >
         <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block">
-          So funktioniert's
+          {t('shop.howEyebrow')}
         </span>
         <h3 className="text-xl md:text-2xl font-light tracking-tight text-text-primary">
-          Kauf → Download →{' '}
-          <span className="text-gradient font-medium">Live</span>
+          {t('shop.howTitlePre')}{' '}
+          <span className="text-gradient font-medium">{t('shop.howTitleAccent')}</span>
         </h3>
       </motion.div>
 
@@ -967,9 +1001,10 @@ function ServiceFilterBar({
   active: ServiceCategory;
   onChange: (c: ServiceCategory) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-wrap items-center gap-2 justify-center mb-10">
-      <Filter size={14} className="text-text-muted mr-1" />
+      <Filter size={14} className="text-text-muted mr-1" aria-label={t('shop.filterIconHint')} />
       {serviceCategories.map((cat) => (
         <button
           key={cat}
@@ -980,7 +1015,7 @@ function ServiceFilterBar({
               : 'bg-transparent text-text-secondary border-theme-border hover:border-theme-accent/40 hover:text-text-primary'
           }`}
         >
-          {cat}
+          {catLabel(t, cat)}
         </button>
       ))}
     </div>
@@ -988,8 +1023,10 @@ function ServiceFilterBar({
 }
 
 function ServiceCard({ service, index }: { service: DFYService; index: number }) {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
+  const tagLabel = service.tag ? t(`shopItems.${service.slug}.tag`, { defaultValue: service.tag }) : null;
 
   return (
     <motion.div
@@ -1000,9 +1037,9 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
       animate={isInView ? 'visible' : 'hidden'}
       className="relative h-full bg-bg-surface border border-theme-border p-6 sm:p-7 flex flex-col hover:border-theme-accent/40 transition-all group"
     >
-      {service.tag && (
+      {tagLabel && (
         <span className="absolute top-5 right-5 font-mono text-[10px] uppercase tracking-widest text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-2 py-0.5">
-          {service.tag}
+          {tagLabel}
         </span>
       )}
 
@@ -1011,7 +1048,7 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
         className="block mb-4 group/title"
       >
         <h3 className="text-lg font-medium tracking-tight text-text-primary leading-tight mb-3 pr-16 break-words group-hover/title:text-theme-accent transition-colors">
-          {service.name}
+          {t(`shopItems.${service.slug}.name`, { defaultValue: service.name })}
         </h3>
         <div className="flex items-center gap-2 flex-wrap">
           <CategoryChip label={service.category} />
@@ -1022,7 +1059,7 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
       </a>
 
       <p className="text-sm text-text-secondary leading-relaxed mb-5 flex-1">
-        {service.description}
+        {t(`shopItems.${service.slug}.desc`, { defaultValue: service.description })}
       </p>
 
       <div className="mb-5">
@@ -1030,7 +1067,7 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
           {service.priceLabel}
         </span>
         <span className="text-xs text-text-muted font-mono mt-0.5 block">
-          {service.tierHint}
+          {t(`shopItems.${service.slug}.tierHint`, { defaultValue: service.tierHint })}
         </span>
       </div>
 
@@ -1039,14 +1076,14 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
           href={`/#/audit?service=${service.slug}`}
           className="inline-flex items-center justify-center gap-2 text-sm font-medium text-on-accent bg-theme-accent hover:bg-theme-accent/90 px-5 py-2.5 min-h-[44px] transition-all"
         >
-          Anfrage via Audit
+          {t('shop.dfyRequestViaAudit')}
           <ArrowRight size={13} />
         </a>
         <a
           href={`/#/shop/dfy/${service.slug}`}
           className="inline-flex items-center justify-center gap-2 text-xs font-medium text-text-secondary border border-theme-border px-5 py-2 min-h-[40px] hover:border-theme-accent/40 hover:text-theme-accent transition-all"
         >
-          Details ansehen
+          {t('shop.viewDetails')}
           <ArrowRight size={11} />
         </a>
       </div>
@@ -1055,24 +1092,25 @@ function ServiceCard({ service, index }: { service: DFYService; index: number })
 }
 
 function TierLegend() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
 
   const tiers = [
     {
       dot: 'bg-emerald-400',
-      label: 'Starter',
-      desc: 'Kern-Feature, selbst verwaltet, günstiger Einstieg',
+      label: t('shop.tierStarter'),
+      desc: t('shop.tierStarterDesc'),
     },
     {
       dot: 'bg-amber-400',
-      label: 'Growth',
-      desc: 'Full-Setup, AEVUM Onboarding, monatlicher Check-in',
+      label: t('shop.tierGrowth'),
+      desc: t('shop.tierGrowthDesc'),
     },
     {
       dot: 'bg-rose-400',
-      label: 'Scale',
-      desc: 'White-Glove, dedizierter Agent, wöchentliche Reviews',
+      label: t('shop.tierScale'),
+      desc: t('shop.tierScaleDesc'),
     },
   ];
 
@@ -1085,7 +1123,7 @@ function TierLegend() {
       className="mb-10 bg-bg-surface border border-theme-border p-5 flex flex-col sm:flex-row gap-4 sm:gap-8 sm:items-center"
     >
       <span className="font-mono text-xs uppercase tracking-wider text-text-muted flex-shrink-0">
-        Service-Tiers
+        {t('shop.tierLabel')}
       </span>
       <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-5">
         {tiers.map((t) => (
@@ -1101,6 +1139,7 @@ function TierLegend() {
 }
 
 function DFYSection() {
+  const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState<ServiceCategory>('Alle');
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
@@ -1121,16 +1160,16 @@ function DFYSection() {
         >
           <div className="flex items-center gap-4 mb-3">
             <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent">
-              Done-For-You · Custom-Builds
+              {t('shop.dfyEyebrow')}
             </span>
             <div className="h-px flex-1 bg-theme-border max-w-xs" />
           </div>
           <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-2 text-text-primary">
-            Wir bauen es.{' '}
-            <span className="text-gradient font-medium">Du fokussierst dich aufs Business.</span>
+            {t('shop.dfyTitlePre')}{' '}
+            <span className="text-gradient font-medium">{t('shop.dfyTitleAccent')}</span>
           </h2>
           <p className="text-sm text-text-muted max-w-lg">
-            Custom entwickelt, vollständig integriert, übergabebereit. Kein Template — dein System. Anfrage läuft über das kostenlose Audit-Gespräch.
+            {t('shop.dfyIntro')}
           </p>
         </motion.div>
 
@@ -1144,7 +1183,7 @@ function DFYSection() {
         </div>
         {filtered.length === 0 && (
           <p className="text-center text-text-muted py-20">
-            Keine Services in dieser Kategorie.
+            {t('shop.dfyEmpty')}
           </p>
         )}
 
@@ -1157,17 +1196,17 @@ function DFYSection() {
           <div className="absolute -bottom-16 right-0 w-64 h-64 rounded-full bg-theme-accent/[0.04] blur-3xl pointer-events-none" />
           <div className="min-w-0 relative">
             <h3 className="text-xl md:text-2xl font-light tracking-tight mb-2 text-text-primary">
-              Nicht sicher welcher Service passt?
+              {t('shop.dfyHelpTitle')}
             </h3>
             <p className="text-sm text-text-muted max-w-md">
-              Im kostenlosen Audit analysieren wir dein Business in 48h und zeigen dir die Top-3 Quick-Wins — konkret, priorisiert, umsetzbar.
+              {t('shop.dfyHelpText')}
             </p>
           </div>
           <a
             href="/#/audit"
             className="btn-primary px-8 py-3 min-h-[44px] text-base inline-flex items-center justify-center whitespace-nowrap flex-shrink-0 relative w-full md:w-auto"
           >
-            Kostenloses Audit buchen
+            {t('shop.dfyHelpCta')}
             <ArrowRight size={16} className="ml-2" />
           </a>
         </motion.div>
@@ -1179,34 +1218,35 @@ function DFYSection() {
 /* ──────────────────────── Audit Featured Section ──────────────────────── */
 
 function AuditFeaturedSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
   const benefits = [
     {
       icon: Bot,
-      title: 'Personal AI-Agent',
-      desc: 'Eigener Lennox-Agent, auf dein Business trainiert. 24/7 erreichbar via Web + Telegram.',
+      title: t('shop.auditBenefit1Title'),
+      desc: t('shop.auditBenefit1Desc'),
     },
     {
       icon: Database,
-      title: 'Eigenes Customer-Dashboard',
-      desc: 'Live-KPIs, Reports, Workflows. Single-Source-of-Truth statt Tool-Wildwuchs.',
+      title: t('shop.auditBenefit2Title'),
+      desc: t('shop.auditBenefit2Desc'),
     },
     {
       icon: Sparkles,
-      title: 'SaaS-Free-Kontingent',
-      desc: '500 Credits/Monat für alle AEVUM-Tools inklusive. Script-Factory, DSGVO-Factory, mehr.',
+      title: t('shop.auditBenefit3Title'),
+      desc: t('shop.auditBenefit3Desc'),
     },
     {
       icon: TrendingUp,
-      title: 'Longterm-Partnership mit ROI',
-      desc: 'Monatliche Optimierung, messbare KPI-Impacts, transparente Reports. Du wächst, wir mit.',
+      title: t('shop.auditBenefit4Title'),
+      desc: t('shop.auditBenefit4Desc'),
     },
     {
       icon: Star,
-      title: 'Audit + Auto-Plan in 48h',
-      desc: 'Kostenloses Erstaudit: Top-3 Quick-Wins + Long-Term-Roadmap. PDF zum Mitnehmen, kein Push.',
+      title: t('shop.auditBenefit5Title'),
+      desc: t('shop.auditBenefit5Desc'),
     },
   ];
 
@@ -1221,7 +1261,7 @@ function AuditFeaturedSection() {
         >
           <div className="flex items-center gap-4 mb-3">
             <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent">
-              Full-Audit · Premium-Partnerschaft
+              {t('shop.auditEyebrow')}
             </span>
             <div className="h-px flex-1 bg-theme-border max-w-xs" />
           </div>
@@ -1240,17 +1280,15 @@ function AuditFeaturedSection() {
           <div className="relative">
             <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-theme-accent bg-theme-accent-soft border border-theme-border-accent px-3 py-1 rounded-full mb-6">
               <Star size={11} />
-              Featured · Maximale Wirkung
+              {t('shop.auditBadge')}
             </span>
 
             <h2 className="text-[clamp(1.875rem,6vw,3rem)] font-light tracking-tight leading-[1.1] mb-4 max-w-3xl text-text-primary">
-              AEVUM{' '}
-              <span className="text-gradient font-medium">Full-Partnership</span>
+              {t('shop.auditTitlePre')}{' '}
+              <span className="text-gradient font-medium">{t('shop.auditTitleAccent')}</span>
             </h2>
             <p className="text-base md:text-lg text-text-secondary max-w-2xl leading-relaxed mb-10">
-              Maßgeschneidertes System mit Personal-Agent. Für Founder die Tool-Wildwuchs hinter sich
-              lassen und ein verbundenes Operating-System wollen — gebaut, betrieben, monatlich
-              optimiert.
+              {t('shop.auditIntro')}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
@@ -1280,19 +1318,19 @@ function AuditFeaturedSection() {
                 className="btn-primary px-8 py-3.5 min-h-[44px] text-base inline-flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 <Star size={15} />
-                Kostenloses Audit starten
+                {t('shop.auditStartCta')}
                 <ArrowRight size={15} />
               </a>
               <a
                 href="/#/audit#vergleich"
                 className="inline-flex items-center justify-center gap-2 text-sm font-medium text-theme-accent border border-theme-border-accent px-7 py-3.5 min-h-[44px] hover:bg-theme-accent-soft transition-all"
               >
-                Erst Vergleich anschauen
+                {t('shop.auditCompareCta')}
               </a>
             </div>
 
             <p className="text-xs text-text-muted font-mono mt-6">
-              Keine Kreditkarte · Kein Verkaufsdruck · Audit + Auto-Plan-PDF in 48h
+              {t('shop.auditFinePrint')}
             </p>
           </div>
         </motion.div>
@@ -1305,15 +1343,15 @@ function AuditFeaturedSection() {
           className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4"
         >
           {[
-            { label: 'Setup-Phase', value: '4-8 Wochen' },
-            { label: 'Mindestlaufzeit', value: '3 Monate' },
-            { label: 'Daten-Hoheit', value: 'Bleibt bei dir' },
-          ].map((t) => (
-            <div key={t.label} className="flex h-full flex-col bg-bg-surface border border-theme-border px-5 py-4">
+            { label: t('shop.auditTrustSetupLabel'), value: t('shop.auditTrustSetupValue') },
+            { label: t('shop.auditTrustTermLabel'), value: t('shop.auditTrustTermValue') },
+            { label: t('shop.auditTrustDataLabel'), value: t('shop.auditTrustDataValue') },
+          ].map((row) => (
+            <div key={row.label} className="flex h-full flex-col bg-bg-surface border border-theme-border px-5 py-4">
               <span className="block font-mono text-[10px] uppercase tracking-widest text-text-muted mb-1">
-                {t.label}
+                {row.label}
               </span>
-              <span className="block text-base font-medium text-text-primary">{t.value}</span>
+              <span className="block text-base font-medium text-text-primary">{row.value}</span>
             </div>
           ))}
         </motion.div>
@@ -1325,24 +1363,25 @@ function AuditFeaturedSection() {
 /* ──────────────────────── Ecosystem Section ──────────────────────── */
 
 function EcosystemSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
   const pillars = [
     {
       icon: CreditCard,
-      title: 'Stempelkarte',
-      desc: '5 Blueprints kaufen, 1 gratis kriegen. Wird automatisch gezählt — kein Coupon nötig.',
+      title: t('shop.ecoPillar1Title'),
+      desc: t('shop.ecoPillar1Desc'),
     },
     {
       icon: Zap,
-      title: 'Credits',
-      desc: '10 Credits pro €1. Einlösbar gegen Workflow-Demos, Tool-Zugang und exklusive Templates.',
+      title: t('shop.ecoPillar2Title'),
+      desc: t('shop.ecoPillar2Desc'),
     },
     {
       icon: Lock,
-      title: 'Frühbucher',
-      desc: 'Neue Blueprints 20% günstiger für bestehende Kunden mit Account. Automatisch, dauerhaft.',
+      title: t('shop.ecoPillar3Title'),
+      desc: t('shop.ecoPillar3Desc'),
     },
   ];
 
@@ -1356,14 +1395,14 @@ function EcosystemSection() {
           className="text-center mb-10"
         >
           <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block">
-            Das AEVUM Ecosystem
+            {t('shop.ecoEyebrow')}
           </span>
           <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3 text-text-primary">
-            Mehr Wert bei jedem{' '}
-            <span className="text-gradient font-medium">Kauf</span>
+            {t('shop.ecoTitlePre')}{' '}
+            <span className="text-gradient font-medium">{t('shop.ecoTitleAccent')}</span>
           </h2>
           <p className="text-sm text-text-muted max-w-xl mx-auto">
-            Ohne Account: kaufen &amp; herunterladen funktioniert. Credits und Stempelkarte gibt es nur für registrierte Kunden.
+            {t('shop.ecoIntro')}
           </p>
         </motion.div>
 
@@ -1395,10 +1434,10 @@ function EcosystemSection() {
 /* ──────────────────────── Page ──────────────────────── */
 
 export default function Shop() {
+  const { t } = useTranslation();
   usePageSeo({
-    title: 'AEVUM Shop — Blueprints + Done-For-You + Audit-Paket | Sofort kaufbar',
-    description:
-      'Fertige n8n-Blueprints, Done-For-You Custom-Builds und Full-Audit-Partnerschaft. Transparent, modular, sofort. Vom 197€-Workflow bis zur 90-Tage-System-Beziehung.',
+    title: t('shop.seoTitle'),
+    description: t('shop.seoDescription'),
     path: '/shop',
   });
 

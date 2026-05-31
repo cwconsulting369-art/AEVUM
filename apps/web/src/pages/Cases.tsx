@@ -6,6 +6,7 @@ import {
   ExternalLink,
   Building2,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import CONTACT from '../config/contact';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import PathThreeCard from '@/components/ctas/PathThreeCard';
@@ -35,6 +36,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.aevum-system.
 /* ──────────────────────── Section 1: Hero ──────────────────────── */
 
 function HeroSection() {
+  const { t } = useTranslation();
   return (
     <section className="relative min-h-[40vh] flex items-center justify-center px-4 sm:px-6 pt-16">
       <div className="relative z-10 text-center max-w-4xl mx-auto">
@@ -44,7 +46,7 @@ function HeroSection() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block"
         >
-          Referenzen
+          {t('cases.heroEyebrow')}
         </motion.span>
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
@@ -52,7 +54,7 @@ function HeroSection() {
           transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight leading-[1.1] mb-6"
         >
-          Live <span className="text-gradient font-medium">Cases</span>
+          {t('cases.heroTitlePre')} <span className="text-gradient font-medium">{t('cases.heroTitleAccent')}</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -60,7 +62,7 @@ function HeroSection() {
           transition={{ duration: 0.7, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
           className="text-base md:text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed"
         >
-          Echte Projekte. Ehrlich dokumentiert. Nur was unsere Kunden freigeben.
+          {t('cases.heroSubtitle')}
         </motion.p>
       </div>
     </section>
@@ -70,6 +72,7 @@ function HeroSection() {
 /* ──────────────────────── Case-Card ──────────────────────── */
 
 function CaseCard({ caseData, index }: { caseData: CaseSummary; index: number }) {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
 
@@ -125,7 +128,7 @@ function CaseCard({ caseData, index }: { caseData: CaseSummary; index: number })
         {caseData.brand_url && (
           <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider text-text-muted">
             <ExternalLink size={10} />
-            Live
+            {t('cases.cardLiveLabel')}
           </span>
         )}
       </div>
@@ -143,6 +146,7 @@ function FallbackNotice({ message }: { message: string }) {
 }
 
 function CasesGridSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
@@ -199,13 +203,13 @@ function CasesGridSection() {
           className="mb-10"
         >
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-theme-accent mb-4 block">
-            Kunden-Cases
+            {t('cases.gridEyebrow')}
           </span>
           <h2 className="text-2xl md:text-4xl font-light tracking-tight mb-4">
-            Vier Projekte. Vier <span className="text-gradient font-medium">Branchen</span>.
+            {t('cases.gridTitlePre')} <span className="text-gradient font-medium">{t('cases.gridTitleAccent')}</span>.
           </h2>
           <p className="text-text-secondary max-w-2xl">
-            Klick auf einen Case fuer Vision, aktivierte AEVUM-Services und Live-KPIs.
+            {t('cases.gridIntro')}
           </p>
         </motion.div>
 
@@ -234,11 +238,11 @@ function CasesGridSection() {
         )}
 
         {!loading && !error && cases.length === 0 && (
-          <FallbackNotice message="Aktuell keine veroeffentlichten Cases." />
+          <FallbackNotice message={t('cases.emptyNotice')} />
         )}
 
         {!loading && error && (
-          <FallbackNotice message="Cases werden gerade aktualisiert. Schau gleich nochmal vorbei." />
+          <FallbackNotice message={t('cases.errorNotice')} />
         )}
 
         {!loading && !error && cases.length > 0 && (
@@ -256,6 +260,7 @@ function CasesGridSection() {
 /* ──────────────────────── Section: CTA ──────────────────────── */
 
 function CTASection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
@@ -269,10 +274,10 @@ function CTASection() {
       >
         <div className="text-center mb-8">
           <h2 className="text-2xl md:text-4xl font-light tracking-tight mb-3">
-            Eigenen Case bauen?
+            {t('cases.ctaTitle')}
           </h2>
           <p className="text-sm text-text-secondary max-w-xl mx-auto">
-            Drei Wege loszulegen — keiner verlangt erst ein Sales-Gespräch.
+            {t('cases.ctaText')}
           </p>
         </div>
         <PathThreeCard compact />
@@ -284,7 +289,7 @@ function CTASection() {
             className="inline-flex items-center gap-2 text-xs text-text-muted hover:text-theme-accent transition-colors"
           >
             <MessageCircle size={12} />
-            Oder direkt schreiben
+            {t('cases.ctaWriteDirectly')}
           </a>
         </div>
       </motion.div>
@@ -295,9 +300,10 @@ function CTASection() {
 /* ──────────────────────── Page ──────────────────────── */
 
 export default function Cases() {
+  const { t } = useTranslation();
   usePageSeo({
-    title: 'Live-Cases — Ketolabs · UtilityHub · Thailand-RE · GoldTraderSociety | AEVUM',
-    description: 'Echte Projekte mit echten Zahlen. E-Commerce, Real Estate, Trading, B2B-Energy. Workflow-Audits, Automation-Stacks, messbare ROI. Keine Schmuck-Cases.',
+    title: t('cases.seoTitle'),
+    description: t('cases.seoDescription'),
     path: '/cases',
   });
   return (

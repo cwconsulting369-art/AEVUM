@@ -10,7 +10,7 @@
  * Memory: project_aevum_shop_quality_gate, feedback_aevum_ehrlichkeit_brand
  */
 import type { ShopItemContent } from './types';
-import { STUB_TEXT } from './types';
+import { STUB_TEXT, STUB_TEXT_EN } from './types';
 
 /* ──────────────────── BLUEPRINTS (6) ──────────────────── */
 
@@ -64,6 +64,48 @@ const contentFactory: ShopItemContent = {
     { q: 'Brauche ich Coding-Skills?', a: 'Nein. n8n ist visuell. Wenn du Zapier benutzen kannst, kannst du das.' },
   ],
   crossSell: 'Bundle (alle 6 Blueprints) → €697 statt €1.212',
+  en: {
+    tag: 'Popular',
+    tagline: 'Automated content production — from idea to publish for Instagram + LinkedIn.',
+    whatIsIt:
+      'A ready-made n8n workflow plus setup guide that automates your content production. You feed in topics + brand voice, the system researches, writes drafts in your style, generates matching images/quotes and drops finished posts into a review queue. You approve, the workflow publishes.',
+    outcomes: [
+      '8-12 hours of content work saved per week',
+      '5-8 posts per week instead of 1-2',
+      'Consistent brand voice via a prompt library (30+ tested prompts)',
+      'Research, draft, visual, schedule — in one flow',
+    ],
+    whenItFits: {
+      fits: [
+        'Personal brand on LinkedIn (1k+ followers, wants to scale)',
+        'Agency with 3-10 clients who need content',
+        'Solo founder without a content person on the team',
+      ],
+      requires: [
+        'n8n self-hosted or an n8n cloud account (from €20/mo)',
+        'OpenAI / Anthropic API key',
+        'Instagram Business / LinkedIn Company Page with API access',
+      ],
+    },
+    includes: [
+      'n8n workflow JSON (ready to import)',
+      'PDF setup guide (12 pages, with screenshots)',
+      'Prompt library (30+ tested prompts for posts/captions/hashtags)',
+      'Brand-voice template (JSON-configurable)',
+      'Connection guide: where to create API tokens, where to enter them',
+    ],
+    pricingNote: 'One-time. No license, no subscription trap. You own the workflow.',
+    securityNote:
+      'Business level: HTTPS, token encryption in n8n, separate workflow user. No GDPR audit log — upgradable on request.',
+    faq: [
+      { q: 'How fast can it be deployed?', a: '30-90 minutes depending on your n8n experience. The guide is step-by-step with screenshots.' },
+      { q: 'Refund?', a: 'Within 14 days if the workflow does not run as described. For account-config issues we provide setup support instead of a refund.' },
+      { q: 'Updates included?', a: 'There is currently no automatic update program. When we adjust the workflow template (e.g. due to API changes), we notify buyers by email about the changed version and provide the new file free of charge. We are still building out this mechanism.' },
+      { q: 'Support during setup?', a: 'PDF + helpbot free. Live setup call: optional €99 (or redeem 1,000 credits).' },
+      { q: 'Do I need coding skills?', a: 'No. n8n is visual. If you can use Zapier, you can use this.' },
+    ],
+    crossSell: 'Bundle (all 6 blueprints) → €697 instead of €1,212',
+  },
 };
 
 const leadQualifierPro: ShopItemContent = {
@@ -117,6 +159,49 @@ const leadQualifierPro: ShopItemContent = {
     { q: 'AVV / Vertrag?', a: 'DPA-Template inklusive — passt für deutsche/EU-Datenverarbeitung.' },
   ],
   crossSell: 'Cold Outreach System ergänzt diesen Flow für aktive Lead-Gen',
+  en: {
+    tag: 'Premium',
+    tagline: 'Automatically score incoming leads against 7 criteria — straight into your CRM.',
+    whatIsIt:
+      'A web form / calendar / email inbox feeds the workflow. Each lead is analyzed by an LLM against 7 criteria (budget, industry, size, pain, timing, decision authority, fit), scored, annotated and pushed into the CRM. Hot leads trigger a Slack/Telegram ping.',
+    outcomes: [
+      'Only the top 20% of leads land in the sales calendar (instead of every discovery call)',
+      'Lead-to-call conversion 2-3x higher',
+      'Sales saves 4-6h/week on pre-qualification',
+      'GDPR-compliant: lead data is processed in EU hosting, erasure API included',
+    ],
+    whenItFits: {
+      fits: [
+        'B2B agency / SaaS with 20+ leads/month',
+        'Consultant with a discovery-call bottleneck',
+        'Teams that qualify instead of sell',
+      ],
+      requires: [
+        'CRM with API (HubSpot, Pipedrive, Notion, Airtable supported)',
+        'LLM API key (Anthropic recommended, OpenAI works)',
+        'n8n self-hosted in the EU (for GDPR compliance)',
+      ],
+    },
+    includes: [
+      'n8n workflow JSON',
+      'GDPR compliance checklist (16 points)',
+      'PDF setup guide (18 pages)',
+      '7-criteria scoring logic (customizable)',
+      'CRM connector templates (HubSpot/Pipedrive/Notion/Airtable)',
+      'Erasure API endpoint code (Node.js)',
+    ],
+    pricingNote: 'Premium tier because of the GDPR component. Audit log included.',
+    securityNote:
+      'GDPR level: EU hosting required (Frankfurt data center recommended), DPA template included, audit log + erasure API.',
+    faq: [
+      { q: 'How fast can it be deployed?', a: '2-4 hours including GDPR setup. The guide walks you through DPA + hosting.' },
+      { q: 'Which CRMs are supported?', a: 'HubSpot, Pipedrive, Notion, Airtable natively. Others via webhook (custom).' },
+      { q: 'Refund?', a: '14-day return if the scoring logic does not work. For API setup issues we provide support.' },
+      { q: 'How many leads can it handle?', a: 'Up to 10k leads/month without issues. Beyond that: n8n scaling.' },
+      { q: 'DPA / contract?', a: 'DPA template included — fits German/EU data processing.' },
+    ],
+    crossSell: 'The Cold Outreach System complements this flow for active lead gen',
+  },
 };
 
 const reportingDashboardSetup: ShopItemContent = {
@@ -163,6 +248,42 @@ const reportingDashboardSetup: ShopItemContent = {
     { q: 'Anpassbar?', a: 'KPIs frei wählbar, Layout-Template editierbar (HTML/CSS).' },
     { q: 'Refund?', a: '14 Tage wie immer.' },
   ],
+  en: {
+    tagline: 'A weekly KPI report — generated automatically, emailed to your team.',
+    whatIsIt:
+      'Connects your data sources (Stripe, Google Analytics, Meta Ads, Airtable, Postgres) into a weekly PDF report. Sent every Monday at 06:00 — KPIs, trends, anomalies, top-3 insights via LLM.',
+    outcomes: [
+      'No more "how did last week go?" Sunday-evening scrambles',
+      'The team walks into Monday meetings with the same numbers',
+      '~3-5h/week of reporting time saved',
+    ],
+    whenItFits: {
+      fits: [
+        'Agency with 3+ clients who need reports',
+        'Startup with monthly investor updates',
+        'Teams with sprawling data sources',
+      ],
+      requires: [
+        'n8n + Postgres (for the data cache)',
+        'API access to your data sources',
+        'PDF render service (Puppeteer included in the workflow)',
+      ],
+    },
+    includes: [
+      'Dashboard template (Postgres schema + queries)',
+      'API connector setup (Stripe/GA/Meta)',
+      'PDF render template (customizable)',
+      'PDF setup guide (8 pages)',
+      'Weekly schedule trigger (n8n cron)',
+    ],
+    securityNote:
+      'Business level: API tokens encrypted in n8n. Reports land in a private inbox, no public link.',
+    faq: [
+      { q: 'Which data sources?', a: 'Stripe, GA4, Meta Ads, Airtable, Postgres natively. Others: custom connector (docs in the guide).' },
+      { q: 'Customizable?', a: 'KPIs freely selectable, layout template editable (HTML/CSS).' },
+      { q: 'Refund?', a: '14 days as always.' },
+    ],
+  },
 };
 
 const onboardingAutopilot: ShopItemContent = {
@@ -206,6 +327,39 @@ const onboardingAutopilot: ShopItemContent = {
     { q: 'Stripe required?', a: 'Nein. Funktioniert auch nur mit CRM-Webhook oder Form-Submit.' },
     { q: 'Refund?', a: '14 Tage.' },
   ],
+  en: {
+    tagline: 'Fully automated new-client onboarding — welcome, tasks, Slack ping.',
+    whatIsIt:
+      'As soon as a new client lands in Stripe/CRM: a welcome email with personalized next steps, tasks created in Notion/ClickUp, a Slack channel started with a welcome message, an onboarding form sent. All triggered by the first "paid" event.',
+    outcomes: [
+      'Onboarding time from 2-3 days down to 5 minutes',
+      'Consistent customer experience from day 1',
+      'No one forgets the welcome email anymore',
+    ],
+    whenItFits: {
+      fits: [
+        'SaaS / service business with Stripe',
+        'Agency with a standardized kickoff',
+        'Teams that currently do onboarding manually',
+      ],
+      requires: [
+        'Stripe OR a CRM with webhook support',
+        'Slack workspace (optional)',
+        'Notion/ClickUp/Asana API (optional)',
+      ],
+    },
+    includes: [
+      'n8n workflow JSON',
+      'PDF guide (6 pages)',
+      'Welcome email templates (3 variants)',
+      'Task template library',
+    ],
+    faq: [
+      { q: 'How fast can it be deployed?', a: '20-40 minutes — the fastest blueprint in the shop.' },
+      { q: 'Is Stripe required?', a: 'No. It also works with just a CRM webhook or form submit.' },
+      { q: 'Refund?', a: '14 days.' },
+    ],
+  },
 };
 
 const newsletterGrowthMachine: ShopItemContent = {
@@ -249,6 +403,39 @@ const newsletterGrowthMachine: ShopItemContent = {
     { q: 'Welche Newsletter-Tools?', a: 'Beehiiv, ConvertKit, Substack, Brevo nativ. Custom via Webhook.' },
     { q: 'Refund?', a: '14 Tage.' },
   ],
+  en: {
+    tagline: 'Newsletter ideas → outline → draft → send queue. 80% automated.',
+    whatIsIt:
+      'A research bot scans your sources (RSS, X, LinkedIn saved posts, your own notes) and suggests 5 newsletter topics. You pick one, the workflow generates an outline → draft → subject-line variants → send queue in your newsletter tool (Beehiiv/ConvertKit/Substack).',
+    outcomes: [
+      'Newsletter production from 4-6h down to 60-90 minutes',
+      'A consistent weekly cadence instead of "when there is time"',
+      'A/B subject lines generated automatically',
+    ],
+    whenItFits: {
+      fits: [
+        'Personal brand with a newsletter (1k+ subs, wants to grow)',
+        'B2B founder writing a thought-leadership newsletter',
+        'Solo founder who keeps postponing the newsletter because writing takes time',
+      ],
+      requires: [
+        'Newsletter tool with API (Beehiiv, ConvertKit, Substack, Brevo)',
+        'LLM API (Anthropic recommended)',
+        'At least 1-2 RSS/source URLs for research',
+      ],
+    },
+    includes: [
+      'n8n workflow JSON',
+      'Prompt templates (research → outline → draft)',
+      'PDF guide (10 pages)',
+      'Subject-line A/B variation logic',
+    ],
+    faq: [
+      { q: 'Does this sound like AI slop?', a: 'Not if you feed it your voice style. The output is a draft you polish — like a junior editor.' },
+      { q: 'Which newsletter tools?', a: 'Beehiiv, ConvertKit, Substack, Brevo natively. Custom via webhook.' },
+      { q: 'Refund?', a: '14 days.' },
+    ],
+  },
 };
 
 const coldOutreachSystem: ShopItemContent = {
@@ -299,6 +486,46 @@ const coldOutreachSystem: ShopItemContent = {
     { q: 'Spam-Risiko?', a: 'Workflow sendet mit Personalisierung + Daily-Cap. Bei korrektem Setup: <0.5% Spam-Rate.' },
     { q: 'Refund?', a: '14 Tage.' },
   ],
+  en: {
+    tag: 'New',
+    tagline: 'Personalized cold-outreach sequences via LLM. GDPR-compliant.',
+    whatIsIt:
+      'Lead list in → the workflow researches public signals per lead (LinkedIn bio, company news, tech stack), generates 3-5 personalized emails as a sequence with follow-ups, and schedules them in your outbound tool (Smartlead/Instantly/Apollo).',
+    outcomes: [
+      'Cold outreach with "mass customization": every email feels personal',
+      '3-5x response rate vs template mass-send',
+      'GDPR-compliant: legitimate-interest logic documented, opt-out automatic',
+    ],
+    whenItFits: {
+      fits: [
+        'B2B agency with active outbound',
+        'Sales team that needs scaled personalization',
+        'Founder in sales mode with 100-500 cold leads/month',
+      ],
+      requires: [
+        'Outbound tool (Smartlead, Instantly, Apollo)',
+        'Lead list (Apollo export, LinkedIn Sales Navigator export)',
+        'LLM API + web-search API (Tavily recommended)',
+      ],
+    },
+    includes: [
+      'n8n workflow JSON',
+      'GDPR-compliant email templates (5 industry variants)',
+      'PDF guide (15 pages)',
+      'Legitimate-interest logic documentation',
+      'Opt-out auto-handler',
+      'Personalization prompt library',
+    ],
+    pricingNote: 'GDPR premium. The legitimate-interest documentation saves legal stress.',
+    securityNote:
+      'GDPR level: opt-out automation, erasure API, EU data processing required. The legitimate-interest template is provided as a draft (no legal review — the customer remains responsible).',
+    faq: [
+      { q: 'Is cold outreach even legal in Germany?', a: 'B2B yes, under legitimate interest. We provide the documentation template. B2C no — the workflow is for B2B only.' },
+      { q: 'Which outbound tools?', a: 'Smartlead, Instantly, Apollo natively. Others via webhook.' },
+      { q: 'Spam risk?', a: 'The workflow sends with personalization + a daily cap. With correct setup: <0.5% spam rate.' },
+      { q: 'Refund?', a: '14 days.' },
+    ],
+  },
 };
 
 /* ──────────────────── BUNDLE (1) ──────────────────── */
@@ -347,6 +574,43 @@ const bundleAll: ShopItemContent = {
     { q: 'Refund auf einzelne Blueprints?', a: 'Bundle ist Bundle — Refund nur als Komplett-Rückgabe (14 Tage).' },
     { q: 'Updates?', a: 'Wenn wir einen Blueprint anpassen (z.B. bei API-Änderungen), bekommen Bundle-Käufer die aktualisierte Version per Mail. Ein formales SLA gibt es derzeit nicht — der Mechanismus ist im Aufbau.' },
   ],
+  en: {
+    name: 'Blueprint Bundle — All 6',
+    tag: 'Best Value',
+    tagline: 'All 6 blueprints in one package. Save €515 vs buying separately.',
+    whatIsIt:
+      'The complete blueprint collection: Content Factory, Lead-Qualifier Pro, Reporting Dashboard, Onboarding Autopilot, Newsletter Growth Machine, Cold Outreach System. Cover content, leads, reporting and automation in one bundle.',
+    outcomes: [
+      '€515 saving vs buying separately (€1,212 → €697)',
+      'A complete tool set for an agency or a scaling solo founder',
+      'Cross-workflows: outreach → qualifier → reporting combine seamlessly',
+      '+6,970 credits with an account purchase',
+    ],
+    whenItFits: {
+      fits: [
+        'Agency that needs content + leads + reporting under one roof',
+        'Founder who wants to deploy several workflows at once',
+        'Buyers who plan to use all building blocks anyway instead of one by one',
+      ],
+      requires: [
+        'n8n account (self-hosted for the GDPR blueprints, otherwise cloud)',
+        'LLM API + newsletter/CRM/outbound tool access',
+      ],
+    },
+    includes: [
+      'All 6 blueprints (see the individual pages for details)',
+      '6 n8n workflow JSONs',
+      '6 PDF setup guides (~70 pages total)',
+      'Complete prompt libraries',
+      'GDPR compliance docs for the premium workflows',
+    ],
+    pricingNote: '€515 cheaper than buying separately. With an account: +6,970 credits.',
+    faq: [
+      { q: 'Can I get blueprints individually instead of the bundle?', a: 'Yes, each has a detail page with its own buy button.' },
+      { q: 'Refund on individual blueprints?', a: 'A bundle is a bundle — refunds only as a complete return (14 days).' },
+      { q: 'Updates?', a: 'When we adjust a blueprint (e.g. due to API changes), bundle buyers receive the updated version by email. There is no formal SLA yet — the mechanism is being built out.' },
+    ],
+  },
 };
 
 /* ──────────────────── CONSOLIDATED DFY (5 + 2 specials, 2026-05-24) ─────
@@ -412,6 +676,46 @@ const aevumBusinessOS: ShopItemContent = {
     { q: 'Daten-Hoheit?', a: 'Volle Hoheit — Dump jederzeit möglich, du besitzt die DB.' },
     { q: 'Wie geht der Audit?', a: '60min Call → schriftliches Angebot in 3-5 Tagen.' },
   ],
+  en: {
+    tag: 'Complete',
+    tagline: 'Complete company infrastructure — everything connected in one system.',
+    whatIsIt:
+      'We build your company infrastructure as a single unit: a database backend (instead of spreadsheet sprawl), website + CRM (instead of isolated tools), an automation layer (n8n + custom code). Everything talks to everything. Custom-designed for your processes — not a template.',
+    outcomes: [
+      'Tool sprawl gone: one connected system instead of 5 SaaS islands',
+      'Operations hours often reducible by 30-50%',
+      'A single source of truth for KPIs instead of a reporting patchwork',
+      'Scales from 1k to 1M records without pain',
+    ],
+    whenItFits: {
+      fits: [
+        'Companies with €500k-€5M revenue facing scaling pressure',
+        'Agencies with 5-15 employees and tool chaos',
+        'Founders who want "everything in one system" instead of a tool stack',
+      ],
+      requires: [
+        'An audit call (free) to clarify scope',
+        'Readiness for a 4-8 week setup phase',
+        'At least 1 internal sparring contact for data + processes',
+      ],
+    },
+    includes: [
+      'Full audit (as-is analysis)',
+      'Custom architecture plan',
+      'Database backend (Postgres) + admin UI',
+      'Website (Next.js/Astro) + CRM layer',
+      'n8n automation workflows',
+      'Onboarding for your team',
+      'Monthly optimization in the retainer',
+    ],
+    pricingNote: 'One-time setup, retainer for hosting + maintenance + optimization.',
+    faq: [
+      { q: 'What sets you apart from Make/Zapier consultants?', a: 'We build productive systems with a code backbone where needed. Not 50 Zaps that break every month.' },
+      { q: 'Can I switch later?', a: 'Yes — all workflows + data models are yours, we only manage hosting.' },
+      { q: 'Data ownership?', a: 'Full ownership — you can dump anytime, you own the DB.' },
+      { q: 'How does the audit work?', a: '60-min call → written proposal in 3-5 days.' },
+    ],
+  },
 };
 
 const aevumCommandCenter: ShopItemContent = {
@@ -456,6 +760,42 @@ const aevumCommandCenter: ShopItemContent = {
     { q: 'Kann ich Daten exportieren?', a: 'Ja — Postgres ist deine, jederzeit Dump möglich.' },
     { q: 'Sicherheit Mobile-HUD?', a: 'TG-initData-Auth + Whitelist-User-IDs. Kein Public-Access.' },
   ],
+  en: {
+    tagline: 'Live KPI dashboard + mobile HUD via Telegram + AI insights.',
+    whatIsIt:
+      'A custom dashboard that aggregates your most important KPIs from every source: revenue, pipeline, operations, marketing. Web + mobile (a Telegram mini-app in HUD format). Live data, AI insights (anomalies, trends, to-dos), push alerts. Business status in 5 seconds from your phone.',
+    outcomes: [
+      'CEO view in 30 seconds instead of 30 minutes',
+      'AI flags anomalies before they grow',
+      'Push notifications for a big sale / anomaly / new lead',
+      'Investor updates exportable in 5 minutes',
+    ],
+    whenItFits: {
+      fits: [
+        'Companies with 3+ tools holding data',
+        'Founders who work mobile-first',
+        'Teams that want to cut down on "where are we?" meetings',
+      ],
+      requires: [
+        'API access to your data sources',
+        'An audit call for KPI definition',
+        'Telegram account for the mobile HUD (optional)',
+      ],
+    },
+    includes: [
+      'KPI definition workshop',
+      'Custom dashboard build (web + Telegram HUD)',
+      'AI insight layer (anomaly detection, trend analysis)',
+      'Push-notification logic',
+      'Setup of data connections',
+      'Monthly KPI reviews in the retainer',
+    ],
+    faq: [
+      { q: 'Which tools are in the stack?', a: 'Postgres + Next.js + Recharts + Telegram mini-app. Data sources via n8n.' },
+      { q: 'Can I export data?', a: 'Yes — Postgres is yours, you can dump anytime.' },
+      { q: 'Mobile HUD security?', a: 'Telegram initData auth + whitelisted user IDs. No public access.' },
+    ],
+  },
 };
 
 const aevumLeadEngine: ShopItemContent = {
@@ -501,6 +841,43 @@ const aevumLeadEngine: ShopItemContent = {
     { q: 'DSGVO sicher?', a: 'Ja — EU-Hosting, Audit-Log, DPA-Vorlage, Erasure-API.' },
     { q: 'Retainer-Kündigung?', a: '3 Monate Mindestlaufzeit, dann monatlich.' },
   ],
+  en: {
+    tagline: 'End-to-end lead system: gen + qualify + CRM + sales pipeline.',
+    whatIsIt:
+      'A complete funnel: inbound forms + outbound outreach + 7-criteria qualifier + CRM sync + follow-up automation + offer generator. The sales cycle no longer ends in form-tool limbo, but in a closed deal.',
+    outcomes: [
+      '2-5x more qualified calls per month',
+      'Sales time for pre-qualification: -70%',
+      'Sales cycle shortened 20-40% through automated follow-ups',
+      'GDPR-compliant funnel with audit log',
+    ],
+    whenItFits: {
+      fits: [
+        'B2B agency / SaaS with cold-outreach needs',
+        'Sales teams of 2-10 people',
+        'Companies with a chaotic CRM and a sales bottleneck',
+      ],
+      requires: [
+        'CRM (HubSpot, Pipedrive, Salesforce, Notion CRM) OR readiness to set one up',
+        'An audit call',
+      ],
+    },
+    includes: [
+      'Lead-capture forms (custom-branded)',
+      'Cold Outreach System (GDPR-compliant)',
+      'Lead qualifier (LLM-based, 7 criteria)',
+      'CRM setup or migration',
+      'Pipeline definition + stages',
+      'Follow-up automation (n8n)',
+      'Offer generator (PDF + Stripe link)',
+      'Reporting dashboard for lead flow',
+    ],
+    faq: [
+      { q: 'How many leads per month?', a: 'The system scales to 5k-10k leads/month. The setup phase defines the target volume.' },
+      { q: 'GDPR-safe?', a: 'Yes — EU hosting, audit log, DPA template, erasure API.' },
+      { q: 'Retainer cancellation?', a: '3-month minimum term, then monthly.' },
+    ],
+  },
 };
 
 const aevumContentEngine: ShopItemContent = {
@@ -545,6 +922,42 @@ const aevumContentEngine: ShopItemContent = {
     { q: 'Welche Newsletter-Tools?', a: 'Beehiiv, ConvertKit, Substack, Brevo nativ. Custom via Webhook.' },
     { q: 'Kündigung?', a: '3 Monate, dann monatlich.' },
   ],
+  en: {
+    tagline: 'Full-stack content production: blog + social + newsletter + outreach.',
+    whatIsIt:
+      'A multi-channel content machine: topic research → outline → draft → visual → publish. Blog + social + newsletter + cold outreach in one system. Voice training on your brand, a review queue (you approve), monthly strategy reviews.',
+    outcomes: [
+      '5-15 pieces of content per week instead of 1-2',
+      'Newsletter production from 4-6h down to 60-90 min',
+      'SEO traffic growth through a consistent cadence',
+      'Brand voice kept consistent via a voice library',
+    ],
+    whenItFits: {
+      fits: [
+        'Personal brands that want to grow but lack the time',
+        'Agencies with a content bottleneck',
+        'B2B founders scaling thought leadership',
+      ],
+      requires: [
+        'A voice sample (10-20 of your posts/blogs)',
+        'API access to your channels',
+        'Newsletter tool with API (Beehiiv/ConvertKit/Substack/Brevo) if newsletter is part of it',
+      ],
+    },
+    includes: [
+      'Voice-library training on your posts',
+      'Multi-channel workflows (blog + social + newsletter)',
+      'Cold-outreach component (GDPR-compliant, optional)',
+      'Review queue (you approve)',
+      'Monthly content-strategy reviews',
+    ],
+    faq: [
+      { q: 'AI-slop output?', a: 'Not if voice training and the review queue are used. Nobody pushes raw AI — you do the final check.' },
+      { q: 'How much output per month?', a: 'The setup phase defines the volume. Typically: 15-40 pieces/month.' },
+      { q: 'Which newsletter tools?', a: 'Beehiiv, ConvertKit, Substack, Brevo natively. Custom via webhook.' },
+      { q: 'Cancellation?', a: '3 months, then monthly.' },
+    ],
+  },
 };
 
 const aevumAudit: ShopItemContent = {
@@ -589,6 +1002,42 @@ const aevumAudit: ShopItemContent = {
     { q: 'Was wenn ich nichts umsetzen will?', a: 'Du behältst Report + Roadmap. Kein Push-Sales.' },
     { q: 'Gutschrift bei Folge-Auftrag?', a: 'Ja, 50% der Audit-Kosten werden auf Setup angerechnet.' },
   ],
+  en: {
+    tag: 'Entry',
+    tagline: 'A strategy audit in 48h. Top-3 quick wins + pitch report + roadmap.',
+    whatIsIt:
+      'We analyze your processes, tools and data flows. Output: top-3 quick wins with a concrete implementation plan (effort, cost, outcome) + a long-term roadmap. Fixed price, no retainer. If you commission a follow-up build, 50% is credited.',
+    outcomes: [
+      'Clear prioritization instead of "we should automate something at some point"',
+      'Top-3 quick wins with an ROI estimate',
+      'Long-term roadmap for 6-12 months',
+      'A pitch-report PDF to take away',
+    ],
+    whenItFits: {
+      fits: [
+        'Companies that know "something is going wrong somewhere" but not where',
+        'Founders who want an outside view before they invest',
+        'Teams facing an upcoming tooling decision',
+      ],
+      requires: [
+        'Readiness for 2-3 calls (60-90 min)',
+        'Read access to your most important tools',
+      ],
+    },
+    includes: [
+      'Kickoff call (60 min)',
+      'Tool-stack analysis + process mapping',
+      'PDF report (15-25 pages) with top-3 quick wins + roadmap',
+      'Closing call for discussion',
+      'On a build commission: 50% of the audit cost is credited',
+    ],
+    pricingNote: 'One-time €1,199, no retainer. The audit can be credited toward a later build.',
+    faq: [
+      { q: 'How short is 48h really?', a: 'Kickoff → PDF + closing call 48h later. Realistic for medium complexity.' },
+      { q: 'What if I do not want to implement anything?', a: 'You keep the report + roadmap. No pushy sales.' },
+      { q: 'Credit on a follow-up commission?', a: 'Yes, 50% of the audit cost is credited toward setup.' },
+    ],
+  },
 };
 
 /* ──────────────────── DFY SERVICES (Legacy + Industry-Specific) ──────────────────── */
@@ -634,6 +1083,41 @@ const businessOS: ShopItemContent = {
     { q: 'Kann ich später wechseln?', a: 'Ja — alle Workflows + Data-Models gehören dir, wir verwalten nur Hosting.' },
     { q: 'Wie geht der Audit?', a: '60min Call → schriftliches Angebot in 3-5 Tagen.' },
   ],
+  en: {
+    tagline: 'Your entire company in one AI system — everything connected.',
+    whatIsIt:
+      'We build you an integrated business system: automation, reporting, communication, data. Everything talks to everything. Custom-designed for your processes, not a template adaptation.',
+    outcomes: [
+      'End of tool sprawl (Excel + Slack + 3 SaaS tools)',
+      'Operations hours per week often reducible by 30-50%',
+      'A single source of truth for KPIs instead of a reporting patchwork',
+    ],
+    whenItFits: {
+      fits: [
+        'Companies with €500k-€5M revenue facing scaling pressure',
+        'Agencies with 5-15 employees',
+        'Founders who want "everything in one system" instead of a tool stack',
+      ],
+      requires: [
+        'An audit call (free) to clarify scope',
+        'Readiness for a 4-8 week setup phase',
+        'At least 1 internal sparring contact for data + processes',
+      ],
+    },
+    includes: [
+      'Full audit (as-is analysis)',
+      'Custom architecture plan',
+      'Setup + integration (n8n + Postgres + dashboards)',
+      'Onboarding for your team',
+      'Monthly optimization in the retainer',
+    ],
+    pricingNote: 'One-time setup, retainer for hosting + maintenance + optimization.',
+    faq: [
+      { q: 'What sets you apart from Make/Zapier consultants?', a: 'We build productive systems with a code backbone where needed. Not 50 Zaps that break every month.' },
+      { q: 'Can I switch later?', a: 'Yes — all workflows + data models are yours, we only manage hosting.' },
+      { q: 'How does the audit work?', a: '60-min call → written proposal in 3-5 days.' },
+    ],
+  },
 };
 
 const commandCenterDashboard: ShopItemContent = {
@@ -675,6 +1159,39 @@ const commandCenterDashboard: ShopItemContent = {
     { q: 'Kann ich Daten exportieren?', a: 'Ja — Postgres ist deine, jederzeit Dump möglich.' },
     { q: 'Mobile?', a: 'Responsive Web + optional Telegram-Mini-App im HUD-Format (siehe HUD Command Center).' },
   ],
+  en: {
+    tagline: 'Real-time CEO dashboard with AI insights. All KPIs at a glance.',
+    whatIsIt:
+      'A custom dashboard that aggregates your most important KPIs from every source: revenue, pipeline, operations, marketing. Live data, AI-generated insights (anomalies, trends, to-dos), accessible via web + mobile.',
+    outcomes: [
+      'CEO view in 30 seconds instead of 30 minutes',
+      'AI flags anomalies before they grow',
+      'Investor updates exportable in 5 minutes',
+    ],
+    whenItFits: {
+      fits: [
+        'Companies with 3+ tools holding data',
+        'Founders who want dashboards but lack the time to build them',
+        'Teams that want to cut down on "where are we?" meetings',
+      ],
+      requires: [
+        'API access to your data sources',
+        'An audit call for KPI definition',
+      ],
+    },
+    includes: [
+      'KPI definition workshop',
+      'Custom dashboard build (web + mobile)',
+      'AI insight layer (anomaly detection, trend analysis)',
+      'Setup of data connections',
+      'Monthly KPI reviews in the retainer',
+    ],
+    faq: [
+      { q: 'Which tools are in the stack?', a: 'Postgres + Next.js + Recharts. Data sources via n8n. Hosting on our servers or your cloud provider.' },
+      { q: 'Can I export data?', a: 'Yes — Postgres is yours, you can dump anytime.' },
+      { q: 'Mobile?', a: 'Responsive web + optional Telegram mini-app in HUD format (see HUD Command Center).' },
+    ],
+  },
 };
 
 const aiLeadEngine: ShopItemContent = {
@@ -716,6 +1233,39 @@ const aiLeadEngine: ShopItemContent = {
     { q: 'DSGVO sicher?', a: 'Ja — EU-Hosting, Audit-Log, DPA-Vorlage, Erasure-API.' },
     { q: 'Retainer-Kündigung?', a: '3 Monate Mindestlaufzeit, dann monatlich.' },
   ],
+  en: {
+    tagline: 'Autonomous 24/7 lead generation and qualification.',
+    whatIsIt:
+      'An end-to-end lead system: inbound forms + outbound outreach + qualifier + CRM sync. We build the complete funnel including GDPR compliance.',
+    outcomes: [
+      '2-5x more qualified calls per month',
+      'Sales time for pre-qualification: -70%',
+      'GDPR-compliant funnel with audit log',
+    ],
+    whenItFits: {
+      fits: [
+        'B2B agency / SaaS with cold-outreach needs',
+        'Sales teams of 2-10 people',
+        'Companies that currently outsource lead gen expensively',
+      ],
+      requires: [
+        'CRM (HubSpot, Pipedrive, Salesforce, Notion CRM)',
+        'An audit call',
+      ],
+    },
+    includes: [
+      'Lead-capture forms (custom-branded)',
+      'Cold Outreach System (GDPR-compliant)',
+      'Lead qualifier (LLM-based, 7 criteria)',
+      'CRM integration',
+      'Reporting dashboard for lead flow',
+    ],
+    faq: [
+      { q: 'How many leads per month?', a: 'The system scales to 5k-10k leads/month. The setup phase defines the target volume.' },
+      { q: 'GDPR-safe?', a: 'Yes — EU hosting, audit log, DPA template, erasure API.' },
+      { q: 'Retainer cancellation?', a: '3-month minimum term, then monthly.' },
+    ],
+  },
 };
 
 const salesOS: ShopItemContent = {
@@ -757,6 +1307,39 @@ const salesOS: ShopItemContent = {
     { q: 'Migrationen aufwendig?', a: 'Wir migrieren bestehende Daten als Teil des Setups.' },
     { q: 'Kündigung?', a: '3 Monate, dann monatlich.' },
   ],
+  en: {
+    tagline: 'A complete sales system — pipeline, follow-ups, offers, reports.',
+    whatIsIt:
+      'A complete sales stack: CRM setup or migration, pipeline stages, follow-up automation, offer generator, reporting. Your sales run on rails instead of out of Notion + email.',
+    outcomes: [
+      'Sales cycle shortened 20-40% through automated follow-ups',
+      'Offers in minutes instead of hours',
+      'Pipeline visibility instead of "I think lead X was interested"',
+    ],
+    whenItFits: {
+      fits: [
+        'Sales teams with a chaotic CRM',
+        'Founders with a sales bottleneck',
+        'Agencies that often have to personalize offers',
+      ],
+      requires: [
+        'An audit call',
+        'An existing CRM OR readiness to set one up',
+      ],
+    },
+    includes: [
+      'CRM setup or migration',
+      'Pipeline definition + stages',
+      'Follow-up automation (n8n)',
+      'Offer generator (PDF + Stripe link)',
+      'Sales reporting dashboard',
+    ],
+    faq: [
+      { q: 'Which CRM?', a: 'HubSpot or Pipedrive recommended. Notion/Airtable also possible for smaller teams.' },
+      { q: 'Are migrations complex?', a: 'We migrate existing data as part of the setup.' },
+      { q: 'Cancellation?', a: '3 months, then monthly.' },
+    ],
+  },
 };
 
 const ecommerceOS: ShopItemContent = {
@@ -798,6 +1381,39 @@ const ecommerceOS: ShopItemContent = {
     { q: 'Migrationen vom alten Shop?', a: 'Ja, Produkt + Order + Customer-Migration inklusive.' },
     { q: 'Kündigung?', a: '3 Monate, dann monatlich.' },
   ],
+  en: {
+    tagline: 'A complete e-commerce system — shop, inventory, payments, automation.',
+    whatIsIt:
+      'A headless Shopify or custom shop + inventory sync + email automation + reporting. We build or optimize your e-commerce stack so operations scale.',
+    outcomes: [
+      'Order-to-fulfillment time -40-60%',
+      'Inventory sync without manual Excel',
+      'Email flows that demonstrably convert',
+    ],
+    whenItFits: {
+      fits: [
+        'DTC brands with 500-50k orders/month',
+        'Shopify stores with operations pain',
+        'Personal brands relaunching a shop',
+      ],
+      requires: [
+        'Shopify account OR readiness for a custom shop',
+        'An audit call',
+      ],
+    },
+    includes: [
+      'Shop setup or optimization (Shopify headless or custom)',
+      'Inventory sync (multi-channel if needed)',
+      'Email automation (Klaviyo / Brevo)',
+      'Reporting dashboard',
+      'Operations workflows (returns, reviews, restocks)',
+    ],
+    faq: [
+      { q: 'Shopify only?', a: 'Preferred, but WooCommerce + custom setups are possible.' },
+      { q: 'Migrations from the old shop?', a: 'Yes, product + order + customer migration included.' },
+      { q: 'Cancellation?', a: '3 months, then monthly.' },
+    ],
+  },
 };
 
 const automationAudit: ShopItemContent = {
@@ -841,6 +1457,41 @@ const automationAudit: ShopItemContent = {
     { q: 'Was wenn ich nichts umsetzen will?', a: 'Du behältst Report + Roadmap. Kein Push-Sales.' },
     { q: 'Gutschrift bei Folge-Auftrag?', a: 'Ja, 50% der Audit-Kosten werden auf Setup angerechnet.' },
   ],
+  en: {
+    tag: 'Entry',
+    tagline: 'Process analysis in 48h. Top-3 quick wins with an implementation plan.',
+    whatIsIt:
+      'We analyze your processes, tools and data flows. Output: top-3 quick wins with a concrete implementation plan (effort, cost, outcome) + a long-term roadmap. Fixed price, no retainer.',
+    outcomes: [
+      'Clear prioritization instead of "we should automate something at some point"',
+      'Top-3 quick wins with an ROI estimate',
+      'Long-term roadmap for 6-12 months',
+    ],
+    whenItFits: {
+      fits: [
+        'Companies that know "something is going wrong somewhere" but not where',
+        'Founders who want an outside view before they invest',
+        'Teams with upcoming tooling decisions',
+      ],
+      requires: [
+        'Readiness for 2-3 calls (60-90 min)',
+        'Read access to your most important tools',
+      ],
+    },
+    includes: [
+      'Kickoff call (60 min)',
+      'Tool-stack analysis + process mapping',
+      'PDF report (15-25 pages) with top-3 quick wins + roadmap',
+      'Closing call for discussion',
+      'On a build commission: 50% of the audit cost is credited',
+    ],
+    pricingNote: 'One-time €1,199, no retainer. The audit can be credited toward a later build.',
+    faq: [
+      { q: 'How short is 48h really?', a: 'Kickoff → PDF + closing call 48h later. Realistic for medium complexity.' },
+      { q: 'What if I do not want to implement anything?', a: 'You keep the report + roadmap. No pushy sales.' },
+      { q: 'Credit on a follow-up commission?', a: 'Yes, 50% of the audit cost is credited toward setup.' },
+    ],
+  },
 };
 
 const websiteCrm: ShopItemContent = {
@@ -882,6 +1533,39 @@ const websiteCrm: ShopItemContent = {
     { q: 'Wie viele Pages?', a: 'Setup-Preis deckt bis 5 Pages. Mehr ist Custom-Quote.' },
     { q: 'Kündigung Retainer?', a: 'Monatlich, kein Lock-in.' },
   ],
+  en: {
+    tagline: 'Landing page + database + n8n automation — all connected.',
+    whatIsIt:
+      'A custom landing or multi-page site + CRM backend + automation layer. Form submissions land directly in a qualified pipeline, not in form-tool limbo.',
+    outcomes: [
+      'End of "form → email → manual CRM"',
+      'Site + data + workflows from a single source',
+      'Sub-1s load speed, SEO-ready',
+    ],
+    whenItFits: {
+      fits: [
+        'Solo founders building their first real funnel',
+        'Agencies that need landing + backend',
+        'Companies frustrated with WordPress',
+      ],
+      requires: [
+        'A domain (or we help)',
+        'An audit call for scope',
+      ],
+    },
+    includes: [
+      'Custom website (Next.js / Astro)',
+      'CRM backend (Postgres + custom admin)',
+      'n8n automation workflows',
+      'SEO setup + analytics',
+      'Monthly maintenance in the retainer',
+    ],
+    faq: [
+      { q: 'WordPress?', a: 'No — we build modern (Next.js/Astro). More performant, more secure, more maintainable.' },
+      { q: 'How many pages?', a: 'The setup price covers up to 5 pages. More is a custom quote.' },
+      { q: 'Retainer cancellation?', a: 'Monthly, no lock-in.' },
+    ],
+  },
 };
 
 const databaseSystem: ShopItemContent = {
@@ -922,6 +1606,38 @@ const databaseSystem: ShopItemContent = {
     { q: 'Datenmigration?', a: 'Excel/Airtable/Sheets-Migration inklusive im Setup.' },
     { q: 'Daten-Hoheit?', a: 'Volle Hoheit — Dump jederzeit möglich, du besitzt die DB.' },
   ],
+  en: {
+    tagline: 'A professional database backend with workflows. Excel is history.',
+    whatIsIt:
+      'A custom database (Postgres or Airtable depending on complexity) + admin UI + workflows + API. For use cases where Excel/Notion/Airtable hit their limits.',
+    outcomes: [
+      'Data in one place, one truth',
+      'An API for external tools instead of copy-paste',
+      'Scales from 1k to 1M rows without pain',
+    ],
+    whenItFits: {
+      fits: [
+        'Companies with Excel spreadsheets > 5k rows',
+        'Teams chasing data across 3+ tools',
+        'Use cases where Airtable limits bite (50k rows, slow)',
+      ],
+      requires: [
+        'An audit call for schema design',
+      ],
+    },
+    includes: [
+      'Schema design (tables, relations, indexes)',
+      'Admin UI (filter, sort, edit, bulk operations)',
+      'API + webhook endpoints',
+      'Workflow layer (n8n)',
+      'Hosting + backup in the retainer',
+    ],
+    faq: [
+      { q: 'Postgres or Airtable?', a: 'Depends on complexity: <50k rows + many users → Airtable. Complex / API-heavy / >50k rows → Postgres.' },
+      { q: 'Data migration?', a: 'Excel/Airtable/Sheets migration included in the setup.' },
+      { q: 'Data ownership?', a: 'Full ownership — you can dump anytime, you own the DB.' },
+    ],
+  },
 };
 
 const contentEngine: ShopItemContent = {
@@ -962,6 +1678,38 @@ const contentEngine: ShopItemContent = {
     { q: 'Wieviel Output pro Monat?', a: 'Setup-Phase definiert Volume. Typisch: 15-40 Stücke/Monat.' },
     { q: 'Kündigung?', a: '3 Monate, dann monatlich.' },
   ],
+  en: {
+    tagline: 'An autonomous AI content factory for blog, social, SEO. Around the clock.',
+    whatIsIt:
+      'We build you a content machine: topic research → outline → draft → visual → publish. Multi-channel (blog, LinkedIn, Instagram, Twitter). In the retainer we keep refining the voice tuning.',
+    outcomes: [
+      '5-15 pieces of content per week instead of 1-2',
+      'SEO traffic growth through a consistent cadence',
+      'Brand voice stays consistent via a voice library',
+    ],
+    whenItFits: {
+      fits: [
+        'Personal brands that want to grow but lack the time',
+        'Agencies with a content bottleneck',
+        'B2B founders scaling thought leadership',
+      ],
+      requires: [
+        'A voice sample (10-20 of your posts/blogs)',
+        'API access to your channels',
+      ],
+    },
+    includes: [
+      'Voice-library training on your posts',
+      'Multi-channel workflows (blog + social)',
+      'Review queue (you approve)',
+      'Monthly content-strategy reviews',
+    ],
+    faq: [
+      { q: 'AI-slop output?', a: 'No, if voice training and the review queue are used. Nobody pushes raw AI — you do the final check.' },
+      { q: 'How much output per month?', a: 'The setup phase defines the volume. Typically: 15-40 pieces/month.' },
+      { q: 'Cancellation?', a: '3 months, then monthly.' },
+    ],
+  },
 };
 
 const hudCommandCenter: ShopItemContent = {
@@ -1004,6 +1752,40 @@ const hudCommandCenter: ShopItemContent = {
     { q: 'Wie viele User?', a: 'Setup deckt 1-5 User. Mehr → Custom-Quote.' },
     { q: 'Sicherheit?', a: 'TG-initData-Auth + Whitelist-User-IDs. Kein Public-Access.' },
   ],
+  en: {
+    tag: '🔥 New',
+    tagline: 'Your business as a live dashboard in Telegram. Mobile-first.',
+    whatIsIt:
+      'A Telegram mini-app that shows your most important KPIs live. Section drill-down (tap Revenue → Stripe detail), an AI agent right in the chat ("How did today go?"), push notifications on anomalies.',
+    outcomes: [
+      'Business status in 5 seconds from your phone',
+      'On-demand AI agent for data questions',
+      'Push on important events (big sale, anomaly, new lead)',
+    ],
+    whenItFits: {
+      fits: [
+        'Founders who work mobile-first',
+        'Teams that live chat-driven (Telegram/Slack)',
+        'Power users who find "open the dashboard on the laptop" too slow',
+      ],
+      requires: [
+        'Telegram account',
+        'Existing data sources or setup in the package',
+      ],
+    },
+    includes: [
+      'Telegram mini-app (custom UI)',
+      'Live data pipeline (Postgres-backed)',
+      'AI agent for chat questions',
+      'Push-notification logic',
+      'Section drill-down layouts',
+    ],
+    faq: [
+      { q: 'Telegram only?', a: 'Primarily yes — the mini-app tech also runs in WhatsApp/Slack via webview, but the setup pricing is for one platform.' },
+      { q: 'How many users?', a: 'The setup covers 1-5 users. More → custom quote.' },
+      { q: 'Security?', a: 'Telegram initData auth + whitelisted user IDs. No public access.' },
+    ],
+  },
 };
 
 const scriptFactoryDfy: ShopItemContent = {
@@ -1047,6 +1829,41 @@ const scriptFactoryDfy: ShopItemContent = {
     { q: 'Kündigung?', a: '3 Monate, dann monatlich.' },
   ],
   crossSell: 'SaaS-Variante kommt Q3 2026 — günstiger Self-Serve-Einstieg',
+  en: {
+    tagline: 'We build your ad-script factory for Meta, TikTok, YouTube.',
+    whatIsIt:
+      'The done-for-you version of the Script Factory: we design and build the machine for your brand. Framework-based (Knightvision-inspired), brand-voice tuning, multi-platform output. In the retainer we optimize continuously.',
+    outcomes: [
+      '5-15 ad scripts per week instead of 1-2 manually',
+      'Frameworks from proven performers built into the system',
+      'Brand voice consistent across all scripts',
+    ],
+    whenItFits: {
+      fits: [
+        'Agencies that deliver ad scripts for clients',
+        'DTC brands with constant creative needs',
+        'Personal brands that need performance content',
+      ],
+      requires: [
+        'An audit call',
+        'Existing brand material (previous ads, voice samples)',
+      ],
+    },
+    includes: [
+      'Custom Script Factory setup',
+      'Framework library (hook, body, CTA patterns)',
+      'Brand-voice tuning for your brand',
+      'Multi-platform output (Meta, TikTok, YouTube)',
+      'Monthly performance reviews',
+    ],
+    pricingNote: 'DFY variant — we build + operate. A self-serve SaaS variant arrives Q3 2026.',
+    faq: [
+      { q: 'Difference from the SaaS variant?', a: 'DFY: we build it for you, custom setup. SaaS (coming soon): pay-per-run, self-serve on standard frameworks.' },
+      { q: 'Which frameworks?', a: 'Knightvision-style: Hook → Pain → Solution → Proof → CTA, plus 8 more tested patterns.' },
+      { q: 'Cancellation?', a: '3 months, then monthly.' },
+    ],
+    crossSell: 'The SaaS variant arrives Q3 2026 — a cheaper self-serve entry',
+  },
 };
 
 /* ──────────────────── SAAS COMING-SOON (3) ──────────────────── */
@@ -1092,6 +1909,40 @@ const scriptFactorySaas: ShopItemContent = {
     { q: 'Wartelisten-Vorteil?', a: 'Ja — Early-Adopter kriegen 50% Credits-Bonus für ersten Monat.' },
   ],
   crossSell: 'DFY-Variante verfügbar wenn du Custom-Setup brauchst',
+  en: {
+    tag: 'In Development',
+    tagline: 'Self-serve ad-script factory. Pay-per-run.',
+    comingSoonPhase: 'Phase 2 (Q3 2026) — currently in development',
+    whatIsIt:
+      'The SaaS version of the Script Factory: you log in, feed in product + target platform, and get 5-10 ad scripts in minutes. Pay-per-run via AEVUM credits or a monthly bundle. Self-serve, no consulting. Currently in build — launch Q3 2026.',
+    outcomes: [
+      'Ad scripts in 60 seconds instead of hours',
+      'Multi-platform output (Meta, TikTok, YouTube)',
+      'Frameworks integrated into the system',
+      'Pay only for what you use',
+    ],
+    whenItFits: {
+      fits: [
+        'Solo marketers with occasional script needs',
+        'Agencies that need quick turnaround',
+        'Teams that do not need the DFY variant',
+      ],
+      requires: [
+        'An AEVUM account (free)',
+        'Credits or a monthly subscription',
+      ],
+    },
+    includes: STUB_TEXT_EN.outcomes.concat([
+      'Detailed includes will follow at launch',
+    ]),
+    pricingNote: 'Pricing model: ~30-50 credits per script run. Bundles from €29/mo.',
+    faq: [
+      { q: 'When is it available?', a: 'Q3 2026 (July-September). Early-adopter list: sign up via audit call.' },
+      { q: 'How does it differ from DFY?', a: 'Self-serve, standard frameworks. DFY has a custom setup + brand-voice tuning.' },
+      { q: 'Waitlist advantage?', a: 'Yes — early adopters get a 50% credits bonus for the first month.' },
+    ],
+    crossSell: 'The DFY variant is available if you need a custom setup',
+  },
 };
 
 const dsgvoFactory: ShopItemContent = {
@@ -1117,6 +1968,22 @@ const dsgvoFactory: ShopItemContent = {
     { q: 'Wofür Interesse anmelden?', a: 'Audit-Call buchen mit "DSGVO-Factory Wait-List" → wir nehmen dich in den Beta-Pool.' },
     { q: 'Anwaltsersatz?', a: 'Nein. Es handelt sich um Bausteine und Vorlagen-Entwürfe, nicht um Rechtsberatung. Vor produktivem Einsatz wende dich an einen IT-Fachanwalt deines Vertrauens.' },
   ],
+  en: {
+    tag: 'Concept',
+    tagline: 'Self-serve GDPR compliance building blocks. (In concept phase)',
+    comingSoonPhase: 'Concept phase — launch ETA Q4 2026',
+    whatIsIt:
+      'A planned SaaS: GDPR building blocks self-serve. A privacy-policy generator, DPA templates, erasure-API setup, a cookie banner with logic. Currently in the concept phase, Carlos is gathering use cases.',
+    outcomes: STUB_TEXT_EN.outcomes,
+    whenItFits: STUB_TEXT_EN.whenItFits,
+    includes: ['Detailed includes will follow once the concept is finalized'],
+    pricingNote: 'Pricing will be defined once the scope is set. Likely credits-based + a monthly tier.',
+    faq: [
+      { q: 'When is it available?', a: 'Currently in the concept phase, ETA Q4 2026 once the scope and market validation are in place.' },
+      { q: 'What can I register interest for?', a: 'Book an audit call with "DSGVO Factory waitlist" → we add you to the beta pool.' },
+      { q: 'Legal substitute?', a: 'No. These are building blocks and template drafts, not legal advice. Before productive use, consult an IT lawyer you trust.' },
+    ],
+  },
 };
 
 const leadFactory: ShopItemContent = {
@@ -1142,6 +2009,22 @@ const leadFactory: ShopItemContent = {
     { q: 'Unterschied zu Apollo?', a: 'Geplant: günstiger pro Lead, DSGVO-konform für DE-Markt, AI-Pre-Qualifizierung inklusive.' },
     { q: 'Beta-Liste?', a: 'Audit-Call mit "Lead-Factory Wait-List".' },
   ],
+  en: {
+    tag: 'Concept',
+    tagline: 'Self-serve lead generation. (In concept phase)',
+    comingSoonPhase: 'Concept phase — launch ETA 2027',
+    whatIsIt:
+      'A planned SaaS: lead generation self-serve. Enter your ICP → the system finds + qualifies leads → CSV export or CRM push. Credits-based. Currently in the concept phase.',
+    outcomes: STUB_TEXT_EN.outcomes,
+    whenItFits: STUB_TEXT_EN.whenItFits,
+    includes: ['Detailed includes will follow once the concept is finalized'],
+    pricingNote: 'Pricing TBD. Likely credits per lead + monthly quota bundles.',
+    faq: [
+      { q: 'When is it available?', a: 'Concept phase, ETA 2027. Carlos is still validating market fit against Apollo / Clay.' },
+      { q: 'Difference from Apollo?', a: 'Planned: cheaper per lead, GDPR-compliant for the German market, AI pre-qualification included.' },
+      { q: 'Beta list?', a: 'Audit call with "Lead Factory waitlist".' },
+    ],
+  },
 };
 
 /* ──────────────────── REGISTRY ──────────────────── */
@@ -1190,3 +2073,33 @@ export function getShopItem(slug: string, type?: string): ShopItemContent | null
 }
 
 export const SHOP_ITEM_SLUGS = Object.keys(SHOP_ITEMS);
+
+/**
+ * Liefert eine sprach-lokalisierte Kopie eines Shop-Items.
+ * DE = Original (SSOT). Bei lang === 'en' wird der `en`-Overlay über die
+ * frei-text Felder gemerged; fehlende EN-Felder fallen auf DE zurück.
+ * Sprach-neutrale Felder (slug, type, priceLabel, stripePriceId, price,
+ * securityLevel, icp, category) bleiben unverändert.
+ */
+export function localizeShopItem(item: ShopItemContent, lang: string): ShopItemContent {
+  if (lang !== 'en' || !item.en) return item;
+  const en = item.en;
+  return {
+    ...item,
+    name: en.name ?? item.name,
+    tag: en.tag ?? item.tag,
+    tagline: en.tagline ?? item.tagline,
+    whatIsIt: en.whatIsIt ?? item.whatIsIt,
+    outcomes: en.outcomes ?? item.outcomes,
+    whenItFits: {
+      fits: en.whenItFits?.fits ?? item.whenItFits.fits,
+      requires: en.whenItFits?.requires ?? item.whenItFits.requires,
+    },
+    includes: en.includes ?? item.includes,
+    pricingNote: en.pricingNote ?? item.pricingNote,
+    securityNote: en.securityNote ?? item.securityNote,
+    faq: en.faq ?? item.faq,
+    comingSoonPhase: en.comingSoonPhase ?? item.comingSoonPhase,
+    crossSell: en.crossSell ?? item.crossSell,
+  };
+}

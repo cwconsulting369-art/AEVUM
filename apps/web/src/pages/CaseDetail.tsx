@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -87,6 +88,7 @@ function Section({
 /* ──────────────────────── Hero ──────────────────────── */
 
 function Hero({ data }: { data: CaseDetailDTO }) {
+  const { t } = useTranslation();
   return (
     <section className="relative px-4 sm:px-6 lg:px-16 pt-20 pb-12 md:pt-28 md:pb-16">
       <div className="max-w-[1100px] mx-auto">
@@ -98,7 +100,7 @@ function Hero({ data }: { data: CaseDetailDTO }) {
           className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-text-muted hover:text-theme-accent transition-colors mb-8"
         >
           <ArrowLeft size={14} />
-          Alle Cases
+          {t('cases.backToCases')}
         </motion.a>
 
         <motion.span
@@ -107,7 +109,7 @@ function Hero({ data }: { data: CaseDetailDTO }) {
           transition={{ duration: 0.6 }}
           className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-4 block"
         >
-          Case Study
+          {t('cases.caseStudyEyebrow')}
         </motion.span>
 
         <motion.h1
@@ -156,9 +158,10 @@ function Hero({ data }: { data: CaseDetailDTO }) {
 /* ──────────────────────── Services ──────────────────────── */
 
 function Services({ services }: { services: ActivatedService[] }) {
+  const { t } = useTranslation();
   if (!services.length) return null;
   return (
-    <Section eyebrow="Aktivierte AEVUM-Services" title="Was bei diesem Kunden live ist">
+    <Section eyebrow={t('cases.servicesEyebrow')} title={t('cases.servicesTitle')}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {services.map((s, i) => (
           <motion.div
@@ -177,7 +180,7 @@ function Services({ services }: { services: ActivatedService[] }) {
                 <h3 className="text-sm font-medium text-text-primary break-words">{s.name || s.slug}</h3>
                 {s.started_at && (
                   <p className="text-[10px] font-mono text-text-muted uppercase tracking-wider mt-0.5">
-                    Live seit {s.started_at}
+                    {t('cases.serviceLiveSince', { date: s.started_at })}
                   </p>
                 )}
                 {s.impact && (
@@ -195,9 +198,10 @@ function Services({ services }: { services: ActivatedService[] }) {
 /* ──────────────────────── KPIs ──────────────────────── */
 
 function Kpis({ kpis }: { kpis: LiveKpi[] }) {
+  const { t } = useTranslation();
   if (!kpis.length) return null;
   return (
-    <Section eyebrow="Live-KPIs" title="Echte Zahlen — keine Marketing-Stories">
+    <Section eyebrow={t('cases.kpisEyebrow')} title={t('cases.kpisTitle')}>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {kpis.map((k, i) => (
           <motion.div
@@ -221,7 +225,7 @@ function Kpis({ kpis }: { kpis: LiveKpi[] }) {
               }`}
             >
               <CheckCircle2 size={10} />
-              {k.source === 'db' ? 'Live aus DB' : 'Manuell verifiziert'}
+              {k.source === 'db' ? t('cases.kpiSourceDb') : t('cases.kpiSourceManual')}
             </span>
           </motion.div>
         ))}
@@ -274,49 +278,16 @@ function Testimonial({
 interface StackCardDef {
   key: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
-  title: string;
-  statusLabel: string; // gedimmt, generisch
+  /** i18n-Key-Stamm in cases.* (z.B. "stackCard1" → .Title/.Status/.Body) */
+  i18nKey: string;
   statusTone: 'active' | 'pending';
-  modalBody: string;
 }
 
 const STACK_CARDS: StackCardDef[] = [
-  {
-    key: 'live-dashboard',
-    icon: BarChart3,
-    title: 'Live-Dashboard',
-    statusLabel: 'Real-Time KPIs · wird sichtbar sobald Customer freigibt',
-    statusTone: 'pending',
-    modalBody:
-      'Live-KPI-Dashboard mit täglich aktualisierten Zahlen aus den Customer-Tools. Aktuell unter NDA — sobald der Customer Freigabe erteilt, erscheinen hier echte Werte. Details auf Anfrage bei Carlos.',
-  },
-  {
-    key: 'personal-agent',
-    icon: Bot,
-    title: 'Personal-AI-Agent',
-    statusLabel: 'Aktiv · Details auf Anfrage',
-    statusTone: 'active',
-    modalBody:
-      'Eigener KI-Agent mit Customer-Memory, Tool-Zugriff und WhatsApp/Telegram-Bridge. Architektur und Capabilities auf Anfrage bei Carlos.',
-  },
-  {
-    key: 'automation-stack',
-    icon: Zap,
-    title: 'Automation-Stack',
-    statusLabel: 'Verbundene Tools · Liste auf Anfrage',
-    statusTone: 'active',
-    modalBody:
-      'Mehrere produktive Workflows zwischen den Customer-Tools (Ad-Plattformen, CRM, Analytics, Datenbank, Messaging). Konkrete Tool-Liste und Workflow-Diagramme nur auf Anfrage.',
-  },
-  {
-    key: 'data-sync',
-    icon: Database,
-    title: 'Data-Sync',
-    statusLabel: 'Live-Pipeline · Status aktiv',
-    statusTone: 'active',
-    modalBody:
-      'Tägliche/stündliche Data-Pipelines synchronisieren alle relevanten Quellen in die Customer-DB. Schema und Frequenz auf Anfrage bei Carlos.',
-  },
+  { key: 'live-dashboard', icon: BarChart3, i18nKey: 'stackCard1', statusTone: 'pending' },
+  { key: 'personal-agent', icon: Bot, i18nKey: 'stackCard2', statusTone: 'active' },
+  { key: 'automation-stack', icon: Zap, i18nKey: 'stackCard3', statusTone: 'active' },
+  { key: 'data-sync', icon: Database, i18nKey: 'stackCard4', statusTone: 'active' },
 ];
 
 function StackCard({
@@ -328,6 +299,7 @@ function StackCard({
   index: number;
   onOpen: (k: string) => void;
 }) {
+  const { t } = useTranslation();
   const Icon = card.icon;
   const isActive = card.statusTone === 'active';
   return (
@@ -360,7 +332,7 @@ function StackCard({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <h3 className="text-sm font-medium text-text-primary break-words">{card.title}</h3>
+            <h3 className="text-sm font-medium text-text-primary break-words">{t(`cases.${card.i18nKey}Title`)}</h3>
             <span
               className={`inline-flex items-center gap-1 text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded ${
                 isActive
@@ -369,16 +341,16 @@ function StackCard({
               }`}
             >
               {isActive ? <CheckCircle2 size={9} /> : <Lock size={9} />}
-              {isActive ? 'aktiv' : 'NDA'}
+              {isActive ? t('cases.stackStatusActive') : t('cases.stackStatusNda')}
             </span>
           </div>
-          <p className="text-xs text-text-secondary leading-relaxed break-words">{card.statusLabel}</p>
+          <p className="text-xs text-text-secondary leading-relaxed break-words">{t(`cases.${card.i18nKey}Status`)}</p>
         </div>
       </div>
 
       <div className="relative z-10 mt-4 pt-4 border-t border-theme-border flex items-center justify-between">
         <span className="text-[10px] font-mono uppercase tracking-wider text-text-muted group-hover:text-theme-accent transition-colors">
-          Mehr Details
+          {t('cases.stackMoreDetails')}
         </span>
         <ArrowRight
           size={12}
@@ -390,6 +362,7 @@ function StackCard({
 }
 
 function StackModal({ cardKey, onClose }: { cardKey: string | null; onClose: () => void }) {
+  const { t } = useTranslation();
   const card = STACK_CARDS.find((c) => c.key === cardKey) || null;
 
   useEffect(() => {
@@ -429,7 +402,7 @@ function StackModal({ cardKey, onClose }: { cardKey: string | null; onClose: () 
         <button
           type="button"
           onClick={onClose}
-          aria-label="Schließen"
+          aria-label={t('cases.stackModalClose')}
           className="absolute top-4 right-4 text-text-muted hover:text-text-primary transition-colors"
         >
           <X size={18} />
@@ -440,13 +413,13 @@ function StackModal({ cardKey, onClose }: { cardKey: string | null; onClose: () 
         </div>
 
         <h3 id="stack-modal-title" className="text-xl font-light text-text-primary mb-3 break-words">
-          {card.title}
+          {t(`cases.${card.i18nKey}Title`)}
         </h3>
-        <p className="text-sm text-text-secondary leading-relaxed mb-6 break-words">{card.modalBody}</p>
+        <p className="text-sm text-text-secondary leading-relaxed mb-6 break-words">{t(`cases.${card.i18nKey}Body`)}</p>
 
         <div className="pt-5 border-t border-theme-border space-y-3">
           <p className="text-[10px] font-mono uppercase tracking-wider text-text-muted">
-            Mehr Details bekommen?
+            {t('cases.stackModalMoreTitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-2">
             <a
@@ -456,7 +429,7 @@ function StackModal({ cardKey, onClose }: { cardKey: string | null; onClose: () 
               className="inline-flex items-center justify-center gap-2 text-xs font-mono text-theme-accent hover:text-theme-accent-hover border border-theme-border-accent hover:border-theme-accent px-4 py-2.5 rounded transition-colors flex-1"
             >
               <ExternalLink size={12} className="shrink-0" />
-              WhatsApp Carlos
+              {t('cases.stackModalWhatsapp')}
             </a>
             <a
               href="mailto:info@aevum-system.de?subject=Stack-Details%20auf%20Anfrage"
@@ -473,15 +446,15 @@ function StackModal({ cardKey, onClose }: { cardKey: string | null; onClose: () 
 }
 
 function StackPreview() {
+  const { t } = useTranslation();
   const [openKey, setOpenKey] = useState<string | null>(null);
   return (
     <Section
-      eyebrow="Beispiel-Setup"
-      title="Was bei diesem Kunden im Stack ist"
+      eyebrow={t('cases.stackEyebrow')}
+      title={t('cases.stackTitle')}
     >
       <p className="text-sm text-text-secondary mb-7 max-w-2xl">
-        Die konkreten Werte und Tool-Namen bleiben unter NDA bis der Customer Freigabe
-        erteilt. Hier ist der visuelle Überblick — Details auf Anfrage.
+        {t('cases.stackIntro')}
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {STACK_CARDS.map((c, i) => (
@@ -496,17 +469,18 @@ function StackPreview() {
 /* ──────────────────────── CTA ──────────────────────── */
 
 function CTA() {
+  const { t } = useTranslation();
   return (
     <section className="px-4 sm:px-6 lg:px-16 py-16 md:py-20 border-t border-theme-border">
       <div className="max-w-[900px] mx-auto text-center">
         <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-4">
-          Eigenen Case bauen?
+          {t('cases.detailCtaTitle')}
         </h2>
         <p className="text-text-secondary mb-8 max-w-lg mx-auto">
-          Audit starten, Setup pruefen, klaren Plan bekommen.
+          {t('cases.detailCtaText')}
         </p>
         <a href="/#/audit" className="btn-primary">
-          Audit buchen
+          {t('cases.detailCtaButton')}
           <ArrowRight size={16} className="ml-2" />
         </a>
       </div>
@@ -530,16 +504,17 @@ function LoadingState() {
 }
 
 function NotFoundState() {
+  const { t } = useTranslation();
   return (
     <div className="bg-bg-primary min-h-screen flex items-center justify-center px-4 sm:px-6">
       <div className="max-w-md text-center">
-        <h1 className="text-2xl font-light text-text-primary mb-3">Case nicht gefunden</h1>
+        <h1 className="text-2xl font-light text-text-primary mb-3">{t('cases.notFoundTitle')}</h1>
         <p className="text-text-secondary mb-8">
-          Diesen Case gibt es nicht oder er ist gerade nicht oeffentlich.
+          {t('cases.notFoundText')}
         </p>
         <a href="/#/cases" className="btn-secondary">
           <ArrowLeft size={16} className="mr-2" />
-          Alle Cases
+          {t('cases.backToCases')}
         </a>
       </div>
     </div>
@@ -549,6 +524,7 @@ function NotFoundState() {
 /* ──────────────────────── Page ──────────────────────── */
 
 export default function CaseDetail({ slug }: { slug: string }) {
+  const { t } = useTranslation();
   const [data, setData] = useState<CaseDetailDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -607,19 +583,19 @@ export default function CaseDetail({ slug }: { slug: string }) {
       <Hero data={data} />
 
       {data.project_description && (
-        <Section eyebrow="Das Projekt" title="Worum es geht">
+        <Section eyebrow={t('cases.projectEyebrow')} title={t('cases.projectTitle')}>
           <Paragraphs text={data.project_description} />
         </Section>
       )}
 
       {data.collaboration_story && (
-        <Section eyebrow="Zusammenarbeit" title="Warum wir zusammenarbeiten">
+        <Section eyebrow={t('cases.collaborationEyebrow')} title={t('cases.collaborationTitle')}>
           <Paragraphs text={data.collaboration_story} />
         </Section>
       )}
 
       {data.vision && (
-        <Section eyebrow="Vision" title="Wo das Ganze hingeht">
+        <Section eyebrow={t('cases.visionEyebrow')} title={t('cases.visionTitle')}>
           <Paragraphs text={data.vision} />
         </Section>
       )}
