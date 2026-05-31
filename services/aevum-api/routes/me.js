@@ -21,7 +21,10 @@ import { supabase } from '../lib/supabase.js';
 import { requireCustomerAuth, encryptSecret } from '../lib/crypto.js';
 import { projectAgentRouter } from './project-agent.js';
 import { docsRouter } from './docs.js';
+import { customerDocsRouter } from './customer-docs.js';
+import { customerActivityRouter } from './customer-activity.js';
 import { meTestimonialsRouter } from './me-testimonials.js';
+import { uhMirrorRouter } from './uh-mirror.js';
 import { stripe } from '../lib/stripe.js';
 import { buildShopStats, buildStripeStats, buildOrdersStats } from '../lib/dashboard-stats.js';
 
@@ -30,6 +33,20 @@ export const meRouter = Router();
 // All endpoints gated by JWT auth
 meRouter.use(requireCustomerAuth);
 
+// ────────────────────────────────────────────────────────────
+// Memo client_zero status per account-id (avoid extra DB hit per request)
+// client_zero = AEVUM-Operator (Carlos) → READ-Access auf alle Customer-Projekte
+// ────────────────────────────────────────────────────────────
+const CLIENT_ZERO_CACHE = new Map();  // account_id → { value, ts }
+async function isClientZero(accountId) {
+  const cached = CLIENT_ZERO_CACHE.get(accountId);
+  if (cached && (Date.now() - cached.ts) < 60_000) return cached.value;
+  const r = await supabase.select('accounts', `select=client_zero&id=eq.${accountId}&limit=1`);
+  const value = !!r.data?.[0]?.client_zero;
+  CLIENT_ZERO_CACHE.set(accountId, { value, ts: Date.now() });
+  return value;
+}
+
 // Customer Project-Agent chat + memory (Lennox-style file memory).
 // Mounted as a sub-router so :slug propagates via mergeParams.
 meRouter.use('/projects/:slug/agent', projectAgentRouter);
@@ -37,8 +54,19 @@ meRouter.use('/projects/:slug/agent', projectAgentRouter);
 // Customer Document-Exchange (FS-backed inbox/outbox/shared MD files).
 meRouter.use('/projects/:slug/docs', docsRouter);
 
+// Block B1 — Account-level Doc-Exchange (inbox/outbox/shared at account scope, allows .md/.txt/.pdf)
+meRouter.use('/docs', customerDocsRouter);
+
+// Block B2 — Customer-side Activity-Dashboard (project-scoped usage stats)
+meRouter.use('/projects/:slug/activity', customerActivityRouter);
+
 // Wave E4: Customer-controlled Testimonial-Permissions (case_pages).
 meRouter.use('/testimonial', meTestimonialsRouter);
+
+// UH-Endstufe Block C — UH-Mirror endpoints
+// Proxies UH-Supabase read-only to AEVUM-Portal so Miguel arbeitet
+// long-term im AEVUM-Portal statt utility-hub.one/app/*
+meRouter.use('/projects/:slug/uh', uhMirrorRouter);
 
 // ────────────────────────────────────────────────────────────
 // GET /api/me/orders — Stripe-Orders fuer eingeloggten Account (Shop-Dashboard).
@@ -64,21 +92,41 @@ meRouter.get('/orders', async (req, res) => {
 // ────────────────────────────────────────────────────────────
 meRouter.get('/', async (req, res) => {
   const id = req.customer.account_id;
-  const [acc, profile, perms, agent, projects] = await Promise.all([
+  const [acc, profile, perms, agent, ownProjects] = await Promise.all([
     supabase.select('accounts', `select=*&id=eq.${id}`),
     supabase.select('account_profiles', `select=*&account_id=eq.${id}`),
     supabase.select('account_permissions', `select=*&account_id=eq.${id}`),
     supabase.select('account_agents', `select=id,deployment_status,channels,deployed_at&account_id=eq.${id}`),
-    supabase.select('projects', `select=id,slug,name,status,tier,industry,created_at&account_id=eq.${id}&order=created_at.asc`)
+    supabase.select('projects', `select=id,slug,name,status,tier,industry,created_at,account_id&account_id=eq.${id}&order=created_at.asc`)
   ]);
   if (!acc.data?.length) return res.status(404).json({ ok: false, error: 'account_not_found' });
+
+  // Client-zero (AEVUM-Operator) sieht zusätzlich ALLE Customer-Projekte für Cross-Account-Monitoring
+  let projects = ownProjects.data ?? [];
+  const isOp = !!acc.data[0]?.client_zero;
+  if (isOp) {
+    const all = await supabase.select('projects',
+      `select=id,slug,name,status,tier,industry,created_at,account_id,accounts:accounts!inner(slug,name,client_zero)&order=created_at.asc`);
+    const ownIds = new Set(projects.map(p => p.id));
+    const cross = (all.data || [])
+      .filter(p => !ownIds.has(p.id) && !p.accounts?.client_zero)
+      .map(p => ({
+        ...p,
+        _operator_view: true,
+        owner_slug: p.accounts?.slug,
+        owner_name: p.accounts?.name
+      }));
+    projects = [...projects, ...cross];
+  }
+
   res.json({
     ok: true,
     account: acc.data[0],
     profile: profile.data?.[0] ?? null,
     permissions: perms.data?.[0] ?? null,
     agent: agent.data?.[0] ?? null,
-    projects: projects.data ?? []
+    projects,
+    is_operator: isOp
   });
 });
 
@@ -190,8 +238,20 @@ const PatchProjectSchema = z.object({
 
 meRouter.get('/projects', async (req, res) => {
   const id = req.customer.account_id;
+  const isOp = await isClientZero(id);
+  if (isOp) {
+    const r = await supabase.select('projects',
+      `select=*,accounts:accounts!inner(slug,name,client_zero)&order=created_at.asc`);
+    const projects = (r.data || []).map(p => ({
+      ...p,
+      _operator_view: p.account_id !== id,
+      owner_slug: p.accounts?.slug,
+      owner_name: p.accounts?.name
+    }));
+    return res.json({ ok: true, projects, is_operator: true });
+  }
   const r = await supabase.select('projects', `select=*&account_id=eq.${id}&order=created_at.asc`);
-  res.json({ ok: true, projects: r.data ?? [] });
+  res.json({ ok: true, projects: r.data ?? [], is_operator: false });
 });
 
 meRouter.post('/projects', async (req, res) => {
@@ -264,13 +324,28 @@ const SubmitApiSchema = z.object({
   scope: z.enum(['read-only', 'read-write']).optional().default('read-only')
 });
 
-async function resolveProjectForCustomer(accountId, slug) {
-  const r = await supabase.select('projects', `select=id&account_id=eq.${accountId}&slug=eq.${encodeURIComponent(slug)}`);
-  return r.data?.[0] ?? null;
+// resolveProjectForCustomer:
+// - Normal customers: nur eigene Projekte (account_id match)
+// - client_zero (Carlos / AEVUM-Operator): READ-Access auf ALLE Projekte (cross-account)
+//   Mutationen bleiben separat gegated (POST/PATCH/DELETE bestehen weiter auf account_id=eq.X)
+async function resolveProjectForCustomer(accountId, slug, opts = {}) {
+  // Eigene Projekte
+  const own = await supabase.select('projects',
+    `select=id,slug,name,marketing_thesis,account_id&account_id=eq.${accountId}&slug=eq.${encodeURIComponent(slug)}`);
+  if (own.data?.[0]) return { ...own.data[0], _operator_view: false };
+
+  // Client-zero darf cross-account READ
+  if (!opts.readOnly && !opts.allowCrossAccount) return null;
+  if (!(await isClientZero(accountId))) return null;
+  const cross = await supabase.select('projects',
+    `select=id,slug,name,marketing_thesis,account_id&slug=eq.${encodeURIComponent(slug)}`);
+  const p = cross.data?.[0];
+  if (!p) return null;
+  return { ...p, _operator_view: true };
 }
 
 meRouter.get('/projects/:slug/apis', async (req, res) => {
-  const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug);
+  const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug, { allowCrossAccount: true });
   if (!project) return res.status(404).json({ ok: false, error: 'project_not_found' });
   const r = await supabase.select('project_apis',
     `select=id,service,key_label,scope,health,added_at,last_used_at&project_id=eq.${project.id}&order=added_at.desc`);
@@ -599,7 +674,7 @@ async function __unused_legacy_buildOrdersStats() {
 // other slugs → ad-platform KPI dashboard
 // ────────────────────────────────────────────────────────────
 meRouter.get('/projects/:slug/dashboard', async (req, res) => {
-  const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug);
+  const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug, { allowCrossAccount: true });
   if (!project) return res.status(404).json({ ok: false, error: 'project_not_found' });
 
   // ── AEVUM client-zero business dashboard ──────────────────
@@ -773,6 +848,126 @@ meRouter.get('/projects/:slug/dashboard', async (req, res) => {
 // UUID regex — IN-01 defense-in-depth before id-based queries
 const ME_UUID_RX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+// ── Lead-Funnel Dashboard (Patrick monitoring view) ────────────
+meRouter.get('/projects/:slug/lead-funnel', async (req, res) => {
+  const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug, { allowCrossAccount: true });
+  if (!project) return res.status(404).json({ ok: false, error: 'project_not_found' });
+
+  const accountId = req.customer.account_id;
+  const projectId = project.id;
+  const now = new Date();
+  const day30 = new Date(now.getTime() - 30 * 86400000).toISOString();
+  const day7 = new Date(now.getTime() - 7 * 86400000).toISOString();
+
+  const [leadsAll, leadsRecent, programs, scraperCamps, intel] = await Promise.all([
+    supabase.select('customer_leads',
+      `select=id,lead_tier,status,score_total,source,created_at&account_id=eq.${accountId}&order=created_at.desc&limit=500`),
+    supabase.select('customer_leads',
+      `select=id,name,email,phone,lead_tier,score_total,status,source,source_detail,created_at,referral_code,notes&account_id=eq.${accountId}&order=created_at.desc&limit=50`),
+    supabase.select('referral_programs',
+      `select=id,name,slug,status,referrer_reward_description,referee_reward_description,trigger_event&project_id=eq.${projectId}&order=created_at.desc`),
+    supabase.select('lead_scraper_campaigns',
+      `select=id,name,status,outreach_channel,created_at,updated_at&account_id=eq.${accountId}&order=created_at.desc&limit=20`),
+    supabase.select('project_intelligence',
+      `select=website_url,linkedin_url,optimizations,audit_summary&project_id=eq.${projectId}&order=created_at.desc&limit=1`)
+  ]);
+
+  const leads = Array.isArray(leadsAll.data) ? leadsAll.data : [];
+  const recent = Array.isArray(leadsRecent.data) ? leadsRecent.data : [];
+
+  const leads30d = leads.filter(l => l.created_at >= day30).length;
+  const leads7d = leads.filter(l => l.created_at >= day7).length;
+  const tierCounts = leads.reduce((acc, l) => { const t = l.lead_tier || 'unscored'; acc[t] = (acc[t] || 0) + 1; return acc; }, {});
+  const statusCounts = leads.reduce((acc, l) => { const s = l.status || 'new'; acc[s] = (acc[s] || 0) + 1; return acc; }, {});
+  const sourceCounts = leads.reduce((acc, l) => { const s = l.source || 'unknown'; acc[s] = (acc[s] || 0) + 1; return acc; }, {});
+
+  // Referrals stats (aggregated across all programs of this project)
+  let referralStats = { codes: 0, referrals_total: 0, referrals_pending: 0, referrals_converted: 0, rewards_pending_eur: 0 };
+  const programIds = (programs.data || []).map(p => p.id);
+  if (programIds.length) {
+    const codesRes = await supabase.select('referral_codes',
+      `select=id,code,uses_count,closed_won_count,total_reward_earned_eur,referrer_name,active&program_id=in.(${programIds.map(id => `"${id}"`).join(',')})&order=created_at.desc&limit=200`);
+    const refsRes = await supabase.select('referrals',
+      `select=id,status,referrer_reward_amount_eur,referrer_reward_paid&program_id=in.(${programIds.map(id => `"${id}"`).join(',')})&limit=500`);
+    const codes = codesRes.data || [];
+    const refs = refsRes.data || [];
+    referralStats.codes = codes.length;
+    referralStats.referrals_total = refs.length;
+    referralStats.referrals_pending = refs.filter(r => r.status === 'pending').length;
+    referralStats.referrals_converted = refs.filter(r => ['converted', 'rewarded'].includes(r.status)).length;
+    referralStats.rewards_pending_eur = refs
+      .filter(r => !r.referrer_reward_paid && ['converted', 'qualified'].includes(r.status))
+      .reduce((sum, r) => sum + Number(r.referrer_reward_amount_eur || 0), 0);
+    referralStats.codes_list = codes.slice(0, 20);
+  }
+
+  // KPI Targets from project.marketing_thesis (with safe fallbacks)
+  const targets = project.marketing_thesis?.targets_90d || {};
+  const kpis = {
+    leads_total: leads.length,
+    leads_30d: leads30d,
+    leads_7d: leads7d,
+    by_tier: tierCounts,
+    by_status: statusCounts,
+    by_source: sourceCounts,
+    target_leads_per_month: targets.leads_per_month || '15-25',
+    target_a_leads_per_month: targets.a_leads_per_month || '3-5',
+    target_cpl_max_eur: targets.cpl_max_eur || 80,
+    target_ssi_min: targets.ssi_min || 75,
+    target_newsletter_subs: targets.newsletter_subs || 200,
+    target_conversations_per_week: targets.conversations_per_week || 10
+  };
+
+  // Content stub (until B3 implemented)
+  const content = {
+    status: 'coming_soon',
+    note: 'Posts-Scheduler ist Teil von Lead-Engine B3 — siehe LEAD-ENGINE-ARCHITECTURE.md',
+    planned_pillars: [
+      { id: 'leben-vor-ort', label: 'Leben vor Ort', frequency_per_week: 2 },
+      { id: 'menschen',       label: 'Menschen, die wir begleitet haben', frequency_per_week: 1 },
+      { id: 'wissen',         label: 'Wissen, das schützt', frequency_per_week: 1 },
+      { id: 'netzwerk',       label: 'Das Netzwerk teilen', frequency_per_week: 1 }
+    ],
+    posts_published_30d: 0,
+    posts_scheduled: 0,
+    posts_drafts: 0
+  };
+
+  // Spend stub + Apollo-Lead-Scraper campaigns (was läuft tatsächlich)
+  const camps = Array.isArray(scraperCamps.data) ? scraperCamps.data : [];
+  const spend = {
+    status: 'coming_soon_ads',
+    note: 'Meta Ads / LinkedIn Ads / Google Ads-Integration ist Teil von B7+B8',
+    cold_outreach: {
+      apollo_campaigns: camps.length,
+      apollo_campaigns_active: camps.filter(c => ['ready_to_send', 'sending'].includes(c.status)).length,
+      apollo_credits_used_estimate: camps.length * 50,
+      recent_campaigns: camps.slice(0, 5)
+    },
+    targets: {
+      monthly_ad_budget_eur: 1500,
+      monthly_tools_budget_eur: 149,
+      cpl_max_eur: targets.cpl_max_eur || 80
+    },
+    actuals: {
+      monthly_spent_eur: 0,
+      cpl_eur: null
+    }
+  };
+
+  res.json({
+    ok: true,
+    project: { id: projectId, slug: project.slug, name: project.name },
+    generated_at: new Date().toISOString(),
+    metrics: kpis,
+    leads: recent,
+    referrals: { programs: programs.data || [], stats: referralStats },
+    content,
+    spend,
+    intelligence: intel.data?.[0] || null
+  });
+});
+
 meRouter.delete('/projects/:slug/apis/:id', async (req, res) => {
   if (!ME_UUID_RX.test(req.params.id || '')) {
     return res.status(400).json({ ok: false, error: 'invalid_id_format' });
@@ -782,6 +977,35 @@ meRouter.delete('/projects/:slug/apis/:id', async (req, res) => {
   const r = await supabase.delete('project_apis', `id=eq.${encodeURIComponent(req.params.id)}&project_id=eq.${project.id}`);
   if (!r.ok) return res.status(500).json({ ok: false, error: r.error });
   res.json({ ok: true });
+});
+
+// ────────────────────────────────────────────────────────────
+// PATCH /api/me/leads/:id — Customer-self Lead-Status-Update (account-scoped)
+// Patrick ändert Lead-Status im Portal. Lead muss req.customer.account_id gehören
+// (sonst 404). Status-Enum identisch zu customer-leads.js (Admin-PATCH).
+// ────────────────────────────────────────────────────────────
+const MeLeadStatusUpdate = z.object({
+  status: z.enum(['new', 'contacted', 'qualified', 'meeting-scheduled', 'meeting-held', 'won', 'lost', 'parked']).optional(),
+  notes: z.string().max(4000).optional()
+}).strict().refine(d => Object.keys(d).length > 0, { message: 'empty_patch' });
+
+meRouter.patch('/leads/:id', async (req, res) => {
+  if (!ME_UUID_RX.test(req.params.id || '')) {
+    return res.status(400).json({ ok: false, error: 'invalid_id_format' });
+  }
+  const parsed = MeLeadStatusUpdate.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ ok: false, error: 'validation_failed', details: parsed.error.flatten() });
+
+  const accountId = req.customer.account_id;
+  const updates = { ...parsed.data, updated_at: new Date().toISOString() };
+  if (parsed.data.status) updates.status_changed_at = new Date().toISOString();
+
+  // account-scope guard: only update if lead belongs to this account → no cross-account leak
+  const r = await supabase.update('customer_leads',
+    `id=eq.${encodeURIComponent(req.params.id)}&account_id=eq.${accountId}`, updates);
+  if (!r.ok) return res.status(500).json({ ok: false, error: r.error });
+  if (!r.data?.length) return res.status(404).json({ ok: false, error: 'lead_not_found' });
+  res.json({ ok: true, lead: r.data[0] });
 });
 
 // ────────────────────────────────────────────────────────────
@@ -806,7 +1030,7 @@ const QuicklinkPatchSchema = z.object({
 }).refine(d => Object.keys(d).length > 0, { message: 'empty_patch' });
 
 meRouter.get('/projects/:slug/quicklinks', async (req, res) => {
-  const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug);
+  const project = await resolveProjectForCustomer(req.customer.account_id, req.params.slug, { allowCrossAccount: true });
   if (!project) return res.status(404).json({ ok: false, error: 'project_not_found' });
   const r = await supabase.select(
     'project_quicklinks',

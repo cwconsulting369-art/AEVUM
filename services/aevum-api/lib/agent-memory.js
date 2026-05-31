@@ -34,6 +34,10 @@ const MAX_INDEX_LINES = 200;               // cap MEMORY.md index entries
 const MAX_BODY_CHARS = 8000;               // safety cap on a single memory body
 const MAX_SUMMARY_CHARS = 200;             // one-liner
 
+// Block B3 — in-process write locks per project (last-write-wins serialized).
+// Prevents corruption when two agent-runs flush memory simultaneously.
+const writeLocks = new Map(); // key: `${account}/${project}` → Promise chain tail
+
 function safeSlug(s) {
   return typeof s === 'string' && s.length >= 1 && s.length <= 64 && SLUG_RE.test(s);
 }
@@ -47,6 +51,37 @@ function projectDir(accountSlug, projectSlug) {
     throw new Error('agent-memory: invalid account or project slug');
   }
   return path.join(ROOT, accountSlug, projectSlug);
+}
+
+// Block B3 — return projectDir or null (no throw); for read-paths that
+// should degrade gracefully when slugs are invalid (e.g. multi-tenant
+// requests with stale params).
+function projectDirSafe(accountSlug, projectSlug) {
+  try {
+    return projectDir(accountSlug, projectSlug);
+  } catch {
+    return null;
+  }
+}
+
+// Block B3 — serialize writes per project (in-process). Two parallel agent
+// runs on the same project will queue rather than corrupt MEMORY.md.
+async function withProjectLock(accountSlug, projectSlug, fn) {
+  const key = `${accountSlug}/${projectSlug}`;
+  const prev = writeLocks.get(key) || Promise.resolve();
+  let release;
+  const next = new Promise((res) => { release = res; });
+  writeLocks.set(key, prev.then(() => next));
+  try {
+    await prev;
+    return await fn();
+  } finally {
+    release();
+    // GC: drop lock if no one chained after us
+    if (writeLocks.get(key) === prev.then(() => next)) {
+      writeLocks.delete(key);
+    }
+  }
 }
 
 async function ensureDir(dir) {
@@ -68,8 +103,10 @@ function memoryFileName(type, slug) {
 }
 
 // ─── List all memory files for a project ────────────────────
+// B3-hardened: invalid slugs → [] (no throw)
 export async function listMemoryFiles(accountSlug, projectSlug) {
-  const dir = projectDir(accountSlug, projectSlug);
+  const dir = projectDirSafe(accountSlug, projectSlug);
+  if (!dir) return [];
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true });
     return entries
@@ -77,87 +114,125 @@ export async function listMemoryFiles(accountSlug, projectSlug) {
       .map(e => e.name)
       .sort();
   } catch (err) {
-    if (err.code === 'ENOENT') return [];
-    throw err;
+    if (err.code === 'ENOENT' || err.code === 'ENOTDIR' || err.code === 'EACCES') return [];
+    console.error('[agent-memory] listMemoryFiles err:', err.code, err.message);
+    return [];
   }
 }
 
 // ─── Read MEMORY.md index (returns string or '') ────────────
+// B3-hardened: invalid slugs → '' (no throw)
 export async function readIndex(accountSlug, projectSlug) {
-  const dir = projectDir(accountSlug, projectSlug);
+  const dir = projectDirSafe(accountSlug, projectSlug);
+  if (!dir) return '';
   const content = await safeRead(path.join(dir, 'MEMORY.md'));
   return content || '';
 }
 
 // ─── Read a specific memory file ────────────────────────────
+// B3-hardened: invalid slugs/types → null (no throw); corrupted file flagged
 export async function readMemoryFile(accountSlug, projectSlug, type, slug) {
   if (!safeType(type) || !safeSlug(slug)) {
     return null;
   }
-  const dir = projectDir(accountSlug, projectSlug);
-  return safeRead(path.join(dir, memoryFileName(type, slug)));
+  const dir = projectDirSafe(accountSlug, projectSlug);
+  if (!dir) return null;
+  try {
+    return await safeRead(path.join(dir, memoryFileName(type, slug)));
+  } catch (err) {
+    console.error('[agent-memory] readMemoryFile err:', err.code, err.message);
+    return null;
+  }
 }
 
 // ─── Read all memory bodies (used to build system-prompt) ───
+// B3-hardened: invalid slugs → []; skip corrupted files (log + continue)
 export async function readAllMemories(accountSlug, projectSlug, { maxFiles = 40 } = {}) {
-  const dir = projectDir(accountSlug, projectSlug);
+  const dir = projectDirSafe(accountSlug, projectSlug);
+  if (!dir) return [];
   const files = await listMemoryFiles(accountSlug, projectSlug);
   const out = [];
   for (const name of files.slice(0, maxFiles)) {
-    const content = await safeRead(path.join(dir, name));
-    if (content) out.push({ name, content });
+    try {
+      const content = await safeRead(path.join(dir, name));
+      if (!content) continue;
+      // Detect corruption: missing frontmatter delimiters → log but still include
+      // (graceful — user can fix in dashboard), but flag in console.
+      if (!content.startsWith('---\n')) {
+        console.warn('[agent-memory] possibly corrupted (no frontmatter):', name);
+      }
+      out.push({ name, content });
+    } catch (err) {
+      console.error('[agent-memory] readAllMemories skip', name, err.code, err.message);
+    }
   }
   return out;
 }
 
 // ─── Write/replace a memory file ────────────────────────────
-// Returns { ok, slug, type, summary, written }
-export async function writeMemory(accountSlug, projectSlug, { type, slug, summary, body }) {
+// B3-hardened: invalid input → structured error (no throw); body trimmed and
+// truncation flagged; concurrent writes serialized per project via lock.
+// Returns { ok, slug, type, summary, written, truncated? }
+export async function writeMemory(accountSlug, projectSlug, { type, slug, summary, body } = {}) {
   if (!safeType(type)) return { ok: false, error: 'invalid_type' };
   if (!safeSlug(slug)) return { ok: false, error: 'invalid_slug' };
-  if (typeof body !== 'string' || body.length === 0) return { ok: false, error: 'empty_body' };
+  if (typeof body !== 'string') return { ok: false, error: 'empty_body' };
+  // B3: trim whitespace-only bodies as empty
+  const trimmed = body.trim();
+  if (trimmed.length === 0) return { ok: false, error: 'empty_body' };
 
-  const dir = projectDir(accountSlug, projectSlug);
-  await ensureDir(dir);
+  if (!safeSlug(accountSlug) || !safeSlug(projectSlug)) {
+    return { ok: false, error: 'invalid_account_or_project' };
+  }
 
-  const safeBody = body.slice(0, MAX_BODY_CHARS);
-  const safeSummary = (summary || safeBody.split('\n').find(l => l.trim()) || slug).slice(0, MAX_SUMMARY_CHARS).trim();
-  const now = new Date().toISOString();
+  return withProjectLock(accountSlug, projectSlug, async () => {
+    const dir = projectDir(accountSlug, projectSlug);
+    await ensureDir(dir);
 
-  const front =
+    const truncated = trimmed.length > MAX_BODY_CHARS;
+    const safeBody = trimmed.slice(0, MAX_BODY_CHARS);
+    const safeSummary = (summary || safeBody.split('\n').find(l => l.trim()) || slug)
+      .slice(0, MAX_SUMMARY_CHARS).trim();
+    const now = new Date().toISOString();
+
+    const front =
 `---
 type: ${type}
 slug: ${slug}
 created: ${now}
 updated: ${now}
----
+${truncated ? 'truncated: true\n' : ''}---
 
 # ${safeSummary}
 
 ${safeBody}
 `;
 
-  if (Buffer.byteLength(front, 'utf8') > MAX_FILE_BYTES) {
-    return { ok: false, error: 'too_large' };
-  }
-
-  const fileName = memoryFileName(type, slug);
-  const target = path.join(dir, fileName);
-
-  // Preserve original created timestamp if file already exists
-  const existing = await safeRead(target);
-  let finalContent = front;
-  if (existing) {
-    const createdMatch = existing.match(/^created:\s*(\S+)/m);
-    if (createdMatch) {
-      finalContent = front.replace(/created:\s*\S+/, `created: ${createdMatch[1]}`);
+    if (Buffer.byteLength(front, 'utf8') > MAX_FILE_BYTES) {
+      return { ok: false, error: 'too_large' };
     }
-  }
 
-  await fs.writeFile(target, finalContent, { mode: 0o600 });
-  await rebuildIndex(accountSlug, projectSlug);
+    const fileName = memoryFileName(type, slug);
+    const target = path.join(dir, fileName);
 
-  return { ok: true, slug, type, summary: safeSummary, written: fileName };
+    // Preserve original created timestamp if file already exists
+    const existing = await safeRead(target).catch(() => null);
+    let finalContent = front;
+    if (existing) {
+      const createdMatch = existing.match(/^created:\s*(\S+)/m);
+      if (createdMatch) {
+        finalContent = front.replace(/created:\s*\S+/, `created: ${createdMatch[1]}`);
+      }
+    }
+
+    await fs.writeFile(target, finalContent, { mode: 0o600 });
+    await rebuildIndex(accountSlug, projectSlug);
+
+    return {
+      ok: true, slug, type, summary: safeSummary, written: fileName,
+      ...(truncated ? { truncated: true, original_chars: trimmed.length } : {})
+    };
+  });
 }
 
 // ─── Delete a memory file ───────────────────────────────────
@@ -187,6 +262,18 @@ export async function eraseProjectMemory(accountSlug, projectSlug) {
 }
 
 // ─── Rebuild MEMORY.md index from existing files ────────────
+// B3-hardened: callable from outside for index-resync (when index drifts
+// from files-on-disk — e.g. manual fs edits or crashed mid-write).
+export async function rebuildMemoryIndex(accountSlug, projectSlug) {
+  if (!safeSlug(accountSlug) || !safeSlug(projectSlug)) {
+    return { ok: false, error: 'invalid_account_or_project' };
+  }
+  return withProjectLock(accountSlug, projectSlug, async () => {
+    await rebuildIndex(accountSlug, projectSlug);
+    return { ok: true };
+  });
+}
+
 async function rebuildIndex(accountSlug, projectSlug) {
   const dir = projectDir(accountSlug, projectSlug);
   const files = await listMemoryFiles(accountSlug, projectSlug);

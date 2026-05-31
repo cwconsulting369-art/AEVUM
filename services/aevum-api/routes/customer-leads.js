@@ -25,49 +25,91 @@ export const customerLeadsRouter = Router();
 // ──────────────────────────────────────────────────────────
 
 const PATRICK_PDF_PATH = path.resolve(process.cwd(), 'data/patrick/THAILAND-IMMOBILIEN-CHECK.pdf');
-const PATRICK_CALENDLY = 'https://calendly.com/patrick-roth';
+const PATRICK_PDF_PATH_EN = path.resolve(process.cwd(), 'data/patrick/THAILAND-PROPERTY-CHECK-EN.pdf');
 const PATRICK_WHATSAPP = 'https://wa.me/4915114363994';
+// A-Lead-CTA: WhatsApp-Direktkontakt (Calendly ist raus — Site nutzt durchgängig WhatsApp).
+const PATRICK_WHATSAPP_HOT = PATRICK_WHATSAPP + '?text=' + encodeURIComponent('Hallo Patrick, ich habe den Thailand-Immobilien-Check angefordert und würde gerne direkt mit dir sprechen.');
+const PATRICK_WHATSAPP_HOT_EN = PATRICK_WHATSAPP + '?text=' + encodeURIComponent("Hi Patrick, I requested the Thailand Property Check and would like to speak with you directly.");
 const THAILANDRE_NOTIFY_URL = process.env.THAILANDRE_BOT_NOTIFY_URL || 'http://127.0.0.1:4105/notify';
 
-function loadPatrickPdf() {
-  try { return fs.existsSync(PATRICK_PDF_PATH) ? fs.readFileSync(PATRICK_PDF_PATH) : null; }
-  catch (e) { console.error('[patrick] pdf-load failed:', e.message); return null; }
+function loadPatrickPdf(lang) {
+  // EN leads get the English PDF if it exists; otherwise fall back to the German one.
+  if (lang === 'en') {
+    try {
+      if (fs.existsSync(PATRICK_PDF_PATH_EN)) return { content: fs.readFileSync(PATRICK_PDF_PATH_EN), filename: 'Thailand-Property-Check-2026.pdf' };
+      console.warn('[patrick] EN PDF missing, falling back to DE');
+    } catch (e) { console.error('[patrick] en pdf-load failed:', e.message); }
+  }
+  try {
+    if (fs.existsSync(PATRICK_PDF_PATH)) return { content: fs.readFileSync(PATRICK_PDF_PATH), filename: 'Thailand-Immobilien-Check-2026.pdf' };
+  } catch (e) { console.error('[patrick] pdf-load failed:', e.message); }
+  return null;
 }
 
-function patrickLeadConfirmationHtml({ name, tier }) {
-  const first = (name && name.split(' ')[0]) || 'Hallo';
+function patrickLeadConfirmationHtml({ name, tier, lang }) {
   const hot = tier === 'A';
-  const cta = hot
-    ? `<p style="margin:0 0 14px;">Weil dein Profil sehr klar ist, lade ich dich direkt zu einem 30-Min-Gespräch ein. Du wählst einen Termin:</p>
-       <p style="margin:0 0 24px;"><a href="${PATRICK_CALENDLY}" style="display:inline-block;background:#b87333;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">Termin wählen</a></p>`
-    : `<p style="margin:0 0 24px;">Ich melde mich persönlich — in der Regel innerhalb von 24 Stunden. Mit Zeitverschiebung Pattaya manchmal etwas später.</p>`;
-  return `<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:40px auto;padding:24px;color:#1a1a1a;line-height:1.55;background:#faf8f3;">
-<div style="border-bottom:2px solid #b87333;padding-bottom:14px;margin-bottom:24px;">
-  <div style="font-family:Georgia,serif;font-size:22px;color:#1a1a1a;">Patrick Roth Thailand</div>
-  <div style="font-size:10px;letter-spacing:0.2em;color:#8a8a8a;text-transform:uppercase;margin-top:4px;">Concierge · Pattaya</div>
+
+  if (lang === 'en') {
+    const firstEn = (name && name.split(' ')[0]) || 'Hi';
+    const ctaEn = hot
+      ? `<p style="margin:0 0 14px;">Because your profile is very clear, let's talk directly — the fastest way is WhatsApp:</p>
+         <p style="margin:0 0 24px;"><a href="${PATRICK_WHATSAPP_HOT_EN}" style="display:inline-block;background:#C84B31;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">Message Patrick directly</a></p>`
+      : `<p style="margin:0 0 24px;">I'll get back to you personally — usually within 24 hours. With the Pattaya time difference, sometimes a little later.</p>`;
+    return `<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:40px auto;padding:24px;color:#1a1a1a;line-height:1.55;background:#F5F1E8;">
+<div style="border-bottom:2px solid #C84B31;padding-bottom:14px;margin-bottom:24px;">
+  <div style="font-family:Georgia,serif;font-size:22px;color:#1A3A52;">Living in Thailand</div>
+  <div style="font-size:10px;letter-spacing:0.2em;color:#8a8a8a;text-transform:uppercase;margin-top:4px;">with Patrick · Pattaya</div>
 </div>
-<h1 style="font-family:Georgia,serif;font-size:24px;margin:0 0 18px;color:#1a1a1a;">Danke, ${first}.</h1>
-<p style="margin:0 0 14px;">Anbei der <strong>Thailand-Immobilien-Check 2026</strong> als PDF — 7 Fehler, die deutsche Käufer in Pattaya häufig machen und wie du sie vermeidest. 18 Monate Vor-Ort-Realität, kompakt zusammengefasst.</p>
+<h1 style="font-family:Georgia,serif;font-size:24px;margin:0 0 18px;color:#1A3A52;">Thank you, ${firstEn}.</h1>
+<p style="margin:0 0 14px;">Attached is the <strong>Thailand Property Check 2026</strong> as a PDF — 7 mistakes foreign buyers often make in Pattaya and how to avoid them. Distilled from two years of on-the-ground reality.</p>
+${ctaEn}
+<p style="margin:0 0 14px;">If you have questions right away, the fastest way to reach me is WhatsApp: <a href="${PATRICK_WHATSAPP}" style="color:#C84B31;">+49 1511 4363994</a>.</p>
+<p style="margin:24px 0 0;font-family:Georgia,serif;font-style:italic;color:#4a4a4a;">"All roads lead to Thailand. We help you find the right one."</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr><td style="padding-right:12px;"><img src="https://leben-in-thailand.vercel.app/patrick-portrait.jpg" width="52" height="52" alt="Patrick Roth" style="width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:center top;display:block;border:2px solid #C84B31;"/></td><td style="font-size:13px;color:#1a1a1a;vertical-align:middle;">— Patrick</td></tr></table>
+<div style="margin-top:32px;padding-top:14px;border-top:1px solid rgba(200,75,49,0.2);font-size:10px;color:#8a8a8a;line-height:1.6;">
+  Patrick · Pattaya · <a href="mailto:patrick.roth.th@outlook.com" style="color:#C84B31;">patrick.roth.th@outlook.com</a><br/>
+  You're receiving this email because you requested the PDF on leben-in-thailand.de. Simply reply to this email to stop receiving messages.
+</div>
+</body></html>`;
+  }
+
+  const first = (name && name.split(' ')[0]) || 'Hallo';
+  const cta = hot
+    ? `<p style="margin:0 0 14px;">Weil dein Profil sehr klar ist, lass uns direkt sprechen — am schnellsten per WhatsApp:</p>
+       <p style="margin:0 0 24px;"><a href="${PATRICK_WHATSAPP_HOT}" style="display:inline-block;background:#C84B31;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">Direkt mit Patrick schreiben</a></p>`
+    : `<p style="margin:0 0 24px;">Ich melde mich persönlich — in der Regel innerhalb von 24 Stunden. Mit Zeitverschiebung Pattaya manchmal etwas später.</p>`;
+  return `<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:40px auto;padding:24px;color:#1a1a1a;line-height:1.55;background:#F5F1E8;">
+<div style="border-bottom:2px solid #C84B31;padding-bottom:14px;margin-bottom:24px;">
+  <div style="font-family:Georgia,serif;font-size:22px;color:#1A3A52;">Leben in Thailand</div>
+  <div style="font-size:10px;letter-spacing:0.2em;color:#8a8a8a;text-transform:uppercase;margin-top:4px;">mit Patrick · Pattaya</div>
+</div>
+<h1 style="font-family:Georgia,serif;font-size:24px;margin:0 0 18px;color:#1A3A52;">Danke, ${first}.</h1>
+<p style="margin:0 0 14px;">Anbei der <strong>Thailand-Immobilien-Check 2026</strong> als PDF — 7 Fehler, die deutsche Käufer in Pattaya häufig machen und wie du sie vermeidest. Aus zwei Jahren Vor-Ort-Realität, kompakt zusammengefasst.</p>
 ${cta}
-<p style="margin:0 0 14px;">Falls du sofort Fragen hast, erreichst du mich am schnellsten via WhatsApp: <a href="${PATRICK_WHATSAPP}" style="color:#b87333;">+49 1511 4363994</a>.</p>
+<p style="margin:0 0 14px;">Falls du sofort Fragen hast, erreichst du mich am schnellsten via WhatsApp: <a href="${PATRICK_WHATSAPP}" style="color:#C84B31;">+49 1511 4363994</a>.</p>
 <p style="margin:24px 0 0;font-family:Georgia,serif;font-style:italic;color:#4a4a4a;">"Alle Wege führen nach Thailand. Wir helfen, den richtigen zu finden."</p>
-<p style="margin:24px 0 0;font-size:13px;color:#1a1a1a;">— Patrick</p>
-<div style="margin-top:32px;padding-top:14px;border-top:1px solid rgba(184,115,51,0.2);font-size:10px;color:#8a8a8a;line-height:1.6;">
-  Patrick Roth · Pattaya · <a href="mailto:patrick.roth.th@outlook.com" style="color:#b87333;">patrick.roth.th@outlook.com</a><br/>
-  Du erhältst diese Mail, weil du auf patrick-roth-thailand.de das PDF angefordert hast. Antworte einfach auf diese Mail, um den Versand zu beenden.
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr><td style="padding-right:12px;"><img src="https://leben-in-thailand.vercel.app/patrick-portrait.jpg" width="52" height="52" alt="Patrick Roth" style="width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:center top;display:block;border:2px solid #C84B31;"/></td><td style="font-size:13px;color:#1a1a1a;vertical-align:middle;">— Patrick</td></tr></table>
+<div style="margin-top:32px;padding-top:14px;border-top:1px solid rgba(200,75,49,0.2);font-size:10px;color:#8a8a8a;line-height:1.6;">
+  Patrick · Pattaya · <a href="mailto:patrick.roth.th@outlook.com" style="color:#C84B31;">patrick.roth.th@outlook.com</a><br/>
+  Du erhältst diese Mail, weil du auf leben-in-thailand.de das PDF angefordert hast. Antworte einfach auf diese Mail, um den Versand zu beenden.
 </div>
 </body></html>`;
 }
 
-async function sendPatrickLeadEmail({ to, name, tier }) {
+async function sendPatrickLeadEmail({ to, name, tier, lang }) {
   if (!to) return { ok: false, reason: 'no-email' };
   try {
-    const pdf = loadPatrickPdf();
-    const html = patrickLeadConfirmationHtml({ name, tier });
-    const subject = tier === 'A'
-      ? `Dein Thailand-Immobilien-Check — plus Termin-Einladung`
-      : `Dein Thailand-Immobilien-Check (PDF)`;
-    const attachments = pdf ? [{ filename: 'Thailand-Immobilien-Check-2026.pdf', content: pdf, contentType: 'application/pdf' }] : undefined;
+    const isEn = lang === 'en';
+    const pdf = loadPatrickPdf(lang);
+    const html = patrickLeadConfirmationHtml({ name, tier, lang });
+    const subject = isEn
+      ? (tier === 'A'
+          ? `Your Thailand Property Check — plus a personal invitation`
+          : `Your Thailand Property Check (PDF)`)
+      : (tier === 'A'
+          ? `Dein Thailand-Immobilien-Check — plus Termin-Einladung`
+          : `Dein Thailand-Immobilien-Check (PDF)`);
+    const attachments = pdf ? [{ filename: pdf.filename, content: pdf.content, contentType: 'application/pdf' }] : undefined;
     return await mailer.send({ to, subject, html, attachments, from: 'Patrick Roth <patrick@aevum-system.de>' });
   } catch (e) {
     console.error('[patrick] mail failed:', e.message);
@@ -148,6 +190,55 @@ async function getProjectByAccount(accountId, projectSlug = null) {
   const res = await supabase.select('projects', `?account_id=eq.${accountId}${slugQ}&select=id,slug,name&limit=1`);
   const rows = unwrap(res);
   return rows && rows.length ? rows[0] : null;
+}
+
+// ──────────────────────────────────────────────────────────
+// Attribution: UTM → content_piece + Referral-Code → referrals-Event
+// Non-fatal: errors are logged, never block the lead.
+// ──────────────────────────────────────────────────────────
+
+async function attributeLead({ lead, created, accountId }) {
+  const patch = {};
+
+  // 1) Content-Attribution via utm_campaign (= content_pieces.utm_campaign on the site)
+  try {
+    if (lead.utm_campaign) {
+      const r = await supabase.select('content_pieces',
+        `?account_id=eq.${accountId}&utm_campaign=eq.${encodeURIComponent(lead.utm_campaign)}&select=id&limit=1`);
+      const piece = unwrap(r)?.[0];
+      if (piece?.id) patch.attributed_content_id = piece.id;
+    }
+  } catch (e) { console.warn('[leads] content-attribution failed:', e.message); }
+
+  // 2) Referral-Attribution via referral_code → create referrals event
+  try {
+    if (lead.referral_code) {
+      const code = String(lead.referral_code).toUpperCase();
+      const cr = await supabase.select('referral_codes',
+        `?code=eq.${encodeURIComponent(code)}&active=eq.true&select=id,program_id,referrer_name,referrer_email,expires_at&limit=1`);
+      const codeRow = unwrap(cr)?.[0];
+      const valid = codeRow && (!codeRow.expires_at || new Date(codeRow.expires_at) > new Date());
+      if (valid) {
+        const refIns = await supabase.insert('referrals', {
+          program_id: codeRow.program_id,
+          code_id: codeRow.id,
+          lead_id: created.id,
+          referee_name: created.name || null,
+          referee_email: created.email,
+          referee_phone: created.phone || null,
+          status: 'pending'
+        });
+        const ref = refIns.ok ? (Array.isArray(refIns.data) ? refIns.data[0] : refIns.data) : null;
+        if (ref?.id) patch.referral_id = ref.id;
+      }
+    }
+  } catch (e) { console.warn('[leads] referral-attribution failed:', e.message); }
+
+  if (Object.keys(patch).length) {
+    try { await supabase.update('customer_leads', `?id=eq.${created.id}`, patch); }
+    catch (e) { console.warn('[leads] attribution patch failed:', e.message); }
+  }
+  return patch;
 }
 
 // ──────────────────────────────────────────────────────────
@@ -251,8 +342,28 @@ customerLeadsRouter.post('/:account_slug', async (req, res) => {
       consent_text: lead.consent_text,
       consent_timestamp: lead.consent_given ? new Date().toISOString() : null,
       ip_address_hash: ipHash,
+      // Attribution (set from query/cookie by the site; expanded below)
+      utm_source: lead.utm_source || null,
+      utm_medium: lead.utm_medium || null,
+      utm_campaign: lead.utm_campaign || null,
+      referral_code: lead.referral_code ? String(lead.referral_code).toUpperCase() : null,
       status: 'new'
     };
+
+    // Nurture-State (additiv): A-Leads bekommen Speed-to-Lead statt Sequenz →
+    // von der Nurture-Sequenz ausgeschlossen. B/C/D starten aktive Sequenz bei Step 0.
+    // (Migration 050: nurture_status default 'active' — wir setzen explizit für Klarheit.)
+    {
+      const nowIso = new Date().toISOString();
+      if (scored.lead_tier === 'A') {
+        insertPayload.nurture_status = 'excluded';
+        insertPayload.nurture_step = 0;
+      } else {
+        insertPayload.nurture_status = 'active';
+        insertPayload.nurture_step = 0;
+        insertPayload.nurture_started_at = nowIso;
+      }
+    }
 
     const result = await supabase.insert('customer_leads', insertPayload);
     if (!result || !result.ok) {
@@ -262,10 +373,15 @@ customerLeadsRouter.post('/:account_slug', async (req, res) => {
     const rows = result.data;
     const created = Array.isArray(rows) ? rows[0] : rows;
 
+    // Attribution (UTM→content + referral-code→referrals event). Awaited but non-fatal.
+    if (lead.utm_campaign || lead.referral_code) {
+      await attributeLead({ lead, created, accountId: account.id });
+    }
+
     // Patrick-specific automation — fire-and-forget (do not block response)
     if (account_slug === 'patrick-roth') {
       setImmediate(() => {
-        sendPatrickLeadEmail({ to: created.email, name: created.name, tier: created.lead_tier })
+        sendPatrickLeadEmail({ to: created.email, name: created.name, tier: created.lead_tier, lang: created.language })
           .then(r => console.log('[patrick] mail sent:', r?.ok ? 'ok' : 'fail', r?.provider || r?.error || ''))
           .catch(e => console.error('[patrick] mail error:', e.message));
         notifyPatrickTg(created)

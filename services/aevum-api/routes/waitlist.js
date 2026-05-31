@@ -272,11 +272,11 @@ async function sendConfirmationMail(row) {
   const text = [
     `Danke fürs Eintragen.`,
     ``,
-    `Wir launchen offiziell ~Juli 2026 als US-LLC (Wyoming). Bis dahin: Foundation-Bau, nicht Sales-Hustle.`,
+    `AEVUM ist aktuell im Pre-Launch — Foundation-Bau, nicht Sales-Hustle. Sobald Shop + SaaS scharf gehen, gehörst du zur ersten Welle.`,
     ``,
     `Was du als Erstes bekommst:`,
-    `  - Early-Access-Liste (1 Woche vor Public-Launch)`,
-    `  - 20% Pre-Launch-Discount auf Setup-Fees (automatisch, kein Code nötig)`,
+    `  - Early-Access-Liste (~1 Woche vor Public-Launch)`,
+    `  - Setup-Discount für die erste Welle (Höhe wird im Launch-Mailing bestätigt)`,
     `  - 2-3 Sneak-Peek-Updates im Foundation-Window (kein Newsletter-Spam)`,
     ``,
     `Dein Interesse: ${tierLabel}`,
@@ -285,8 +285,7 @@ async function sendConfirmationMail(row) {
     `${unsubUrl}`,
     ``,
     `— Carlos`,
-    `AEVUM-System (Carlos Wrusch, Federteilstr. 2e, 86517 Wehringen, DE)`,
-    `Wird ab Juli durch Wyoming-LLC-Adresse ersetzt.`
+    `AEVUM · Impressum: https://aevum-system.de/#/impressum`
   ].join('\n');
 
   const html = `<!doctype html>
@@ -310,7 +309,7 @@ async function sendConfirmationMail(row) {
           Danke fürs Eintragen. Kurz die Lage:
         </p>
         <p style="color:#cfcfd4;font-size:15px;line-height:1.65;margin:0 0 24px">
-          Wir launchen offiziell <strong style="color:#e0a458">~Juli 2026</strong> als US-LLC (Wyoming). Bis dahin Foundation-Bau, kein Sales-Hustle. Wenn die LLC steht, geht Shop + SaaS scharf — und du gehörst zur ersten Welle.
+          AEVUM ist aktuell im <strong style="color:#e0a458">Pre-Launch</strong>. Foundation-Bau, kein Sales-Hustle. Sobald Shop + SaaS scharf gehen, gehörst du zur ersten Welle.
         </p>
       </td></tr>
       <tr><td style="padding:8px 32px">
@@ -321,11 +320,11 @@ async function sendConfirmationMail(row) {
           <ul style="margin:0;padding:0;list-style:none">
             <li style="color:#cfcfd4;font-size:14px;line-height:1.6;padding:6px 0 6px 18px;position:relative">
               <span style="position:absolute;left:0;color:#e0a458">→</span>
-              Early-Access-Liste — 1 Woche vor Public-Launch
+              Early-Access-Liste — ~1 Woche vor Public-Launch
             </li>
             <li style="color:#cfcfd4;font-size:14px;line-height:1.6;padding:6px 0 6px 18px;position:relative">
               <span style="position:absolute;left:0;color:#e0a458">→</span>
-              <strong style="color:#F9FAFB">20% Pre-Launch-Discount</strong> auf Setup-Fees — automatisch, kein Code nötig
+              <strong style="color:#F9FAFB">Setup-Discount</strong> für die erste Welle — Höhe wird im Launch-Mailing bestätigt
             </li>
             <li style="color:#cfcfd4;font-size:14px;line-height:1.6;padding:6px 0 6px 18px;position:relative">
               <span style="position:absolute;left:0;color:#e0a458">→</span>
@@ -352,8 +351,7 @@ async function sendConfirmationMail(row) {
       </td></tr>
       <tr><td style="padding:0 32px 32px;border-top:1px solid rgba(255,255,255,0.05)">
         <p style="color:#6a6a72;font-size:11px;line-height:1.6;margin:20px 0 8px;font-family:ui-monospace,monospace">
-          AEVUM-System · Carlos Wrusch · Federteilstr. 2e · 86517 Wehringen · DE<br/>
-          Wird ab Juli durch Wyoming-LLC-Adresse ersetzt.
+          AEVUM · Carlos Wrusch · Impressum: <a href="https://aevum-system.de/#/impressum" style="color:#6a6a72">aevum-system.de/#/impressum</a>
         </p>
         <p style="color:#6a6a72;font-size:11px;margin:0">
           <a href="${unsubUrl}" style="color:#6a6a72;text-decoration:underline">Abmelden / Unsubscribe</a>

@@ -339,7 +339,9 @@ projectAgentRouter.post('/chat', agentThrottle(), async (req, res) => {
       body: JSON.stringify({
         model: MODEL,
         max_tokens: MAX_OUTPUT_TOKENS,
-        system: systemPrompt,
+        system: [
+          { type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }
+        ],
         stream: true,
         messages: apiMessages
       })
@@ -360,6 +362,8 @@ projectAgentRouter.post('/chat', agentThrottle(), async (req, res) => {
   let assistantText = '';
   let inputTokens = 0;
   let outputTokens = 0;
+  let cacheCreationInputTokens = 0;
+  let cacheReadInputTokens = 0;
   const reader = upstream.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
@@ -384,6 +388,8 @@ projectAgentRouter.post('/chat', agentThrottle(), async (req, res) => {
           if (evt.type === 'message_start' && evt.message?.usage) {
             inputTokens = evt.message.usage.input_tokens || 0;
             outputTokens = evt.message.usage.output_tokens || 0;
+            cacheCreationInputTokens = evt.message.usage.cache_creation_input_tokens || 0;
+            cacheReadInputTokens = evt.message.usage.cache_read_input_tokens || 0;
           } else if (evt.type === 'message_delta' && evt.usage) {
             if (typeof evt.usage.output_tokens === 'number') outputTokens = evt.usage.output_tokens;
             if (typeof evt.usage.input_tokens === 'number' && evt.usage.input_tokens > inputTokens) inputTokens = evt.usage.input_tokens;
@@ -415,6 +421,8 @@ projectAgentRouter.post('/chat', agentThrottle(), async (req, res) => {
       model: MODEL,
       inputTokens,
       outputTokens,
+      cacheCreationInputTokens,
+      cacheReadInputTokens,
       context: `agent-chat:${projectSlug}:${channel}`
     }).catch(err => console.error('[project-agent] usage log failed:', err.message || err));
   }

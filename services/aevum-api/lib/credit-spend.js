@@ -21,9 +21,25 @@ const PRICING_PER_M_TOKENS = {
 };
 const EUR_USD_RATE = 0.93;
 
-export function estimateCostEur({ model, inputTokens = 0, outputTokens = 0 }) {
+// Prompt-cache multipliers (Anthropic, 5-min ephemeral cache):
+//   write = 1.25x normal input price
+//   read  = 0.10x normal input price (90% savings)
+const CACHE_WRITE_MULT = 1.25;
+const CACHE_READ_MULT = 0.10;
+
+export function estimateCostEur({
+  model,
+  inputTokens = 0,
+  outputTokens = 0,
+  cacheCreationInputTokens = 0,
+  cacheReadInputTokens = 0
+}) {
   const p = PRICING_PER_M_TOKENS[model] || PRICING_PER_M_TOKENS['claude-sonnet-4-5'];
-  const usd = (inputTokens / 1e6) * p.input + (outputTokens / 1e6) * p.output;
+  const usd =
+    (inputTokens / 1e6) * p.input +
+    (outputTokens / 1e6) * p.output +
+    (cacheCreationInputTokens / 1e6) * p.input * CACHE_WRITE_MULT +
+    (cacheReadInputTokens / 1e6) * p.input * CACHE_READ_MULT;
   return usd * EUR_USD_RATE;
 }
 
@@ -34,10 +50,18 @@ export async function logUsage({
   model,
   inputTokens = 0,
   outputTokens = 0,
+  cacheCreationInputTokens = 0,
+  cacheReadInputTokens = 0,
   creditsSpent = 0,
   context = null
 }) {
-  const costEur = estimateCostEur({ model, inputTokens, outputTokens });
+  const costEur = estimateCostEur({
+    model,
+    inputTokens,
+    outputTokens,
+    cacheCreationInputTokens,
+    cacheReadInputTokens
+  });
   try {
     await supabase.insert('agent_usage_log', {
       account_id: accountId,

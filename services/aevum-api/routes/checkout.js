@@ -712,7 +712,7 @@ checkoutRouter.post('/credit-purchase', async (req, res) => {
 });
 
 // ─── POST /api/checkout/subscribe ───────────────────────────────
-// Wave I4 — Subscription-Signup
+// Wave I4 — Subscription-Signup (One-Click-Auth-Style)
 // Anonymer Visitor wählt Subscription-Plan, kriegt Stripe-Subscription-Checkout-URL.
 // Nach Zahlung: Webhook erzeugt Account + setzt subscription_plan + Initial-Credit-Grant + Magic-Link-Mail.
 //

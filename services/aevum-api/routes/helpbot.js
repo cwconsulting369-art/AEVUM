@@ -34,6 +34,10 @@ import {
 } from '../lib/security.js';
 import { agentThrottle } from '../lib/agent-throttle.js';
 import { logUsage } from '../lib/credit-spend.js';
+// Knowledge-base — lazy import via ESM static binding (module is side-effect-free).
+// Used at request-time only; the SYSTEM_PROMPT below stays inline. The snippet is
+// appended dynamically ONLY when detectConfusion / detectEdgeCase / FAQ match.
+import { buildKnowledgeSnippet } from '../lib/helpbot-knowledge.js';
 
 export const helpbotRouter = Router();
 
@@ -70,8 +74,8 @@ Ziel: User in genau einen der 3 Einstiegspfade routen.
 # 3 EINSTIEGSPFADE (kläre frühzeitig welcher passt)
 
 ## Pfad A — Blueprint-Shop (Self-Service, einmalig)
-**Wer:** Solopreneur / Freelancer / kleine Agentur, will Lösung sofort, kann selbst implementieren (n8n-Kenntnisse oder Bereitschaft sich einzulesen).
-**Was:** n8n-Workflow + PDF-Guide + Prompts. €97-297 einmalig, sofort downloadbar.
+**Wer:** Solopreneur / Freelancer / kleine Agentur, will Lösung selbst implementieren (n8n-Kenntnisse oder Bereitschaft sich einzulesen).
+**Was:** n8n-Workflow-Datei + Anleitung + Prompts. €97-297 einmalig, Download nach Zahlung. Realistische Setup-Zeit 30-90 Minuten je nach Erfahrung und nötigen Credentials.
 **Kein Personal-Agent, keine Beratung inkludiert.**
 **CTA:** → aevum-system.de/#/shop  oder konkrete Detail-Page /#/shop/blueprint/<slug>
 
@@ -400,6 +404,19 @@ helpbotRouter.post('/chat', agentThrottle({ allowAnonymous: true }), async (req,
   // Send session_id immediately so frontend can persist before any tokens
   send('session', { session_id });
 
+  // ─── Lazy knowledge-base lookup (Block B4 refactor, 2026-05-25) ───
+  // Build a compact snippet ONLY when the last user message triggers FAQ / confused-pair
+  // / edge-case match. Empty string if nothing matched → no prompt growth.
+  let knowledgeSnippet = '';
+  if (lastUser?.content) {
+    try {
+      knowledgeSnippet = buildKnowledgeSnippet(lastUser.content) || '';
+    } catch (err) {
+      console.warn('[helpbot] buildKnowledgeSnippet failed:', err?.message || err);
+      knowledgeSnippet = '';
+    }
+  }
+
   // ─── Sandwich prompt-injection attempts ───
   // We keep the original message visible to the LLM but wrap it with a guard reminder.
   const apiMessages = messages.map(m => ({ role: m.role, content: m.content }));
@@ -426,7 +443,12 @@ helpbotRouter.post('/chat', agentThrottle({ allowAnonymous: true }), async (req,
       body: JSON.stringify({
         model: MODEL,
         max_tokens: MAX_OUTPUT_TOKENS,
-        system: SYSTEM_PROMPT,
+        system: [
+          // Static base — cached (large, stable across requests).
+          { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+          // Dynamic knowledge — only present when snippet non-empty. Stays outside cache.
+          ...(knowledgeSnippet ? [{ type: 'text', text: `\n# KNOWLEDGE-INJECT (request-scoped)\n${knowledgeSnippet}` }] : [])
+        ],
         stream: true,
         messages: apiMessages
       })
@@ -448,6 +470,8 @@ helpbotRouter.post('/chat', agentThrottle({ allowAnonymous: true }), async (req,
   let assistantText = '';
   let inputTokens = 0;
   let outputTokens = 0;
+  let cacheCreationInputTokens = 0;
+  let cacheReadInputTokens = 0;
   const reader = upstream.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
@@ -479,6 +503,8 @@ helpbotRouter.post('/chat', agentThrottle({ allowAnonymous: true }), async (req,
           if (evt.type === 'message_start' && evt.message?.usage) {
             inputTokens = evt.message.usage.input_tokens || 0;
             outputTokens = evt.message.usage.output_tokens || 0;
+            cacheCreationInputTokens = evt.message.usage.cache_creation_input_tokens || 0;
+            cacheReadInputTokens = evt.message.usage.cache_read_input_tokens || 0;
           } else if (evt.type === 'message_delta' && evt.usage) {
             // Anthropic emits cumulative output_tokens here
             if (typeof evt.usage.output_tokens === 'number') outputTokens = evt.usage.output_tokens;
@@ -511,6 +537,8 @@ helpbotRouter.post('/chat', agentThrottle({ allowAnonymous: true }), async (req,
       model: MODEL,
       inputTokens,
       outputTokens,
+      cacheCreationInputTokens,
+      cacheReadInputTokens,
       context: 'helpbot-question'
     }).catch(err => console.error('[helpbot] usage log failed:', err.message || err));
   }

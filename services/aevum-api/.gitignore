@@ -1,8 +1,4 @@
 node_modules/
 pm2.log
 pm2.err.log
-*.log
 .env
-.env.local
-*.bak
-*.bak_*

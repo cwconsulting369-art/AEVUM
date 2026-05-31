@@ -6,6 +6,20 @@
 // Cormorant headings + Inter body.
 
 import puppeteer from 'puppeteer-core';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Patrick-Portrait als Data-URI (zuverlässig im headless Chrome, kein File-/Netz-Pfad nötig).
+function portraitDataUri() {
+  try {
+    const p = path.resolve(__dirname, '..', 'data', 'patrick', 'patrick-portrait.jpg');
+    if (fs.existsSync(p)) return `data:image/jpeg;base64,${fs.readFileSync(p).toString('base64')}`;
+  } catch { /* ignore — Portrait optional */ }
+  return null;
+}
 
 const CHROME_EXECUTABLE =
   process.env.CHROME_EXECUTABLE_PATH ||
@@ -70,10 +84,29 @@ function md2html(src) {
   return html;
 }
 
-function buildHtml({ title, subtitle, markdown }) {
-  const dateStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+function buildHtml({ title, subtitle, markdown, lang = 'de' }) {
+  const en = lang === 'en';
+  const dateStr = new Date().toLocaleDateString(en ? 'en-GB' : 'de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+  const L = en
+    ? {
+        brandSub: 'Concierge · Pattaya since 2024',
+        coverSubtitle: '18 months of on-the-ground reality in Pattaya — concise, honest, no marketing fluff. What you need to know before you send your first euro to Thailand.',
+        metaDate: 'Updated', metaAuthor: 'Author',
+        role: 'Thailand Concierge · Pattaya',
+        disclaimer: '<strong>Note.</strong> This document is Patrick&rsquo;s own draft and reflects his personal on-the-ground experience. It does not replace individual legal, tax or wealth advice. Specific contract clauses belong in the hands of a lawyer you trust before signing. A legal review of this document is pending.',
+        defaultSubtitle: 'Lead Magnet · Field Knowledge',
+      }
+    : {
+        brandSub: 'Concierge · Pattaya seit 2024',
+        coverSubtitle: '18 Monate Vor-Ort-Realität in Pattaya — kompakt, ehrlich, ohne Marketing-Geschwurbel. Was du wissen musst, bevor du den ersten Euro nach Thailand schickst.',
+        metaDate: 'Stand', metaAuthor: 'Autor',
+        role: 'Thailand Concierge · Pattaya',
+        disclaimer: '<strong>Hinweis.</strong> Dieses Dokument ist Patricks Eigen-Entwurf und gibt seine persönliche Vor-Ort-Erfahrung wieder. Es ersetzt keine individuelle Rechts-, Steuer- oder Vermögensberatung. Konkrete Vertragsklauseln gehören vor Unterzeichnung in die Hände eines Anwalts deines Vertrauens. Eine juristische Prüfung dieses Dokuments steht aus.',
+        defaultSubtitle: 'Lead-Magnet · Praxis-Wissen',
+      };
   const body = md2html(markdown);
-  return `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>${esc(title)}</title>
+  const portrait = portraitDataUri();
+  return `<!DOCTYPE html><html lang="${en ? 'en' : 'de'}"><head><meta charset="UTF-8"><title>${esc(title)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -118,6 +151,8 @@ function buildHtml({ title, subtitle, markdown }) {
   .disclaimer strong { color:var(--anthracite); }
 
   .closing { margin-top:30px; padding:22px; border-top:1px solid rgba(184,115,51,0.3); }
+  .closing-row { display:flex; align-items:center; gap:18px; }
+  .closing .portrait { width:84px; height:84px; border-radius:50%; object-fit:cover; object-position:center top; border:2px solid var(--bronze); flex-shrink:0; }
   .closing .name { font-family:'Cormorant Garamond',serif; font-size:20px; color:var(--anthracite); margin-bottom:4px; }
   .closing .role { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.16em; margin-bottom:14px; }
   .closing .contact { font-size:10px; color:var(--text-dim); line-height:1.7; }
@@ -127,15 +162,15 @@ function buildHtml({ title, subtitle, markdown }) {
 <section class="page cover">
   <div>
     <div class="brand">Patrick Roth Thailand</div>
-    <div class="brand-sub">Concierge · Pattaya seit 2024</div>
+    <div class="brand-sub">${L.brandSub}</div>
   </div>
   <div class="cover-mid">
-    <div class="cover-eyebrow">${esc(subtitle || 'Lead-Magnet · Praxis-Wissen')}</div>
+    <div class="cover-eyebrow">${esc(subtitle || L.defaultSubtitle)}</div>
     <div class="cover-title">${esc(title)}</div>
-    <div class="cover-subtitle">18 Monate Vor-Ort-Realität in Pattaya — kompakt, ehrlich, ohne Marketing-Geschwurbel. Was du wissen musst, bevor du den ersten Euro nach Thailand schickst.</div>
+    <div class="cover-subtitle">${L.coverSubtitle}</div>
     <div class="cover-meta">
-      <div><div class="label">Stand</div><div class="value">${esc(dateStr)}</div></div>
-      <div><div class="label">Autor</div><div class="value">Patrick Roth</div></div>
+      <div><div class="label">${L.metaDate}</div><div class="value">${esc(dateStr)}</div></div>
+      <div><div class="label">${L.metaAuthor}</div><div class="value">Patrick Roth</div></div>
     </div>
   </div>
   <div class="footer">
@@ -148,18 +183,23 @@ function buildHtml({ title, subtitle, markdown }) {
 ${body}
 
 <div class="closing">
+ <div class="closing-row">
+  ${portrait ? `<img class="portrait" src="${portrait}" alt="Patrick Roth"/>` : ''}
+  <div>
   <div class="name">Patrick Roth</div>
-  <div class="role">Thailand Concierge · Pattaya</div>
+  <div class="role">${L.role}</div>
   <div class="contact">
     WhatsApp: +49 1511 4363994<br/>
     Email: <a href="mailto:patrick.roth.th@outlook.com">patrick.roth.th@outlook.com</a><br/>
     LinkedIn: <a href="https://www.linkedin.com/in/living-in-thailand-463321350/">living-in-thailand</a><br/>
     Web: <a href="https://patrick-roth-thailand.de">patrick-roth-thailand.de</a>
   </div>
+  </div>
+ </div>
 </div>
 
 <div class="disclaimer">
-  <strong>Hinweis.</strong> Dieses Dokument ist Patricks Eigen-Entwurf und gibt seine persönliche Vor-Ort-Erfahrung wieder. Es ersetzt keine individuelle Rechts-, Steuer- oder Vermögensberatung. Konkrete Vertragsklauseln gehören vor Unterzeichnung in die Hände eines Anwalts deines Vertrauens. Eine juristische Prüfung dieses Dokuments steht aus.
+  ${L.disclaimer}
 </div>
 </section>
 
@@ -167,8 +207,8 @@ ${body}
 }
 
 export async function renderPatrickPdf(markdown, opts = {}) {
-  const { title = 'Thailand-Immobilien-Check', subtitle = 'Praxis-Wissen für deutsche Käufer' } = opts;
-  const html = buildHtml({ title, subtitle, markdown });
+  const { title = 'Thailand-Immobilien-Check', subtitle = 'Praxis-Wissen für deutsche Käufer', lang = 'de' } = opts;
+  const html = buildHtml({ title, subtitle, markdown, lang });
   const browser = await puppeteer.launch({
     executablePath: CHROME_EXECUTABLE,
     headless: 'new',

@@ -16,6 +16,7 @@ import { blueprintsRouter } from './routes/blueprints.js';
 import { authRouter } from './routes/auth.js';
 import { googleAuthRouter } from './routes/auth-google.js';
 import { meRouter } from './routes/me.js';
+import { meFunnelRouter } from './routes/me-funnel.js';
 import { casesRouter } from './routes/cases.js';
 import { approvalRouter } from './routes/approval.js';
 import { tgWebhookRouter } from './routes/tg-webhook.js';
@@ -24,6 +25,7 @@ import { botRouter } from './routes/bot.js';
 import { creditsRouter } from './routes/credits.js';
 import { shopTrackingRouter } from './routes/shop-tracking.js';
 import { shopItemsRouter } from './routes/shop-items.js';
+import { shopUpdatesRouter, shopUpdatesPublicRouter } from './routes/shop-updates.js';
 import { dashboardStatsRouter } from './routes/dashboard-stats.js';
 import { customerLeadsRouter } from './routes/customer-leads.js';
 import { waitlistRouter } from './routes/waitlist.js';
@@ -33,8 +35,11 @@ import { scriptFactoryRouter } from './routes/factories/script.js';
 import { dsgvoFactoryRouter } from './routes/factories/dsgvo.js';
 import { leadScraperRouter } from './routes/factories/lead-scraper.js';
 import { knowledgeHubsRouter } from './routes/knowledge-hubs.js';
+import { knowledgeRouter } from './routes/knowledge.js';
 import { trustpilotRouter } from './routes/trustpilot.js';
 import { referralsRouter } from './routes/referrals.js';
+import { contentRouter } from './routes/content.js';
+import { nurtureRouter, runNurture } from './routes/nurture.js';
 import { subscriptionsRouter, projectSubscriptionsRouter } from './routes/subscriptions.js';
 import { subOsRouter } from './routes/sub-os.js';
 import {
@@ -77,11 +82,17 @@ app.use(helmet({
   },
 }));
 
-// CORS — allow aevum-system.de + localhost dev
+// CORS — allow aevum-system.de + customer sites + localhost dev
 const ALLOWED_ORIGINS = [
   'https://aevum-system.de',
   'https://www.aevum-system.de',
   'https://app.aevum-system.de',
+  // Patrick / "Leben in Thailand" — lead intake from the live customer site
+  'https://leben-in-thailand.vercel.app',
+  'https://leben-in-thailand.de',
+  'https://www.leben-in-thailand.de',
+  'https://living-in-thailand.com',
+  'https://www.living-in-thailand.com',
   'http://localhost:3000',
   'http://localhost:5180',
   'http://localhost:5173'
@@ -295,6 +306,7 @@ const meUploadLimiter = rateLimit({
   message: { ok: false, error: 'rate_limit_me_upload', hint: 'Maximal 5 Uploads pro Minute.' },
   skip: (req) => req.method !== 'POST' || !/\/projects\/[^/]+\/docs\/upload$/.test(req.path)
 });
+app.use('/api/me/funnel', meFunnelRouter);
 app.use('/api/me', meUploadLimiter, meRouter);
 app.use('/api/cases', casesRouter);
 
@@ -382,6 +394,11 @@ const shopTrackLimiter = rateLimit({
 });
 app.use('/api/shop', shopTrackLimiter, shopTrackingRouter);
 app.use('/api/shop-items', shopItemsRouter);
+// Shop-Update Notifications (Task-Batch 2026-05-25):
+//   /api/admin/shop-updates/*  — admin-gated (adminApiKeyGuard inside router)
+//   /api/shop-updates/unsubscribe — public unsubscribe link target
+app.use('/api/admin/shop-updates', shopUpdatesRouter);
+app.use('/api/shop-updates', shopUpdatesPublicRouter);
 
 // Admin-token gated dashboard aggregate endpoints (shop / stripe / orders)
 app.use('/api/dashboard', dashboardStatsRouter);
@@ -429,8 +446,12 @@ const knowledgeWriteLimiter = rateLimit({
   skip: (req) => req.method === 'GET' || req.method === 'HEAD'
 });
 app.use('/api/knowledge-hubs', knowledgeWriteLimiter, knowledgeHubsRouter);
+// Block F1 — Knowledge-Hub SSOT (internal). Admin-only via adminApiKeyGuard inside router.
+app.use('/api/admin/knowledge', knowledgeRouter);
 app.use('/api/trustpilot', trustpilotRouter);
 app.use('/api/referrals', referralsRouter);
+app.use('/api/content', contentRouter);
+app.use('/api/nurture', nurtureRouter);
 
 // Sub-OS aevum-summary endpoints — Wave E3 (admin-token gated)
 //   /api/sub-os                      → list supported systems
@@ -453,3 +474,26 @@ app.use((err, _req, res, _next) => {
 app.listen(PORT, '127.0.0.1', () => {
   console.log(`aevum-api listening on 127.0.0.1:${PORT}`);
 });
+
+// ──────────────────────────────────────────────────────────
+// In-Process Nurture-Scheduler (Patrick Funnel)
+// Ein setInterval (~6h) ruft runNurture('patrick-roth'). Idempotent
+// (dueStepFor/speed_alert_sent verhindern Doppel-Versand). Defensiv:
+// jeder Fehler wird geloggt, der Tick crasht den Server NIE.
+// Deaktivierbar via NURTURE_SCHEDULER_DISABLED=1.
+// ──────────────────────────────────────────────────────────
+if (process.env.NURTURE_SCHEDULER_DISABLED !== '1') {
+  const NURTURE_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6h
+  const tickNurture = () => {
+    Promise.resolve()
+      .then(() => runNurture('patrick-roth'))
+      .then((r) => {
+        if (r && r.ok) console.log(`[nurture-scheduler] sent=${r.sent} done=${r.done} speed_alerts=${r.speed_alerts} errors=${r.errors?.length || 0}`);
+        else console.warn('[nurture-scheduler] run not ok:', r && r.error);
+      })
+      .catch((e) => console.error('[nurture-scheduler] tick failed:', e.message));
+  };
+  const t = setInterval(tickNurture, NURTURE_INTERVAL_MS);
+  if (typeof t.unref === 'function') t.unref();
+  console.log('[nurture-scheduler] armed (every 6h, account=patrick-roth)');
+}

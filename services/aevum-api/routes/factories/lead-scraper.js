@@ -47,9 +47,17 @@ leadScraperRouter.post('/campaigns', upload.single('csv'), async (req, res) => {
 
   const name = String(req.body?.name || '').trim().slice(0, 200);
   const brandtoneRaw = req.body?.brandtone_hub_id;
-  const brandtone_hub_id = (typeof brandtoneRaw === 'string' && UUID_RE.test(brandtoneRaw)) ? brandtoneRaw : null;
+  let brandtone_hub_id = (typeof brandtoneRaw === 'string' && UUID_RE.test(brandtoneRaw)) ? brandtoneRaw : null;
   if (!name) return res.status(400).json({ ok: false, error: 'missing_name' });
   if (!req.file) return res.status(400).json({ ok: false, error: 'missing_csv' });
+
+  // Auto-link account-owned brandtone hub (falls nicht explizit gewählt)
+  if (!brandtone_hub_id) {
+    const ownHubs = await supabase.select('knowledge_hubs',
+      `?owner_account_id=eq.${account_id}&associated_use_cases=cs.{lead-scraper}&select=id&order=created_at.desc&limit=1`);
+    const own = ownHubs.ok && ownHubs.data?.[0]?.id;
+    if (own) brandtone_hub_id = own;
+  }
 
   const csvText = req.file.buffer.toString('utf-8');
   const rows = csvParse(csvText);
