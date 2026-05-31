@@ -1011,7 +1011,81 @@ const BADGE = 'text-[0.6rem] px-1.5 py-0.5 rounded bg-white/10 text-ink-200 whit
  *  - Nächste 3 Posts: was als nächstes live geht
  *  - Monatsplan: der ganze geplante Content gruppiert nach Monat
  */
-function ContentRoadmap({ pieces }: { pieces: ContentPiece[] }) {
+function ScheduleSettings({ platform }: { platform?: 'facebook' | 'linkedin' }) {
+  const { t, i18n } = useTranslation();
+  const loc = i18n.language === 'en' ? 'en-US' : 'de-DE';
+  const plat = platform || 'all';
+  const [mode, setMode] = useState<'weekdays' | 'interval'>('weekdays');
+  const [weekdays, setWeekdays] = useState<number[]>([1, 3, 5]);
+  const [intervalDays, setIntervalDays] = useState(3);
+  const [postTime, setPostTime] = useState('09:00');
+  const [saving, setSaving] = useState(false);
+  const dayLabels = Array.from({ length: 7 }, (_, i) => new Date(2024, 0, 1 + i).toLocaleDateString(loc, { weekday: 'short' }));
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await api<{ schedules?: Array<{ platform: string; mode: 'weekdays' | 'interval'; weekdays: number[]; interval_days: number; post_time: string }> }>('/api/me/funnel/schedule');
+        const list = r.schedules || [];
+        const s = list.find(x => x.platform === plat) || list.find(x => x.platform === 'all');
+        if (s) {
+          setMode(s.mode);
+          setWeekdays(Array.isArray(s.weekdays) && s.weekdays.length ? s.weekdays : [1, 3, 5]);
+          setIntervalDays(s.interval_days || 3);
+          setPostTime(s.post_time || '09:00');
+        }
+      } catch { /* leer = Defaults */ }
+    })();
+  }, [plat]);
+
+  const toggleDay = (d: number) => setWeekdays(w => w.includes(d) ? w.filter(x => x !== d) : [...w, d].sort((a, b) => a - b));
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await api('/api/me/funnel/schedule', { method: 'PUT', body: JSON.stringify({ platform: plat, mode, weekdays, interval_days: intervalDays, post_time: postTime }) });
+      toast.success(t('dashboards.funnel.schedSaved'));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.schedSaveFailed'));
+    } finally { setSaving(false); }
+  };
+
+  return (
+    <div className="card-premium p-5">
+      <div className="flex items-center gap-2 mb-1"><Clock size={15} className="text-gold-300" />
+        <h3 className="text-sm font-semibold text-white">{t('dashboards.funnel.schedTitle')}</h3></div>
+      <p className="text-xs text-ink-300 mb-3">{t('dashboards.funnel.schedHint')}</p>
+      {/* Modus (mutually exclusive → kein Beißen) */}
+      <div className="inline-flex rounded-lg border border-white/10 p-0.5 mb-3">
+        {(['weekdays', 'interval'] as const).map(m => (
+          <button key={m} onClick={() => setMode(m)} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${mode === m ? 'bg-gold-400/15 text-gold-200' : 'text-ink-400 hover:text-white'}`}>
+            {t(m === 'weekdays' ? 'dashboards.funnel.schedModeWeekdays' : 'dashboards.funnel.schedModeInterval')}
+          </button>
+        ))}
+      </div>
+      {mode === 'weekdays' ? (
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {dayLabels.map((lbl, d) => (
+            <button key={d} onClick={() => toggleDay(d)} className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition ${weekdays.includes(d) ? 'border-gold-400/40 bg-gold-400/10 text-gold-200' : 'border-white/10 text-ink-400 hover:text-white'}`}>{lbl}</button>
+          ))}
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 mb-3 text-sm">
+          <span className="text-ink-300">{t('dashboards.funnel.schedEvery')}</span>
+          <input type="number" min={1} max={30} value={intervalDays} onChange={e => setIntervalDays(Math.max(1, Math.min(30, Number(e.target.value) || 1)))} className="input-premium w-16 text-center" />
+          <span className="text-ink-300">{t('dashboards.funnel.schedDaysUnit')}</span>
+        </div>
+      )}
+      <div className="flex items-center gap-3 flex-wrap">
+        <label className="flex items-center gap-2 text-xs text-ink-300">{t('dashboards.funnel.schedTime')}
+          <input type="time" value={postTime} onChange={e => setPostTime(e.target.value)} className="input-premium" /></label>
+        <button disabled={saving} onClick={save} className="btn-gold text-sm"><Check size={13} /> {t('dashboards.funnel.schedSave')}</button>
+      </div>
+    </div>
+  );
+}
+
+function ContentRoadmap({ pieces, platform }: { pieces: ContentPiece[]; platform?: 'facebook' | 'linkedin' }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const now = Date.now();
@@ -1095,6 +1169,9 @@ function ContentRoadmap({ pieces }: { pieces: ContentPiece[] }) {
           })}
         </div>
       </div>
+
+      {/* Posting-Schedule: wann gepostet wird (Intervall ODER feste Tage) */}
+      <ScheduleSettings platform={platform} />
 
       {/* Story / Trust-Arc */}
       <div className="card-premium p-5">
@@ -1225,7 +1302,7 @@ function ContentSection({ content, platform, view = 'all' }: { content: LeadFunn
       </KpiGrid>
 
       {/* Content-Roadmap: Story-Arc + nächste 3 + Monatsplan */}
-      {!loading && pieces.length > 0 && <ContentRoadmap pieces={pieces} />}
+      {!loading && <ContentRoadmap pieces={pieces} platform={platform} />}
       </>)}
 
       {view !== 'plan' && (<>
