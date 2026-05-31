@@ -223,7 +223,7 @@ export default {
     filterNew: 'Status: New',
     filterQualified: 'Status: Qualified',
     noLeadsInSelection: 'No leads in this selection.',
-    leadsApolloHint: 'Once Apollo cold outreach + LinkedIn Sales Nav are running, new leads appear here automatically.',
+    leadsApolloHint: 'Once your Facebook & LinkedIn campaigns are live, new leads appear here automatically.',
     statusUpdateToast: 'Status → {{label}}',
     statusUpdateFailed: 'Status update failed',
     nurtureStep: 'Nurture step {{n}}',

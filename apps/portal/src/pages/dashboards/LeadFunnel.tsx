@@ -284,7 +284,6 @@ export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: 
           { id: 'content' as const,   label: t('dashboards.funnel.tabContent'),    icon: FileText },
           { id: 'channels' as const,  label: t('dashboards.funnel.tabChannels'),     icon: Plug },
           { id: 'audience' as const,  label: t('dashboards.funnel.tabAudience'), icon: Target },
-          { id: 'akquise' as const,   label: t('dashboards.funnel.tabAkquise'),    icon: Upload },
           { id: 'spend' as const,     label: t('dashboards.funnel.tabSpend'),      icon: DollarSign },
           { id: 'referrals' as const, label: t('dashboards.funnel.tabReferrals'),  icon: Gift }
         ].map(({ id, label, icon: Icon }) => (
@@ -309,7 +308,6 @@ export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: 
         {tab === 'content' && <ContentSection content={data.content} />}
         {tab === 'channels' && <ChannelsSection />}
         {tab === 'audience' && <AudienceSection />}
-        {tab === 'akquise' && <AkquiseSection onRefresh={load} />}
         {tab === 'spend' && <SpendSection spend={data.spend} />}
         {tab === 'referrals' && <ReferralsSection
           programs={data.referrals.programs}
