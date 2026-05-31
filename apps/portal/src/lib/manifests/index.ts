@@ -7,10 +7,12 @@
 // Alle drei → selbes Manifest → identische Ansicht.
 import type { DashboardManifest } from '@/lib/dashboard-manifest';
 import { patrickManifest } from './patrick';
+import { aevumManifest } from './aevum';
 
 /** account-slug → Dashboard-Manifest. Neuer Kunde = ein Eintrag hier. */
 export const MANIFESTS: Record<string, DashboardManifest> = {
   'patrick-roth': patrickManifest,
+  'carlos': aevumManifest,
 };
 
 export interface CustomerOption { slug: string; label: string }
