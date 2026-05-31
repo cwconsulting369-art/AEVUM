@@ -21,6 +21,7 @@ import '@/styles/command-shell.css';
 export interface ShellContext {
   leadFunnel?: { slug: string; name: string };
   siteUrl?: string;
+  onNavigate?: (sel: string) => void;
 }
 
 const ICONS: Record<IconKey, LucideIcon> = {
@@ -83,7 +84,7 @@ function CustomPane({ pane, ctx }: { pane: PaneSpec; ctx: ShellContext }) {
   if (pane.custom === 'lead-funnel' || plat) {
     if (ctx.leadFunnel) {
       const name = plat === 'facebook' ? 'Facebook-Funnel' : plat === 'linkedin' ? 'LinkedIn-Funnel' : ctx.leadFunnel.name;
-      return <LeadFunnel projectSlug={ctx.leadFunnel.slug} projectName={name} platform={plat} />;
+      return <LeadFunnel projectSlug={ctx.leadFunnel.slug} projectName={name} platform={plat} onNavigate={ctx.onNavigate} />;
     }
     return (
       <div className="cc-placeholder">
@@ -198,7 +199,7 @@ export default function CommandShell({ manifest, ctx = {} }: { manifest: Dashboa
         </nav>
 
         {/* ===== Main ===== */}
-        <PaneView pane={pane} ctx={ctx} />
+        <PaneView pane={pane} ctx={{ ...ctx, onNavigate: setSel }} />
 
         {/* ===== Right rail ===== */}
         <aside className="cmd-rail">

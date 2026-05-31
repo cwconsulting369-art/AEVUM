@@ -238,7 +238,7 @@ class TabErrorBoundary extends Component<{ children: ReactNode }, { failed: bool
 type OvChannel = { platform: string; display_name?: string; connected?: boolean; pieces_total?: number; pieces_by_status?: Record<string, number>; impressions?: number; clicks?: number; leads_attributed?: number };
 
 /** Lead-Funnel-Aggregat: echte Summe beider Funnels (FB + LinkedIn) — liest /overview korrekt (funnel.channels). */
-function AggregateOverview() {
+function AggregateOverview({ onNavigate }: { onNavigate?: (sel: string) => void }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const [channels, setChannels] = useState<OvChannel[]>([]);
@@ -298,11 +298,18 @@ function AggregateOverview() {
       <div className="grid sm:grid-cols-2 gap-2.5">
         {channels.map(c => {
           const PI = platMeta[c.platform] || FileText;
+          const drillable = c.platform === 'facebook' || c.platform === 'linkedin';
           return (
-            <div key={c.platform} className="card-premium p-4">
+            <div key={c.platform}
+              onClick={drillable ? () => onNavigate?.(`lead-funnel/${c.platform}`) : undefined}
+              role={drillable ? 'button' : undefined}
+              tabIndex={drillable ? 0 : undefined}
+              onKeyDown={drillable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onNavigate?.(`lead-funnel/${c.platform}`); } } : undefined}
+              className={`card-premium p-4 ${drillable ? 'cursor-pointer hover:border-gold-400/30 transition group' : ''}`}>
               <div className="flex items-center gap-2 mb-2.5">
                 <span className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gold-300"><PI size={14} /></span>
                 <span className="text-sm font-semibold text-white">{c.platform === 'facebook' ? 'Facebook' : c.platform === 'linkedin' ? 'LinkedIn' : c.display_name || c.platform}</span>
+                {drillable && <ChevronRight size={13} className="text-ink-500 group-hover:text-gold-300 transition" />}
                 <span className={`ml-auto text-[0.55rem] px-1.5 py-0.5 rounded-full ${c.connected ? 'bg-emerald-400/15 text-emerald-300' : 'bg-white/10 text-ink-400'}`}>{c.connected ? t('dashboards.funnel.pfConnected') : t('dashboards.funnel.pfNotConnected')}</span>
               </div>
               <div className="grid grid-cols-3 gap-1.5 text-center">
@@ -326,7 +333,7 @@ const STEPS = [
   { n: 5, labelKey: 'dashboards.funnel.stepDeploy' },
 ] as const;
 
-export default function LeadFunnel({ projectSlug, projectName, platform }: { projectSlug: string; projectName: string; platform?: 'facebook' | 'linkedin' }) {
+export default function LeadFunnel({ projectSlug, projectName, platform, onNavigate }: { projectSlug: string; projectName: string; platform?: 'facebook' | 'linkedin'; onNavigate?: (sel: string) => void }) {
   const { t } = useTranslation();
   const [step, setStep] = useState<number>(1);
   const [data, setData] = useState<LeadFunnelData | null>(null);
@@ -367,10 +374,11 @@ export default function LeadFunnel({ projectSlug, projectName, platform }: { pro
         </div>
       </header>
 
-      {/* Lead-Funnel = Gesamt: Aggregat-Übersicht (Summe FB + LinkedIn) */}
-      {!platform && <AggregateOverview />}
-
-      {/* Step-Workflow-Navigation (1 → 5) */}
+      {/* Lead-Funnel = Gesamt: NUR Monitoring (Editieren passiert im FB/LinkedIn-Teil) */}
+      {!platform ? (
+        <AggregateOverview onNavigate={onNavigate} />
+      ) : (<>
+      {/* Step-Workflow-Navigation (1 → 5) — nur in den einzelnen Funnels */}
       <nav className="flex items-center gap-1 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
         {STEPS.map((s, i) => {
           const active = step === s.n;
@@ -410,6 +418,7 @@ export default function LeadFunnel({ projectSlug, projectName, platform }: { pro
           </div>
         )}
       </TabErrorBoundary>
+      </>)}
     </div>
   );
 }
