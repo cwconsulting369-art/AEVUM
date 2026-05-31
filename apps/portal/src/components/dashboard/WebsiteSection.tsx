@@ -16,9 +16,10 @@ type Code = {
   qualified_count?: number; closed_won_count?: number; total_reward_earned_eur?: number;
 };
 
-const REF_BASE = 'https://api.aevum-system.de/api/referrals/r/';
-
 export default function WebsiteSection({ siteUrl = 'leben-in-thailand.de' }: { siteUrl?: string }) {
+  // Geteilter Reflink = Patricks EIGENE Domain (?ref wird von der Site getrackt),
+  // NICHT die AEVUM-API-URL. Dynamisch pro Kunde via siteUrl.
+  const refLink = (code: string) => `https://${siteUrl}/?ref=${code}`;
   const { t } = useTranslation();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [codes, setCodes] = useState<Code[]>([]);
@@ -68,7 +69,7 @@ export default function WebsiteSection({ siteUrl = 'leben-in-thailand.de' }: { s
   };
 
   const copyLink = (code: string) => {
-    const link = REF_BASE + code;
+    const link = refLink(code);
     navigator.clipboard?.writeText(link).then(() => {
       setCopied(code); setTimeout(() => setCopied(null), 1800);
     }).catch(() => {});
@@ -124,7 +125,7 @@ export default function WebsiteSection({ siteUrl = 'leben-in-thailand.de' }: { s
             ) : (
               <div className="space-y-2">
                 {codes.map(c => {
-                  const link = REF_BASE + c.code;
+                  const link = refLink(c.code);
                   return (
                     <div key={c.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
                       <div className="flex items-center justify-between gap-2 flex-wrap">
