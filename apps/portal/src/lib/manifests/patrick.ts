@@ -15,17 +15,8 @@ export const patrickManifest: DashboardManifest = {
       icon: 'globe',
       pane: {
         title: 'Website',
-        description: { de: 'Live-Site, Traffic, Content-Status — leben-in-thailand.', en: 'Live site, traffic, content status — leben-in-thailand.' },
-        gatedNote: { de: 'Metriken-Wiring folgt aus Patrick-Session (Analytics/Content-Quellen).', en: 'Metrics wiring follows from the Patrick session (analytics/content sources).' },
-        zones: [
-          { key: 'site-health', label: { de: 'Site-Status', en: 'Site status' }, icon: 'globe', color: 'gold', status: 'wip',
-            stats: [{ label: 'Deploy', value: 'live', accent: 'var(--status-success)' }, { label: { de: 'Seiten', en: 'Pages' }, value: '—' }],
-            chips: ['Home', { de: 'Auswanderer', en: 'Expats' }, 'Investor', { de: 'Über Patrick', en: 'About Patrick' }, { de: 'Objekte', en: 'Properties' }] },
-          { key: 'traffic', label: 'Traffic 30d', icon: 'trendingUp', color: 'info', status: 'soon',
-            stats: [{ label: { de: 'Besucher', en: 'Visitors' }, value: '—' }, { label: 'Conversion', value: '—' }] },
-          { key: 'content', label: { de: 'Content-Pipeline', en: 'Content pipeline' }, icon: 'image', color: 'violet', status: 'soon',
-            stats: [{ label: { de: 'Objekte', en: 'Properties' }, value: '—' }, { label: 'Blog', value: '—' }] },
-        ],
+        custom: 'website',
+        zones: [],
       },
     },
 

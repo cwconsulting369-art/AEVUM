@@ -47,7 +47,7 @@ export interface ZoneSpec {
 }
 
 /** Custom-Pane-Keys (Escape-Hatch, ADR-002 R4) — echte Komponente statt Zonen. */
-export type CustomPaneKey = 'lead-funnel' | 'funnel-facebook' | 'funnel-linkedin';
+export type CustomPaneKey = 'lead-funnel' | 'funnel-facebook' | 'funnel-linkedin' | 'website';
 
 /** Inhalts-Pane eines Bereichs (Bento aus Zonen). Leer → Placeholder. */
 export interface PaneSpec {

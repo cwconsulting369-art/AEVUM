@@ -321,12 +321,6 @@ export default function LeadFunnel({ projectSlug, projectName, platform }: { pro
             <MetricsSection metrics={data.metrics} leadsCount={data.leads.length} />
             <LeadsSection leads={data.leads} onRefresh={load} />
             {!platform && <SpendSection spend={data.spend} />}
-            {!platform && <ReferralsSection
-              programs={data.referrals.programs}
-              stats={data.referrals.stats}
-              projectSlug={projectSlug}
-              onRefresh={load}
-            />}
           </div>
         )}
       </TabErrorBoundary>
