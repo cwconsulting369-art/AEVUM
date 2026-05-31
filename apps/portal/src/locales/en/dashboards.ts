@@ -367,7 +367,7 @@ export default {
     codeCreated: 'Code {{code}} created for {{name}}',
     codeCreateFailed: 'Code creation failed',
     referrerName: 'Referrer name *',
-    referrerNamePlaceholder: 'Hans Müller',
+    referrerNamePlaceholder: 'John Smith',
     emailOptional: 'Email (optional)',
     emailPlaceholder: 'hans@example.com',
     noteOptional: 'Note (optional)',
