@@ -235,9 +235,17 @@ class TabErrorBoundary extends Component<{ children: ReactNode }, { failed: bool
   render() { return this.state.failed ? <TabErrorFallback /> : this.props.children; }
 }
 
+const STEPS = [
+  { n: 1, labelKey: 'dashboards.funnel.stepIcp' },
+  { n: 2, labelKey: 'dashboards.funnel.stepSettings' },
+  { n: 3, labelKey: 'dashboards.funnel.stepPlan' },
+  { n: 4, labelKey: 'dashboards.funnel.stepContent' },
+  { n: 5, labelKey: 'dashboards.funnel.stepDeploy' },
+] as const;
+
 export default function LeadFunnel({ projectSlug, projectName, platform }: { projectSlug: string; projectName: string; platform?: 'facebook' | 'linkedin' }) {
   const { t } = useTranslation();
-  const [tab, setTab] = useState<Tab>(platform ? 'content' : 'metrics');
+  const [step, setStep] = useState<number>(1);
   const [data, setData] = useState<LeadFunnelData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -276,45 +284,51 @@ export default function LeadFunnel({ projectSlug, projectName, platform }: { pro
         </div>
       </header>
 
-      {/* Sub-Tab Navigation */}
-      <nav className="flex gap-1 border-b border-white/5 -mb-2 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-        {[
-          { id: 'metrics' as const,   label: t('dashboards.funnel.tabMetrics'),   icon: TrendingUp },
-          { id: 'leads' as const,     label: t('dashboards.funnel.tabLeads'),      icon: Users },
-          { id: 'content' as const,   label: t('dashboards.funnel.tabContent'),    icon: FileText },
-          { id: 'channels' as const,  label: t('dashboards.funnel.tabChannels'),     icon: Plug },
-          { id: 'audience' as const,  label: t('dashboards.funnel.tabAudience'), icon: Target },
-          { id: 'spend' as const,     label: t('dashboards.funnel.tabSpend'),      icon: DollarSign },
-          { id: 'referrals' as const, label: t('dashboards.funnel.tabReferrals'),  icon: Gift }
-        ].map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => setTab(id)}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all border-b-2 -mb-px whitespace-nowrap ${
-              tab === id
-                ? 'border-gold-400 text-gold-200'
-                : 'border-transparent text-ink-400 hover:text-white'
-            }`}
-          >
-            <Icon size={14} />
-            {label}
-          </button>
-        ))}
+      {/* Step-Workflow-Navigation (1 → 5) */}
+      <nav className="flex items-center gap-1 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
+        {STEPS.map((s, i) => {
+          const active = step === s.n;
+          const done = step > s.n;
+          return (
+            <div key={s.n} className="flex items-center shrink-0">
+              <button
+                onClick={() => setStep(s.n)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${
+                  active ? 'border-gold-400 bg-gold-400/10 text-gold-200'
+                    : done ? 'border-emerald-400/25 text-emerald-300/80 hover:text-emerald-200'
+                    : 'border-white/10 text-ink-400 hover:text-white'
+                }`}
+              >
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[0.65rem] font-bold ${
+                  active ? 'bg-gold-400 text-ink-950' : done ? 'bg-emerald-400/80 text-ink-950' : 'bg-white/10 text-ink-300'
+                }`}>{done ? <Check size={11} /> : s.n}</span>
+                <span className="text-xs font-medium whitespace-nowrap">{t(s.labelKey)}</span>
+              </button>
+              {i < STEPS.length - 1 && <ChevronRight size={14} className="text-ink-600 shrink-0 mx-0.5" />}
+            </div>
+          );
+        })}
       </nav>
 
-      <TabErrorBoundary key={tab}>
-        {tab === 'metrics' && <MetricsSection metrics={data.metrics} leadsCount={data.leads.length} />}
-        {tab === 'leads' && <LeadsSection leads={data.leads} onRefresh={load} />}
-        {tab === 'content' && <ContentSection content={data.content} platform={platform} />}
-        {tab === 'channels' && <ChannelsSection platform={platform} />}
-        {tab === 'audience' && <AudienceSection />}
-        {tab === 'spend' && <SpendSection spend={data.spend} />}
-        {tab === 'referrals' && <ReferralsSection
-          programs={data.referrals.programs}
-          stats={data.referrals.stats}
-          projectSlug={projectSlug}
-          onRefresh={load}
-        />}
+      <TabErrorBoundary key={step}>
+        {step === 1 && <AudienceSection view="icp" />}
+        {step === 2 && <AudienceSection view="settings" />}
+        {step === 3 && <ContentSection content={data.content} platform={platform} view="plan" />}
+        {step === 4 && <ContentSection content={data.content} platform={platform} view="content" />}
+        {step === 5 && (
+          <div className="space-y-6">
+            <ChannelsSection platform={platform} />
+            <MetricsSection metrics={data.metrics} leadsCount={data.leads.length} />
+            <LeadsSection leads={data.leads} onRefresh={load} />
+            {!platform && <SpendSection spend={data.spend} />}
+            {!platform && <ReferralsSection
+              programs={data.referrals.programs}
+              stats={data.referrals.stats}
+              projectSlug={projectSlug}
+              onRefresh={load}
+            />}
+          </div>
+        )}
       </TabErrorBoundary>
     </div>
   );
@@ -1114,7 +1128,7 @@ function ContentRoadmap({ pieces }: { pieces: ContentPiece[] }) {
   );
 }
 
-function ContentSection({ content, platform }: { content: LeadFunnelData['content']; platform?: 'facebook' | 'linkedin' }) {
+function ContentSection({ content, platform, view = 'all' }: { content: LeadFunnelData['content']; platform?: 'facebook' | 'linkedin'; view?: 'plan' | 'content' | 'all' }) {
   const { t } = useTranslation();
   const [pieces, setPieces] = useState<ContentPiece[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1150,8 +1164,9 @@ function ContentSection({ content, platform }: { content: LeadFunnelData['conten
 
   return (
     <>
-      <SectionHeader icon={FileText} title={t('dashboards.funnel.contentTitle')} sub={t('dashboards.funnel.contentSub')} />
+      {view === 'all' && <SectionHeader icon={FileText} title={t('dashboards.funnel.contentTitle')} sub={t('dashboards.funnel.contentSub')} />}
 
+      {view !== 'content' && (<>
       <KpiGrid>
         <KpiCard i={0} icon={FileText} label={t('dashboards.funnel.published30d')} value={String(content.posts_published_30d)} />
         <KpiCard i={1} icon={Activity} label={t('dashboards.funnel.scheduled')} value={String((counts.scheduled || 0))} />
@@ -1161,7 +1176,9 @@ function ContentSection({ content, platform }: { content: LeadFunnelData['conten
 
       {/* Content-Roadmap: Story-Arc + nächste 3 + Monatsplan */}
       {!loading && pieces.length > 0 && <ContentRoadmap pieces={pieces} />}
+      </>)}
 
+      {view !== 'plan' && (<>
       {/* Generate-Toggle */}
       <div className="card-premium p-5">
         <div className="flex items-start gap-3 mb-3">
@@ -1216,6 +1233,7 @@ function ContentSection({ content, platform }: { content: LeadFunnelData['conten
           ))}
         </div>
       )}
+      </>)}
     </>
   );
 }
@@ -1616,7 +1634,7 @@ function ChannelCard({ platform, label, icon: Icon, channel, approvedPieces, ind
 }
 
 // ─── Audience Section (ICP + Brand-Voice + Topics) ─────────────
-function AudienceSection() {
+function AudienceSection({ view = 'all' }: { view?: 'icp' | 'settings' | 'all' }) {
   const { t } = useTranslation();
   const [icp, setIcp] = useState<IcpProfile[]>([]);
   const [voice, setVoice] = useState<BrandVoice | null>(null);
@@ -1651,31 +1669,35 @@ function AudienceSection() {
 
   return (
     <>
-      <SectionHeader icon={Target} title={t('dashboards.funnel.audienceTitle')} sub={t('dashboards.funnel.audienceSub')} />
+      {view === 'all' && <SectionHeader icon={Target} title={t('dashboards.funnel.audienceTitle')} sub={t('dashboards.funnel.audienceSub')} />}
 
       {/* ICP per segment */}
-      <section>
-        <SectionHeader icon={Users} title={t('dashboards.funnel.icpTitle')} sub={t('dashboards.funnel.icpSub')} />
-        {icp.length === 0 ? (
-          <div className="card-premium p-8 text-center text-sm text-ink-400">{t('dashboards.funnel.noIcp')}</div>
-        ) : (
-          <div className="space-y-3">
-            {icp.map((profile, i) => <IcpCard key={profile.segment} profile={profile} index={i} onRefresh={load} />)}
-          </div>
-        )}
-      </section>
+      {view !== 'settings' && (
+        <section>
+          <SectionHeader icon={Users} title={t('dashboards.funnel.icpTitle')} sub={t('dashboards.funnel.icpSub')} />
+          {icp.length === 0 ? (
+            <div className="card-premium p-8 text-center text-sm text-ink-400">{t('dashboards.funnel.noIcp')}</div>
+          ) : (
+            <div className="space-y-3">
+              {icp.map((profile, i) => <IcpCard key={profile.segment} profile={profile} index={i} onRefresh={load} />)}
+            </div>
+          )}
+        </section>
+      )}
 
-      {/* Brand voice */}
-      <section>
-        <SectionHeader icon={Sparkles} title={t('dashboards.funnel.brandVoiceTitle')} sub={t('dashboards.funnel.brandVoiceSub')} />
-        <BrandVoiceCard voice={voice} onRefresh={load} />
-      </section>
-
-      {/* Topics */}
-      <section>
-        <SectionHeader icon={FileText} title={t('dashboards.funnel.topicsTitle')} sub={t('dashboards.funnel.topicsSub')} />
-        <TopicsEditor topics={topics} onRefresh={load} />
-      </section>
+      {/* Brand voice + Topics = Content-Einstellungen */}
+      {view !== 'icp' && (
+        <>
+          <section>
+            <SectionHeader icon={Sparkles} title={t('dashboards.funnel.brandVoiceTitle')} sub={t('dashboards.funnel.brandVoiceSub')} />
+            <BrandVoiceCard voice={voice} onRefresh={load} />
+          </section>
+          <section>
+            <SectionHeader icon={FileText} title={t('dashboards.funnel.topicsTitle')} sub={t('dashboards.funnel.topicsSub')} />
+            <TopicsEditor topics={topics} onRefresh={load} />
+          </section>
+        </>
+      )}
     </>
   );
 }
