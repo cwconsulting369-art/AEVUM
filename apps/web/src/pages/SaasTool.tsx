@@ -11,6 +11,7 @@
  *   7. CTA-Sektionen (Try-Demo + Login + Signup)
  */
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -31,7 +32,7 @@ import {
 } from 'lucide-react';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import { track } from '@/lib/shop-track';
-import { getSaasTool, CREDIT_PACKAGES, type SaasSecurityLevel } from '@/data/saas-tools';
+import { getSaasTool, CREDIT_PACKAGES, localizeSaasTool, localizeRunsHint, type SaasSecurityLevel } from '@/data/saas-tools';
 import { TiltCard, Magnetic } from '@/components/showcase-fx';
 import SignupFlow from '@/components/saas/SignupFlow';
 
@@ -42,10 +43,11 @@ interface Props {
 }
 
 function SecurityBadge({ level }: { level: SaasSecurityLevel }) {
+  const { t } = useTranslation();
   const map = {
-    basic: { label: 'Basic', icon: Shield, color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/20' },
-    business: { label: 'Business', icon: ShieldCheck, color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/20' },
-    dsgvo: { label: 'DSGVO', icon: ShieldAlert, color: 'text-rose-400', bg: 'bg-rose-400/10 border-rose-400/20' },
+    basic: { label: t('saas.badge.basic'), icon: Shield, color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/20' },
+    business: { label: t('saas.badge.business'), icon: ShieldCheck, color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/20' },
+    dsgvo: { label: t('saas.badge.dsgvo'), icon: ShieldAlert, color: 'text-rose-400', bg: 'bg-rose-400/10 border-rose-400/20' },
   };
   const { label, icon: Icon, color, bg } = map[level];
   return (
@@ -87,14 +89,19 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function SaasTool({ slug }: Props) {
-  const tool = useMemo(() => getSaasTool(slug), [slug]);
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+  const tool = useMemo(() => {
+    const base = getSaasTool(slug);
+    return base ? localizeSaasTool(base, lang) : null;
+  }, [slug, lang]);
   const [signupOpen, setSignupOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<'starter' | 'growth' | 'pro' | undefined>(undefined);
   const [demoOpen, setDemoOpen] = useState(false);
 
   usePageSeo({
-    title: tool ? `${tool.name} — AEVUM SaaS` : 'SaaS-Tool — AEVUM',
-    description: tool ? tool.tagline : 'AEVUM SaaS-Tools — Pay-per-Use AI-Pipelines.',
+    title: tool ? `${tool.name} ${t('saas.detail.seoTitleSuffix')}` : t('saas.detail.seoTitleFallback'),
+    description: tool ? tool.tagline : t('saas.detail.seoDescriptionFallback'),
     path: `/saas/${slug}`,
     jsonLd: tool ? {
       '@context': 'https://schema.org',
@@ -128,13 +135,13 @@ export default function SaasTool({ slug }: Props) {
       <div className="min-h-[60vh] flex items-center justify-center text-center px-4 sm:px-6 bg-bg-primary">
         <div>
           <AlertCircle size={32} className="mx-auto text-text-muted mb-4" />
-          <h1 className="text-xl text-text-primary font-light mb-2">SaaS-Tool nicht gefunden</h1>
-          <p className="text-text-muted text-sm mb-6 break-words">Slug: <span className="font-mono">{slug}</span></p>
+          <h1 className="text-xl text-text-primary font-light mb-2">{t('saas.detail.notFoundTitle')}</h1>
+          <p className="text-text-muted text-sm mb-6 break-words">{t('saas.detail.notFoundSlug')} <span className="font-mono">{slug}</span></p>
           <a
             href="#/saas"
             className="inline-flex items-center gap-2 px-4 py-2 min-h-[44px] border border-theme-border-strong hover:border-theme-accent/50 text-sm rounded transition text-text-primary"
           >
-            <ArrowLeft size={14} /> Zurück zum SaaS-Hub
+            <ArrowLeft size={14} /> {t('saas.detail.backToHub')}
           </a>
         </div>
       </div>
@@ -158,7 +165,7 @@ export default function SaasTool({ slug }: Props) {
           href="#/saas"
           className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-text-muted hover:text-theme-accent transition-colors"
         >
-          <ArrowLeft size={13} /> Alle SaaS-Tools
+          <ArrowLeft size={13} /> {t('saas.detail.allTools')}
         </a>
       </div>
 
@@ -218,7 +225,7 @@ export default function SaasTool({ slug }: Props) {
                   onClick={() => openSignup()}
                   className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[44px] bg-theme-accent text-on-accent text-sm font-medium rounded hover:bg-theme-accent/90 transition"
                 >
-                  <Sparkles size={15} /> Account anlegen + nutzen
+                  <Sparkles size={15} /> {t('saas.detail.ctaCreateAccount')}
                 </button>
                 </Magnetic>
                 {tool.demoOutput && (
@@ -229,7 +236,7 @@ export default function SaasTool({ slug }: Props) {
                     }}
                     className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[44px] border border-theme-border-strong hover:border-theme-accent/50 text-text-primary text-sm rounded transition"
                   >
-                    <Play size={14} /> Demo-Output ansehen
+                    <Play size={14} /> {t('saas.detail.ctaViewDemo')}
                   </button>
                 )}
                 {tool.portalToolSlug && (
@@ -240,7 +247,7 @@ export default function SaasTool({ slug }: Props) {
                     onClick={() => track('saas_tool_login_click', { tool: tool.slug })}
                     className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[44px] text-text-secondary hover:text-text-primary text-sm transition"
                   >
-                    <LogIn size={14} /> Schon Account? Login
+                    <LogIn size={14} /> {t('saas.detail.ctaHaveAccount')}
                   </a>
                 )}
               </div>
@@ -252,9 +259,9 @@ export default function SaasTool({ slug }: Props) {
                   href="#/audit"
                   className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[44px] border border-theme-border-accent hover:border-theme-accent/60 text-theme-accent text-sm rounded transition"
                 >
-                  Auf Wait-List <ArrowRight size={14} />
+                  {t('saas.detail.ctaWaitlist')} <ArrowRight size={14} />
                 </a>
-                <span className="text-xs text-text-muted">Audit-Call buchen → Beta-Zugang</span>
+                <span className="text-xs text-text-muted">{t('saas.detail.waitlistHint')}</span>
               </div>
             )}
           </motion.div>
@@ -265,14 +272,14 @@ export default function SaasTool({ slug }: Props) {
       <section className="border-t border-theme-border py-14">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <span className="font-mono text-xs uppercase tracking-widest text-theme-accent mb-3 block">
-            Was ist es
+            {t('saas.detail.whatIsItEyebrow')}
           </span>
-          <h2 className="text-2xl md:text-3xl font-light text-text-primary mb-4">Use-Case</h2>
+          <h2 className="text-2xl md:text-3xl font-light text-text-primary mb-4">{t('saas.detail.whatIsItTitle')}</h2>
           <p className="text-base text-text-secondary leading-relaxed">{tool.whatIsIt}</p>
 
           {tool.useCases.length > 0 && (
             <div className="mt-8">
-              <div className="text-xs font-mono uppercase tracking-wider text-text-muted mb-3">Passt für</div>
+              <div className="text-xs font-mono uppercase tracking-wider text-text-muted mb-3">{t('saas.detail.fitsFor')}</div>
               <ul className="space-y-2">
                 {tool.useCases.map((uc, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
@@ -290,9 +297,9 @@ export default function SaasTool({ slug }: Props) {
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <span className="font-mono text-xs uppercase tracking-widest text-theme-accent mb-3 block">
-              Was es macht
+              {t('saas.detail.whatItDoesEyebrow')}
             </span>
-            <h2 className="text-2xl md:text-3xl font-light text-text-primary">Pipeline-Steps</h2>
+            <h2 className="text-2xl md:text-3xl font-light text-text-primary">{t('saas.detail.whatItDoesTitle')}</h2>
           </div>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {tool.whatItDoes.map((s) => (
@@ -324,11 +331,11 @@ export default function SaasTool({ slug }: Props) {
           <div className="max-w-4xl mx-auto px-4 sm:px-6">
             <div className="text-center mb-8">
               <span className="font-mono text-xs uppercase tracking-widest text-theme-accent mb-3 block">
-                Demo-Output
+                {t('saas.detail.demoEyebrow')}
               </span>
               <h2 className="text-2xl md:text-3xl font-light text-text-primary mb-2 break-words">{tool.demoOutput.title}</h2>
               <p className="text-sm text-text-muted">
-                So sieht ein typischer Run aus. (Statischer Mock — echter Run im Portal nach Signup.)
+                {t('saas.detail.demoNote')}
               </p>
             </div>
 
@@ -343,8 +350,8 @@ export default function SaasTool({ slug }: Props) {
                 >
                   <div className="text-center">
                     <Play size={28} className="mx-auto text-theme-accent mb-2" />
-                    <div className="text-sm text-text-primary font-medium">Demo-Output zeigen</div>
-                    <div className="text-xs text-text-muted mt-1">Vorschau · Statisch</div>
+                    <div className="text-sm text-text-primary font-medium">{t('saas.detail.demoShow')}</div>
+                    <div className="text-xs text-text-muted mt-1">{t('saas.detail.demoPreview')}</div>
                   </div>
                 </button>
               )}
@@ -356,13 +363,13 @@ export default function SaasTool({ slug }: Props) {
             {demoOpen && (
               <div className="mt-6 text-center">
                 <p className="text-sm text-text-secondary mb-3">
-                  Du willst echten Output mit deinem Brief? Account anlegen → erster Run in 90 Sek.
+                  {t('saas.detail.demoAfterText')}
                 </p>
                 <button
                   onClick={() => openSignup()}
                   className="inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] bg-theme-accent text-on-accent text-sm font-medium rounded hover:bg-theme-accent/90 transition"
                 >
-                  Account anlegen <ArrowRight size={14} />
+                  {t('saas.detail.demoAfterCta')} <ArrowRight size={14} />
                 </button>
               </div>
             )}
@@ -375,12 +382,12 @@ export default function SaasTool({ slug }: Props) {
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <span className="font-mono text-xs uppercase tracking-widest text-theme-accent mb-3 block">
-              Pricing
+              {t('saas.detail.pricingEyebrow')}
             </span>
-            <h2 className="text-2xl md:text-3xl font-light text-text-primary mb-3">Credit-Pakete</h2>
+            <h2 className="text-2xl md:text-3xl font-light text-text-primary mb-3">{t('saas.detail.pricingTitle')}</h2>
             <p className="text-sm text-text-secondary max-w-xl mx-auto">
-              Einmaliger Kauf, Credits verfallen nicht.{' '}
-              {tool.creditsPerRun && <span>{tool.creditsPerRun} Credits pro Run.</span>}
+              {t('saas.detail.pricingSubtitleBase')}{' '}
+              {tool.creditsPerRun && <span>{t('saas.detail.pricingCreditsPerRun', { count: tool.creditsPerRun })}</span>}
             </p>
           </div>
 
@@ -394,7 +401,7 @@ export default function SaasTool({ slug }: Props) {
               >
                 {pkg.featured && (
                   <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 font-mono text-[9px] uppercase tracking-widest text-on-accent bg-theme-accent px-2.5 py-1 rounded">
-                    Beliebt
+                    {t('saas.packages.popular')}
                   </span>
                 )}
                 <div className="text-center flex-1">
@@ -402,13 +409,13 @@ export default function SaasTool({ slug }: Props) {
                     {pkg.name}
                   </div>
                   <div className="text-3xl font-light text-text-primary mb-1">€{pkg.priceEur}</div>
-                  <div className="text-sm text-text-secondary mb-2">{pkg.credits} Credits</div>
+                  <div className="text-sm text-text-secondary mb-2">{t('saas.packages.creditsLabel', { count: pkg.credits })}</div>
                   {pkg.bonusPct > 0 && (
                     <div className="font-mono text-[10px] uppercase tracking-wider text-emerald-400 mb-2">
-                      +{pkg.bonusPct}% Bonus
+                      {t('saas.packages.bonus', { pct: pkg.bonusPct })}
                     </div>
                   )}
-                  <div className="text-xs text-text-muted font-mono">{pkg.runsHint}</div>
+                  <div className="text-xs text-text-muted font-mono">{localizeRunsHint(pkg, lang)}</div>
                 </div>
                 {!isComingSoon && (
                   <button
@@ -419,7 +426,7 @@ export default function SaasTool({ slug }: Props) {
                         : 'border border-theme-border-strong text-text-primary hover:border-theme-accent/50'
                     }`}
                   >
-                    {pkg.name} wählen
+                    {t('saas.detail.selectPackage', { name: pkg.name })}
                   </button>
                 )}
               </div>
@@ -434,9 +441,9 @@ export default function SaasTool({ slug }: Props) {
           <div className="max-w-3xl mx-auto px-4 sm:px-6">
             <div className="text-center mb-8">
               <span className="font-mono text-xs uppercase tracking-widest text-theme-accent mb-3 block">
-                FAQ
+                {t('saas.detail.faqEyebrow')}
               </span>
-              <h2 className="text-2xl md:text-3xl font-light text-text-primary">Häufige Fragen</h2>
+              <h2 className="text-2xl md:text-3xl font-light text-text-primary">{t('saas.detail.faqTitle')}</h2>
             </div>
             <div>
               {tool.faq.map((f, i) => (
@@ -454,33 +461,32 @@ export default function SaasTool({ slug }: Props) {
             <>
               <Lock size={24} className="mx-auto text-text-muted mb-4" />
               <h2 className="text-2xl md:text-3xl font-light text-text-primary mb-3">
-                Noch nicht verfügbar
+                {t('saas.detail.comingSoonTitle')}
               </h2>
               <p className="text-text-secondary mb-6 leading-relaxed text-sm">
-                Buche einen Audit-Call und kriege Wait-List-Zugang plus Early-Adopter-Bonus
-                wenn das Tool live geht.
+                {t('saas.detail.comingSoonText')}
               </p>
               <a
                 href="#/audit"
                 className="inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] bg-theme-accent text-on-accent text-sm font-medium rounded hover:bg-theme-accent/90 transition"
               >
-                Audit-Call buchen <ArrowRight size={14} />
+                {t('saas.detail.comingSoonCta')} <ArrowRight size={14} />
               </a>
             </>
           ) : (
             <>
               <Sparkles size={24} className="mx-auto text-theme-accent mb-4" />
               <h2 className="text-2xl md:text-3xl font-light text-text-primary mb-3">
-                Bereit für deinen ersten Run?
+                {t('saas.detail.readyTitle')}
               </h2>
               <p className="text-text-secondary mb-6 leading-relaxed text-sm">
-                Account in 60 Sekunden. Credits verfallen nicht. Kein Abo.
+                {t('saas.detail.readyText')}
               </p>
               <button
                 onClick={() => openSignup()}
                 className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[44px] bg-theme-accent text-on-accent text-sm font-medium rounded hover:bg-theme-accent/90 transition"
               >
-                <span className="break-words">Account anlegen + {tool.name} nutzen</span> <ArrowRight size={14} className="flex-shrink-0" />
+                <span className="break-words">{t('saas.detail.readyCta', { name: tool.name })}</span> <ArrowRight size={14} className="flex-shrink-0" />
               </button>
             </>
           )}

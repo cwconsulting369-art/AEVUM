@@ -9,11 +9,12 @@
  * generiert Magic-Link + Mail. User landet auf /checkout/success?type=saas-signup.
  */
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowRight, Check, Sparkles, Loader2, AlertCircle, Mail, Package as PackageIcon, Repeat } from 'lucide-react';
 import { createCreditPurchaseSession, createSubscriptionSession, fetchSubscriptionPlans, googleOAuthUrl, PaymentsPausedError, type SubscriptionPlan } from '@/lib/api';
 import { track } from '@/lib/shop-track';
-import { CREDIT_PACKAGES, type CreditPackage } from '@/data/saas-tools';
+import { CREDIT_PACKAGES, localizeRunsHint, type CreditPackage } from '@/data/saas-tools';
 
 type BillingMode = 'one-time' | 'subscription';
 type SubSlug = 'starter' | 'growth' | 'pro';
@@ -30,6 +31,7 @@ interface SignupFlowProps {
 type Step = 1 | 2 | 3;
 
 export default function SignupFlow({ open, onClose, toolSlug, toolName, initialPackage }: SignupFlowProps) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<Step>(1);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -168,7 +170,7 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-text-muted hover:text-text-primary transition p-1.5 rounded hover:bg-bg-elevated"
-            aria-label="Schließen"
+            aria-label={t('saas.signup.close')}
           >
             <X size={18} />
           </button>
@@ -177,11 +179,11 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
           <div className="px-5 sm:px-7 pt-7 pb-5 border-b border-theme-border">
             <div className="flex items-center gap-2 text-theme-accent mb-2">
               <Sparkles size={14} />
-              <span className="font-mono text-[10px] uppercase tracking-widest">Account anlegen</span>
+              <span className="font-mono text-[10px] uppercase tracking-widest">{t('saas.signup.eyebrow')}</span>
             </div>
-            <h2 className="text-xl text-text-primary font-light">{toolName} nutzen</h2>
+            <h2 className="text-xl text-text-primary font-light">{t('saas.signup.headerTitle', { name: toolName })}</h2>
             <p className="text-sm text-text-secondary mt-1">
-              Email + Credit-Paket. Account wird nach Zahlung automatisch erstellt.
+              {t('saas.signup.headerSubtitle')}
             </p>
 
             {/* Progress */}
@@ -194,9 +196,9 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
                     }`}
                   />
                   <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted mt-1.5">
-                    {s === 1 && 'Email'}
-                    {s === 2 && 'Paket'}
-                    {s === 3 && 'Bezahlen'}
+                    {s === 1 && t('saas.signup.progressEmail')}
+                    {s === 2 && t('saas.signup.progressPackage')}
+                    {s === 3 && t('saas.signup.progressPay')}
                   </div>
                 </div>
               ))}
@@ -245,7 +247,7 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
               <div className="mt-4 flex items-start gap-2 text-rose-400 text-sm bg-rose-400/8 border border-rose-400/20 rounded px-3 py-2.5">
                 <AlertCircle size={15} className="mt-0.5 shrink-0" />
                 <div>
-                  <div className="font-medium">Checkout fehlgeschlagen</div>
+                  <div className="font-medium">{t('saas.signup.checkoutFailed')}</div>
                   <div className="text-xs text-rose-400/80 font-mono mt-0.5 break-words">{error}</div>
                 </div>
               </div>
@@ -259,7 +261,7 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
               className="text-xs text-text-muted hover:text-text-primary transition font-mono uppercase tracking-wider"
               disabled={loading}
             >
-              {step > 1 ? '← Zurück' : 'Abbrechen'}
+              {step > 1 ? t('saas.signup.back') : t('saas.signup.cancel')}
             </button>
 
             {step === 1 && (
@@ -268,7 +270,7 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
                 disabled={!canProceedStep1}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-theme-accent text-text-on-accent text-sm font-medium rounded hover:bg-theme-accent-hover transition disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                Weiter <ArrowRight size={15} />
+                {t('saas.signup.next')} <ArrowRight size={15} />
               </button>
             )}
 
@@ -280,7 +282,7 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
                 }}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-theme-accent text-text-on-accent text-sm font-medium rounded hover:bg-theme-accent-hover transition"
               >
-                Zur Zahlung <ArrowRight size={15} />
+                {t('saas.signup.toPayment')} <ArrowRight size={15} />
               </button>
             )}
 
@@ -292,11 +294,11 @@ export default function SignupFlow({ open, onClose, toolSlug, toolName, initialP
               >
                 {loading ? (
                   <>
-                    <Loader2 size={15} className="animate-spin" /> Stripe öffnet…
+                    <Loader2 size={15} className="animate-spin" /> {t('saas.signup.stripeOpening')}
                   </>
                 ) : (
                   <>
-                    Erneut versuchen <ArrowRight size={15} />
+                    {t('saas.signup.retry')} <ArrowRight size={15} />
                   </>
                 )}
               </button>
@@ -329,6 +331,7 @@ function Step1({
   emailValid: boolean;
   onGoogle: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4">
       {/* Google OAuth Button — Default-Pfad (Wave I4) */}
@@ -338,18 +341,18 @@ function Step1({
         type="button"
       >
         <GoogleLogo />
-        Mit Google fortfahren
+        {t('saas.signup.google')}
       </button>
 
       <div className="flex items-center gap-3">
         <div className="flex-1 h-px bg-theme-border" />
-        <span className="text-[10px] font-mono uppercase tracking-widest text-text-muted">oder mit Email</span>
+        <span className="text-[10px] font-mono uppercase tracking-widest text-text-muted">{t('saas.signup.orEmail')}</span>
         <div className="flex-1 h-px bg-theme-border" />
       </div>
 
       <div>
         <label className="text-xs font-mono uppercase tracking-wider text-text-secondary block mb-1.5">
-          Email <span className="text-rose-400">*</span>
+          {t('saas.signup.emailLabel')} <span className="text-rose-400">*</span>
         </label>
         <div className="relative">
           <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted z-10" />
@@ -357,7 +360,7 @@ function Step1({
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="du@firma.de"
+            placeholder={t('saas.signup.emailPlaceholder')}
             className={`input-base pl-9 ${
               email && !emailValid ? 'border-rose-400/40' : ''
             }`}
@@ -365,19 +368,19 @@ function Step1({
           />
         </div>
         {email && !emailValid && (
-          <p className="text-xs text-rose-400/80 mt-1">Bitte gültige Email-Adresse</p>
+          <p className="text-xs text-rose-400/80 mt-1">{t('saas.signup.emailInvalid')}</p>
         )}
       </div>
 
       <div>
         <label className="text-xs font-mono uppercase tracking-wider text-text-secondary block mb-1.5">
-          Vorname <span className="text-text-muted">(optional)</span>
+          {t('saas.signup.firstNameLabel')} <span className="text-text-muted">{t('saas.signup.optional')}</span>
         </label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Carlos"
+          placeholder={t('saas.signup.firstNamePlaceholder')}
           maxLength={100}
           className="input-base"
         />
@@ -391,15 +394,15 @@ function Step1({
           className="mt-0.5 accent-theme-accent w-4 h-4 cursor-pointer"
         />
         <span className="text-sm text-text-secondary leading-relaxed group-hover:text-text-primary transition-colors">
-          Ich stimme den{' '}
+          {t('saas.signup.consentPrefix')}{' '}
           <a href="#/agb" target="_blank" className="text-theme-accent hover:underline">
-            AGB
+            {t('saas.signup.consentAgb')}
           </a>{' '}
-          und der{' '}
+          {t('saas.signup.consentMiddle')}{' '}
           <a href="#/datenschutz" target="_blank" className="text-theme-accent hover:underline">
-            Datenschutzerklärung
+            {t('saas.signup.consentPrivacy')}
           </a>{' '}
-          zu.
+          {t('saas.signup.consentSuffix')}
         </span>
       </label>
     </div>
@@ -434,6 +437,8 @@ function Step2({
   plans: SubscriptionPlan[];
   toolName: string;
 }) {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const planList = plans.length > 0 ? plans : FALLBACK_PLANS;
   // Pre-compute savings — Growth saves ~14% vs 3× Starter, Pro saves ~33% vs 5× Starter
   return (
@@ -449,7 +454,7 @@ function Step2({
           }`}
           type="button"
         >
-          <Repeat size={12} /> Abo
+          <Repeat size={12} /> {t('saas.signup.tabSub')}
         </button>
         <button
           onClick={() => setBillingMode('one-time')}
@@ -460,7 +465,7 @@ function Step2({
           }`}
           type="button"
         >
-          <PackageIcon size={12} /> Einmalig
+          <PackageIcon size={12} /> {t('saas.signup.tabOneTime')}
         </button>
       </div>
 
@@ -469,11 +474,11 @@ function Step2({
           <div className="flex items-center gap-2 text-theme-accent mb-3">
             <Repeat size={14} />
             <span className="font-mono text-[10px] uppercase tracking-widest">
-              Monats-Abo für {toolName}
+              {t('saas.signup.subHeader', { name: toolName })}
             </span>
           </div>
           <p className="text-sm text-text-secondary mb-5 leading-relaxed">
-            Credits werden monatlich automatisch aufgeladen. Jederzeit kündbar.
+            {t('saas.signup.subDesc')}
           </p>
           <div className="space-y-2.5">
             {planList.map((plan) => {
@@ -499,22 +504,22 @@ function Step2({
                         <span className="text-text-primary font-medium">{plan.name}</span>
                         {isPopular && (
                           <span className="font-mono text-[9px] uppercase tracking-wider text-theme-accent bg-theme-accent/15 border border-theme-border-accent px-1.5 py-0.5 rounded">
-                            Beliebt
+                            {t('saas.signup.popular')}
                           </span>
                         )}
                         {savePct > 0 && (
                           <span className="font-mono text-[9px] uppercase tracking-wider text-emerald-400 bg-emerald-400/10 border border-emerald-400/25 px-1.5 py-0.5 rounded">
-                            Save {savePct}%
+                            {t('saas.signup.save', { pct: savePct })}
                           </span>
                         )}
                       </div>
                       <div className="text-xs text-text-muted font-mono">
-                        {plan.credits_per_month} Credits / Monat
+                        {t('saas.signup.creditsPerMonth', { count: plan.credits_per_month })}
                       </div>
                     </div>
                     <div className="text-right shrink-0">
                       <div className="text-lg text-text-primary font-light">€{Math.round(Number(plan.price_eur))}</div>
-                      <div className="text-[10px] text-text-muted font-mono uppercase">/ Monat</div>
+                      <div className="text-[10px] text-text-muted font-mono uppercase">{t('saas.signup.perMonth')}</div>
                     </div>
                     <div
                       className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition ${
@@ -529,8 +534,7 @@ function Step2({
             })}
           </div>
           <p className="text-xs text-text-muted mt-4 leading-relaxed">
-            Nach Bezahlung kriegst du sofort eine Login-Mail. Account wird automatisch erstellt.
-            Monatliche Erneuerung via Stripe — jederzeit kündbar.
+            {t('saas.signup.subFooter')}
           </p>
         </>
       ) : (
@@ -538,11 +542,11 @@ function Step2({
           <div className="flex items-center gap-2 text-theme-accent mb-3">
             <PackageIcon size={14} />
             <span className="font-mono text-[10px] uppercase tracking-widest">
-              Initial-Credit-Paket für {toolName}
+              {t('saas.signup.oneTimeHeader', { name: toolName })}
             </span>
           </div>
           <p className="text-sm text-text-secondary mb-5 leading-relaxed">
-            Kein Abo. Du zahlst einmal, Credits verfallen nicht. Nachladen jederzeit möglich.
+            {t('saas.signup.oneTimeDesc')}
           </p>
 
           <div className="space-y-2.5">
@@ -565,22 +569,22 @@ function Step2({
                         <span className="text-text-primary font-medium">{pkg.name}</span>
                         {pkg.featured && (
                           <span className="font-mono text-[9px] uppercase tracking-wider text-theme-accent bg-theme-accent/15 border border-theme-border-accent px-1.5 py-0.5 rounded">
-                            Beliebt
+                            {t('saas.signup.popular')}
                           </span>
                         )}
                         {pkg.bonusPct > 0 && (
                           <span className="font-mono text-[9px] uppercase tracking-wider text-emerald-400 bg-emerald-400/10 border border-emerald-400/25 px-1.5 py-0.5 rounded">
-                            +{pkg.bonusPct}% Bonus
+                            {t('saas.signup.bonus', { pct: pkg.bonusPct })}
                           </span>
                         )}
                       </div>
                       <div className="text-xs text-text-muted font-mono">
-                        {pkg.credits} Credits · {pkg.runsHint}
+                        {t('saas.signup.creditsAndRuns', { credits: pkg.credits, runs: localizeRunsHint(pkg, lang) })}
                       </div>
                     </div>
                     <div className="text-right shrink-0">
                       <div className="text-lg text-text-primary font-light">€{pkg.priceEur}</div>
-                      <div className="text-[10px] text-text-muted font-mono uppercase">einmalig</div>
+                      <div className="text-[10px] text-text-muted font-mono uppercase">{t('saas.signup.oneTimeUnit')}</div>
                     </div>
                     <div
                       className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition ${
@@ -596,8 +600,7 @@ function Step2({
           </div>
 
           <p className="text-xs text-text-muted mt-4 leading-relaxed">
-            Nach der Zahlung kriegst du sofort eine Login-Mail mit deinem Magic-Link. Account-Setup
-            passiert automatisch.
+            {t('saas.signup.oneTimeFooter')}
           </p>
         </>
       )}
@@ -620,6 +623,7 @@ function Step3({
   selectedPlan: SubSlug;
   plans: SubscriptionPlan[];
 }) {
+  const { t } = useTranslation();
   if (billingMode === 'subscription') {
     const planList = plans.length > 0 ? plans : FALLBACK_PLANS;
     const plan = planList.find((p) => p.slug === selectedPlan)!;
@@ -628,14 +632,14 @@ function Step3({
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-theme-accent/10 border border-theme-border-accent mb-4">
           <Loader2 size={20} className="animate-spin text-theme-accent" />
         </div>
-        <h3 className="text-base text-text-primary font-medium mb-2">Stripe-Checkout wird geöffnet…</h3>
+        <h3 className="text-base text-text-primary font-medium mb-2">{t('saas.signup.stripeOpeningTitle')}</h3>
         <p className="text-sm text-text-secondary mb-4 leading-relaxed">
-          Du wirst weitergeleitet zur sicheren Zahlung über Stripe.
+          {t('saas.signup.stripeOpeningText1')}
           <br />
-          Nach Bezahlung kriegst du eine Login-Mail an <span className="text-text-primary font-mono break-all">{email}</span>.
+          {t('saas.signup.stripeOpeningText2')} <span className="text-text-primary font-mono break-all">{email}</span>.
         </p>
         <div className="inline-flex max-w-full flex-wrap items-center gap-2 text-xs font-mono text-text-muted bg-bg-elevated border border-theme-border px-3 py-1.5 rounded">
-          <Repeat size={12} /> {plan.name}-Abo · {plan.credits_per_month} Credits/Mo · €{Math.round(Number(plan.price_eur))}/Mo
+          <Repeat size={12} /> {t('saas.signup.summarySub', { name: plan.name, credits: plan.credits_per_month, price: Math.round(Number(plan.price_eur)) })}
         </div>
       </div>
     );
@@ -646,14 +650,14 @@ function Step3({
       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-theme-accent/10 border border-theme-border-accent mb-4">
         <Loader2 size={20} className="animate-spin text-theme-accent" />
       </div>
-      <h3 className="text-base text-text-primary font-medium mb-2">Stripe-Checkout wird geöffnet…</h3>
+      <h3 className="text-base text-text-primary font-medium mb-2">{t('saas.signup.stripeOpeningTitle')}</h3>
       <p className="text-sm text-text-secondary mb-4 leading-relaxed">
-        Du wirst weitergeleitet zur sicheren Zahlung über Stripe.
+        {t('saas.signup.stripeOpeningText1')}
         <br />
-        Nach Bezahlung kriegst du eine Login-Mail an <span className="text-text-primary font-mono break-all">{email}</span>.
+        {t('saas.signup.stripeOpeningText2')} <span className="text-text-primary font-mono break-all">{email}</span>.
       </p>
       <div className="inline-flex max-w-full flex-wrap items-center gap-2 text-xs font-mono text-text-muted bg-bg-elevated border border-theme-border px-3 py-1.5 rounded">
-        <PackageIcon size={12} /> {pkg.name} · {pkg.credits} Credits · €{pkg.priceEur}
+        <PackageIcon size={12} /> {t('saas.signup.summaryOneTime', { name: pkg.name, credits: pkg.credits, price: pkg.priceEur })}
       </div>
     </div>
   );

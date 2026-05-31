@@ -6,6 +6,7 @@
  */
 
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, useInView } from 'framer-motion';
 import { ShieldCheck, Clock, Sparkles, Mail } from 'lucide-react';
 import WaitlistForm from '@/components/WaitlistForm';
@@ -17,48 +18,22 @@ import {
   AccordionContent,
 } from '@/components/ui/accordion';
 
-const TIMELINE = [
-  {
-    when: 'Jetzt',
-    label: 'Foundation-Window',
-    desc: 'Mehrere Vollkunden-Projekte laufen. Stack-Hardening + Shop-Items werden quality-getestet, kein aktiver Sales-Push.',
-  },
-  {
-    when: 'Bald',
-    label: 'Public-Launch',
-    desc: 'Shop + SaaS gehen scharf. Pre-Launch-Liste bekommt Early-Access ~1 Woche vor Public-Opening sowie einen Setup-Discount (Höhe wird vor Launch bestätigt).',
-  },
-  {
-    when: 'Danach',
-    label: 'Skalierungs-Phase',
-    desc: 'Full-Audit-Slots öffnen breiter. Self-Service-SaaS verlässt Closed-Beta. Founder-Community erweitert sich.',
-  },
-];
+const TIMELINE_KEYS = [
+  { when: 'nowWhen', label: 'nowLabel', desc: 'nowDesc' },
+  { when: 'soonWhen', label: 'soonLabel', desc: 'soonDesc' },
+  { when: 'afterWhen', label: 'afterLabel', desc: 'afterDesc' },
+] as const;
 
-const FAQ = [
-  {
-    q: 'Warum jetzt eintragen?',
-    a: 'Die Pre-Launch-Liste bekommt ~1 Woche vor Public-Opening Zugriff und einen Setup-Discount. Exakte Höhe und Datum kommunizieren wir mit der Launch-Mail.',
-  },
-  {
-    q: 'Was bekomme ich konkret in der Zwischenzeit?',
-    a: 'Eine Bestätigungs-Mail jetzt, danach maximal 2-3 kurze Updates während des Foundation-Windows. Kein Newsletter-Spam. Wenn nichts Relevantes passiert, schreiben wir auch nicht.',
-  },
-  {
-    q: 'Ist das ein Pre-Sale? Muss ich bezahlen?',
-    a: 'Nein. Reine Email-Liste. Kein Geld, kein Commitment. Du kannst dich jederzeit per Klick abmelden (Link in jeder Mail).',
-  },
-  {
-    q: 'Was passiert mit meinen Daten?',
-    a: 'Email + Tier-Interesse + IP-/24-anonymisiert + Consent-Stempel. Speicherung auf EU-Servern (Supabase Frankfurt). Vollständige Löschung jederzeit über Unsubscribe-Link.',
-  },
-  {
-    q: 'Kann ich schon vorher mit euch arbeiten?',
-    a: 'Ja — für maßgeschneiderte Full-Audit-Projekte (kostenloses Audit buchen). Shop + Self-Service-SaaS sind bis zum Launch pausiert.',
-  },
-];
+const FAQ_KEYS = [
+  { q: 'q1', a: 'a1' },
+  { q: 'q2', a: 'a2' },
+  { q: 'q3', a: 'a3' },
+  { q: 'q4', a: 'a4' },
+  { q: 'q5', a: 'a5' },
+] as const;
 
 function HeroBlock() {
+  const { t } = useTranslation();
   return (
     <section className="relative px-6 lg:px-16 pt-28 pb-16 md:pt-32 md:pb-20 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-theme-accent-soft via-transparent to-transparent pointer-events-none" aria-hidden />
@@ -70,7 +45,7 @@ function HeroBlock() {
           className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-theme-accent mb-6 border border-theme-border-accent bg-theme-accent-soft px-3 py-1.5"
         >
           <Sparkles size={12} />
-          Pre-Launch · Foundation Window
+          {t('waitlist.hero.badge')}
         </motion.span>
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
@@ -78,8 +53,8 @@ function HeroBlock() {
           transition={{ duration: 0.7, delay: 0.1 }}
           className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-[1.15] mb-6"
         >
-          AEVUM ist im
-          <span className="block text-gradient font-medium mt-2">Pre-Launch.</span>
+          {t('waitlist.hero.titleLine1')}
+          <span className="block text-gradient font-medium mt-2">{t('waitlist.hero.titleLine2')}</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 12 }}
@@ -87,7 +62,7 @@ function HeroBlock() {
           transition={{ duration: 0.7, delay: 0.2 }}
           className="text-base md:text-lg text-text-secondary leading-relaxed mb-10 max-w-2xl mx-auto"
         >
-          Aktuell Foundation-Bau, nicht Sales-Hustle. Wenn du dabei sein willst wenn Shop + SaaS scharf gehen — trag dich auf die Pre-Launch-Liste ein. Erste Welle bekommt Early-Access und einen Setup-Discount.
+          {t('waitlist.hero.subtitle')}
         </motion.p>
 
         <motion.div
@@ -105,11 +80,11 @@ function HeroBlock() {
           transition={{ delay: 0.5 }}
           className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-text-muted font-mono mt-6"
         >
-          <span className="flex items-center gap-1.5"><ShieldCheck size={11} className="text-theme-accent" /> DSGVO-konform</span>
+          <span className="flex items-center gap-1.5"><ShieldCheck size={11} className="text-theme-accent" /> {t('waitlist.hero.trustDsgvo')}</span>
           <span>·</span>
-          <span className="flex items-center gap-1.5"><Mail size={11} className="text-theme-accent" /> 2-3 Updates max</span>
+          <span className="flex items-center gap-1.5"><Mail size={11} className="text-theme-accent" /> {t('waitlist.hero.trustUpdates')}</span>
           <span>·</span>
-          <span>1-Klick-Abmelden</span>
+          <span>{t('waitlist.hero.trustUnsub')}</span>
         </motion.div>
       </div>
     </section>
@@ -117,6 +92,7 @@ function HeroBlock() {
 }
 
 function TimelineSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
@@ -130,17 +106,17 @@ function TimelineSection() {
           className="mb-12"
         >
           <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block">
-            Timeline
+            {t('waitlist.timeline.eyebrow')}
           </span>
           <h2 className="text-2xl md:text-3xl font-light tracking-tight">
-            Was passiert wann
+            {t('waitlist.timeline.title')}
           </h2>
         </motion.div>
 
         <div className="space-y-5">
-          {TIMELINE.map((t, i) => (
+          {TIMELINE_KEYS.map((item, i) => (
             <motion.div
-              key={t.when}
+              key={item.when}
               initial={{ opacity: 0, x: -16 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ delay: 0.1 + i * 0.1, duration: 0.6 }}
@@ -148,12 +124,12 @@ function TimelineSection() {
             >
               <div>
                 <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-theme-accent mb-1">
-                  <Clock size={11} className="inline mr-1 -mt-0.5" /> {t.when}
+                  <Clock size={11} className="inline mr-1 -mt-0.5" /> {t(`waitlist.timeline.${item.when}`)}
                 </div>
               </div>
               <div>
-                <h3 className="text-base font-medium text-text-primary mb-2">{t.label}</h3>
-                <p className="text-sm text-text-secondary leading-relaxed">{t.desc}</p>
+                <h3 className="text-base font-medium text-text-primary mb-2">{t(`waitlist.timeline.${item.label}`)}</h3>
+                <p className="text-sm text-text-secondary leading-relaxed">{t(`waitlist.timeline.${item.desc}`)}</p>
               </div>
             </motion.div>
           ))}
@@ -164,6 +140,7 @@ function TimelineSection() {
 }
 
 function FAQSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
@@ -177,25 +154,25 @@ function FAQSection() {
           className="mb-10"
         >
           <span className="font-mono text-xs uppercase tracking-[0.12em] text-theme-accent mb-3 block">
-            Häufige Fragen
+            {t('waitlist.faq.eyebrow')}
           </span>
           <h2 className="text-2xl md:text-3xl font-light tracking-tight">
-            Was du wahrscheinlich wissen willst
+            {t('waitlist.faq.title')}
           </h2>
         </motion.div>
 
         <Accordion type="single" collapsible className="space-y-3">
-          {FAQ.map((f, i) => (
+          {FAQ_KEYS.map((f, i) => (
             <AccordionItem
               key={i}
               value={`q-${i}`}
               className="bg-bg-surface border border-theme-border px-5 rounded-xl"
             >
               <AccordionTrigger className="text-left text-sm font-medium py-4 hover:no-underline text-text-primary">
-                {f.q}
+                {t(`waitlist.faq.${f.q}`)}
               </AccordionTrigger>
               <AccordionContent className="text-sm text-text-secondary leading-relaxed pb-4">
-                {f.a}
+                {t(`waitlist.faq.${f.a}`)}
               </AccordionContent>
             </AccordionItem>
           ))}
@@ -206,9 +183,10 @@ function FAQSection() {
 }
 
 export default function Waitlist() {
+  const { t } = useTranslation();
   usePageSeo({
-    title: 'AEVUM Pre-Launch · Early-Access-Liste',
-    description: 'AEVUM ist im Pre-Launch. Trag dich ein für Early-Access ~1 Woche vor Public-Launch und einen Setup-Discount.',
+    title: t('waitlist.seoTitle'),
+    description: t('waitlist.seoDescription'),
     path: '/waitlist',
   });
 

@@ -7,6 +7,7 @@
  * Visitor-Flow: Hub → Tool-Detail (/saas/:slug) → Try-Demo oder SignupFlow → Stripe → Auto-Account.
  */
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
   ArrowRight,
@@ -21,14 +22,15 @@ import {
 } from 'lucide-react';
 import { usePageSeo } from '@/hooks/use-page-seo';
 import { track } from '@/lib/shop-track';
-import { listSaasTools, CREDIT_PACKAGES, type SaasTool, type SaasSecurityLevel } from '@/data/saas-tools';
-import { TiltCard, GradientBorder, NumberCounter, Magnetic, Spotlight } from '@/components/showcase-fx';
+import { listSaasTools, CREDIT_PACKAGES, localizeSaasTool, localizeRunsHint, type SaasTool, type SaasSecurityLevel } from '@/data/saas-tools';
+import { TiltCard } from '@/components/showcase-fx';
 
 function SecurityBadge({ level }: { level: SaasSecurityLevel }) {
+  const { t } = useTranslation();
   const map = {
-    basic: { label: 'Basic', icon: Shield, color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/20' },
-    business: { label: 'Business', icon: ShieldCheck, color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/20' },
-    dsgvo: { label: 'DSGVO', icon: ShieldAlert, color: 'text-rose-400', bg: 'bg-rose-400/10 border-rose-400/20' },
+    basic: { label: t('saas.badge.basic'), icon: Shield, color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/20' },
+    business: { label: t('saas.badge.business'), icon: ShieldCheck, color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/20' },
+    dsgvo: { label: t('saas.badge.dsgvo'), icon: ShieldAlert, color: 'text-rose-400', bg: 'bg-rose-400/10 border-rose-400/20' },
   };
   const { label, icon: Icon, color, bg } = map[level];
   return (
@@ -40,11 +42,12 @@ function SecurityBadge({ level }: { level: SaasSecurityLevel }) {
 }
 
 function StatusBadge({ tool }: { tool: SaasTool }) {
+  const { t } = useTranslation();
   if (tool.status === 'live') {
     return (
       <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border bg-emerald-400/10 border-emerald-400/25 text-emerald-400">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-        Live
+        {t('saas.badge.live')}
       </span>
     );
   }
@@ -52,19 +55,20 @@ function StatusBadge({ tool }: { tool: SaasTool }) {
     return (
       <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border bg-amber-400/10 border-amber-400/25 text-amber-400">
         <Zap size={10} />
-        Beta
+        {t('saas.badge.beta')}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border bg-bg-elevated border-theme-border-strong text-text-muted">
       <Clock size={10} />
-      Konzept
+      {t('saas.badge.konzept')}
     </span>
   );
 }
 
 function ToolCard({ tool, idx }: { tool: SaasTool; idx: number }) {
+  const { t } = useTranslation();
   const dimmed = tool.status === 'coming-soon';
   const href = `#/saas/${tool.slug}`;
 
@@ -111,7 +115,7 @@ function ToolCard({ tool, idx }: { tool: SaasTool; idx: number }) {
       {/* CTA */}
       <div className="mt-auto flex items-center justify-between border-t border-theme-border pt-4">
         <span className={`text-xs font-mono uppercase tracking-wider ${dimmed ? 'text-text-muted' : 'text-text-secondary group-hover:text-theme-accent'} transition-colors`}>
-          {tool.status === 'coming-soon' ? 'Details' : 'Jetzt nutzen'}
+          {tool.status === 'coming-soon' ? t('saas.hub.cardDetails') : t('saas.hub.cardUseNow')}
         </span>
         <ArrowRight
           size={15}
@@ -129,18 +133,20 @@ function ToolCard({ tool, idx }: { tool: SaasTool; idx: number }) {
 }
 
 function PackagesStrip() {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   return (
     <section className="border-t border-theme-border py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10">
           <span className="font-mono text-xs uppercase tracking-widest text-theme-accent mb-3 block">
-            Credit-Pakete
+            {t('saas.packages.eyebrow')}
           </span>
           <h2 className="text-2xl md:text-3xl font-light text-text-primary mb-3">
-            Pay-per-Use, kein Abo
+            {t('saas.packages.title')}
           </h2>
           <p className="text-sm text-text-secondary max-w-xl mx-auto leading-relaxed">
-            Lädst Credits einmalig auf, verbrauchst sie pro SaaS-Run. Credits verfallen nicht.
+            {t('saas.packages.subtitle')}
           </p>
         </div>
 
@@ -154,7 +160,7 @@ function PackagesStrip() {
             >
               {pkg.featured && (
                 <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 font-mono text-[9px] uppercase tracking-widest text-on-accent bg-theme-accent px-2.5 py-1 rounded">
-                  Beliebt
+                  {t('saas.packages.popular')}
                 </span>
               )}
               <div className="text-center">
@@ -162,13 +168,13 @@ function PackagesStrip() {
                   {pkg.name}
                 </div>
                 <div className="text-3xl font-light text-text-primary mb-1">€{pkg.priceEur}</div>
-                <div className="text-sm text-text-secondary">{pkg.credits} Credits</div>
+                <div className="text-sm text-text-secondary">{t('saas.packages.creditsLabel', { count: pkg.credits })}</div>
                 {pkg.bonusPct > 0 && (
                   <div className="font-mono text-[10px] uppercase tracking-wider text-emerald-400 mt-2">
-                    +{pkg.bonusPct}% Bonus
+                    {t('saas.packages.bonus', { pct: pkg.bonusPct })}
                   </div>
                 )}
-                <div className="text-xs text-text-muted mt-3 font-mono">{pkg.runsHint}</div>
+                <div className="text-xs text-text-muted mt-3 font-mono">{localizeRunsHint(pkg, lang)}</div>
               </div>
             </div>
           ))}
@@ -179,21 +185,22 @@ function PackagesStrip() {
 }
 
 function HowItWorks() {
+  const { t } = useTranslation();
   const steps = [
-    { n: 1, title: 'Tool wählen', text: 'Klick auf eine SaaS-Karte. Lies Detail-Page + Demo-Output an.' },
-    { n: 2, title: 'Account anlegen', text: 'Email + Credit-Paket (€10/€25/€50). Stripe-Checkout in 2 Klicks.' },
-    { n: 3, title: 'Login-Mail', text: 'Magic-Link kommt automatisch. Klick → Portal-Tool öffnet.' },
-    { n: 4, title: 'Pay-per-Run', text: 'Credits werden pro Run abgezogen. Nachladen jederzeit.' },
+    { n: 1, title: t('saas.how.step1Title'), text: t('saas.how.step1Text') },
+    { n: 2, title: t('saas.how.step2Title'), text: t('saas.how.step2Text') },
+    { n: 3, title: t('saas.how.step3Title'), text: t('saas.how.step3Text') },
+    { n: 4, title: t('saas.how.step4Title'), text: t('saas.how.step4Text') },
   ];
   return (
     <section className="border-t border-theme-border py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
           <span className="font-mono text-xs uppercase tracking-widest text-theme-accent mb-3 block">
-            So funktioniert es
+            {t('saas.how.eyebrow')}
           </span>
           <h2 className="text-2xl md:text-3xl font-light text-text-primary">
-            Vom ersten Klick zum ersten Run in 90 Sekunden
+            {t('saas.how.title')}
           </h2>
         </div>
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
@@ -213,17 +220,18 @@ function HowItWorks() {
 }
 
 export default function Saas() {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   usePageSeo({
-    title: 'AEVUM SaaS-Tools — Pay-per-Use AI-Pipelines | Script-Factory, DSGVO-Factory',
-    description:
-      'Self-Service AI-Pipelines für Ad-Scripts, DSGVO-Checks, Lead-Qualifying. Kein Abo, du zahlst pro Run via Credits. Output in Minuten, professionell verwertbar.',
+    title: t('saas.hub.seoTitle'),
+    description: t('saas.hub.seoDescription'),
     path: '/saas',
-    keywords: 'AEVUM SaaS, AI-Pipelines, Ad-Scripts, DSGVO, Pay-per-Use, Credits',
+    keywords: t('saas.hub.seoKeywords'),
   });
 
-  const tools = useMemo(() => listSaasTools(), []);
-  const liveCount = tools.filter((t) => t.status === 'live').length;
-  const partialCount = tools.filter((t) => t.status === 'partial').length;
+  const tools = useMemo(() => listSaasTools().map((tool) => localizeSaasTool(tool, lang)), [lang]);
+  const liveCount = tools.filter((tl) => tl.status === 'live').length;
+  const partialCount = tools.filter((tl) => tl.status === 'partial').length;
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary overflow-x-hidden">
@@ -239,36 +247,35 @@ export default function Saas() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-theme-border-accent bg-theme-accent-soft mb-6">
               <Sparkles size={12} className="text-theme-accent" />
               <span className="font-mono text-[10px] uppercase tracking-widest text-theme-accent">
-                AEVUM SaaS
+                {t('saas.hub.eyebrow')}
               </span>
             </div>
             <h1 className="text-[clamp(2rem,7vw,3.75rem)] font-light tracking-tight leading-[1.05] text-text-primary mb-5">
-              AEVUM SaaS-Tools
+              {t('saas.hub.heroTitleLine1')}
               <br />
-              <span className="text-theme-accent">Pay-per-Use AI-Pipelines</span>
+              <span className="text-theme-accent">{t('saas.hub.heroTitleLine2')}</span>
             </h1>
             <p className="text-base md:text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed mb-8">
-              Keine Setup-Fees. Keine Subscriptions. Du zahlst pro Run via AEVUM Credits.
-              Ad-Scripts, DSGVO-Texte, Leads — alle Pipelines in einem Account.
+              {t('saas.hub.heroSubtitle')}
             </p>
 
             {/* Mini-Stats */}
             <div className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-mono text-text-muted">
               <span className="inline-flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                {liveCount} live
+                {t('saas.hub.statLive', { count: liveCount })}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                {partialCount} Beta
+                {t('saas.hub.statBeta', { count: partialCount })}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Coins size={11} />
-                ab €10 Einstieg
+                {t('saas.hub.statEntry')}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <ShieldAlert size={11} />
-                DSGVO-konform
+                {t('saas.hub.statDsgvo')}
               </span>
             </div>
           </motion.div>
@@ -281,7 +288,7 @@ export default function Saas() {
           <div className="flex items-center gap-2 mb-6">
             <LayoutGrid size={14} className="text-theme-accent" />
             <span className="font-mono text-xs uppercase tracking-widest text-theme-accent">
-              Verfügbare Tools
+              {t('saas.hub.availableTools')}
             </span>
           </div>
           <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
@@ -299,24 +306,23 @@ export default function Saas() {
       <section className="border-t border-theme-border py-16 text-center">
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
           <h2 className="text-2xl md:text-3xl font-light text-text-primary mb-4">
-            Du brauchst Custom-Setup statt Self-Service?
+            {t('saas.hub.footerTitle')}
           </h2>
           <p className="text-text-secondary mb-6 leading-relaxed text-sm">
-            Unsere DFY-Services bauen Pipelines auf deinem Server mit Custom-Voice-Tuning.
-            Im Shop verfügbar.
+            {t('saas.hub.footerText')}
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <a
               href="#/shop"
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] border border-theme-border-strong hover:border-theme-accent/50 text-text-primary text-sm rounded transition"
             >
-              Zum Shop <ArrowRight size={14} />
+              {t('saas.hub.footerToShop')} <ArrowRight size={14} />
             </a>
             <a
               href="#/audit"
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] bg-theme-accent text-on-accent text-sm font-medium rounded hover:bg-theme-accent/90 transition"
             >
-              Audit-Call buchen <ArrowRight size={14} />
+              {t('saas.hub.footerBookAudit')} <ArrowRight size={14} />
             </a>
           </div>
         </div>
