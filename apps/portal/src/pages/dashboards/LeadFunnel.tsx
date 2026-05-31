@@ -235,6 +235,89 @@ class TabErrorBoundary extends Component<{ children: ReactNode }, { failed: bool
   render() { return this.state.failed ? <TabErrorFallback /> : this.props.children; }
 }
 
+type OvChannel = { platform: string; display_name?: string; connected?: boolean; pieces_total?: number; pieces_by_status?: Record<string, number>; impressions?: number; clicks?: number; leads_attributed?: number };
+
+/** Lead-Funnel-Aggregat: echte Summe beider Funnels (FB + LinkedIn) — liest /overview korrekt (funnel.channels). */
+function AggregateOverview() {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+  const [channels, setChannels] = useState<OvChannel[]>([]);
+  const [flows, setFlows] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const nf = (n: number) => n.toLocaleString(lang === 'en' ? 'en-US' : 'de-DE');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [ov, nu] = await Promise.allSettled([
+          api<{ funnel?: { channels?: OvChannel[] } }>('/api/me/funnel/overview'),
+          api<{ stats?: { by_status?: Record<string, number> } }>('/api/me/funnel/nurture/stats'),
+        ]);
+        if (ov.status === 'fulfilled') setChannels(ov.value.funnel?.channels ?? []);
+        if (nu.status === 'fulfilled') setFlows(nu.value.stats?.by_status?.active ?? 0);
+      } catch { /* leer */ } finally { setLoading(false); }
+    })();
+  }, []);
+
+  if (loading) return <div className="card-premium p-8 flex justify-center"><Spinner size="md" /></div>;
+
+  const sum = (f: (c: OvChannel) => number) => channels.reduce((s, c) => s + (f(c) || 0), 0);
+  const totalPieces = sum(c => c.pieces_total || 0);
+  const published = sum(c => c.pieces_by_status?.published || 0);
+  const scheduled = sum(c => c.pieces_by_status?.scheduled || 0);
+  const leads = sum(c => c.leads_attributed || 0);
+  const impressions = sum(c => c.impressions || 0);
+  const clicks = sum(c => c.clicks || 0);
+  const platMeta: Record<string, typeof Facebook> = { facebook: Facebook, linkedin: Linkedin };
+
+  const cards = [
+    { icon: FileText, label: t('dashboards.funnel.aggPieces'), value: String(totalPieces) },
+    { icon: Send, label: t('dashboards.funnel.aggPublished'), value: String(published) },
+    { icon: Activity, label: t('dashboards.funnel.aggFlows'), value: String(flows) },
+    { icon: Users, label: t('dashboards.funnel.aggLeads'), value: String(leads) },
+    { icon: TrendingUp, label: t('dashboards.funnel.pfReach'), value: impressions ? nf(impressions) : '0' },
+    { icon: ChevronRight, label: t('dashboards.funnel.pfClicks'), value: clicks ? nf(clicks) : '0' },
+  ];
+
+  return (
+    <div className="space-y-3">
+      <div className="card-premium p-5">
+        <div className="flex items-center gap-2 mb-1"><Layers size={15} className="text-gold-300" />
+          <h3 className="text-sm font-semibold text-white">{t('dashboards.funnel.aggTitle')}</h3></div>
+        <p className="text-xs text-ink-300 mb-4">{t('dashboards.funnel.aggSub')}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          {cards.map((c, i) => (
+            <div key={i} className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="flex items-center gap-1.5 text-[0.58rem] uppercase tracking-wider text-ink-400 mb-1"><c.icon size={11} /> {c.label}</div>
+              <div className="text-xl font-bold text-white">{c.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Aufschlüsselung je Funnel */}
+      <div className="grid sm:grid-cols-2 gap-2.5">
+        {channels.map(c => {
+          const PI = platMeta[c.platform] || FileText;
+          return (
+            <div key={c.platform} className="card-premium p-4">
+              <div className="flex items-center gap-2 mb-2.5">
+                <span className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gold-300"><PI size={14} /></span>
+                <span className="text-sm font-semibold text-white">{c.platform === 'facebook' ? 'Facebook' : c.platform === 'linkedin' ? 'LinkedIn' : c.display_name || c.platform}</span>
+                <span className={`ml-auto text-[0.55rem] px-1.5 py-0.5 rounded-full ${c.connected ? 'bg-emerald-400/15 text-emerald-300' : 'bg-white/10 text-ink-400'}`}>{c.connected ? t('dashboards.funnel.pfConnected') : t('dashboards.funnel.pfNotConnected')}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5 text-center">
+                <div><div className="text-[0.55rem] uppercase tracking-wider text-ink-500">{t('dashboards.funnel.aggPieces')}</div><div className="text-base font-bold text-white">{c.pieces_total || 0}</div></div>
+                <div><div className="text-[0.55rem] uppercase tracking-wider text-ink-500">{t('dashboards.funnel.aggLeads')}</div><div className="text-base font-bold text-white">{c.leads_attributed || 0}</div></div>
+                <div><div className="text-[0.55rem] uppercase tracking-wider text-ink-500">{t('dashboards.funnel.pfReach')}</div><div className="text-base font-bold text-white">{c.impressions ? nf(c.impressions) : 0}</div></div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 const STEPS = [
   { n: 1, labelKey: 'dashboards.funnel.stepIcp' },
   { n: 2, labelKey: 'dashboards.funnel.stepSettings' },
@@ -283,6 +366,9 @@ export default function LeadFunnel({ projectSlug, projectName, platform }: { pro
           </button>
         </div>
       </header>
+
+      {/* Lead-Funnel = Gesamt: Aggregat-Übersicht (Summe FB + LinkedIn) */}
+      {!platform && <AggregateOverview />}
 
       {/* Step-Workflow-Navigation (1 → 5) */}
       <nav className="flex items-center gap-1 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
