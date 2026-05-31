@@ -7,7 +7,8 @@ import {
   Activity, TrendingUp, Users, DollarSign, FileText, Gift,
   ChevronRight, Sparkles, Award, AlertCircle, ExternalLink,
   Mail, Phone, Send, Upload, Check, X, Edit3,
-  Target, Link2, Plug, Trash2, Plus, Linkedin, Facebook
+  Target, Link2, Plug, Trash2, Plus, Linkedin, Facebook,
+  Calendar, Clock, Layers
 } from 'lucide-react';
 import { api, getAccessToken } from '@/lib/api';
 import Spinner from '@/components/Spinner';
@@ -958,6 +959,132 @@ function SpendSection({ spend }: { spend: LeadFunnelData['spend'] }) {
 }
 
 // ─── Content Section (Cockpit: Pieces + Generate + Edit + Publish) ──
+function roadmapDate(iso: string | null, lang: string): string {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString(lang === 'en' ? 'en-US' : 'de-DE', { day: '2-digit', month: 'short' });
+  } catch { return '—'; }
+}
+
+const BADGE = 'text-[0.6rem] px-1.5 py-0.5 rounded bg-white/10 text-ink-200 whitespace-nowrap';
+
+/**
+ * Content-Roadmap — macht die Gesamt-Story nachvollziehbar:
+ *  - Story/Trust-Arc: wie geplanter Content die Zielgruppe entlang der 5 Awareness-Stufen führt
+ *  - Nächste 3 Posts: was als nächstes live geht
+ *  - Monatsplan: der ganze geplante Content gruppiert nach Monat
+ */
+function ContentRoadmap({ pieces }: { pieces: ContentPiece[] }) {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+  const now = Date.now();
+  const active = pieces.filter(p => p.status !== 'archived');
+
+  const stageCounts = AWARENESS_OPTIONS.map(s => active.filter(p => (p.awareness_stage || '') === s).length);
+  const maxStage = Math.max(1, ...stageCounts);
+
+  const upcoming = active
+    .filter(p => p.scheduled_at && new Date(p.scheduled_at).getTime() >= now)
+    .sort((a, b) => new Date(a.scheduled_at!).getTime() - new Date(b.scheduled_at!).getTime());
+  const next3 = upcoming.slice(0, 3);
+
+  const scheduled = active.filter(p => p.scheduled_at)
+    .sort((a, b) => new Date(a.scheduled_at!).getTime() - new Date(b.scheduled_at!).getTime());
+  const months: { key: string; label: string; items: ContentPiece[] }[] = [];
+  for (const p of scheduled) {
+    const d = new Date(p.scheduled_at!);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    let m = months.find(x => x.key === key);
+    if (!m) { m = { key, label: d.toLocaleDateString(lang === 'en' ? 'en-US' : 'de-DE', { month: 'long', year: 'numeric' }), items: [] }; months.push(m); }
+    m.items.push(p);
+  }
+
+  const pieceTitle = (p: ContentPiece) => p.title || (p.body ? p.body.slice(0, 60) : t('dashboards.funnel.untitledPiece'));
+
+  return (
+    <div className="space-y-3">
+      {/* Story / Trust-Arc */}
+      <div className="card-premium p-5">
+        <div className="flex items-center gap-2 mb-1"><Layers size={15} className="text-gold-300" />
+          <h3 className="text-sm font-semibold text-white">{t('dashboards.funnel.storyArcTitle')}</h3></div>
+        <p className="text-xs text-ink-300 mb-4 leading-relaxed">{t('dashboards.funnel.storyArcHint')}</p>
+        <div className="flex items-stretch gap-1.5 overflow-x-auto pb-1">
+          {AWARENESS_OPTIONS.map((s, i) => (
+            <div key={s} className="flex items-center gap-1.5 shrink-0">
+              <div className="min-w-[96px] rounded-xl border border-white/10 bg-white/5 px-3 py-2.5">
+                <div className="text-[0.58rem] uppercase tracking-wider text-ink-400 leading-tight">{t(`dashboards.funnel.stage_${s}`)}</div>
+                <div className="text-lg font-bold text-white mt-0.5">{stageCounts[i]}</div>
+                <div className="h-1 rounded-full bg-gold-400/60 mt-1.5" style={{ width: `${(stageCounts[i] / maxStage) * 100}%`, minWidth: stageCounts[i] ? '8px' : '0px' }} />
+              </div>
+              {i < AWARENESS_OPTIONS.length - 1 && <ChevronRight size={14} className="text-ink-500 shrink-0" />}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Nächste 3 Posts */}
+      <div className="card-premium p-5">
+        <div className="flex items-center gap-2 mb-3"><Send size={15} className="text-gold-300" />
+          <h3 className="text-sm font-semibold text-white">{t('dashboards.funnel.nextPostsTitle')}</h3></div>
+        {next3.length === 0 ? (
+          <p className="text-xs text-ink-400">{t('dashboards.funnel.noUpcoming')}</p>
+        ) : (
+          <div className="grid sm:grid-cols-3 gap-2.5">
+            {next3.map((p, i) => {
+              const PlatIcon = (p.platform && PLATFORM_ICON[p.platform]) || FileText;
+              return (
+                <div key={p.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <div className="flex items-center gap-2 text-[0.65rem] text-ink-300 mb-1.5">
+                    <span className="w-5 h-5 rounded-full bg-gold-400/15 flex items-center justify-center text-gold-300 font-bold">{i + 1}</span>
+                    <Clock size={11} /> {roadmapDate(p.scheduled_at, lang)}
+                    <PlatIcon size={11} className="ml-auto text-ink-400" />
+                  </div>
+                  <div className="text-xs font-medium text-white line-clamp-2 mb-1.5">{pieceTitle(p)}</div>
+                  <div className="flex flex-wrap gap-1">
+                    {p.segment && <span className={BADGE}>{t(`dashboards.funnel.seg_${p.segment}`, p.segment)}</span>}
+                    {p.awareness_stage && <span className={BADGE}>{t(`dashboards.funnel.stage_${p.awareness_stage}`, p.awareness_stage)}</span>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Monatsplan */}
+      <div className="card-premium p-5">
+        <div className="flex items-center gap-2 mb-3"><Calendar size={15} className="text-gold-300" />
+          <h3 className="text-sm font-semibold text-white">{t('dashboards.funnel.monthPlanTitle')}</h3></div>
+        {months.length === 0 ? (
+          <p className="text-xs text-ink-400">{t('dashboards.funnel.noScheduled')}</p>
+        ) : (
+          <div className="space-y-4">
+            {months.map(m => (
+              <div key={m.key}>
+                <div className="text-[0.65rem] uppercase tracking-wider text-gold-300/80 font-semibold mb-2">{m.label} · {m.items.length}</div>
+                <div className="space-y-0.5">
+                  {m.items.map(p => {
+                    const PlatIcon = (p.platform && PLATFORM_ICON[p.platform]) || FileText;
+                    return (
+                      <div key={p.id} className="flex items-center gap-2 text-xs py-1.5 px-2 rounded-lg hover:bg-white/5">
+                        <span className="text-ink-400 tabular-nums w-12 shrink-0">{roadmapDate(p.scheduled_at, lang)}</span>
+                        <PlatIcon size={12} className="text-ink-400 shrink-0" />
+                        <span className="text-white truncate flex-1">{pieceTitle(p)}</span>
+                        {p.awareness_stage && <span className={`${BADGE} hidden sm:inline`}>{t(`dashboards.funnel.stage_${p.awareness_stage}`, p.awareness_stage)}</span>}
+                        <span className="text-ink-500 text-[0.6rem]">{t(PIECE_STATUS_KEY[p.status] || 'dashboards.funnel.pieceDraft')}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
   const { t } = useTranslation();
   const [pieces, setPieces] = useState<ContentPiece[]>([]);
@@ -1002,6 +1129,9 @@ function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
         <KpiCard i={2} icon={ChevronRight} label={t('dashboards.funnel.drafts')} value={String((counts.draft || 0))} />
         <KpiCard i={3} icon={Check} label={t('dashboards.funnel.approvedKpi')} value={String((counts.approved || 0))} />
       </KpiGrid>
+
+      {/* Content-Roadmap: Story-Arc + nächste 3 + Monatsplan */}
+      {!loading && pieces.length > 0 && <ContentRoadmap pieces={pieces} />}
 
       {/* Generate-Toggle */}
       <div className="card-premium p-5">
