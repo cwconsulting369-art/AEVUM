@@ -1,12 +1,16 @@
-// PlatformFunnel — platform-gefilterte Detailsicht (Facebook ODER LinkedIn).
-// Zeigt: Platform-Aggregat (Pieces/Status/Leads/Reichweite) + 3 Content-Pieces
-// nebeneinander (links/mitte/rechts) mit den Werten je Piece darunter.
-// Lead-Funnel (Gesamt) = Summe beider — das macht das LeadFunnel-Cockpit.
+// PlatformFunnel — vollwertiger, getrennter War-Room-Bereich pro Plattform
+// (Facebook ODER LinkedIn). War-Room-Design (DomainTile/Bento wie CommandShell):
+//   Zone 1 Verbindung & Settings (connect/disconnect/enable/account)
+//   Zone 2 Reichweite · Zone 3 Pieces · Zone 4 Leads
+//   + Content: 3 Pieces nebeneinander (links/mitte/rechts) mit Werten je Piece.
+// Lead-Funnel (Gesamt) = Summe beider (LeadFunnel-Cockpit).
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Facebook, Linkedin, FileText, Clock, Eye, MousePointerClick, Users, Megaphone } from 'lucide-react';
+import { toast } from 'sonner';
+import { Facebook, Linkedin, FileText, Clock, Eye, Users, Plug, Power, Link2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import Spinner from '@/components/Spinner';
+import DomainTile, { Stat } from './cc/DomainTile';
 
 type Platform = 'facebook' | 'linkedin';
 
@@ -15,22 +19,25 @@ type Piece = {
   segment: string | null; awareness_stage: string | null; status: string;
   scheduled_at: string | null; published_at: string | null; created_at: string;
 };
-
+type Channel = {
+  platform: string; connected?: boolean; enabled?: boolean;
+  display_name?: string | null; external_id?: string | null;
+};
 type ChannelAgg = {
-  platform: string; connected?: boolean; enabled?: boolean; total?: number;
-  by_status?: Record<string, number>; leads_attributed?: number;
-  impressions?: number; clicks?: number;
+  platform: string; total?: number; by_status?: Record<string, number>;
+  leads_attributed?: number; impressions?: number; clicks?: number;
 };
 
-const PLAT_META: Record<Platform, { icon: typeof Facebook }> = {
-  facebook: { icon: Facebook },
-  linkedin: { icon: Linkedin },
-};
+const PLAT_ICON: Record<Platform, typeof Facebook> = { facebook: Facebook, linkedin: Linkedin };
 
 function fmtDate(iso: string | null, lang: string): string {
   if (!iso) return '—';
   try { return new Date(iso).toLocaleDateString(lang === 'en' ? 'en-US' : 'de-DE', { day: '2-digit', month: 'short' }); }
   catch { return '—'; }
+}
+function gated(e: unknown): boolean {
+  if (!(e instanceof Error)) return false;
+  return /API (503|409)/.test(e.message) || /gated|not[_ ]configured|oauth/i.test(e.message);
 }
 
 export default function PlatformFunnel({ platform }: { platform: Platform }) {
@@ -38,39 +45,67 @@ export default function PlatformFunnel({ platform }: { platform: Platform }) {
   const lang = i18n.language;
   const [pieces, setPieces] = useState<Piece[]>([]);
   const [agg, setAgg] = useState<ChannelAgg | null>(null);
+  const [channel, setChannel] = useState<Channel | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [notConfigured, setNotConfigured] = useState(false);
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      setLoading(true); setError(false);
-      try {
-        const [piecesRes, overviewRes] = await Promise.allSettled([
-          api<{ ok?: boolean; pieces?: Piece[] } | Piece[]>(`/api/me/funnel/pieces?platform=${platform}`),
-          api<{ ok?: boolean; channels?: ChannelAgg[] } | { channels?: ChannelAgg[] }>(`/api/me/funnel/overview`),
-        ]);
-        if (!alive) return;
-        if (piecesRes.status === 'fulfilled') {
-          const v = piecesRes.value;
-          const list = Array.isArray(v) ? v : (v.pieces ?? []);
-          setPieces(Array.isArray(list) ? list : []);
-        }
-        if (overviewRes.status === 'fulfilled') {
-          const v = overviewRes.value as { channels?: ChannelAgg[] };
-          const chans = Array.isArray(v.channels) ? v.channels : [];
-          setAgg(chans.find(c => c.platform === platform) ?? null);
-        }
-      } catch { if (alive) setError(true); }
-      finally { if (alive) setLoading(false); }
-    })();
-    return () => { alive = false; };
-  }, [platform]);
+  const load = async () => {
+    setLoading(true); setError(false);
+    try {
+      const [piecesRes, overviewRes, chRes] = await Promise.allSettled([
+        api<{ pieces?: Piece[] } | Piece[]>(`/api/me/funnel/pieces?platform=${platform}`),
+        api<{ channels?: ChannelAgg[] }>(`/api/me/funnel/overview`),
+        api<{ channels?: Channel[] } | Channel[]>(`/api/me/funnel/channels`),
+      ]);
+      if (piecesRes.status === 'fulfilled') {
+        const v = piecesRes.value; const list = Array.isArray(v) ? v : (v.pieces ?? []);
+        setPieces(Array.isArray(list) ? list : []);
+      }
+      if (overviewRes.status === 'fulfilled') {
+        const chans = Array.isArray(overviewRes.value.channels) ? overviewRes.value.channels : [];
+        setAgg(chans.find(c => c.platform === platform) ?? null);
+      }
+      if (chRes.status === 'fulfilled') {
+        const v = chRes.value; const list = Array.isArray(v) ? v : (v.channels ?? []);
+        setChannel((Array.isArray(list) ? list : []).find(c => c.platform === platform) ?? null);
+      }
+    } catch { setError(true); }
+    finally { setLoading(false); }
+  };
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [platform]);
 
-  const PlatIcon = PLAT_META[platform].icon;
+  const connect = async () => {
+    setBusy('connect'); setNotConfigured(false);
+    try {
+      const r = await api<{ authorize_url?: string }>(`/api/me/funnel/channels/${platform}/connect/start`, { method: 'POST' });
+      if (r.authorize_url) { window.location.href = r.authorize_url; return; }
+      setNotConfigured(true);
+    } catch (e) {
+      if (gated(e)) setNotConfigured(true);
+      else toast.error(e instanceof Error ? e.message : 'Connect failed');
+    } finally { setBusy(null); }
+  };
+  const disconnect = async () => {
+    setBusy('disconnect');
+    try { await api(`/api/me/funnel/channels/${platform}/disconnect`, { method: 'POST' }); load(); }
+    catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
+    finally { setBusy(null); }
+  };
+  const toggleEnabled = async () => {
+    setBusy('toggle');
+    try { await api(`/api/me/funnel/channels/${platform}`, { method: 'PATCH', body: JSON.stringify({ enabled: !channel?.enabled }) }); load(); }
+    catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
+    finally { setBusy(null); }
+  };
+
+  const PlatIcon = PLAT_ICON[platform];
   const platLabel = platform === 'facebook' ? 'Facebook' : 'LinkedIn';
+  const connected = !!channel?.connected;
+  const by = agg?.by_status || {};
+  const nf = (n?: number) => (n ? n.toLocaleString(lang === 'en' ? 'en-US' : 'de-DE') : '—');
 
-  // Featured 3: bevorzugt geplante/veröffentlichte, sonst neueste
   const sorted = [...pieces].sort((a, b) => {
     const ax = a.scheduled_at || a.published_at || a.created_at;
     const bx = b.scheduled_at || b.published_at || b.created_at;
@@ -78,91 +113,115 @@ export default function PlatformFunnel({ platform }: { platform: Platform }) {
   });
   const featured = sorted.slice(0, 3);
 
-  const by = agg?.by_status || {};
-  const aggCards = [
-    { icon: FileText, label: t('dashboards.funnel.pfTotalPieces'), value: String(agg?.total ?? pieces.length) },
-    { icon: Megaphone, label: t('dashboards.funnel.pfPublished'), value: String(by.published ?? 0) },
-    { icon: Users, label: t('dashboards.funnel.pfLeads'), value: String(agg?.leads_attributed ?? 0) },
-    { icon: Eye, label: t('dashboards.funnel.pfReach'), value: agg?.impressions ? agg.impressions.toLocaleString(lang === 'en' ? 'en-US' : 'de-DE') : '—' },
-  ];
-
-  if (loading) return <div className="card-premium p-10 flex justify-center"><Spinner size="md" /></div>;
-  if (error) return <div className="card-premium p-8 text-center text-sm text-ink-400">{t('dashboards.funnel.pfError')}</div>;
+  if (loading) return <div className="cc-placeholder"><Spinner size="md" /></div>;
+  if (error) return <div className="cc-placeholder"><div className="cc-placeholder__hint">{t('dashboards.funnel.pfError')}</div></div>;
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center gap-2.5">
-        <span className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-gold-300"><PlatIcon size={18} /></span>
-        <div>
-          <h2 className="text-base font-semibold text-white">{t('dashboards.funnel.pfTitle', { platform: platLabel })}</h2>
-          <p className="text-xs text-ink-400">{t('dashboards.funnel.pfSub', { platform: platLabel })}</p>
-        </div>
-        {agg && (
-          <span className={`ml-auto text-[0.65rem] px-2 py-1 rounded-full border ${agg.connected ? 'border-emerald-400/30 text-emerald-300 bg-emerald-400/10' : 'border-white/10 text-ink-400 bg-white/5'}`}>
-            {agg.connected ? t('dashboards.funnel.pfConnected') : t('dashboards.funnel.pfNotConnected')}
-          </span>
-        )}
+    <div className="cmd-main">
+      <div className="cmd-main__head">
+        <span className="cmd-main__title">{t('dashboards.funnel.pfTitle', { platform: platLabel })}</span>
+        <span className="cmd-main__crumb">{t('dashboards.funnel.pfSub', { platform: platLabel })}</span>
       </div>
 
-      {/* Aggregat-Karten */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        {aggCards.map((c, i) => (
-          <div key={i} className="card-premium p-3.5">
-            <div className="flex items-center gap-1.5 text-[0.6rem] uppercase tracking-wider text-ink-400 mb-1"><c.icon size={12} /> {c.label}</div>
-            <div className="text-xl font-bold text-white">{c.value}</div>
+      {/* War-Room Bento: Settings + Metriken */}
+      <div className="cc-bento">
+        {/* Zone 1 — Verbindung & Settings */}
+        <DomainTile
+          label={t('dashboards.funnel.pfConnection')}
+          icon={Plug}
+          color={connected ? 'emerald' : 'gold'}
+          badge={<span className="cc-tile__badge-text">{connected ? t('dashboards.funnel.pfConnected') : t('dashboards.funnel.pfNotConnected')}</span>}
+        >
+          <div className="cc-row-2">
+            <Stat label={t('dashboards.funnel.pfAccount')}>{channel?.display_name || channel?.external_id || '—'}</Stat>
+            <Stat label={t('dashboards.funnel.pfState')} accent={channel?.enabled ? 'var(--status-success)' : undefined}>
+              {channel?.enabled ? t('dashboards.funnel.pfStateOn') : t('dashboards.funnel.pfStateOff')}
+            </Stat>
           </div>
-        ))}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }}>
+            {connected ? (
+              <>
+                <button onClick={toggleEnabled} disabled={busy === 'toggle'} className="cc-btn">
+                  <Power size={12} /> {channel?.enabled ? t('dashboards.funnel.pfDisable') : t('dashboards.funnel.pfEnable')}
+                </button>
+                <button onClick={disconnect} disabled={busy === 'disconnect'} className="cc-btn cc-btn--ghost">
+                  <Link2 size={12} /> {t('dashboards.funnel.pfDisconnect')}
+                </button>
+              </>
+            ) : (
+              <button onClick={connect} disabled={busy === 'connect'} className="cc-btn">
+                <Plug size={12} /> {t('dashboards.funnel.pfConnect', { platform: platLabel })}
+              </button>
+            )}
+          </div>
+          {notConfigured && (
+            <div className="cc-placeholder__hint" style={{ marginTop: 8, textAlign: 'left' }}>
+              <Clock size={11} style={{ display: 'inline', marginRight: 4 }} />
+              {t('dashboards.funnel.pfConnectGated', { platform: platLabel })}
+            </div>
+          )}
+        </DomainTile>
+
+        {/* Zone 2 — Reichweite */}
+        <DomainTile label={t('dashboards.funnel.pfReach')} icon={Eye} color="info" dim={!connected}>
+          <div className="cc-row-2">
+            <Stat label={t('dashboards.funnel.pfImpr')}>{nf(agg?.impressions)}</Stat>
+            <Stat label={t('dashboards.funnel.pfClicks')}>{nf(agg?.clicks)}</Stat>
+          </div>
+        </DomainTile>
+
+        {/* Zone 3 — Pieces */}
+        <DomainTile label={t('dashboards.funnel.pfTotalPieces')} icon={FileText} color="violet">
+          <div className="cc-row-3">
+            <Stat label={t('dashboards.funnel.pfPublished')}>{String(by.published ?? 0)}</Stat>
+            <Stat label={t('dashboards.funnel.pieceScheduled')}>{String(by.scheduled ?? 0)}</Stat>
+            <Stat label={t('dashboards.funnel.pieceDraft')}>{String(by.draft ?? 0)}</Stat>
+          </div>
+        </DomainTile>
+
+        {/* Zone 4 — Leads */}
+        <DomainTile label={t('dashboards.funnel.pfLeads')} icon={Users} color="gold">
+          <Stat label={platLabel}>{String(agg?.leads_attributed ?? 0)}</Stat>
+        </DomainTile>
       </div>
 
-      {/* 3 Content-Pieces nebeneinander + Werte drunter */}
-      <div>
-        <div className="flex items-center gap-2 mb-2.5"><FileText size={14} className="text-gold-300" />
-          <h3 className="text-sm font-semibold text-white">{t('dashboards.funnel.pfContentTitle', { platform: platLabel })}</h3></div>
+      {/* Content: 3 Pieces nebeneinander + Werte je Piece */}
+      <div style={{ marginTop: 16 }}>
+        <div className="cmd-main__head" style={{ marginBottom: 10 }}>
+          <span className="cmd-main__title" style={{ fontSize: 14 }}>{t('dashboards.funnel.pfContentTitle', { platform: platLabel })}</span>
+        </div>
         {featured.length === 0 ? (
-          <div className="card-premium p-8 text-center text-sm text-ink-400">{t('dashboards.funnel.pfNoPieces', { platform: platLabel })}</div>
+          <div className="cc-placeholder"><div className="cc-placeholder__hint">{t('dashboards.funnel.pfNoPieces', { platform: platLabel })}</div></div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {featured.map(p => (
-              <div key={p.id} className="card-premium p-4 flex flex-col">
-                {/* Post-Preview-Mock */}
-                <div className="flex items-center gap-2 pb-2.5 mb-2.5 border-b border-white/5">
-                  <span className="w-7 h-7 rounded-full bg-gold-gradient flex items-center justify-center text-ink-950"><PlatIcon size={13} /></span>
-                  <div className="min-w-0">
-                    <div className="text-xs font-semibold text-white truncate">Patrick Roth</div>
-                    <div className="text-[0.6rem] text-ink-400">{platLabel} · {p.published_at ? fmtDate(p.published_at, lang) : fmtDate(p.scheduled_at, lang)}</div>
+              <div key={p.id} className="cc-tile" style={{ ['--tile-rgb' as string]: platform === 'facebook' ? '96,165,250' : '96,165,250' }}>
+                <div className="cc-tile__body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <span style={{ width: 26, height: 26, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--accent-glow,rgba(224,164,88,0.15))', color: '#e0a458' }}><PlatIcon size={13} /></span>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>Patrick Roth</div>
+                      <div style={{ fontSize: 10, color: 'var(--ink-400,#8b93a7)' }}>{platLabel} · {p.published_at ? fmtDate(p.published_at, lang) : fmtDate(p.scheduled_at, lang)}</div>
+                    </div>
+                    <span className="cc-tile__badge-text">{t(`dashboards.funnel.piece${p.status.charAt(0).toUpperCase() + p.status.slice(1)}`, p.status)}</span>
                   </div>
-                  <span className={`ml-auto text-[0.55rem] px-1.5 py-0.5 rounded ${p.status === 'published' ? 'bg-emerald-400/15 text-emerald-300' : 'bg-white/10 text-ink-300'}`}>
-                    {t(`dashboards.funnel.piece${p.status.charAt(0).toUpperCase() + p.status.slice(1)}`, p.status)}
-                  </span>
-                </div>
-                {p.title && <div className="text-xs font-semibold text-white mb-1 line-clamp-2">{p.title}</div>}
-                <p className="text-xs text-ink-200 whitespace-pre-line line-clamp-6 flex-1">{p.body || '—'}</p>
-                {/* Badges */}
-                <div className="flex flex-wrap gap-1 mt-2.5">
-                  {p.segment && <span className="text-[0.55rem] px-1.5 py-0.5 rounded bg-white/10 text-ink-200">{t(`dashboards.funnel.seg_${p.segment}`, p.segment)}</span>}
-                  {p.awareness_stage && <span className="text-[0.55rem] px-1.5 py-0.5 rounded bg-white/10 text-ink-200">{t(`dashboards.funnel.stage_${p.awareness_stage}`, p.awareness_stage)}</span>}
-                </div>
-                {/* Werte je Piece */}
-                <div className="grid grid-cols-3 gap-1.5 mt-3 pt-3 border-t border-white/5">
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-[0.55rem] text-ink-400"><Eye size={10} /> {t('dashboards.funnel.pfImpr')}</div>
-                    <div className="text-sm font-bold text-white mt-0.5">—</div>
+                  {p.title && <div style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>{p.title}</div>}
+                  <p style={{ fontSize: 12, color: 'var(--ink-200,#c7cdda)', whiteSpace: 'pre-line', display: '-webkit-box', WebkitLineClamp: 6, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1, margin: 0 }}>{p.body || '—'}</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {p.segment && <span className="cc-chip">{t(`dashboards.funnel.seg_${p.segment}`, p.segment)}</span>}
+                    {p.awareness_stage && <span className="cc-chip">{t(`dashboards.funnel.stage_${p.awareness_stage}`, p.awareness_stage)}</span>}
                   </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-[0.55rem] text-ink-400"><MousePointerClick size={10} /> {t('dashboards.funnel.pfClicks')}</div>
-                    <div className="text-sm font-bold text-white mt-0.5">—</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-[0.55rem] text-ink-400"><Users size={10} /> {t('dashboards.funnel.pfLeadsShort')}</div>
-                    <div className="text-sm font-bold text-white mt-0.5">—</div>
+                  <div className="cc-row-3" style={{ paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <Stat label={t('dashboards.funnel.pfImpr')}>—</Stat>
+                    <Stat label={t('dashboards.funnel.pfClicks')}>—</Stat>
+                    <Stat label={t('dashboards.funnel.pfLeadsShort')}>—</Stat>
                   </div>
                 </div>
               </div>
             ))}
           </div>
         )}
-        <p className="text-[0.65rem] text-ink-500 mt-2.5 flex items-center gap-1.5">
+        <p style={{ fontSize: 11, color: 'var(--ink-500,#6b7280)', marginTop: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Clock size={11} /> {t('dashboards.funnel.pfMetricsGated', { platform: platLabel })}
         </p>
       </div>
