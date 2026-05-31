@@ -1044,8 +1044,64 @@ function ContentRoadmap({ pieces }: { pieces: ContentPiece[] }) {
 
   const pieceTitle = (p: ContentPiece) => p.title || (p.body ? p.body.slice(0, 60) : t('dashboards.funnel.untitledPiece'));
 
+  // ── Monats-Kalender (aktueller Monat): wo geplant / wo erstellt / wo leer ──
+  const loc = lang === 'en' ? 'en-US' : 'de-DE';
+  const today = new Date();
+  const calYear = today.getFullYear();
+  const calMonth = today.getMonth();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const startWeekday = (new Date(calYear, calMonth, 1).getDay() + 6) % 7; // Mo=0
+  const monthLabel = new Date(calYear, calMonth, 1).toLocaleDateString(loc, { month: 'long', year: 'numeric' });
+  const weekdays = Array.from({ length: 7 }, (_, i) => new Date(2024, 0, 1 + i).toLocaleDateString(loc, { weekday: 'short' }));
+  const byDay: Record<number, { planned: number; created: number }> = {};
+  for (const p of active) {
+    const iso = p.published_at || p.scheduled_at;
+    if (!iso) continue;
+    const d = new Date(iso);
+    if (d.getFullYear() !== calYear || d.getMonth() !== calMonth) continue;
+    const day = d.getDate();
+    byDay[day] = byDay[day] || { planned: 0, created: 0 };
+    if (p.status === 'published' || p.published_at) byDay[day].created++;
+    else byDay[day].planned++;
+  }
+  const todayDate = today.getDate();
+
   return (
     <div className="space-y-3">
+      {/* Monats-Kalender: Planungs-Übersicht */}
+      <div className="card-premium p-5">
+        <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+          <div className="flex items-center gap-2"><Calendar size={15} className="text-gold-300" />
+            <h3 className="text-sm font-semibold text-white capitalize">{monthLabel}</h3></div>
+          <div className="flex items-center gap-3 text-[0.6rem] text-ink-400">
+            <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gold-400" /> {t('dashboards.funnel.calPlanned')}</span>
+            <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400" /> {t('dashboards.funnel.calCreated')}</span>
+            <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-white/15" /> {t('dashboards.funnel.calEmpty')}</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-7 gap-1.5">
+          {weekdays.map((w, i) => <div key={`wd${i}`} className="text-center text-[0.55rem] uppercase tracking-wider text-ink-500 pb-1">{w}</div>)}
+          {Array.from({ length: startWeekday }, (_, i) => <div key={`pad${i}`} />)}
+          {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
+            const e = byDay[day];
+            const created = e?.created || 0;
+            const planned = e?.planned || 0;
+            const has = created > 0 || planned > 0;
+            const isToday = day === todayDate;
+            return (
+              <div key={day} className={`aspect-square rounded-lg border flex flex-col items-center justify-center text-[0.6rem] ${
+                created > 0 ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-200'
+                  : planned > 0 ? 'border-gold-400/40 bg-gold-400/10 text-gold-200'
+                  : 'border-white/5 bg-white/[0.02] text-ink-500'
+              } ${isToday ? 'ring-1 ring-gold-300/60' : ''}`}>
+                <span className={has ? 'font-semibold' : ''}>{day}</span>
+                {has && <span className="text-[0.5rem] mt-0.5">{created > 0 ? `✓${created}` : `•${planned}`}</span>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Story / Trust-Arc */}
       <div className="card-premium p-5">
         <div className="flex items-center gap-2 mb-1"><Layers size={15} className="text-gold-300" />
@@ -1168,7 +1224,7 @@ function ContentSection({ content, platform, view = 'all' }: { content: LeadFunn
 
       {view !== 'content' && (<>
       <KpiGrid>
-        <KpiCard i={0} icon={FileText} label={t('dashboards.funnel.published30d')} value={String(content.posts_published_30d)} />
+        <KpiCard i={0} icon={FileText} label={t('dashboards.funnel.published30d')} value={String(platform ? (counts.published || 0) : content.posts_published_30d)} />
         <KpiCard i={1} icon={Activity} label={t('dashboards.funnel.scheduled')} value={String((counts.scheduled || 0))} />
         <KpiCard i={2} icon={ChevronRight} label={t('dashboards.funnel.drafts')} value={String((counts.draft || 0))} />
         <KpiCard i={3} icon={Check} label={t('dashboards.funnel.approvedKpi')} value={String((counts.approved || 0))} />
