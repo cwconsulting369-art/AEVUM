@@ -3,6 +3,7 @@
 //   linke Nav (3 Achsen: Projekt-Bereiche · Agent · Dokumente) | Bento-Main | Rail.
 // Kein hartkodiertes Layout → neuer Bereich/Kunde = Manifest-Eintrag.
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { LucideIcon } from 'lucide-react';
 import {
   Globe, Megaphone, Facebook, Linkedin, Target, TrendingUp, Image, FileText,
@@ -30,9 +31,10 @@ const icon = (k?: IconKey): LucideIcon => (k && ICONS[k]) || FileText;
 type Selection = string; // area-slug | `${area}/${sub}` | 'agent' | 'docs'
 
 function StatusBadge({ status }: { status?: ZoneSpec['status'] }) {
-  if (status === 'live') return <Pill tone="ok">live</Pill>;
-  if (status === 'wip') return <Pill tone="warn">in arbeit</Pill>;
-  if (status === 'soon') return <Pill tone="neutral">geplant</Pill>;
+  const { t } = useTranslation();
+  if (status === 'live') return <Pill tone="ok">{t('dashComponents.cmd.statusLive')}</Pill>;
+  if (status === 'wip') return <Pill tone="warn">{t('dashComponents.cmd.statusWip')}</Pill>;
+  if (status === 'soon') return <Pill tone="neutral">{t('dashComponents.cmd.statusSoon')}</Pill>;
   return null;
 }
 
@@ -69,14 +71,15 @@ function Zone({ z }: { z: ZoneSpec }) {
 
 /** Custom-Pane: rendert eine echte Daten-Komponente statt Bento-Zonen (ADR R4). */
 function CustomPane({ pane, ctx }: { pane: PaneSpec; ctx: ShellContext }) {
+  const { t } = useTranslation();
   if (pane.custom === 'lead-funnel') {
     if (ctx.leadFunnel) {
       return <LeadFunnel projectSlug={ctx.leadFunnel.slug} projectName={ctx.leadFunnel.name} />;
     }
     return (
       <div className="cc-placeholder">
-        <div className="cc-placeholder__title">Lead-Funnel nicht verfügbar</div>
-        <div className="cc-placeholder__hint">Kein Projekt-Kontext für diesen Account.</div>
+        <div className="cc-placeholder__title">{t('dashComponents.cmd.leadFunnelUnavailable')}</div>
+        <div className="cc-placeholder__hint">{t('dashComponents.cmd.leadFunnelNoContext')}</div>
       </div>
     );
   }
@@ -84,6 +87,7 @@ function CustomPane({ pane, ctx }: { pane: PaneSpec; ctx: ShellContext }) {
 }
 
 function PaneView({ pane, ctx }: { pane: PaneSpec; ctx: ShellContext }) {
+  const { t } = useTranslation();
   return (
     <div className="cmd-main">
       <div className="cmd-main__head">
@@ -102,8 +106,8 @@ function PaneView({ pane, ctx }: { pane: PaneSpec; ctx: ShellContext }) {
         <div className="cc-bento">{pane.zones.map((z) => <Zone key={z.key} z={z} />)}</div>
       ) : (
         <div className="cc-placeholder">
-          <div className="cc-placeholder__title">Noch kein Inhalt</div>
-          <div className="cc-placeholder__hint">Dieser Bereich wird mit der Spec befüllt.</div>
+          <div className="cc-placeholder__title">{t('dashComponents.cmd.noContentTitle')}</div>
+          <div className="cc-placeholder__hint">{t('dashComponents.cmd.noContentHint')}</div>
         </div>
       )}
     </div>
@@ -111,6 +115,7 @@ function PaneView({ pane, ctx }: { pane: PaneSpec; ctx: ShellContext }) {
 }
 
 export default function CommandShell({ manifest, ctx = {} }: { manifest: DashboardManifest; ctx?: ShellContext }) {
+  const { t } = useTranslation();
   const [sel, setSel] = useState<Selection>(manifest.areas[0]?.slug ?? 'agent');
 
   // Resolve current pane from selection
@@ -138,12 +143,12 @@ export default function CommandShell({ manifest, ctx = {} }: { manifest: Dashboa
             <span className="cmd-nav__project-icon"><FolderGit2 size={15} /></span>
             <div>
               <div className="cmd-nav__project-name">{manifest.project.label}</div>
-              {manifest.project.tagline && <div className="cmd-nav__project-sub">Projekt</div>}
+              {manifest.project.tagline && <div className="cmd-nav__project-sub">{t('dashComponents.cmd.project')}</div>}
             </div>
           </div>
 
           {/* Achse 1 — Projekt-Bereiche */}
-          <div className="cmd-nav__group-label">Bereiche</div>
+          <div className="cmd-nav__group-label">{t('dashComponents.cmd.areas')}</div>
           {manifest.areas.map((area) => {
             const AIcon = icon(area.icon);
             const active = sel === area.slug || sel.startsWith(`${area.slug}/`);
@@ -172,12 +177,12 @@ export default function CommandShell({ manifest, ctx = {} }: { manifest: Dashboa
           {/* Achse 2 — Agent */}
           <button className={`cmd-nav__item ${sel === 'agent' ? 'cmd-nav__item--active' : ''}`} onClick={() => setSel('agent')}>
             <Bot size={15} className="cmd-nav__item-ic" />
-            <span>Agent</span>
+            <span>{t('dashComponents.cmd.agent')}</span>
           </button>
           {/* Achse 3 — Dokumente */}
           <button className={`cmd-nav__item ${sel === 'docs' ? 'cmd-nav__item--active' : ''}`} onClick={() => setSel('docs')}>
             <FileText size={15} className="cmd-nav__item-ic" />
-            <span>Dokumente</span>
+            <span>{t('dashComponents.cmd.documents')}</span>
           </button>
         </nav>
 
@@ -189,7 +194,7 @@ export default function CommandShell({ manifest, ctx = {} }: { manifest: Dashboa
           <div className="cc-railcard">
             <div className="cc-railcard__head">
               <span className="cc-railcard__chip"><TrendingUp size={13} /></span>
-              <span className="cc-railcard__label">Heute</span>
+              <span className="cc-railcard__label">{t('dashComponents.cmd.today')}</span>
             </div>
             <div className="cc-railcard__body">
               {manifest.feed && manifest.feed.length > 0 ? (
@@ -200,7 +205,7 @@ export default function CommandShell({ manifest, ctx = {} }: { manifest: Dashboa
                   </div>
                 ))
               ) : (
-                <div className="cc-railcard__empty">Keine Aktivität.</div>
+                <div className="cc-railcard__empty">{t('dashComponents.cmd.noActivity')}</div>
               )}
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import Spinner from '@/components/Spinner';
 import {
@@ -20,6 +21,7 @@ import { fmtEur, fmtPct } from './types';
 type Props = { section: string };
 
 export default function AEVUMDashboard({ section }: Props) {
+  const { t } = useTranslation();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +37,7 @@ export default function AEVUMDashboard({ section }: Props) {
       })
       .catch((e: unknown) => {
         if (!active) return;
-        const msg = e instanceof Error ? e.message : 'Dashboard nicht erreichbar';
+        const msg = e instanceof Error ? e.message : t('dashComponents.aevum.notReachable');
         setError(msg);
         toast.error(msg);
       })
@@ -47,7 +49,7 @@ export default function AEVUMDashboard({ section }: Props) {
     return (
       <div className="card-premium p-16 flex flex-col items-center justify-center gap-4">
         <Spinner size="md" />
-        <div className="text-xs text-ink-400">AEVUM-Daten werden geladen…</div>
+        <div className="text-xs text-ink-400">{t('dashComponents.aevum.loading')}</div>
       </div>
     );
   }
@@ -55,7 +57,7 @@ export default function AEVUMDashboard({ section }: Props) {
   if (error || !data) {
     return (
       <div className="card-premium p-10 text-center">
-        <div className="text-sm text-rose-300">{error || 'Keine Daten verfügbar.'}</div>
+        <div className="text-sm text-rose-300">{error || t('dashComponents.common.noData')}</div>
       </div>
     );
   }
@@ -72,36 +74,37 @@ export default function AEVUMDashboard({ section }: Props) {
 // ── Overview ─────────────────────────────────────────────────────────────────
 
 function SectionOverview({ data }: { data: DashboardData }) {
+  const { t } = useTranslation();
   const k = data.kpis;
   const mrr = data.finance.stripe_mrr_eur;
   const activeClients = data.customers.active;
 
   const topKpis = [
     {
-      label: 'MRR',
+      label: t('dashComponents.aevum.mrr'),
       value: fmtEur(mrr),
-      sub: mrr === 0 ? 'Kein Stripe-MRR' : `${activeClients} aktive Kunden`,
+      sub: mrr === 0 ? t('dashComponents.aevum.noMrr') : t('dashComponents.aevum.activeClients', { count: activeClients }),
       trend: mrr > 0 ? 'up' : 'flat',
       icon: DollarSign,
     },
     {
-      label: 'Aktive Kunden',
+      label: t('dashComponents.aevum.activeClientsLabel'),
       value: String(activeClients),
-      sub: `${data.customers.total} gesamt`,
+      sub: t('dashComponents.aevum.totalLabel', { count: data.customers.total }),
       trend: activeClients > 1 ? 'up' : 'flat',
       icon: Users,
     },
     {
-      label: 'Audits diese Woche',
+      label: t('dashComponents.aevum.auditsThisWeek'),
       value: String(k.audits_this_week),
-      sub: k.audits_delta > 0 ? `+${k.audits_delta} vs. Vorwoche` : k.audits_delta < 0 ? `${k.audits_delta} vs. Vorwoche` : 'Gleich wie Vorwoche',
+      sub: k.audits_delta > 0 ? t('dashComponents.aevum.deltaUp', { n: k.audits_delta }) : k.audits_delta < 0 ? t('dashComponents.aevum.deltaDown', { n: k.audits_delta }) : t('dashComponents.aevum.deltaSame'),
       trend: k.audits_delta > 0 ? 'up' : k.audits_delta < 0 ? 'down' : 'flat',
       icon: Target,
     },
     {
-      label: 'Helpbot Gespräche',
+      label: t('dashComponents.aevum.helpbotConversations'),
       value: String(k.helpbot_conversations_week),
-      sub: 'diese Woche',
+      sub: t('dashComponents.aevum.thisWeek'),
       trend: 'flat' as const,
       icon: Zap,
     },
@@ -132,7 +135,7 @@ function SectionOverview({ data }: { data: DashboardData }) {
       <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
         <div className="lg:col-span-2">
           <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <Filter size={12} className="text-gold-300" /> Pipeline-Funnel
+            <Filter size={12} className="text-gold-300" /> {t('dashComponents.aevum.pipelineFunnel')}
           </h2>
           <div className="card-premium p-4 sm:p-6">
             <FunnelChart stages={data.funnel} />
@@ -140,11 +143,11 @@ function SectionOverview({ data }: { data: DashboardData }) {
         </div>
         <div>
           <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <Users size={12} className="text-gold-300" /> Aktive Kunden
+            <Users size={12} className="text-gold-300" /> {t('dashComponents.aevum.activeCustomers')}
           </h2>
           <div className="card-premium divide-y divide-white/5">
             {data.customers.list.length === 0 ? (
-              <div className="p-6 text-center text-xs text-ink-500">Noch keine Kunden</div>
+              <div className="p-6 text-center text-xs text-ink-500">{t('dashComponents.aevum.noCustomers')}</div>
             ) : (
               data.customers.list.map(c => (
                 <ClientRow key={c.id} c={c} />
@@ -157,7 +160,7 @@ function SectionOverview({ data }: { data: DashboardData }) {
       {/* Last audits */}
       <section>
         <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <ListChecks size={12} className="text-gold-300" /> Letzte Audits
+          <ListChecks size={12} className="text-gold-300" /> {t('dashComponents.aevum.recentAudits')}
           <span className="badge ml-auto">{data.recent_audits.length}</span>
         </h2>
         <AuditsTable audits={data.recent_audits} />
@@ -165,7 +168,7 @@ function SectionOverview({ data }: { data: DashboardData }) {
 
       <footer className="text-[0.65rem] text-ink-500 text-center flex items-center justify-center gap-2 pt-2">
         <TrendingUp size={10} />
-        <span>Zuletzt aktualisiert {new Date(data.generated_at).toLocaleTimeString('de-DE')}</span>
+        <span>{t('dashComponents.aevum.lastUpdated', { time: new Date(data.generated_at).toLocaleTimeString('de-DE') })}</span>
       </footer>
     </div>
   );
@@ -174,12 +177,13 @@ function SectionOverview({ data }: { data: DashboardData }) {
 // ── Pipeline ──────────────────────────────────────────────────────────────────
 
 function SectionPipeline({ data }: { data: DashboardData }) {
+  const { t } = useTranslation();
   const k = data.kpis;
 
   const convRates = [
-    { label: 'Audit → Auto-Plan',   value: fmtPct(k.audit_to_plan_pct),   icon: Target },
-    { label: 'Plan → Call',          value: fmtPct(k.plan_to_call_pct),    icon: Phone },
-    { label: 'Call → Deal',          value: fmtPct(k.call_to_deal_pct),    icon: CheckCircle2 },
+    { label: t('dashComponents.aevum.auditToPlan'),   value: fmtPct(k.audit_to_plan_pct),   icon: Target },
+    { label: t('dashComponents.aevum.planToCall'),          value: fmtPct(k.plan_to_call_pct),    icon: Phone },
+    { label: t('dashComponents.aevum.callToDeal'),          value: fmtPct(k.call_to_deal_pct),    icon: CheckCircle2 },
   ];
 
   return (
@@ -198,7 +202,7 @@ function SectionPipeline({ data }: { data: DashboardData }) {
 
       <section>
         <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <BarChart2 size={12} className="text-gold-300" /> Funnel-Visualisierung
+          <BarChart2 size={12} className="text-gold-300" /> {t('dashComponents.aevum.funnelViz')}
         </h2>
         <div className="card-premium p-4 sm:p-6">
           <FunnelChart stages={data.funnel} />
@@ -207,7 +211,7 @@ function SectionPipeline({ data }: { data: DashboardData }) {
 
       <section>
         <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <ListChecks size={12} className="text-gold-300" /> Alle Audits
+          <ListChecks size={12} className="text-gold-300" /> {t('dashComponents.aevum.allAudits')}
           <span className="badge ml-auto">{data.recent_audits.length}</span>
         </h2>
         <AuditsTable audits={data.recent_audits} />
@@ -219,13 +223,14 @@ function SectionPipeline({ data }: { data: DashboardData }) {
 // ── Revenue ───────────────────────────────────────────────────────────────────
 
 function SectionRevenue({ data }: { data: DashboardData }) {
+  const { t } = useTranslation();
   const f = data.finance;
 
   const items = [
-    { label: 'MRR (Stripe)',          value: fmtEur(f.stripe_mrr_eur),              icon: TrendingUp, highlight: true },
-    { label: 'Setup-Fees (Monat)',    value: fmtEur(f.setup_fees_collected_month_eur), icon: DollarSign },
-    { label: 'Offene Rechnungen',     value: `${f.pending_invoices_count} · ${fmtEur(f.pending_invoices_eur)}`, icon: AlertCircle },
-    { label: 'Customer LTV (est.)',   value: fmtEur(f.customer_ltv_estimate_eur),    icon: Target },
+    { label: t('dashComponents.aevum.mrrStripe'),          value: fmtEur(f.stripe_mrr_eur),              icon: TrendingUp, highlight: true },
+    { label: t('dashComponents.aevum.setupFeesMonth'),    value: fmtEur(f.setup_fees_collected_month_eur), icon: DollarSign },
+    { label: t('dashComponents.aevum.pendingInvoices'),     value: `${f.pending_invoices_count} · ${fmtEur(f.pending_invoices_eur)}`, icon: AlertCircle },
+    { label: t('dashComponents.aevum.customerLtv'),   value: fmtEur(f.customer_ltv_estimate_eur),    icon: Target },
   ];
 
   return (
@@ -256,15 +261,16 @@ function SectionRevenue({ data }: { data: DashboardData }) {
 // ── Kunden ────────────────────────────────────────────────────────────────────
 
 function SectionKunden({ data }: { data: DashboardData }) {
+  const { t } = useTranslation();
   const { list, total, active } = data.customers;
 
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 items-stretch">
         {[
-          { label: 'Gesamt', value: total, icon: Users },
-          { label: 'Aktiv',  value: active, icon: CheckCircle2 },
-          { label: 'Inaktiv',value: total - active, icon: Clock },
+          { label: t('dashComponents.aevum.total'), value: total, icon: Users },
+          { label: t('dashComponents.aevum.active'),  value: active, icon: CheckCircle2 },
+          { label: t('dashComponents.aevum.inactive'),value: total - active, icon: Clock },
         ].map(({ label, value, icon: Icon }) => (
           <div key={label} className="card-premium p-4 sm:p-5 text-center h-full flex flex-col">
             <div className="w-8 h-8 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center mx-auto mb-3">
@@ -278,11 +284,11 @@ function SectionKunden({ data }: { data: DashboardData }) {
 
       <section>
         <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <Users size={12} className="text-gold-300" /> Kunden-Übersicht
+          <Users size={12} className="text-gold-300" /> {t('dashComponents.aevum.customersOverview')}
         </h2>
         <div className="card-premium divide-y divide-white/5">
           {list.length === 0 ? (
-            <div className="p-10 text-center text-xs text-ink-500">Noch keine Kunden angelegt.</div>
+            <div className="p-10 text-center text-xs text-ink-500">{t('dashComponents.aevum.noCustomersCreated')}</div>
           ) : (
             list.map(c => <ClientRow key={c.id} c={c} detailed />)
           )}
@@ -293,7 +299,7 @@ function SectionKunden({ data }: { data: DashboardData }) {
 
       <section>
         <h2 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <Zap size={12} className="text-gold-300" /> Helpbot-Insights
+          <Zap size={12} className="text-gold-300" /> {t('dashComponents.aevum.helpbotInsights')}
         </h2>
         <HelpbotInsightsCard insights={data.helpbot_insights} />
       </section>
@@ -304,12 +310,13 @@ function SectionKunden({ data }: { data: DashboardData }) {
 // ── Content ───────────────────────────────────────────────────────────────────
 
 function SectionContent({ data }: { data: DashboardData }) {
+  const { t } = useTranslation();
   const m = data.marketing;
 
   const stats = [
-    { label: 'LinkedIn Posts (Woche)',     value: m.linkedin_posts_week ?? '—',      icon: Globe },
-    { label: 'Cold Calls (Woche)',          value: m.cold_calls_week ?? '—',           icon: Phone },
-    { label: 'Lead-Magnet Downloads',       value: m.lead_magnet_downloads_week ?? '—', icon: Mail },
+    { label: t('dashComponents.aevum.linkedinPostsWeek'),     value: m.linkedin_posts_week ?? '—',      icon: Globe },
+    { label: t('dashComponents.aevum.coldCallsWeek'),          value: m.cold_calls_week ?? '—',           icon: Phone },
+    { label: t('dashComponents.aevum.leadMagnetDownloads'),       value: m.lead_magnet_downloads_week ?? '—', icon: Mail },
   ];
 
   return (
@@ -335,12 +342,12 @@ function SectionContent({ data }: { data: DashboardData }) {
       )}
 
       <div className="card-premium p-4 sm:p-6">
-        <h3 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-4">Content-Strategie</h3>
+        <h3 className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-4">{t('dashComponents.aevum.contentStrategy')}</h3>
         <div className="grid sm:grid-cols-3 gap-4 text-xs items-stretch">
           {[
-            { title: 'LinkedIn', desc: '3-5 Posts/Woche. Transparenz + Cases + AI-Insights. Organic-first.', color: 'text-blue-300' },
-            { title: 'Netzwerk', desc: 'Referrals aus dem bestehenden DACH-Netzwerk. Warm Intros über Partner und Bestandskunden.', color: 'text-emerald-300' },
-            { title: 'Ads als Booster', desc: 'Posts die organisch performen → €50-200 Boost. Kein Cold-Ad-Traffic.', color: 'text-gold-300' },
+            { title: t('dashComponents.aevum.stratLinkedinTitle'), desc: t('dashComponents.aevum.stratLinkedinDesc'), color: 'text-blue-300' },
+            { title: t('dashComponents.aevum.stratNetworkTitle'), desc: t('dashComponents.aevum.stratNetworkDesc'), color: 'text-emerald-300' },
+            { title: t('dashComponents.aevum.stratAdsTitle'), desc: t('dashComponents.aevum.stratAdsDesc'), color: 'text-gold-300' },
           ].map(({ title, desc, color }) => (
             <div key={title} className="bg-white/[0.02] rounded-lg p-4 border border-white/5 h-full flex flex-col">
               <div className={`font-semibold ${color} mb-2`}>{title}</div>
@@ -356,6 +363,7 @@ function SectionContent({ data }: { data: DashboardData }) {
 // ── Shared sub-components ─────────────────────────────────────────────────────
 
 function ClientRow({ c, detailed }: { c: CustomerRow; detailed?: boolean }) {
+  const { t } = useTranslation();
   const healthColor = c.health === 'green' ? 'dot-ok' : c.health === 'yellow' ? 'dot-warn' : 'dot-off';
   const statusColor = c.status === 'active' ? 'text-emerald-300' : 'text-ink-500';
 
@@ -366,7 +374,7 @@ function ClientRow({ c, detailed }: { c: CustomerRow; detailed?: boolean }) {
         <div className="text-sm font-medium text-white truncate">{c.name}</div>
         {detailed && (
           <div className="text-[0.65rem] text-ink-400 mt-0.5">
-            Seit {new Date(c.created_at).toLocaleDateString('de-DE')}
+            {t('dashComponents.aevum.since', { date: new Date(c.created_at).toLocaleDateString('de-DE') })}
           </div>
         )}
       </div>

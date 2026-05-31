@@ -4,6 +4,7 @@ import {
   Phone, PhoneCall, Facebook, Search, Music2,
   ShoppingBag, Mic2, Check
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export interface UseCase {
   slug: string;
@@ -31,6 +32,7 @@ interface Props {
 }
 
 export default function UseCasePicker({ useCases, selectedSlug, onSelect }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {useCases.map((uc) => {
@@ -58,7 +60,7 @@ export default function UseCasePicker({ useCases, selectedSlug, onSelect }: Prop
             )}
             {uc.default_knowledge_hub && (
               <div className="mt-2 text-[0.6rem] font-mono uppercase tracking-wider text-ink-500">
-                Hub: {uc.default_knowledge_hub}
+                {t('scriptFactory.useCasePicker.hub')}: {uc.default_knowledge_hub}
               </div>
             )}
           </button>

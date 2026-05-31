@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/auth';
 import { api } from '@/lib/api';
 import {
@@ -71,14 +72,15 @@ interface ScriptRun {
 
 type Step = 'use-case' | 'settings' | 'upload' | 'running' | 'compare';
 
-const PHASE_LABEL: Record<string, { idx: number; label: string }> = {
-  pending:    { idx: 1, label: 'Phase 1/4: Skript wird analysiert…' },
-  analyzing:  { idx: 1, label: 'Phase 1/4: Skript wird analysiert…' },
-  running:    { idx: 2, label: 'Phase 2/4: Pipeline läuft (Varianten generieren)…' },
-  evaluating: { idx: 3, label: 'Phase 3/4: Output wird bewertet…' },
+const PHASE_LABEL: Record<string, { idx: number; key: string }> = {
+  pending:    { idx: 1, key: 'tools.script.phasePending' },
+  analyzing:  { idx: 1, key: 'tools.script.phasePending' },
+  running:    { idx: 2, key: 'tools.script.phaseRunning' },
+  evaluating: { idx: 3, key: 'tools.script.phaseEvaluating' },
 };
 
 export default function ScriptFactoryTool() {
+  const { t } = useTranslation();
   const { me } = useAuth();
   const nav = useNavigate();
 
@@ -154,11 +156,11 @@ export default function ScriptFactoryTool() {
   // Run
   async function startRun() {
     if (inputScript.trim().length < 50) {
-      setRunError('Skript zu kurz (mindestens 50 Zeichen).');
+      setRunError(t('tools.script.scriptTooShort'));
       return;
     }
     if ((credits ?? 0) < CREDITS_PER_RUN) {
-      setRunError(`Nicht genug Credits (${credits ?? 0}/${CREDITS_PER_RUN}). Bitte aufladen.`);
+      setRunError(t('tools.script.notEnoughCredits', { balance: credits ?? 0, cost: CREDITS_PER_RUN }));
       return;
     }
     setRunError(null);
@@ -181,7 +183,7 @@ export default function ScriptFactoryTool() {
       });
       pollRun(res.run_id);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Unbekannter Fehler';
+      const msg = e instanceof Error ? e.message : t('tools.common.unknownError');
       setRunError(msg);
       setStep('upload');
     }
@@ -202,18 +204,18 @@ export default function ScriptFactoryTool() {
           return;
         }
         if (res.run.status === 'failed') {
-          setRunError(res.run.error_message || 'Run fehlgeschlagen.');
+          setRunError(res.run.error_message || t('tools.script.runFailed'));
           setStep('upload');
           return;
         }
         if (Date.now() - started > POLL_TIMEOUT_MS) {
-          setRunError('Timeout — Run läuft im Hintergrund weiter, du bekommst eine Mail wenn fertig.');
+          setRunError(t('tools.script.timeout'));
           setStep('upload');
           return;
         }
         setTimeout(tick, POLL_INTERVAL_MS);
       } catch (e: unknown) {
-        const msg = e instanceof Error ? e.message : 'Polling-Fehler';
+        const msg = e instanceof Error ? e.message : t('tools.common.pollingError');
         setRunError(msg);
         setStep('upload');
       }
@@ -265,14 +267,14 @@ export default function ScriptFactoryTool() {
       {/* Header */}
       <div>
         <Link to="/dashboard" className="text-[0.7rem] text-ink-400 hover:text-white inline-flex items-center gap-1.5 mb-3">
-          <ArrowLeft size={12} /> Zurück zum Dashboard
+          <ArrowLeft size={12} /> {t('tools.common.backToDashboard')}
         </Link>
         <div className="flex items-center gap-2 text-xs text-gold-300 mb-2 uppercase tracking-wider font-semibold">
-          <Sparkles size={12} /> AEVUM Script-Factory
+          <Sparkles size={12} /> {t('tools.script.brand')}
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Skripte rein, optimierte Skripte raus</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-white">{t('tools.script.title')}</h1>
         <p className="text-ink-400 mt-2 text-sm">
-          AI-Pipeline mit A-F-Grading. Vorher-Nachher-Vergleich. 5-10 Varianten pro Run.
+          {t('tools.script.subtitle')}
         </p>
       </div>
 
@@ -283,25 +285,25 @@ export default function ScriptFactoryTool() {
             <Coins size={18} className="text-gold-300" />
           </div>
           <div>
-            <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">Dein Guthaben</div>
+            <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">{t('tools.common.yourBalance')}</div>
             <div className="text-lg font-bold text-white tabular-nums">
-              {(credits ?? 0).toLocaleString('de-DE')} <span className="text-xs font-medium text-ink-400">Credits</span>
+              {(credits ?? 0).toLocaleString('de-DE')} <span className="text-xs font-medium text-ink-400">{t('tools.common.credits')}</span>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-3">
           {isTim && (
             <Link to="/tools/script-factory/customers" className="btn-ghost py-1.5 px-3 text-xs inline-flex items-center gap-1.5">
-              <Users size={12} /> Tim Customers
+              <Users size={12} /> {t('tools.script.timCustomers')}
             </Link>
           )}
           <div className="text-right">
-            <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">Pro Run</div>
-            <div className="text-base font-bold text-gold-gradient tabular-nums">{CREDITS_PER_RUN} Credits</div>
+            <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">{t('tools.script.perRun')}</div>
+            <div className="text-base font-bold text-gold-gradient tabular-nums">{t('tools.script.creditsPerRun', { n: CREDITS_PER_RUN })}</div>
           </div>
           {(credits ?? 0) < CREDITS_PER_RUN && (
             <Link to="/credits" className="btn-gold py-1.5 px-3 text-[0.7rem] inline-flex items-center gap-1.5">
-              <Plus size={12} /> Aufladen
+              <Plus size={12} /> {t('tools.script.topUp')}
             </Link>
           )}
         </div>
@@ -324,14 +326,14 @@ export default function ScriptFactoryTool() {
       {step === 'use-case' && (
         <div className="card-premium p-6 space-y-4">
           <h2 className="text-base font-semibold text-white flex items-center gap-2">
-            <Film size={16} className="text-gold-300" /> Wähle einen Use-Case
+            <Film size={16} className="text-gold-300" /> {t('tools.script.pickUseCase')}
           </h2>
           <p className="text-sm text-ink-400">
-            Jeder Use-Case kommt mit eigenen Best-Practices und Default-Knowledge-Hubs.
+            {t('tools.script.pickUseCaseSub')}
           </p>
           {useCases.length === 0 ? (
             <div className="text-sm text-ink-500 text-center py-10">
-              Keine Use-Cases verfügbar — Backend lädt noch oder ist offline.
+              {t('tools.script.noUseCases')}
             </div>
           ) : (
             <UseCasePicker
@@ -349,14 +351,14 @@ export default function ScriptFactoryTool() {
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
             <div className="min-w-0">
               <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                <Film size={16} className="text-gold-300 shrink-0" /> Settings · {currentUseCase.name}
+                <Film size={16} className="text-gold-300 shrink-0" /> {t('tools.script.settingsFor', { name: currentUseCase.name })}
               </h2>
               <p className="text-sm text-ink-400 mt-1">
-                Beantworte was die Pipeline für gute Output-Qualität braucht.
+                {t('tools.script.settingsSub')}
               </p>
             </div>
             <button onClick={() => setStep('use-case')} className="btn-ghost py-1.5 px-3 text-xs inline-flex items-center gap-1.5 self-start shrink-0">
-              <ChevronLeft size={12} /> Use-Case ändern
+              <ChevronLeft size={12} /> {t('tools.script.changeUseCase')}
             </button>
           </div>
 
@@ -372,7 +374,7 @@ export default function ScriptFactoryTool() {
 
           <div className="pt-4 border-t border-white/5 flex justify-end">
             <button onClick={() => setStep('upload')} className="btn-gold py-2.5 px-5 text-sm inline-flex items-center gap-2">
-              Weiter <ArrowRight size={14} />
+              {t('tools.script.next')} <ArrowRight size={14} />
             </button>
           </div>
         </div>
@@ -384,34 +386,34 @@ export default function ScriptFactoryTool() {
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
             <div className="min-w-0">
               <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                <Upload size={16} className="text-gold-300 shrink-0" /> Skript hochladen
+                <Upload size={16} className="text-gold-300 shrink-0" /> {t('tools.script.uploadScript')}
               </h2>
               <p className="text-sm text-ink-400 mt-1">
-                Direkter Paste empfohlen. Min 50 / max 10.000 Zeichen.
+                {t('tools.script.uploadSub')}
               </p>
             </div>
             <button onClick={() => setStep('settings')} className="btn-ghost py-1.5 px-3 text-xs inline-flex items-center gap-1.5 self-start shrink-0">
-              <ChevronLeft size={12} /> Settings
+              <ChevronLeft size={12} /> {t('tools.script.settingsBack')}
             </button>
           </div>
 
           {isTim && (
             <div>
               <label className="block text-[0.7rem] uppercase tracking-wider text-ink-400 font-semibold mb-2">
-                Tim-Customer (optional)
+                {t('tools.script.timCustomerOptional')}
               </label>
               <select
                 value={selectedTimCustomerId}
                 onChange={e => setSelectedTimCustomerId(e.target.value)}
                 className="input-premium"
               >
-                <option value="">— Kein Customer-Kontext —</option>
+                <option value="">{t('tools.script.noCustomerContext')}</option>
                 {(timCustomers || []).map(c => (
                   <option key={c.id} value={c.id}>{c.customer_name}{c.niche ? ` · ${c.niche}` : ''}</option>
                 ))}
               </select>
               <p className="text-[0.65rem] text-ink-500 mt-1.5">
-                Wenn ausgewählt: ICP/Brand-Voice aus Customer-Profile wird genutzt.
+                {t('tools.script.timCustomerHint')}
               </p>
             </div>
           )}
@@ -419,27 +421,27 @@ export default function ScriptFactoryTool() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-[0.7rem] uppercase tracking-wider text-ink-400 font-semibold">
-                Skript (Text einfügen)
+                {t('tools.script.scriptPaste')}
               </label>
               <span className={`text-[0.65rem] font-mono tabular-nums ${inputScript.length > 10000 ? 'text-rose-300' : 'text-ink-500'}`}>
-                {inputScript.length.toLocaleString('de-DE')} / 10.000 Zeichen
+                {t('tools.script.charCount', { count: inputScript.length.toLocaleString('de-DE') })}
               </span>
             </div>
             <textarea
               value={inputScript}
               onChange={e => setInputScript(e.target.value.slice(0, 10000))}
-              placeholder="Füge hier dein bestehendes Skript / Ad-Copy / Cold-Call-Text ein…"
+              placeholder={t('tools.script.scriptPlaceholder')}
               rows={12}
               className="input-premium resize-y font-mono text-[0.8rem]"
             />
             <div className="mt-2 flex items-center gap-2 text-[0.65rem] text-ink-500">
-              <FileText size={11} /> Tipp: Markdown wird unterstützt.
+              <FileText size={11} /> {t('tools.script.markdownTip')}
             </div>
           </div>
 
           <div>
             <label className="block text-[0.7rem] uppercase tracking-wider text-ink-400 font-semibold mb-2">
-              Varianten ({variantCount})
+              {t('tools.script.variants', { count: variantCount })}
             </label>
             <input
               type="range"
@@ -450,8 +452,8 @@ export default function ScriptFactoryTool() {
               className="w-full accent-gold-400"
             />
             <div className="flex justify-between text-[0.6rem] text-ink-500 mt-1">
-              <span>3 (schneller)</span>
-              <span>10 (mehr Optionen)</span>
+              <span>{t('tools.script.variantsFaster')}</span>
+              <span>{t('tools.script.variantsMore')}</span>
             </div>
           </div>
 
@@ -462,11 +464,11 @@ export default function ScriptFactoryTool() {
               disabled={inputScript.length < 50 || (credits ?? 0) < CREDITS_PER_RUN}
               className="btn-gold w-full py-3 text-sm inline-flex items-center justify-center gap-2"
             >
-              <Zap size={14} /> Run starten ({CREDITS_PER_RUN} Credits)
+              <Zap size={14} /> {t('tools.script.startRun', { n: CREDITS_PER_RUN })}
             </button>
             {(credits ?? 0) < CREDITS_PER_RUN && (
               <p className="text-[0.7rem] text-rose-300 text-center mt-2">
-                Nicht genug Credits — bitte aufladen.
+                {t('tools.script.notEnoughTopUp')}
               </p>
             )}
           </div>
@@ -496,11 +498,12 @@ export default function ScriptFactoryTool() {
 
 // ── Stepper ──
 function Stepper({ step }: { step: Step }) {
+  const { t } = useTranslation();
   const steps: { id: Step; label: string }[] = [
-    { id: 'use-case', label: 'Use-Case' },
-    { id: 'settings', label: 'Settings' },
-    { id: 'upload',   label: 'Upload' },
-    { id: 'running',  label: 'Run' },
+    { id: 'use-case', label: t('tools.script.stepUseCase') },
+    { id: 'settings', label: t('tools.script.stepSettings') },
+    { id: 'upload',   label: t('tools.script.stepUpload') },
+    { id: 'running',  label: t('tools.script.stepRun') },
   ];
   const activeIdx = steps.findIndex(s => s.id === step);
   return (
@@ -533,17 +536,18 @@ function Stepper({ step }: { step: Step }) {
 
 // ── Running Panel ──
 function RunningPanel({ run }: { run: ScriptRun | null }) {
+  const { t } = useTranslation();
   const phase = run?.status || 'pending';
   const info = PHASE_LABEL[phase] || PHASE_LABEL['pending'];
   return (
     <div className="card-premium p-10 text-center space-y-4">
       <Loader2 size={36} className="mx-auto text-gold-300 animate-spin" />
-      <div className="text-base font-semibold text-white">Script-Factory arbeitet…</div>
-      <div className="text-sm text-ink-300">{info.label}</div>
-      <div className="text-[0.65rem] text-ink-500">Polling alle 3 Sekunden — bleib einfach hier oder schließe das Fenster (Mail bei Done).</div>
+      <div className="text-base font-semibold text-white">{t('tools.script.working')}</div>
+      <div className="text-sm text-ink-300">{t(info.key)}</div>
+      <div className="text-[0.65rem] text-ink-500">{t('tools.script.pollingNote')}</div>
       <div className="max-w-xs mx-auto pt-2">
         <div className="flex justify-between text-[0.6rem] text-ink-500 mb-1">
-          <span>Phase {info.idx}/4</span>
+          <span>{t('tools.script.phaseProgress', { idx: info.idx })}</span>
           <span>{Math.round((info.idx / 4) * 100)}%</span>
         </div>
         <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -566,6 +570,7 @@ function ComparePanel({
   onRetry: () => void;
   onReset: () => void;
 }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const variants = run.variants || [];
   const total = variants.length;
@@ -584,17 +589,17 @@ function ComparePanel({
       <div className="card-premium p-4 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">Run</div>
+            <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">{t('tools.script.run')}</div>
             <div className="text-sm font-mono text-ink-200">{run.id?.slice(0, 8)}</div>
           </div>
           <div className="w-px h-8 bg-white/5" />
           <div>
-            <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">Use-Case</div>
+            <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">{t('tools.script.useCase')}</div>
             <div className="text-sm font-semibold text-white">{run.use_case || '—'}</div>
           </div>
           <div className="w-px h-8 bg-white/5" />
           <div>
-            <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">Grade</div>
+            <div className="text-[0.6rem] uppercase tracking-wider text-ink-500">{t('tools.script.grade')}</div>
             <div className="text-sm font-bold text-white flex items-center gap-1.5">
               <span className="text-rose-300">{run.grade_before || '?'}</span>
               <ArrowRight size={11} className="text-ink-500" />
@@ -604,10 +609,10 @@ function ComparePanel({
         </div>
         <div className="flex items-center gap-2">
           <button onClick={onRetry} className="btn-ghost py-1.5 px-3 text-xs inline-flex items-center gap-1.5">
-            <RotateCcw size={12} /> Erneut mit Adjustments
+            <RotateCcw size={12} /> {t('tools.script.retryAdjust')}
           </button>
           <button onClick={onReset} className="btn-gold py-1.5 px-3 text-xs inline-flex items-center gap-1.5">
-            <Sparkles size={12} /> Neuer Run
+            <Sparkles size={12} /> {t('tools.script.newRun')}
           </button>
         </div>
       </div>
@@ -616,7 +621,7 @@ function ComparePanel({
       {total > 1 && (
         <div className="flex items-center justify-between gap-3 flex-wrap card-premium p-3 px-4">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[0.65rem] uppercase tracking-wider text-ink-500">Variante</span>
+            <span className="text-[0.65rem] uppercase tracking-wider text-ink-500">{t('tools.script.variant')}</span>
             {variants.map((v, i) => (
               <button
                 key={v.variant_index ?? i}
@@ -635,7 +640,7 @@ function ComparePanel({
           </div>
           <button onClick={copyVariant} className="text-xs inline-flex items-center gap-1.5 text-ink-300 hover:text-gold-300">
             {copied ? <Check size={12} /> : <Copy size={12} />}
-            {copied ? 'Kopiert!' : 'Variante kopieren'}
+            {copied ? t('tools.script.copied') : t('tools.script.copyVariant')}
           </button>
         </div>
       )}

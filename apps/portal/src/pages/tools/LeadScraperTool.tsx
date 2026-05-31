@@ -9,6 +9,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/auth';
 import { api, getAccessToken } from '@/lib/api';
 import {
@@ -69,6 +70,7 @@ interface Campaign {
 type Step = 'setup' | 'brandtone' | 'generate' | 'review';
 
 export default function LeadScraperTool() {
+  const { t } = useTranslation();
   const { me } = useAuth();
   const nav = useNavigate();
 
@@ -131,7 +133,7 @@ export default function LeadScraperTool() {
     setCsvPreview([]);
     if (!f) return;
     if (f.size > 5 * 1024 * 1024) {
-      setError('CSV groesser als 5 MB — bitte aufteilen.');
+      setError(t('tools.lead.csvTooBig'));
       setCsvFile(null);
       return;
     }
@@ -154,7 +156,7 @@ export default function LeadScraperTool() {
     const tick = async () => {
       if (cancelled) return;
       if (Date.now() - start > POLL_TIMEOUT_MS) {
-        setError('Generierung dauert ungewoehnlich lang — bitte spaeter prueffen.');
+        setError(t('tools.lead.pollSlow'));
         return;
       }
       try {
@@ -167,18 +169,18 @@ export default function LeadScraperTool() {
         if (!['generating', 'sending'].includes(r.campaign.status)) return;
         setTimeout(tick, POLL_INTERVAL_MS);
       } catch (e: any) {
-        if (!cancelled) setError(e?.message || 'Polling-Fehler');
+        if (!cancelled) setError(e?.message || t('tools.common.pollingError'));
       }
     };
-    const t = setTimeout(tick, POLL_INTERVAL_MS);
-    return () => { cancelled = true; clearTimeout(t); };
+    const timer = setTimeout(tick, POLL_INTERVAL_MS);
+    return () => { cancelled = true; clearTimeout(timer); };
   }, [activeCampaign?.id, activeCampaign?.status]);
 
   // ── Step 1 → 2: upload + create campaign ─────────
   const handleCreateCampaign = async () => {
     setError(null);
-    if (!campaignName.trim()) { setError('Campaign-Name fehlt.'); return; }
-    if (!csvFile) { setError('CSV-Datei fehlt.'); return; }
+    if (!campaignName.trim()) { setError(t('tools.lead.campaignNameMissing')); return; }
+    if (!csvFile) { setError(t('tools.lead.csvMissing')); return; }
 
     setSubmitting(true);
     try {
@@ -204,9 +206,11 @@ export default function LeadScraperTool() {
       setActiveCampaign(det.campaign);
       setLeads(det.leads || []);
       setStep('generate');
-      setToast(`${data.leads_imported} Leads importiert${data.skipped ? ` (${data.skipped} skipped)` : ''}`);
+      setToast(data.skipped
+        ? t('tools.lead.leadsImportedSkipped', { count: data.leads_imported, skipped: data.skipped })
+        : t('tools.lead.leadsImported', { count: data.leads_imported }));
     } catch (e: any) {
-      setError(e?.message || 'Upload-Fehler');
+      setError(e?.message || t('tools.lead.uploadError'));
     } finally {
       setSubmitting(false);
     }
@@ -225,9 +229,9 @@ export default function LeadScraperTool() {
       setCredits(c => (c !== null ? c - r.credits_spent : c));
       setActiveCampaign({ ...activeCampaign, status: 'generating' });
       setStep('review');
-      setToast(`${r.leads_to_generate} Pitches werden generiert (${r.credits_spent} Credits)`);
+      setToast(t('tools.lead.pitchesGenerating', { count: r.leads_to_generate, credits: r.credits_spent }));
     } catch (e: any) {
-      setError(e?.message || 'Generate-Fehler');
+      setError(e?.message || t('tools.lead.generateError'));
     } finally {
       setSubmitting(false);
     }
@@ -242,7 +246,7 @@ export default function LeadScraperTool() {
       );
       setLeads(prev => prev.map(l => l.id === leadId ? { ...l, ...(r.lead || patch) } : l));
     } catch (e: any) {
-      setError(e?.message || 'Update-Fehler');
+      setError(e?.message || t('tools.lead.updateError'));
     }
   };
 
@@ -276,9 +280,9 @@ export default function LeadScraperTool() {
         { method: 'POST', body: JSON.stringify({}) }
       );
       setActiveCampaign({ ...activeCampaign, status: 'sending' });
-      setToast(`${r.scheduled} Pitches werden versendet`);
+      setToast(t('tools.lead.pitchesSending', { count: r.scheduled }));
     } catch (e: any) {
-      setError(e?.message || 'Send-Fehler');
+      setError(e?.message || t('tools.lead.sendError'));
     } finally {
       setSubmitting(false);
     }
@@ -295,7 +299,7 @@ export default function LeadScraperTool() {
       setLeads(det.leads || []);
       setStep('review');
     } catch (e: any) {
-      setError(e?.message || 'Load-Fehler');
+      setError(e?.message || t('tools.lead.loadError'));
     }
   };
 
@@ -334,16 +338,16 @@ export default function LeadScraperTool() {
             </Link>
             <h1 className="text-2xl sm:text-3xl font-serif text-white flex items-center gap-3">
               <Users className="w-7 h-7 text-amber-400 shrink-0" />
-              Lead-Scraper-Factory
+              {t('tools.lead.title')}
             </h1>
-            <p className="text-ink-400 text-sm mt-1">CSV-Upload → AEVUM-Brandtone-Pitches → Send via audit@aevum-system.de</p>
+            <p className="text-ink-400 text-sm mt-1">{t('tools.lead.subtitle')}</p>
           </div>
           <div className="text-left sm:text-right shrink-0">
             <div className="flex items-center gap-2 text-sm text-amber-400 sm:justify-end">
               <Coins className="w-4 h-4" />
-              {credits === null ? '…' : `${credits} Credits`}
+              {credits === null ? '…' : `${credits} ${t('tools.common.credits')}`}
             </div>
-            <div className="text-xs text-ink-500 mt-1">{CREDITS_PER_LEAD} Credits / Lead</div>
+            <div className="text-xs text-ink-500 mt-1">{t('tools.lead.creditsPerLead', { n: CREDITS_PER_LEAD })}</div>
           </div>
         </div>
 
@@ -358,7 +362,7 @@ export default function LeadScraperTool() {
                 key={s}
                 className={`px-3 py-1.5 rounded-md border whitespace-nowrap shrink-0 ${isCurrent ? 'bg-amber-400/10 border-amber-400/40 text-amber-300' : isPast ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-ink-900/50 border-ink-700 text-ink-500'}`}
               >
-                {i + 1}. {s === 'setup' ? 'Setup' : s === 'brandtone' ? 'Brandtone' : s === 'generate' ? 'Generate' : 'Review & Send'}
+                {i + 1}. {s === 'setup' ? t('tools.lead.stepSetup') : s === 'brandtone' ? t('tools.lead.stepBrandtone') : s === 'generate' ? t('tools.lead.stepGenerate') : t('tools.lead.stepReview')}
               </div>
             );
           })}
@@ -379,25 +383,25 @@ export default function LeadScraperTool() {
         {step === 'setup' && (
           <div className="space-y-6">
             <section className="bg-ink-900/50 border border-ink-800 rounded-xl p-6">
-              <h2 className="text-lg font-medium text-white mb-4">Campaign anlegen</h2>
-              <label className="block text-sm text-ink-300 mb-1">Campaign-Name</label>
+              <h2 className="text-lg font-medium text-white mb-4">{t('tools.lead.createCampaign')}</h2>
+              <label className="block text-sm text-ink-300 mb-1">{t('tools.lead.campaignName')}</label>
               <input
                 type="text"
                 value={campaignName}
                 onChange={e => setCampaignName(e.target.value)}
-                placeholder="z.B. Mario + Brandedecom Outreach Mai"
+                placeholder={t('tools.lead.campaignNamePlaceholder')}
                 className="w-full bg-ink-950 border border-ink-700 rounded-md px-3 py-2 text-white text-sm mb-4"
                 maxLength={200}
               />
 
-              <label className="block text-sm text-ink-300 mb-1">CSV (max 5 MB, max 500 Leads)</label>
+              <label className="block text-sm text-ink-300 mb-1">{t('tools.lead.csvLabel')}</label>
               <div className="text-xs text-ink-500 mb-2">
-                Header erwartet: <code className="bg-ink-950 px-1.5 py-0.5 rounded">company_name, company_domain, owner_name, owner_email, owner_linkedin_url</code>. <strong>owner_email</strong> Pflicht.
+                {t('tools.lead.csvHeaderExpected')}<code className="bg-ink-950 px-1.5 py-0.5 rounded">company_name, company_domain, owner_name, owner_email, owner_linkedin_url</code>. <strong>owner_email</strong>{t('tools.lead.csvOwnerRequired')}
               </div>
               <div className="flex items-center gap-3 mb-4">
                 <label className="flex-1 cursor-pointer border border-dashed border-ink-700 hover:border-amber-400/40 rounded-lg px-4 py-6 text-center text-sm text-ink-400 hover:text-amber-300 transition">
                   <Upload className="w-5 h-5 inline mr-2" />
-                  {csvFile ? csvFile.name : 'CSV waehlen oder hierhin ziehen'}
+                  {csvFile ? csvFile.name : t('tools.lead.csvChoose')}
                   <input
                     type="file"
                     accept=".csv,text/csv"
@@ -409,7 +413,7 @@ export default function LeadScraperTool() {
 
               {csvPreview.length > 0 && (
                 <div className="mb-4 bg-ink-950 border border-ink-800 rounded-md p-3 overflow-x-auto">
-                  <div className="text-xs text-ink-500 mb-2">Preview (erste 5 Zeilen):</div>
+                  <div className="text-xs text-ink-500 mb-2">{t('tools.lead.csvPreview')}</div>
                   <table className="text-xs text-ink-300 w-full">
                     <tbody>
                       {csvPreview.map((row, i) => (
@@ -429,14 +433,14 @@ export default function LeadScraperTool() {
                 disabled={!campaignName.trim() || !csvFile}
                 className="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:bg-ink-800 disabled:text-ink-500 text-ink-950 font-medium rounded-md text-sm flex items-center gap-2 transition"
               >
-                Weiter <ArrowRight className="w-4 h-4" />
+                {t('tools.lead.next')} <ArrowRight className="w-4 h-4" />
               </button>
             </section>
 
             {/* Existing campaigns */}
             {campaigns.length > 0 && (
               <section className="bg-ink-900/30 border border-ink-800 rounded-xl p-6">
-                <h3 className="text-sm font-medium text-ink-300 mb-3">Bisherige Campaigns</h3>
+                <h3 className="text-sm font-medium text-ink-300 mb-3">{t('tools.lead.existingCampaigns')}</h3>
                 <div className="space-y-2">
                   {campaigns.slice(0, 8).map(c => (
                     <button
@@ -463,9 +467,9 @@ export default function LeadScraperTool() {
         {/* ── STEP 2: Brandtone ───────────────────────── */}
         {step === 'brandtone' && (
           <section className="bg-ink-900/50 border border-ink-800 rounded-xl p-6">
-            <h2 className="text-lg font-medium text-white mb-2">Brand-Voice waehlen</h2>
+            <h2 className="text-lg font-medium text-white mb-2">{t('tools.lead.pickBrandVoice')}</h2>
             <p className="text-sm text-ink-400 mb-4">
-              Default <strong>AEVUM Brand-Voice</strong> ist Carlos's Outreach-Tonality. Andere Hubs zeigen owner-scoped Brand-Knowledge.
+              {t('tools.lead.brandVoiceHint1')}<strong>{t('tools.lead.brandVoiceDefault')}</strong>{t('tools.lead.brandVoiceHint2')}
             </p>
             <div className="space-y-2 mb-6">
               {hubs.map(h => {
@@ -478,19 +482,19 @@ export default function LeadScraperTool() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="text-white font-medium text-sm">{h.name}</div>
-                      <div className="text-xs text-ink-500">{h.is_public ? 'public' : 'owned'}</div>
+                      <div className="text-xs text-ink-500">{h.is_public ? t('tools.lead.hubPublic') : t('tools.lead.hubOwned')}</div>
                     </div>
                     {h.description && <div className="text-xs text-ink-400 mt-1">{h.description}</div>}
                   </button>
                 );
               })}
               {hubs.length === 0 && (
-                <div className="text-sm text-ink-500">Keine Hubs verfuegbar — Default AEVUM-Brandtone wird intern verwendet.</div>
+                <div className="text-sm text-ink-500">{t('tools.lead.noHubs')}</div>
               )}
             </div>
             <div className="flex gap-2">
               <button onClick={() => setStep('setup')} className="px-4 py-2 bg-ink-800 hover:bg-ink-700 text-ink-200 rounded-md text-sm flex items-center gap-2">
-                <ArrowLeft className="w-4 h-4" /> Zurueck
+                <ArrowLeft className="w-4 h-4" /> {t('tools.lead.back')}
               </button>
               <button
                 onClick={handleCreateCampaign}
@@ -498,7 +502,7 @@ export default function LeadScraperTool() {
                 className="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:bg-ink-800 disabled:text-ink-500 text-ink-950 font-medium rounded-md text-sm flex items-center gap-2"
               >
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
-                Campaign anlegen
+                {t('tools.lead.createCampaignBtn')}
               </button>
             </div>
           </section>
@@ -507,20 +511,20 @@ export default function LeadScraperTool() {
         {/* ── STEP 3: Generate ────────────────────────── */}
         {step === 'generate' && activeCampaign && (
           <section className="bg-ink-900/50 border border-ink-800 rounded-xl p-6">
-            <h2 className="text-lg font-medium text-white mb-2">Pitches generieren</h2>
+            <h2 className="text-lg font-medium text-white mb-2">{t('tools.lead.generatePitches')}</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              <Stat label="Campaign" value={activeCampaign.name} mono />
-              <Stat label="Leads pending" value={String(pendingCount)} />
-              <Stat label="Kosten" value={`${estCost} Credits`} highlight />
-              <Stat label="Modell" value="Claude Sonnet 4.5" />
+              <Stat label={t('tools.lead.statCampaign')} value={activeCampaign.name} mono />
+              <Stat label={t('tools.lead.statLeadsPending')} value={String(pendingCount)} />
+              <Stat label={t('tools.lead.statCost')} value={t('tools.lead.costCredits', { n: estCost })} highlight />
+              <Stat label={t('tools.lead.statModel')} value="Claude Sonnet 4.5" />
             </div>
             <div className="bg-amber-400/5 border border-amber-400/20 rounded-md px-4 py-3 mb-6 text-sm text-amber-200">
               <Sparkles className="w-4 h-4 inline mr-1" />
-              3 Pitch-Varianten pro Lead (direct / curious / reference). Generierung laeuft im Background.
+              {t('tools.lead.generateInfo')}
             </div>
             <div className="flex gap-2">
               <button onClick={resetWizard} className="px-4 py-2 bg-ink-800 hover:bg-ink-700 text-ink-200 rounded-md text-sm flex items-center gap-2">
-                <ArrowLeft className="w-4 h-4" /> Abbrechen
+                <ArrowLeft className="w-4 h-4" /> {t('tools.lead.cancel')}
               </button>
               <button
                 onClick={handleGenerate}
@@ -528,12 +532,12 @@ export default function LeadScraperTool() {
                 className="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:bg-ink-800 disabled:text-ink-500 text-ink-950 font-medium rounded-md text-sm flex items-center gap-2"
               >
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                {pendingCount} Pitches generieren ({estCost} Credits)
+                {t('tools.lead.generateN', { count: pendingCount, cost: estCost })}
               </button>
             </div>
             {credits !== null && credits < estCost && (
               <div className="mt-3 text-xs text-rose-400">
-                Nicht genug Credits — du brauchst {estCost - credits} mehr. <Link to="/credits" className="underline">Aufladen</Link>
+                {t('tools.lead.notEnoughCredits', { n: estCost - credits })} <Link to="/credits" className="underline">{t('tools.lead.topUp')}</Link>
               </div>
             )}
           </section>
@@ -553,12 +557,12 @@ export default function LeadScraperTool() {
                     'bg-ink-800 text-ink-300'
                   }`}>{activeCampaign.status}</span>
                   {' · '}
-                  {leads.length} Leads ({generatedCount} generiert, {approvedCount} approved, {sentCount} sent)
+                  {t('tools.lead.leadsSummary', { total: leads.length, generated: generatedCount, approved: approvedCount, sent: sentCount })}
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 shrink-0">
                 <button onClick={resetWizard} className="px-3 py-1.5 bg-ink-800 hover:bg-ink-700 text-ink-200 rounded-md text-xs flex items-center gap-1">
-                  <RotateCcw className="w-3.5 h-3.5" /> Neue Campaign
+                  <RotateCcw className="w-3.5 h-3.5" /> {t('tools.lead.newCampaign')}
                 </button>
                 {approvedCount > 0 && (
                   <button
@@ -567,7 +571,7 @@ export default function LeadScraperTool() {
                     className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 disabled:bg-ink-800 disabled:text-ink-500 text-ink-950 font-medium rounded-md text-xs flex items-center gap-2"
                   >
                     {submitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                    {approvedCount} approved versenden
+                    {t('tools.lead.sendApproved', { count: approvedCount })}
                   </button>
                 )}
               </div>
@@ -576,19 +580,19 @@ export default function LeadScraperTool() {
             {activeCampaign.status === 'generating' && (
               <div className="bg-amber-400/5 border border-amber-400/20 rounded-md px-4 py-3 text-sm text-amber-200 flex items-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Pitches werden generiert… {generatedCount} / {leads.length} fertig.
+                {t('tools.lead.pitchesGeneratingProgress', { done: generatedCount, total: leads.length })}
               </div>
             )}
             {activeCampaign.status === 'sending' && (
               <div className="bg-blue-500/5 border border-blue-500/20 rounded-md px-4 py-3 text-sm text-blue-200 flex items-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Versand laeuft… {sentCount} versendet.
+                {t('tools.lead.sendingProgress', { count: sentCount })}
               </div>
             )}
 
             {leads.length === 0 && (
               <div className="bg-ink-900/30 border border-ink-800 rounded-xl p-6 text-sm text-ink-400">
-                Keine Leads geladen.
+                {t('tools.lead.noLeadsLoaded')}
               </div>
             )}
 
@@ -631,6 +635,7 @@ function LeadCard({
   onReject: () => void;
   onPickVariant: (idx: number) => void;
 }) {
+  const { t } = useTranslation();
   const variants = Array.isArray(lead.pitch_variants) ? lead.pitch_variants : [];
   const selectedIdx = typeof lead.pitch_selected_index === 'number' ? lead.pitch_selected_index : 0;
   const statusColor =
@@ -646,7 +651,7 @@ function LeadCard({
         <div className="min-w-0">
           <div className="text-white font-medium flex items-center gap-2 flex-wrap">
             <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-            <span className="break-words">{lead.owner_name || '(unbekannt)'}</span> · <span className="text-ink-300 text-sm break-words">{lead.company_name || '—'}</span>
+            <span className="break-words">{lead.owner_name || t('tools.lead.leadUnknown')}</span> · <span className="text-ink-300 text-sm break-words">{lead.company_name || '—'}</span>
           </div>
           <div className="text-xs text-ink-500 mt-1 flex items-center gap-x-3 gap-y-1 flex-wrap">
             <span className="break-all">{lead.owner_email}</span>
@@ -658,12 +663,12 @@ function LeadCard({
       </div>
 
       {lead.outreach_status === 'pending' && (
-        <div className="text-sm text-ink-500 italic">Noch kein Pitch generiert.</div>
+        <div className="text-sm text-ink-500 italic">{t('tools.lead.noPitchYet')}</div>
       )}
 
       {variants.length > 0 && lead.outreach_status !== 'pending' && (
         <div className="space-y-2 mb-3">
-          <div className="text-xs text-ink-500">Varianten:</div>
+          <div className="text-xs text-ink-500">{t('tools.lead.variants')}</div>
           <div className="flex gap-2 flex-wrap">
             {variants.map((v, i) => (
               <button
@@ -684,7 +689,7 @@ function LeadCard({
             type="text"
             value={editDraft.subject}
             onChange={e => setEditDraft({ ...editDraft, subject: e.target.value })}
-            placeholder="Betreff"
+            placeholder={t('tools.lead.subjectPlaceholder')}
             className="w-full bg-ink-950 border border-ink-700 rounded-md px-3 py-2 text-white text-sm"
             maxLength={200}
           />
@@ -696,14 +701,14 @@ function LeadCard({
             maxLength={5000}
           />
           <div className="flex gap-2">
-            <button onClick={onSaveEdit} className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-ink-950 rounded-md text-xs">Speichern</button>
-            <button onClick={onCancelEdit} className="px-3 py-1.5 bg-ink-800 hover:bg-ink-700 text-ink-200 rounded-md text-xs">Abbrechen</button>
+            <button onClick={onSaveEdit} className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-ink-950 rounded-md text-xs">{t('tools.lead.save')}</button>
+            <button onClick={onCancelEdit} className="px-3 py-1.5 bg-ink-800 hover:bg-ink-700 text-ink-200 rounded-md text-xs">{t('tools.lead.cancelEdit')}</button>
           </div>
         </div>
       ) : (lead.outreach_message ? (
         <div className="bg-ink-950 border border-ink-800 rounded-md p-3 mb-3">
           {lead.outreach_message_subject && (
-            <div className="text-xs text-amber-300 mb-2 font-medium">Betreff: {lead.outreach_message_subject}</div>
+            <div className="text-xs text-amber-300 mb-2 font-medium">{t('tools.lead.subjectLabel', { subject: lead.outreach_message_subject })}</div>
           )}
           <MarkdownViewer content={lead.outreach_message} variant="portal" />
         </div>
@@ -713,16 +718,16 @@ function LeadCard({
         <div className="flex gap-2">
           {lead.outreach_status !== 'approved' && (
             <button onClick={onApprove} className="px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 rounded-md text-xs flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Approve
+              <CheckCircle2 className="w-3.5 h-3.5" /> {t('tools.lead.approve')}
             </button>
           )}
           {lead.outreach_status === 'approved' && (
             <button onClick={onReject} className="px-3 py-1.5 bg-ink-800 hover:bg-ink-700 text-ink-300 rounded-md text-xs flex items-center gap-1">
-              <RotateCcw className="w-3.5 h-3.5" /> Zurueck
+              <RotateCcw className="w-3.5 h-3.5" /> {t('tools.lead.backStatus')}
             </button>
           )}
           <button onClick={onStartEdit} className="px-3 py-1.5 bg-ink-800 hover:bg-ink-700 text-ink-200 rounded-md text-xs flex items-center gap-1">
-            <Edit3 className="w-3.5 h-3.5" /> Bearbeiten
+            <Edit3 className="w-3.5 h-3.5" /> {t('tools.lead.edit')}
           </button>
         </div>
       )}

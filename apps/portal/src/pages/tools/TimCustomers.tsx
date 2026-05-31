@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/auth';
 import { api } from '@/lib/api';
 import {
@@ -31,6 +32,7 @@ const PLATFORMS = ['meta', 'google', 'tiktok'];
 const AWARENESS = ['unaware', 'problem_aware', 'solution_aware', 'product_aware', 'most_aware'];
 
 export default function TimCustomers() {
+  const { t } = useTranslation();
   const { me } = useAuth();
   const nav = useNavigate();
   const isTim = !!(me?.account.email && TIM_WHITELIST.has(me.account.email.toLowerCase()));
@@ -47,18 +49,18 @@ export default function TimCustomers() {
   const reload = () => {
     api<{ ok: boolean; customers: TimCustomer[] }>('/api/factories/script/tim-customers')
       .then(r => setCustomers(r.customers || []))
-      .catch(e => { setError(e instanceof Error ? e.message : 'Ladefehler'); setCustomers([]); });
+      .catch(e => { setError(e instanceof Error ? e.message : t('tools.tim.loadError')); setCustomers([]); });
   };
 
   useEffect(() => { if (isTim) reload(); }, [isTim]);
 
   async function remove(id: string) {
-    if (!confirm('Customer wirklich löschen? Vergangene Runs bleiben erhalten.')) return;
+    if (!confirm(t('tools.tim.deleteConfirm'))) return;
     try {
       await api(`/api/factories/script/tim-customers/${id}`, { method: 'DELETE' });
       reload();
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Löschen fehlgeschlagen');
+      setError(e instanceof Error ? e.message : t('tools.tim.deleteFailed'));
     }
   }
 
@@ -72,14 +74,14 @@ export default function TimCustomers() {
     <div className="space-y-6 max-w-5xl">
       <div>
         <Link to="/tools/script-factory" className="text-[0.7rem] text-ink-400 hover:text-white inline-flex items-center gap-1.5 mb-3">
-          <ArrowLeft size={12} /> Zurück zur Script-Factory
+          <ArrowLeft size={12} /> {t('tools.tim.backToFactory')}
         </Link>
         <div className="flex items-center gap-2 text-xs text-gold-300 mb-2 uppercase tracking-wider font-semibold">
-          <Users size={12} /> Tim Customer-Mode
+          <Users size={12} /> {t('tools.tim.mode')}
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Multi-Customer-Profile</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-white">{t('tools.tim.title')}</h1>
         <p className="text-ink-400 mt-2 text-sm">
-          Speichere Brand-Voice, ICP und Platform-Setup pro Customer — Pipeline nutzt das automatisch.
+          {t('tools.tim.subtitle')}
         </p>
       </div>
 
@@ -92,18 +94,18 @@ export default function TimCustomers() {
 
       <div className="flex items-center justify-between">
         <div className="text-sm text-ink-300">
-          {customers.length} {customers.length === 1 ? 'Customer' : 'Customers'}
+          {customers.length} {customers.length === 1 ? t('tools.tim.customerSingular') : t('tools.tim.customerPlural')}
         </div>
         <button onClick={() => setShowNew(true)} className="btn-gold py-2 px-3 text-xs inline-flex items-center gap-1.5">
-          <Plus size={12} /> Neuer Customer
+          <Plus size={12} /> {t('tools.tim.newCustomer')}
         </button>
       </div>
 
       {customers.length === 0 ? (
         <div className="card-premium p-10 text-center">
           <Users size={32} className="mx-auto text-ink-500 mb-3" />
-          <div className="text-sm font-semibold text-white mb-1">Noch keine Customers</div>
-          <div className="text-xs text-ink-400">Lege deinen ersten Customer an, dann läuft jeder Script-Run mit Customer-Context.</div>
+          <div className="text-sm font-semibold text-white mb-1">{t('tools.tim.noCustomers')}</div>
+          <div className="text-xs text-ink-400">{t('tools.tim.noCustomersHint')}</div>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -138,7 +140,7 @@ export default function TimCustomers() {
                 )}
                 {c.last_run_at && (
                   <div className="text-[0.65rem] text-ink-500 mt-2">
-                    Letzter Run: {new Date(c.last_run_at).toLocaleDateString('de-DE')}
+                    {t('tools.tim.lastRun', { date: new Date(c.last_run_at).toLocaleDateString('de-DE') })}
                   </div>
                 )}
               </div>
@@ -146,7 +148,7 @@ export default function TimCustomers() {
                 to={`/tools/script-factory?customer=${c.id}`}
                 className="btn-ghost mt-4 py-1.5 px-3 text-[0.7rem] inline-flex items-center justify-center gap-1.5"
               >
-                <Sparkles size={11} /> Run starten
+                <Sparkles size={11} /> {t('tools.tim.startRun')}
               </Link>
             </div>
           ))}
@@ -168,6 +170,7 @@ export default function TimCustomers() {
 function CustomerModal({
   initial, onClose, onSaved
 }: { initial: TimCustomer | null; onClose: () => void; onSaved: () => void }) {
+  const { t } = useTranslation();
   const isEdit = !!initial?.id;
   const [name, setName] = useState(initial?.customer_name || '');
   const [email, setEmail] = useState(initial?.customer_email || '');
@@ -185,7 +188,7 @@ function CustomerModal({
   };
 
   const save = async () => {
-    if (!name.trim()) { setErr('Name ist Pflichtfeld.'); return; }
+    if (!name.trim()) { setErr(t('tools.tim.nameRequired')); return; }
     setSaving(true);
     setErr(null);
     try {
@@ -212,7 +215,7 @@ function CustomerModal({
       }
       onSaved();
     } catch (e: unknown) {
-      setErr(e instanceof Error ? e.message : 'Speichern fehlgeschlagen');
+      setErr(e instanceof Error ? e.message : t('tools.tim.saveFailed'));
       setSaving(false);
     }
   };
@@ -221,27 +224,27 @@ function CustomerModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
       <div className="card-premium p-6 max-w-lg w-full space-y-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-white">{isEdit ? 'Customer bearbeiten' : 'Neuer Customer'}</h3>
+          <h3 className="text-base font-semibold text-white">{isEdit ? t('tools.tim.editCustomer') : t('tools.tim.newCustomer')}</h3>
           <button onClick={onClose} className="text-ink-400 hover:text-white"><X size={16} /></button>
         </div>
 
-        <Field label="Name *">
-          <input value={name} onChange={e => setName(e.target.value)} placeholder="z.B. CollaGlow Beauty" className="input-premium" />
+        <Field label={t('tools.tim.fieldName')}>
+          <input value={name} onChange={e => setName(e.target.value)} placeholder={t('tools.tim.fieldNamePlaceholder')} className="input-premium" />
         </Field>
 
-        <Field label="Email">
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="contact@..." className="input-premium" />
+        <Field label={t('tools.tim.fieldEmail')}>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={t('tools.tim.fieldEmailPlaceholder')} className="input-premium" />
         </Field>
 
-        <Field label="Niche">
-          <input value={niche} onChange={e => setNiche(e.target.value)} placeholder="z.B. Beauty / D2C / SaaS" className="input-premium" />
+        <Field label={t('tools.tim.fieldNiche')}>
+          <input value={niche} onChange={e => setNiche(e.target.value)} placeholder={t('tools.tim.fieldNichePlaceholder')} className="input-premium" />
         </Field>
 
-        <Field label="Produkt-Kategorie">
-          <input value={productCategory} onChange={e => setProductCategory(e.target.value)} placeholder="z.B. Collagen-Drinks" className="input-premium" />
+        <Field label={t('tools.tim.fieldProductCategory')}>
+          <input value={productCategory} onChange={e => setProductCategory(e.target.value)} placeholder={t('tools.tim.fieldProductCategoryPlaceholder')} className="input-premium" />
         </Field>
 
-        <Field label="Ad-Platforms">
+        <Field label={t('tools.tim.fieldPlatforms')}>
           <div className="flex gap-2 flex-wrap">
             {PLATFORMS.map(p => (
               <button
@@ -261,27 +264,27 @@ function CustomerModal({
           </div>
         </Field>
 
-        <Field label="Brand-Voice">
+        <Field label={t('tools.tim.fieldBrandVoice')}>
           <textarea
             value={brandVoice}
             onChange={e => setBrandVoice(e.target.value)}
-            placeholder="z.B. warm-direkt, premium, freundschaftlich…"
+            placeholder={t('tools.tim.fieldBrandVoicePlaceholder')}
             rows={3}
             className="input-premium resize-none"
           />
         </Field>
 
-        <Field label="Target-ICP">
+        <Field label={t('tools.tim.fieldTargetIcp')}>
           <textarea
             value={targetIcp}
             onChange={e => setTargetIcp(e.target.value)}
-            placeholder="z.B. Frauen 30+, beauty-affin, Instagram-aktiv"
+            placeholder={t('tools.tim.fieldTargetIcpPlaceholder')}
             rows={3}
             className="input-premium resize-none"
           />
         </Field>
 
-        <Field label="Awareness-Stage">
+        <Field label={t('tools.tim.fieldAwareness')}>
           <select value={awareness} onChange={e => setAwareness(e.target.value)} className="input-premium">
             {AWARENESS.map(a => <option key={a} value={a}>{a.replace('_', ' ')}</option>)}
           </select>
@@ -294,7 +297,7 @@ function CustomerModal({
         )}
 
         <button onClick={save} disabled={saving} className="btn-gold w-full py-2 text-sm inline-flex items-center justify-center gap-2">
-          {saving ? <><Loader2 size={14} className="animate-spin" /> Speichert…</> : <><Save size={14} /> Speichern</>}
+          {saving ? <><Loader2 size={14} className="animate-spin" /> {t('tools.tim.saving')}</> : <><Save size={14} /> {t('tools.tim.save')}</>}
         </button>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import {
   Sparkles, Coins, Zap, Film, Shield, Users, FileText,
   ArrowRight, Wrench, Clock, CheckCircle2, AlertCircle, Loader2,
@@ -23,11 +24,11 @@ type LiveStatus = 'live' | 'live_partial' | 'in_bau' | 'geplant' | 'konzept';
 
 interface FactorySlot {
   key: string;
-  title: string;
-  desc: string;
+  titleKey: string;
+  descKey: string;
   icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
   status: LiveStatus;
-  badge: string;
+  badgeKey: string;
   credits?: number;
   href?: string;
 }
@@ -35,31 +36,31 @@ interface FactorySlot {
 const AVAILABLE: FactorySlot[] = [
   {
     key: 'script',
-    title: 'Script-Factory',
-    desc: 'E-Commerce Ad-Scripts pro Run — Meta, TikTok, YouTube. Brand-Profile, Hook-Library, mehrere Varianten.',
+    titleKey: 'dashboards.saas.factoryScriptTitle',
+    descKey: 'dashboards.saas.factoryScriptDesc',
     icon: Film,
     status: 'live',
-    badge: 'Live',
+    badgeKey: 'dashboards.saas.factoryScriptBadge',
     credits: 40,
     href: '/tools/script-factory'
   },
   {
     key: 'dsgvo',
-    title: 'DSGVO-Factory',
-    desc: 'Auftragsverarbeitungs-Vertrag (AVV) aus Template — weitere Templates (DSE, Impressum, AGB) folgen.',
+    titleKey: 'dashboards.saas.factoryDsgvoTitle',
+    descKey: 'dashboards.saas.factoryDsgvoDesc',
     icon: Shield,
     status: 'live_partial',
-    badge: 'Live · AVV',
+    badgeKey: 'dashboards.saas.factoryDsgvoBadge',
     credits: 25,
     href: '/tools/dsgvo-factory'
   },
   {
     key: 'lead-scraper',
-    title: 'Lead-Scraper-Factory',
-    desc: 'CSV-Upload → AEVUM-Brandtone-Pitches → Versand via audit@aevum-system.de. 3 Varianten pro Lead.',
+    titleKey: 'dashboards.saas.factoryLeadScraperTitle',
+    descKey: 'dashboards.saas.factoryLeadScraperDesc',
     icon: Users,
     status: 'live',
-    badge: 'MVP · Phase 1',
+    badgeKey: 'dashboards.saas.factoryLeadScraperBadge',
     credits: 12,
     href: '/tools/lead-scraper'
   }
@@ -68,20 +69,20 @@ const AVAILABLE: FactorySlot[] = [
 const COMING_SOON: FactorySlot[] = [
   {
     key: 'lead',
-    title: 'Lead-Factory (Phase 2)',
-    desc: 'Auto-Scraping + Enrichment + Trigger-Detection. Ergaenzt Lead-Scraper Phase 1.',
+    titleKey: 'dashboards.saas.factoryLeadTitle',
+    descKey: 'dashboards.saas.factoryLeadDesc',
     icon: Users,
     status: 'konzept',
-    badge: 'Konzept',
+    badgeKey: 'dashboards.saas.factoryLeadBadge',
     credits: 50
   },
   {
     key: 'content',
-    title: 'Content-Factory SaaS',
-    desc: 'Self-Service Content-Pipeline für Posts, Newsletter, Blog-Drafts in deiner Brand-Stimme.',
+    titleKey: 'dashboards.saas.factoryContentTitle',
+    descKey: 'dashboards.saas.factoryContentDesc',
     icon: FileText,
     status: 'konzept',
-    badge: 'Konzept',
+    badgeKey: 'dashboards.saas.factoryContentBadge',
     credits: 30
   }
 ];
@@ -101,6 +102,7 @@ interface FactoryRun {
 }
 
 export default function SaaSDashboard() {
+  const { t } = useTranslation();
   const { me } = useAuth();
   const [credits, setCredits] = useState<CreditsSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
@@ -128,13 +130,13 @@ export default function SaaSDashboard() {
       {/* Hero — compact */}
       <header>
         <div className="flex items-center gap-2 text-xs text-gold-300 mb-2 uppercase tracking-wider font-semibold">
-          <Sparkles size={12} /> AEVUM SaaS-Tools
+          <Sparkles size={12} /> {t('dashboards.saas.brand')}
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-          {me.account.name || 'Operator'}
+          {me.account.name || t('dashboards.saas.operator')}
         </h1>
         <p className="text-ink-400 mt-1 text-sm">
-          Self-Service-Tools, die du auf Credit-Basis nutzen kannst.
+          {t('dashboards.saas.subtitle')}
         </p>
       </header>
 
@@ -146,8 +148,8 @@ export default function SaaSDashboard() {
         <section className="animate-fade-up" style={{ animationDelay: '180ms' }}>
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h2 className="text-base font-semibold text-white">Verfügbar</h2>
-              <p className="text-xs text-ink-400 mt-0.5">Tools, die du jetzt direkt nutzen kannst.</p>
+              <h2 className="text-base font-semibold text-white">{t('dashboards.saas.available')}</h2>
+              <p className="text-xs text-ink-400 mt-0.5">{t('dashboards.saas.availableSub')}</p>
             </div>
           </div>
           <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)] items-stretch">
@@ -160,8 +162,8 @@ export default function SaaSDashboard() {
         <section className="animate-fade-up" style={{ animationDelay: '260ms' }}>
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h2 className="text-base font-semibold text-white">Coming Soon</h2>
-              <p className="text-xs text-ink-400 mt-0.5">Factory-Slots in Planung & Konzept.</p>
+              <h2 className="text-base font-semibold text-white">{t('dashboards.saas.comingSoon')}</h2>
+              <p className="text-xs text-ink-400 mt-0.5">{t('dashboards.saas.comingSoonSub')}</p>
             </div>
           </div>
           <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)] items-stretch">
@@ -170,7 +172,7 @@ export default function SaaSDashboard() {
                 key={slot.key}
                 slot={slot}
                 i={i}
-                onClick={() => showToast(`${slot.title} — bald verfügbar`)}
+                onClick={() => showToast(t('dashboards.saas.comingSoonToast', { title: t(slot.titleKey) }))}
               />
             ))}
           </div>
@@ -181,8 +183,8 @@ export default function SaaSDashboard() {
       <section className="animate-fade-up" style={{ animationDelay: '340ms' }}>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-base font-semibold text-white">Recent Runs</h2>
-            <p className="text-xs text-ink-400 mt-0.5">Letzte 20 Factory-Läufe, aggregiert über alle Tools.</p>
+            <h2 className="text-base font-semibold text-white">{t('dashboards.saas.recentRuns')}</h2>
+            <p className="text-xs text-ink-400 mt-0.5">{t('dashboards.saas.recentRunsSub')}</p>
           </div>
         </div>
         <RunHistoryTable />
@@ -204,6 +206,7 @@ export default function SaaSDashboard() {
 // ── Subcomponents ──────────────────────────────────────────────
 
 function CreditsBalanceCard({ credits }: { credits: CreditsSnapshot | null }) {
+  const { t } = useTranslation();
   return (
     <section className="animate-fade-up" style={{ animationDelay: '100ms' }}>
       <div className="card-premium card-pad">
@@ -213,17 +216,17 @@ function CreditsBalanceCard({ credits }: { credits: CreditsSnapshot | null }) {
               <Coins size={20} className="text-gold-300" />
             </div>
             <div>
-              <div className="text-[0.6rem] uppercase tracking-[0.3em] text-gold-400/70 mb-1">Dein Credit-Konto</div>
+              <div className="text-[0.6rem] uppercase tracking-[0.3em] text-gold-400/70 mb-1">{t('dashboards.saas.creditAccount')}</div>
               <div className="text-2xl xl:text-3xl font-bold text-gold-gradient tabular-nums leading-none">
-                {(credits?.balance ?? 0).toLocaleString('de-DE')} <span className="text-base font-medium text-ink-400">Credits</span>
+                {(credits?.balance ?? 0).toLocaleString('de-DE')} <span className="text-base font-medium text-ink-400">{t('dashboards.saas.credits')}</span>
               </div>
               <div className="text-xs text-ink-400 mt-1">
-                Gesamt verdient: {(credits?.lifetime_earned ?? 0).toLocaleString('de-DE')}
+                {t('dashboards.saas.totalEarned', { n: (credits?.lifetime_earned ?? 0).toLocaleString('de-DE') })}
               </div>
             </div>
           </div>
           <Link to="/credits" className="btn-gold py-2 px-4 text-xs inline-flex items-center gap-2">
-            Credits verwalten <ArrowRight size={12} />
+            {t('dashboards.saas.manageCredits')} <ArrowRight size={12} />
           </Link>
         </div>
       </div>
@@ -234,6 +237,7 @@ function CreditsBalanceCard({ credits }: { credits: CreditsSnapshot | null }) {
 function FactoryCard({
   slot, i, onClick
 }: { slot: FactorySlot; i: number; onClick?: () => void }) {
+  const { t } = useTranslation();
   const Icon = slot.icon;
   const isLive = slot.status === 'live' || slot.status === 'live_partial';
   const badgeStyle: Record<LiveStatus, string> = {
@@ -248,18 +252,18 @@ function FactoryCard({
     <>
       <div className="absolute top-3 right-3">
         <span className={`text-[0.55rem] uppercase tracking-wider font-semibold px-2 py-1 rounded-full border ${badgeStyle[slot.status]}`}>
-          {slot.badge}
+          {t(slot.badgeKey)}
         </span>
       </div>
       <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-center mb-4">
         <Icon size={18} className="text-gold-300" strokeWidth={1.6} />
       </div>
-      <div className="text-base font-semibold text-white mb-1.5">{slot.title}</div>
-      <div className="text-[0.72rem] text-ink-400 leading-relaxed pr-20">{slot.desc}</div>
+      <div className="text-base font-semibold text-white mb-1.5">{t(slot.titleKey)}</div>
+      <div className="text-[0.72rem] text-ink-400 leading-relaxed pr-20">{t(slot.descKey)}</div>
       <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between">
         <span className="text-[0.65rem] text-ink-500 inline-flex items-center gap-1">
           <Zap size={11} className={isLive ? 'text-gold-300' : ''} />
-          {slot.credits != null ? `${slot.credits} Credits / Run` : 'Self-Service-SaaS'}
+          {slot.credits != null ? t('dashboards.saas.creditsPerRun', { n: slot.credits }) : t('dashboards.saas.selfService')}
         </span>
         <ArrowRight size={12} className="text-ink-500 group-hover:text-gold-300 group-hover:translate-x-0.5 transition-all" />
       </div>
@@ -289,6 +293,7 @@ function FactoryCard({
 }
 
 function RunHistoryTable() {
+  const { t } = useTranslation();
   const [runs, setRuns] = useState<FactoryRun[] | null>(null);
 
   useEffect(() => {
@@ -317,9 +322,9 @@ function RunHistoryTable() {
     return (
       <div className="card-premium p-8 text-center">
         <Wrench size={24} className="mx-auto mb-3 text-ink-500" strokeWidth={1.5} />
-        <div className="text-sm text-ink-300 mb-1">Noch keine Runs.</div>
+        <div className="text-sm text-ink-300 mb-1">{t('dashboards.saas.noRuns')}</div>
         <div className="text-[0.7rem] text-ink-500">
-          Sobald du eine Factory startest, erscheinen die Läufe hier.
+          {t('dashboards.saas.noRunsHint')}
         </div>
       </div>
     );
@@ -328,12 +333,12 @@ function RunHistoryTable() {
   return (
     <div className="card-premium divide-y divide-white/5">
       <div className="hidden sm:grid grid-cols-12 gap-3 px-4 sm:px-5 py-2 text-[0.6rem] uppercase tracking-wider text-ink-500 font-semibold">
-        <div className="col-span-3">Datum</div>
-        <div className="col-span-2">Tool</div>
-        <div className="col-span-3">Detail</div>
-        <div className="col-span-2">Status</div>
-        <div className="col-span-1 text-right">Credits</div>
-        <div className="col-span-1 text-right">Output</div>
+        <div className="col-span-3">{t('dashboards.saas.colDate')}</div>
+        <div className="col-span-2">{t('dashboards.saas.colTool')}</div>
+        <div className="col-span-3">{t('dashboards.saas.colDetail')}</div>
+        <div className="col-span-2">{t('dashboards.saas.colStatus')}</div>
+        <div className="col-span-1 text-right">{t('dashboards.saas.colCredits')}</div>
+        <div className="col-span-1 text-right">{t('dashboards.saas.colOutput')}</div>
       </div>
       {runs.map(r => <RunRow key={`${r._type}-${r.id}`} run={r} />)}
     </div>
@@ -341,6 +346,7 @@ function RunHistoryTable() {
 }
 
 function RunRow({ run }: { run: FactoryRun }) {
+  const { t } = useTranslation();
   const date = new Date(run.created_at).toLocaleString('de-DE', {
     day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit'
   });
@@ -367,7 +373,7 @@ function RunRow({ run }: { run: FactoryRun }) {
         {run.status === 'complete' && out ? (
           <a href={out} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[0.7rem] text-gold-300 hover:text-gold-200">
             {run._type === 'dsgvo' ? <Download size={12} /> : <ExternalLink size={12} />}
-            Open
+            {t('dashboards.saas.open')}
           </a>
         ) : (
           <span className="text-[0.7rem] text-ink-500">—</span>
@@ -378,11 +384,12 @@ function RunRow({ run }: { run: FactoryRun }) {
 }
 
 function StatusBadge({ status }: { status: FactoryRun['status'] }) {
+  const { t } = useTranslation();
   const map = {
-    pending:  { icon: Clock,        cls: 'bg-white/5 border-white/10 text-ink-300', label: 'Pending' },
-    running:  { icon: Loader2,      cls: 'bg-gold-400/10 border-gold-400/30 text-gold-200', label: 'Läuft' },
-    complete: { icon: CheckCircle2, cls: 'bg-emerald-400/10 border-emerald-400/30 text-emerald-200', label: 'Fertig' },
-    failed:   { icon: AlertCircle,  cls: 'bg-rose-400/10 border-rose-400/30 text-rose-200', label: 'Fehler' }
+    pending:  { icon: Clock,        cls: 'bg-white/5 border-white/10 text-ink-300', label: t('dashboards.saas.statusPending') },
+    running:  { icon: Loader2,      cls: 'bg-gold-400/10 border-gold-400/30 text-gold-200', label: t('dashboards.saas.statusRunning') },
+    complete: { icon: CheckCircle2, cls: 'bg-emerald-400/10 border-emerald-400/30 text-emerald-200', label: t('dashboards.saas.statusComplete') },
+    failed:   { icon: AlertCircle,  cls: 'bg-rose-400/10 border-rose-400/30 text-rose-200', label: t('dashboards.saas.statusFailed') }
   } as const;
   const m = map[status] || map.pending;
   const Icon = m.icon;

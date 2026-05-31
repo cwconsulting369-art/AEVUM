@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import {
   ShoppingBag, Download, Coins, Bot, Sparkles, ArrowRight,
   FileText, Package, CheckCircle2, ExternalLink, MessageCircle
@@ -33,6 +34,7 @@ interface CreditsSnapshot {
 }
 
 export default function ShopDashboard() {
+  const { t } = useTranslation();
   const { me } = useAuth();
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [credits, setCredits] = useState<CreditsSnapshot | null>(null);
@@ -63,13 +65,13 @@ export default function ShopDashboard() {
       {/* Hero — compact */}
       <header>
         <div className="flex items-center gap-2 text-xs text-gold-300 mb-2 uppercase tracking-wider font-semibold">
-          <Sparkles size={12} /> Dein Shop-Bereich
+          <Sparkles size={12} /> {t('dashboards.shop.brand')}
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-          {me.account.name || 'Willkommen'}
+          {me.account.name || t('dashboards.shop.welcome')}
         </h1>
         <p className="text-ink-400 mt-1 text-sm">
-          Deine Käufe, Downloads und Bonuspunkte auf einen Blick.
+          {t('dashboards.shop.subtitle')}
         </p>
       </header>
 
@@ -78,14 +80,14 @@ export default function ShopDashboard() {
         <KpiCard
           i={0}
           icon={ShoppingBag}
-          label="Käufe"
+          label={t('dashboards.shop.kpiPurchases')}
           value={paidOrders.length.toString()}
           accent={paidOrders.length > 0}
         />
         <KpiCard
           i={1}
           icon={Coins}
-          label="Credits"
+          label={t('dashboards.shop.kpiCredits')}
           value={(credits?.balance ?? 0).toLocaleString('de-DE')}
           accent={(credits?.balance ?? 0) > 0}
           highlight
@@ -93,7 +95,7 @@ export default function ShopDashboard() {
         <KpiCard
           i={2}
           icon={Download}
-          label="Downloads"
+          label={t('dashboards.shop.kpiDownloads')}
           value={paidOrders.length.toString()}
           accent={paidOrders.length > 0}
         />
@@ -109,17 +111,17 @@ export default function ShopDashboard() {
                   <Coins size={20} className="text-gold-300" />
                 </div>
                 <div>
-                  <div className="text-[0.6rem] uppercase tracking-[0.3em] text-gold-400/70 mb-1">Dein Bonus-Konto</div>
+                  <div className="text-[0.6rem] uppercase tracking-[0.3em] text-gold-400/70 mb-1">{t('dashboards.shop.bonusAccount')}</div>
                   <div className="text-2xl xl:text-3xl font-bold text-gold-gradient tabular-nums leading-none">
-                    {(credits?.balance ?? 0).toLocaleString('de-DE')} <span className="text-base font-medium text-ink-400">Credits</span>
+                    {(credits?.balance ?? 0).toLocaleString('de-DE')} <span className="text-base font-medium text-ink-400">{t('dashboards.shop.credits')}</span>
                   </div>
                   <div className="text-xs text-ink-400 mt-1">
-                    Gesamt verdient: {(credits?.lifetime_earned ?? 0).toLocaleString('de-DE')}
+                    {t('dashboards.shop.totalEarned', { n: (credits?.lifetime_earned ?? 0).toLocaleString('de-DE') })}
                   </div>
                 </div>
               </div>
               <Link to="/credits" className="btn-gold py-2 px-4 text-xs inline-flex items-center gap-2">
-                Credits verwalten <ArrowRight size={12} />
+                {t('dashboards.shop.manageCredits')} <ArrowRight size={12} />
               </Link>
             </div>
           </div>
@@ -131,14 +133,14 @@ export default function ShopDashboard() {
               <MessageCircle size={18} className="text-emerald-300" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-white mb-0.5">Fragen zum Kauf?</div>
+              <div className="text-sm font-semibold text-white mb-0.5">{t('dashboards.shop.questionsTitle')}</div>
               <a
                 href="https://t.me/aevumsystem_bot?start=help"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-emerald-300 hover:text-emerald-200 inline-flex items-center gap-1"
               >
-                Helpbot öffnen <ExternalLink size={12} />
+                {t('dashboards.shop.openHelpbot')} <ExternalLink size={12} />
               </a>
             </div>
           </div>
@@ -149,8 +151,8 @@ export default function ShopDashboard() {
       <section className="animate-fade-up" style={{ animationDelay: '280ms' }}>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-base font-semibold text-white">Deine Käufe</h2>
-            <p className="text-xs text-ink-400 mt-0.5">Alle abgeschlossenen Bestellungen im Shop.</p>
+            <h2 className="text-base font-semibold text-white">{t('dashboards.shop.yourPurchases')}</h2>
+            <p className="text-xs text-ink-400 mt-0.5">{t('dashboards.shop.yourPurchasesSub')}</p>
           </div>
         </div>
         {paidOrders.length === 0 ? (
@@ -169,8 +171,8 @@ export default function ShopDashboard() {
         <section className="animate-fade-up" style={{ animationDelay: '320ms' }}>
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h2 className="text-base font-semibold text-white">Downloads</h2>
-              <p className="text-xs text-ink-400 mt-0.5">Blueprint-JSONs, PDFs und Video-Material zu deinen Käufen.</p>
+              <h2 className="text-base font-semibold text-white">{t('dashboards.shop.downloads')}</h2>
+              <p className="text-xs text-ink-400 mt-0.5">{t('dashboards.shop.downloadsSub')}</p>
             </div>
           </div>
           <div className="dashboard-grid">
@@ -178,18 +180,18 @@ export default function ShopDashboard() {
               <div key={o.id} className="card-premium card-compact animate-fade-up h-full flex flex-col" style={stagger(i, 60, 60)}>
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="min-w-0">
-                    <div className="font-semibold text-white truncate">{o.package_name || o.package_tier || 'Bestellung'}</div>
+                    <div className="font-semibold text-white truncate">{o.package_name || o.package_tier || t('dashboards.shop.order')}</div>
                     <div className="text-[0.7rem] text-ink-400 mt-0.5 font-mono">{o.id.slice(0, 8)}</div>
                   </div>
                   <Package size={16} className="text-gold-300 shrink-0" />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <DownloadButton label="n8n-Blueprint (JSON)" icon={FileText} disabled />
-                  <DownloadButton label="Implementierungs-PDF" icon={FileText} disabled />
-                  <DownloadButton label="Walkthrough-Video" icon={ExternalLink} disabled />
+                  <DownloadButton label={t('dashboards.shop.dlBlueprint')} icon={FileText} disabled />
+                  <DownloadButton label={t('dashboards.shop.dlPdf')} icon={FileText} disabled />
+                  <DownloadButton label={t('dashboards.shop.dlVideo')} icon={ExternalLink} disabled />
                 </div>
                 <div className="text-[0.65rem] text-ink-500 mt-auto pt-3">
-                  Downloads werden in Kürze freigeschaltet. Bei Fragen → Helpbot.
+                  {t('dashboards.shop.dlSoonHint')}
                 </div>
               </div>
             ))}
@@ -203,27 +205,26 @@ export default function ShopDashboard() {
           <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-gold-400/10 blur-3xl pointer-events-none" />
           <div className="relative max-w-2xl">
             <div className="flex items-center gap-2 text-xs text-gold-300 mb-2 uppercase tracking-wider font-semibold">
-              <Bot size={14} /> Upgrade zur Voll-Partnerschaft
+              <Bot size={14} /> {t('dashboards.shop.upgradeBadge')}
             </div>
             <h3 className="text-xl xl:text-2xl font-bold text-white mb-2">
-              Mehr aus AEVUM herausholen?
+              {t('dashboards.shop.upgradeTitle')}
             </h3>
             <p className="text-sm text-ink-300 mb-4 leading-relaxed">
-              Buche dein kostenloses Audit. Wir bauen dir dein Operating-System, geben dir einen
-              eigenen Personal-Agent, Projekt-Spaces, Dokumentenaustausch und volle Custom-Integration.
+              {t('dashboards.shop.upgradeText')}
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <a href="https://aevum-system.de/audit" className="btn-gold inline-flex items-center gap-2">
-                Kostenloses Audit buchen <ArrowRight size={14} />
+                {t('dashboards.shop.bookAudit')} <ArrowRight size={14} />
               </a>
               <a href="https://aevum-system.de" className="text-xs text-ink-300 hover:text-gold-300 transition inline-flex items-center gap-1">
-                Mehr erfahren <ArrowRight size={12} />
+                {t('dashboards.shop.learnMore')} <ArrowRight size={12} />
               </a>
             </div>
             <div className="grid sm:grid-cols-3 gap-3 mt-5 pt-5 border-t border-white/5">
-              <UpgradeBullet text="Personal-Agent mit Memory" />
-              <UpgradeBullet text="Custom-Projekt-Spaces" />
-              <UpgradeBullet text="Dokumentenaustausch" />
+              <UpgradeBullet text={t('dashboards.shop.bulletAgent')} />
+              <UpgradeBullet text={t('dashboards.shop.bulletSpaces')} />
+              <UpgradeBullet text={t('dashboards.shop.bulletDocs')} />
             </div>
           </div>
         </div>
@@ -256,6 +257,7 @@ function KpiCard({
 }
 
 function OrderRow({ order, i }: { order: Order; i: number }) {
+  const { t } = useTranslation();
   const total = (order.total_cents / 100).toLocaleString('de-DE', { style: 'currency', currency: order.currency || 'EUR' });
   const date = order.paid_at || order.created_at;
   return (
@@ -265,7 +267,7 @@ function OrderRow({ order, i }: { order: Order; i: number }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-sm font-semibold text-white truncate">
-          {order.package_name || order.package_tier || 'Bestellung'}
+          {order.package_name || order.package_tier || t('dashboards.shop.order')}
         </div>
         <div className="text-[0.65rem] text-ink-400 mt-0.5">
           {new Date(date).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' })}
@@ -280,6 +282,7 @@ function OrderRow({ order, i }: { order: Order; i: number }) {
 function DownloadButton({
   label, icon: Icon, disabled
 }: { label: string; icon: React.ComponentType<{ size?: number; className?: string }>; disabled?: boolean }) {
+  const { t } = useTranslation();
   return (
     <button
       disabled={disabled}
@@ -293,7 +296,7 @@ function DownloadButton({
     >
       <Icon size={13} />
       <span className="truncate">{label}</span>
-      {disabled && <span className="ml-auto text-[0.55rem] uppercase tracking-wider text-ink-500">Bald</span>}
+      {disabled && <span className="ml-auto text-[0.55rem] uppercase tracking-wider text-ink-500">{t('dashboards.shop.soon')}</span>}
     </button>
   );
 }
@@ -308,13 +311,14 @@ function UpgradeBullet({ text }: { text: string }) {
 }
 
 function EmptyOrders() {
+  const { t } = useTranslation();
   return (
     <div className="card-premium p-10 text-center">
       <ShoppingBag size={28} className="mx-auto mb-3 text-ink-500" strokeWidth={1.5} />
-      <div className="text-sm text-ink-300 mb-1">Noch keine Käufe.</div>
-      <div className="text-[0.7rem] text-ink-500 mb-4">Sobald du Blueprints im Shop kaufst, erscheinen sie hier.</div>
+      <div className="text-sm text-ink-300 mb-1">{t('dashboards.shop.noPurchases')}</div>
+      <div className="text-[0.7rem] text-ink-500 mb-4">{t('dashboards.shop.noPurchasesHint')}</div>
       <a href="https://aevum-system.de/shop" className="btn-gold text-sm inline-flex">
-        Zum Shop <ArrowRight size={14} />
+        {t('dashboards.shop.toShop')} <ArrowRight size={14} />
       </a>
     </div>
   );

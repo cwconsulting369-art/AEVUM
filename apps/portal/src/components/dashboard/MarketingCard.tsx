@@ -1,9 +1,11 @@
 import { Megaphone } from 'lucide-react';
 import type { DashboardData } from './types';
+import { useTranslation } from 'react-i18next';
 
 type Props = { marketing: DashboardData['marketing'] };
 
 export default function MarketingCard({ marketing }: Props) {
+  const { t } = useTranslation();
   const allPending =
     marketing.cold_calls_week == null &&
     marketing.linkedin_posts_week == null &&
@@ -13,25 +15,25 @@ export default function MarketingCard({ marketing }: Props) {
     <div className="card-premium p-6 h-full flex flex-col">
       <header className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-          <Megaphone size={14} className="text-gold-300" /> Marketing-Metriken
+          <Megaphone size={14} className="text-gold-300" /> {t('dashComponents.marketing.title')}
         </h3>
-        {allPending && <span className="badge">Tracking pending</span>}
+        {allPending && <span className="badge">{t('dashComponents.marketing.trackingPending')}</span>}
       </header>
 
       {allPending ? (
         <div className="text-center py-4">
           <div className="text-xs text-ink-400 leading-relaxed">
-            {marketing.note || 'Tracking pending.'}
+            {marketing.note || t('dashComponents.marketing.trackingPendingNote')}
           </div>
           <div className="text-[0.65rem] text-ink-500 mt-2">
-            marketing_events Tabelle wird automatisch befüllt sobald aktiv.
+            {t('dashComponents.marketing.autoFill')}
           </div>
         </div>
       ) : (
         <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-stretch">
-          <Cell label="Cold Calls" value={marketing.cold_calls_week} />
-          <Cell label="LinkedIn-Posts" value={marketing.linkedin_posts_week} />
-          <Cell label="Lead-Magnet-DL" value={marketing.lead_magnet_downloads_week} />
+          <Cell label={t('dashComponents.marketing.coldCalls')} value={marketing.cold_calls_week} />
+          <Cell label={t('dashComponents.marketing.linkedinPosts')} value={marketing.linkedin_posts_week} />
+          <Cell label={t('dashComponents.marketing.leadMagnet')} value={marketing.lead_magnet_downloads_week} />
         </dl>
       )}
     </div>

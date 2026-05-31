@@ -13,6 +13,8 @@ import { api, getAccessToken } from '@/lib/api';
 import Spinner from '@/components/Spinner';
 import { stagger } from '@/lib/animations';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { BarChart, DonutChart } from '@tremor/react';
 
 type Tab = 'metrics' | 'leads' | 'akquise' | 'spend' | 'content' | 'channels' | 'audience' | 'referrals';
@@ -106,17 +108,19 @@ type LeadFunnelData = {
   };
 };
 
-const TIER_LABEL: Record<string, string> = {
-  A: 'A-Lead (Hot)', B: 'B-Lead (Warm)', C: 'C-Lead (Cool)', D: 'D-Lead (Cold)', unscored: 'Unscored'
+const TIER_KEY: Record<string, string> = {
+  A: 'dashboards.funnel.tierA', B: 'dashboards.funnel.tierB', C: 'dashboards.funnel.tierC', D: 'dashboards.funnel.tierD', unscored: 'dashboards.funnel.tierUnscored'
 };
 const TIER_BADGE: Record<string, string> = {
   A: 'badge-gold', B: 'badge-emerald', C: 'badge', D: 'badge', unscored: 'badge'
 };
-const STATUS_LABEL: Record<string, string> = {
-  new: 'Neu', contacted: 'Kontaktiert', qualified: 'Qualifiziert',
-  meeting_booked: 'Termin gebucht', proposal_sent: 'Angebot raus',
-  closed_won: 'Gewonnen', closed_lost: 'Verloren', nurturing: 'Nurturing'
+const STATUS_KEY: Record<string, string> = {
+  new: 'dashboards.funnel.statusNew', contacted: 'dashboards.funnel.statusContacted', qualified: 'dashboards.funnel.statusQualified',
+  meeting_booked: 'dashboards.funnel.statusMeetingBooked', proposal_sent: 'dashboards.funnel.statusProposalSent',
+  closed_won: 'dashboards.funnel.statusClosedWon', closed_lost: 'dashboards.funnel.statusClosedLost', nurturing: 'dashboards.funnel.statusNurturing'
 };
+const tierLabel = (t: TFunction, k: string) => TIER_KEY[k] ? t(TIER_KEY[k]) : k;
+const statusLabel = (t: TFunction, k: string) => STATUS_KEY[k] ? t(STATUS_KEY[k]) : k;
 
 const LEAD_STATUS_OPTIONS = [
   'new', 'contacted', 'qualified', 'meeting_booked', 'proposal_sent', 'closed_won', 'closed_lost', 'nurturing'
@@ -172,14 +176,15 @@ type Topic = {
   notes: string | null;
 };
 
-const PIECE_STATUS_LABEL: Record<string, string> = {
-  draft: 'Entwurf', approved: 'Freigegeben', scheduled: 'Geplant',
-  published: 'Veröffentlicht', archived: 'Archiviert',
+const PIECE_STATUS_KEY: Record<string, string> = {
+  draft: 'dashboards.funnel.pieceDraft', approved: 'dashboards.funnel.pieceApproved', scheduled: 'dashboards.funnel.pieceScheduled',
+  published: 'dashboards.funnel.piecePublished', archived: 'dashboards.funnel.pieceArchived',
 };
 const PIECE_STATUS_BADGE: Record<string, string> = {
   draft: 'badge', approved: 'badge-emerald', scheduled: 'badge-gold',
   published: 'badge-emerald', archived: 'badge-rose',
 };
+const pieceStatusLabel = (t: TFunction, k: string) => PIECE_STATUS_KEY[k] ? t(PIECE_STATUS_KEY[k]) : k;
 const PLATFORM_LABEL: Record<string, string> = {
   facebook: 'Facebook', linkedin: 'LinkedIn',
 };
@@ -201,6 +206,7 @@ function isGatedErr(e: unknown): boolean {
 }
 
 export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: string; projectName: string }) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>('metrics');
   const [data, setData] = useState<LeadFunnelData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -210,7 +216,7 @@ export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: 
       const d = await api<LeadFunnelData>(`/api/me/projects/${projectSlug}/lead-funnel`);
       setData(d);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'Lead-Funnel Daten laden fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -219,23 +225,23 @@ export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: 
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [projectSlug]);
 
   if (loading) return <div className="card-premium p-16 flex justify-center"><Spinner size="md" /></div>;
-  if (!data) return <div className="card-premium p-10 text-center text-sm text-ink-400">Keine Daten verfügbar.</div>;
+  if (!data) return <div className="card-premium p-10 text-center text-sm text-ink-400">{t('dashboards.funnel.noData')}</div>;
 
   return (
     <div className="dashboard-stack @container">
       {/* Header */}
       <header>
         <div className="flex items-center gap-2 text-xs text-gold-300 mb-2 uppercase tracking-wider font-semibold">
-          <Sparkles size={12} /> Lead-Engine
+          <Sparkles size={12} /> {t('dashboards.funnel.engine')}
         </div>
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Lead Funnel</h1>
-            <p className="text-ink-400 mt-1 text-sm">{projectName}  ·  Monitoring + Steuerung deiner gesamten Lead-Engine</p>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">{t('dashboards.funnel.title')}</h1>
+            <p className="text-ink-400 mt-1 text-sm">{t('dashboards.funnel.subtitle', { name: projectName })}</p>
           </div>
           <button onClick={load} className="text-xs text-ink-400 hover:text-gold-300 px-3 py-2 rounded-md hover:bg-white/5 transition">
             <Activity size={12} className="inline mr-1.5" />
-            Aktualisieren
+            {t('dashboards.funnel.refresh')}
           </button>
         </div>
       </header>
@@ -243,14 +249,14 @@ export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: 
       {/* Sub-Tab Navigation */}
       <nav className="flex gap-1 border-b border-white/5 -mb-2 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         {[
-          { id: 'metrics' as const,   label: 'Metriken',   icon: TrendingUp },
-          { id: 'leads' as const,     label: 'Leads',      icon: Users },
-          { id: 'content' as const,   label: 'Content',    icon: FileText },
-          { id: 'channels' as const,  label: 'Kanäle',     icon: Plug },
-          { id: 'audience' as const,  label: 'Zielgruppe', icon: Target },
-          { id: 'akquise' as const,   label: 'Akquise',    icon: Upload },
-          { id: 'spend' as const,     label: 'Spend',      icon: DollarSign },
-          { id: 'referrals' as const, label: 'Referrals',  icon: Gift }
+          { id: 'metrics' as const,   label: t('dashboards.funnel.tabMetrics'),   icon: TrendingUp },
+          { id: 'leads' as const,     label: t('dashboards.funnel.tabLeads'),      icon: Users },
+          { id: 'content' as const,   label: t('dashboards.funnel.tabContent'),    icon: FileText },
+          { id: 'channels' as const,  label: t('dashboards.funnel.tabChannels'),     icon: Plug },
+          { id: 'audience' as const,  label: t('dashboards.funnel.tabAudience'), icon: Target },
+          { id: 'akquise' as const,   label: t('dashboards.funnel.tabAkquise'),    icon: Upload },
+          { id: 'spend' as const,     label: t('dashboards.funnel.tabSpend'),      icon: DollarSign },
+          { id: 'referrals' as const, label: t('dashboards.funnel.tabReferrals'),  icon: Gift }
         ].map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -286,6 +292,7 @@ export default function LeadFunnel({ projectSlug, projectName }: { projectSlug: 
 
 // ─── Metrics Section ───────────────────────────────────────────
 function MetricsSection({ metrics, leadsCount }: { metrics: Metrics; leadsCount: number }) {
+  const { t } = useTranslation();
   const aLeads = metrics.by_tier.A || 0;
   const targetMin = parseInt(String(metrics.target_leads_per_month).split('-')[0] || '15', 10);
   const targetAMin = parseInt(String(metrics.target_a_leads_per_month).split('-')[0] || '3', 10);
@@ -295,36 +302,36 @@ function MetricsSection({ metrics, leadsCount }: { metrics: Metrics; leadsCount:
   return (
     <>
       <KpiGrid>
-        <KpiCard i={0} icon={Users} label="Leads (Total)" value={String(metrics.leads_total)} accent />
-        <KpiCard i={1} icon={TrendingUp} label="Leads (30d)" value={`${metrics.leads_30d} / ${metrics.target_leads_per_month}`} highlight={metrics.leads_30d >= targetMin} />
-        <KpiCard i={2} icon={Activity} label="Leads (7d)" value={String(metrics.leads_7d)} />
-        <KpiCard i={3} icon={Award} label="A-Leads" value={`${aLeads} / ${metrics.target_a_leads_per_month}`} highlight={aLeads >= targetAMin} />
+        <KpiCard i={0} icon={Users} label={t('dashboards.funnel.leadsTotal')} value={String(metrics.leads_total)} accent />
+        <KpiCard i={1} icon={TrendingUp} label={t('dashboards.funnel.leads30d')} value={`${metrics.leads_30d} / ${metrics.target_leads_per_month}`} highlight={metrics.leads_30d >= targetMin} />
+        <KpiCard i={2} icon={Activity} label={t('dashboards.funnel.leads7d')} value={String(metrics.leads_7d)} />
+        <KpiCard i={3} icon={Award} label={t('dashboards.funnel.aLeads')} value={`${aLeads} / ${metrics.target_a_leads_per_month}`} highlight={aLeads >= targetAMin} />
       </KpiGrid>
 
       <section>
-        <SectionHeader icon={TrendingUp} title="Target vs. Actual (90 Tage)" sub="aus project.marketing_thesis.targets_90d" />
+        <SectionHeader icon={TrendingUp} title={t('dashboards.funnel.targetVsActual')} sub={t('dashboards.funnel.targetVsActualSub')} />
         <div className="grid sm:grid-cols-2 gap-[var(--dashboard-gap)] items-stretch">
-          <ProgressCard label="Leads pro Monat" current={metrics.leads_30d} targetLabel={metrics.target_leads_per_month} pct={leadsTrack} />
-          <ProgressCard label="A-Leads pro Monat" current={aLeads} targetLabel={metrics.target_a_leads_per_month} pct={aLeadsTrack} />
-          <ProgressCard label="CPL (€ max)" current={null} targetLabel={`< ${metrics.target_cpl_max_eur} €`} pct={null} muted="Coming Soon — Ads-Integration" />
-          <ProgressCard label="LinkedIn SSI" current={null} targetLabel={`${metrics.target_ssi_min}+`} pct={null} muted="Manuell — Patrick Weekly Report" />
-          <ProgressCard label="Newsletter Subs" current={0} targetLabel={`${metrics.target_newsletter_subs}+`} pct={0} muted="Brevo nicht verknüpft" />
-          <ProgressCard label="Gespräche/Woche" current={null} targetLabel={`${metrics.target_conversations_per_week}+`} pct={null} muted="Manuell — Patrick Weekly Report" />
+          <ProgressCard label={t('dashboards.funnel.leadsPerMonth')} current={metrics.leads_30d} targetLabel={metrics.target_leads_per_month} pct={leadsTrack} />
+          <ProgressCard label={t('dashboards.funnel.aLeadsPerMonth')} current={aLeads} targetLabel={metrics.target_a_leads_per_month} pct={aLeadsTrack} />
+          <ProgressCard label={t('dashboards.funnel.cplMax')} current={null} targetLabel={`< ${metrics.target_cpl_max_eur} €`} pct={null} muted={t('dashboards.funnel.cplMuted')} />
+          <ProgressCard label={t('dashboards.funnel.linkedinSsi')} current={null} targetLabel={`${metrics.target_ssi_min}+`} pct={null} muted={t('dashboards.funnel.ssiMuted')} />
+          <ProgressCard label={t('dashboards.funnel.newsletterSubs')} current={0} targetLabel={`${metrics.target_newsletter_subs}+`} pct={0} muted={t('dashboards.funnel.newsletterMuted')} />
+          <ProgressCard label={t('dashboards.funnel.conversationsWeek')} current={null} targetLabel={`${metrics.target_conversations_per_week}+`} pct={null} muted={t('dashboards.funnel.conversationsMuted')} />
         </div>
       </section>
 
       <section>
-        <SectionHeader icon={Users} title="Lead-Tier-Verteilung" sub={`${leadsCount} Leads gesamt`} />
+        <SectionHeader icon={Users} title={t('dashboards.funnel.tierDistribution')} sub={t('dashboards.funnel.tierDistributionSub', { count: leadsCount })} />
         <div className="card-premium p-4 sm:p-5 grid lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Tremor BarChart — Tier-Verteilung */}
           <BarChart
             className="h-56 w-full"
-            data={['A','B','C','D','unscored'].map((t) => ({
-              tier: TIER_LABEL[t],
-              Leads: metrics.by_tier[t] || 0,
+            data={['A','B','C','D','unscored'].map((tier) => ({
+              tier: tierLabel(t, tier),
+              [t('dashboards.funnel.chartLeads')]: metrics.by_tier[tier] || 0,
             }))}
             index="tier"
-            categories={['Leads']}
+            categories={[t('dashboards.funnel.chartLeads')]}
             colors={['amber']}
             yAxisWidth={36}
             showLegend={false}
@@ -333,7 +340,7 @@ function MetricsSection({ metrics, leadsCount }: { metrics: Metrics; leadsCount:
           <DonutChart
             className="h-56 w-full"
             data={['A','B','C','D','unscored']
-              .map((t) => ({ name: TIER_LABEL[t], value: metrics.by_tier[t] || 0 }))
+              .map((tier) => ({ name: tierLabel(t, tier), value: metrics.by_tier[tier] || 0 }))
               .filter((d) => d.value > 0)}
             category="value"
             index="name"
@@ -344,11 +351,11 @@ function MetricsSection({ metrics, leadsCount }: { metrics: Metrics; leadsCount:
       </section>
 
       <section>
-        <SectionHeader icon={Activity} title="Pipeline-Status" sub="Lead-Lifecycle Verteilung" />
+        <SectionHeader icon={Activity} title={t('dashboards.funnel.pipelineStatus')} sub={t('dashboards.funnel.pipelineStatusSub')} />
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-[var(--dashboard-gap)] items-stretch">
           {Object.entries(metrics.by_status).map(([s, n], i) => (
             <div key={s} className="card-premium card-compact animate-fade-up h-full flex flex-col" style={stagger(i, 40, 40)}>
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">{STATUS_LABEL[s] || s}</div>
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">{statusLabel(t, s)}</div>
               <div className="mt-auto text-2xl font-bold text-white pt-1">{n}</div>
             </div>
           ))}
@@ -384,6 +391,7 @@ type AkquiseLeadDetail = {
 };
 
 function AkquiseSection({ onRefresh }: { onRefresh: () => void }) {
+  const { t } = useTranslation();
   const [campaigns, setCampaigns] = useState<AkquiseCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -394,7 +402,7 @@ function AkquiseSection({ onRefresh }: { onRefresh: () => void }) {
       const r = await api<{ ok: boolean; campaigns: AkquiseCampaign[] }>('/api/factories/lead-scraper/campaigns');
       setCampaigns(r.campaigns || []);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Campaigns laden fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.campaignsLoadFailed'));
     } finally {
       setLoading(false);
     }
@@ -406,7 +414,7 @@ function AkquiseSection({ onRefresh }: { onRefresh: () => void }) {
 
   return (
     <>
-      <SectionHeader icon={Upload} title="Akquise (Cold-Email-Funnel)" sub="Bestehende Lead-Listen hochladen, AI-Pitches in deinem Brandtone, Email-Versand via AEVUM" />
+      <SectionHeader icon={Upload} title={t('dashboards.funnel.akquiseTitle')} sub={t('dashboards.funnel.akquiseSub')} />
 
       {/* Pro-Hinweis + Upload-Toggle */}
       <div className="card-premium p-5">
@@ -415,18 +423,18 @@ function AkquiseSection({ onRefresh }: { onRefresh: () => void }) {
             <Sparkles size={16} className="text-gold-300" />
           </div>
           <div className="flex-1">
-            <div className="font-semibold text-white text-sm">So funktioniert der Email-Flow</div>
+            <div className="font-semibold text-white text-sm">{t('dashboards.funnel.emailFlowTitle')}</div>
             <ol className="text-xs text-ink-300 mt-2 space-y-1 list-decimal list-inside leading-relaxed">
-              <li>CSV mit Lead-Liste hochladen (Pflicht-Spalte: <code className="text-gold-200">owner_email</code>)</li>
-              <li>AI generiert 3 Pitch-Varianten pro Lead in deinem Brandtone (12 Credits/Lead)</li>
-              <li>Jeden Pitch reviewen + approven (oder editieren)</li>
-              <li>Approved-Leads → Resend versendet personalisiert via deine AEVUM-Email-Adresse</li>
-              <li>Tracking aller Status-Changes (sent/opened/replied) im selben Dashboard</li>
+              <li>{t('dashboards.funnel.emailFlow1Pre')}<code className="text-gold-200">owner_email</code>{t('dashboards.funnel.emailFlow1Post')}</li>
+              <li>{t('dashboards.funnel.emailFlow2')}</li>
+              <li>{t('dashboards.funnel.emailFlow3')}</li>
+              <li>{t('dashboards.funnel.emailFlow4')}</li>
+              <li>{t('dashboards.funnel.emailFlow5')}</li>
             </ol>
           </div>
         </div>
         <button onClick={() => setShowUpload(s => !s)} className="btn-gold text-sm">
-          {showUpload ? <><X size={13} /> Abbrechen</> : <><Upload size={13} /> Neue Campaign starten</>}
+          {showUpload ? <><X size={13} /> {t('dashboards.funnel.cancel')}</> : <><Upload size={13} /> {t('dashboards.funnel.startNewCampaign')}</>}
         </button>
       </div>
 
@@ -434,12 +442,12 @@ function AkquiseSection({ onRefresh }: { onRefresh: () => void }) {
 
       {/* Campaign-Liste */}
       <section>
-        <SectionHeader icon={Send} title="Deine Campaigns" sub={`${campaigns.length} insgesamt`} />
+        <SectionHeader icon={Send} title={t('dashboards.funnel.yourCampaigns')} sub={t('dashboards.funnel.campaignsTotal', { count: campaigns.length })} />
         {campaigns.length === 0 ? (
           <div className="card-premium p-10 text-center">
             <Send size={28} className="mx-auto text-ink-400 mb-3" />
-            <p className="text-sm text-ink-400">Noch keine Campaign gestartet.</p>
-            <p className="text-xs text-ink-400 mt-2">Klick oben „Neue Campaign starten" um deine erste Lead-Liste zu uploaden.</p>
+            <p className="text-sm text-ink-400">{t('dashboards.funnel.noCampaign')}</p>
+            <p className="text-xs text-ink-400 mt-2">{t('dashboards.funnel.noCampaignHint')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -461,13 +469,14 @@ function AkquiseSection({ onRefresh }: { onRefresh: () => void }) {
 }
 
 function UploadCampaignForm({ onCreated }: { onCreated: () => void }) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) { toast.error('Bitte CSV-Datei wählen'); return; }
+    if (!file) { toast.error(t('dashboards.funnel.chooseCsv')); return; }
     setUploading(true);
     try {
       const fd = new FormData();
@@ -481,14 +490,16 @@ function UploadCampaignForm({ onCreated }: { onCreated: () => void }) {
       });
       const data = await res.json();
       if (!data.ok) {
-        toast.error(data.error || 'Upload fehlgeschlagen');
+        toast.error(data.error || t('dashboards.funnel.uploadFailed'));
       } else {
-        toast.success(`Campaign erstellt — ${data.leads_imported} Leads importiert${data.skipped ? `, ${data.skipped} übersprungen` : ''}`);
+        toast.success(data.skipped
+          ? t('dashboards.funnel.campaignCreatedSkipped', { imported: data.leads_imported, skipped: data.skipped })
+          : t('dashboards.funnel.campaignCreated', { imported: data.leads_imported }));
         setName(''); setFile(null);
         onCreated();
       }
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Upload fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.uploadFailed'));
     } finally {
       setUploading(false);
     }
@@ -498,14 +509,14 @@ function UploadCampaignForm({ onCreated }: { onCreated: () => void }) {
     <form onSubmit={submit} className="card-premium p-5 space-y-4 animate-slide-up">
       <div className="flex items-center gap-2 pb-2 border-b border-white/5">
         <Upload size={14} className="text-gold-300" />
-        <h3 className="text-xs font-semibold text-ink-100 uppercase tracking-wider">Neue Campaign</h3>
+        <h3 className="text-xs font-semibold text-ink-100 uppercase tracking-wider">{t('dashboards.funnel.newCampaign')}</h3>
       </div>
 
-      <Field label="Campaign-Name (z.B. Apollo-Rentner-2026-05-26)">
-        <input required value={name} onChange={e => setName(e.target.value)} placeholder="Apollo-Segment1-2026-05-26" className="input-premium" />
+      <Field label={t('dashboards.funnel.campaignNameLabel')}>
+        <input required value={name} onChange={e => setName(e.target.value)} placeholder={t('dashboards.funnel.campaignNamePlaceholder')} className="input-premium" />
       </Field>
 
-      <Field label="CSV-Datei (Pflicht-Spalten: owner_email)">
+      <Field label={t('dashboards.funnel.csvFileLabel')}>
         <div className="relative">
           <input
             required
@@ -516,12 +527,12 @@ function UploadCampaignForm({ onCreated }: { onCreated: () => void }) {
           />
         </div>
         <p className="text-[0.65rem] text-ink-400 mt-1.5 leading-relaxed">
-          Erkannte Spalten: <code>company_name</code>, <code>company_domain</code>, <code>owner_name</code>, <code className="text-gold-200">owner_email (Pflicht)</code>, <code>owner_linkedin_url</code>
+          {t('dashboards.funnel.csvRecognized')}<code>company_name</code>, <code>company_domain</code>, <code>owner_name</code>, <code className="text-gold-200">{t('dashboards.funnel.csvOwnerRequired')}</code>, <code>owner_linkedin_url</code>
         </p>
       </Field>
 
       <button disabled={uploading || !name || !file} className="btn-gold text-sm">
-        {uploading ? <>Lade hoch…</> : <><Upload size={13} /> CSV hochladen + Campaign erstellen</>}
+        {uploading ? <>{t('dashboards.funnel.uploading')}</> : <><Upload size={13} /> {t('dashboards.funnel.uploadCsvBtn')}</>}
       </button>
     </form>
   );
@@ -534,6 +545,7 @@ function CampaignCard({ campaign, expanded, onToggle, onAction, index }: {
   onAction: () => void;
   index: number;
 }) {
+  const { t } = useTranslation();
   const [leads, setLeads] = useState<AkquiseLeadDetail[]>([]);
   const [loadingLeads, setLoadingLeads] = useState(false);
   const [actionRunning, setActionRunning] = useState<string | null>(null);
@@ -543,7 +555,7 @@ function CampaignCard({ campaign, expanded, onToggle, onAction, index }: {
     setLoadingLeads(true);
     api<{ ok: boolean; leads: AkquiseLeadDetail[] }>(`/api/factories/lead-scraper/campaigns/${campaign.id}`)
       .then(r => setLeads(r.leads || []))
-      .catch(e => toast.error(e instanceof Error ? e.message : 'Leads laden fehlgeschlagen'))
+      .catch(e => toast.error(e instanceof Error ? e.message : t('dashboards.funnel.leadsLoadFailed')))
       .finally(() => setLoadingLeads(false));
   }, [expanded, campaign.id, campaign.status]);
 
@@ -553,24 +565,24 @@ function CampaignCard({ campaign, expanded, onToggle, onAction, index }: {
       const r = await api<{ ok: boolean; leads_to_generate: number; credits_spent: number; estimated_duration_sec: number }>(
         `/api/factories/lead-scraper/campaigns/${campaign.id}/generate`, { method: 'POST' }
       );
-      toast.success(`Generiere ${r.leads_to_generate} Pitches (${r.credits_spent} Credits, ~${r.estimated_duration_sec}s)`);
+      toast.success(t('dashboards.funnel.generatePitchesToast', { count: r.leads_to_generate, credits: r.credits_spent, sec: r.estimated_duration_sec }));
       setTimeout(onAction, 2000);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Generierung fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.generateFailed'));
     } finally {
       setActionRunning(null);
     }
   };
 
   const sendApproved = async () => {
-    if (!confirm('Alle approved Leads jetzt per Email versenden?')) return;
+    if (!confirm(t('dashboards.funnel.sendConfirm'))) return;
     setActionRunning('send');
     try {
       const r = await api<{ ok: boolean; scheduled: number }>(`/api/factories/lead-scraper/campaigns/${campaign.id}/send`, { method: 'POST' });
-      toast.success(`${r.scheduled} Emails geschedulet — Versand läuft`);
+      toast.success(t('dashboards.funnel.sendScheduled', { count: r.scheduled }));
       setTimeout(onAction, 1500);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Versand fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.sendFailed'));
     } finally {
       setActionRunning(null);
     }
@@ -609,16 +621,16 @@ function CampaignCard({ campaign, expanded, onToggle, onAction, index }: {
               <div className="flex flex-wrap items-center gap-2">
                 {pendingCount > 0 && (
                   <button onClick={generatePitches} disabled={actionRunning === 'generate'} className="btn-gold text-xs">
-                    {actionRunning === 'generate' ? 'Läuft…' : <><Sparkles size={12} /> Pitches generieren ({pendingCount} × 12 Credits = {pendingCount * 12})</>}
+                    {actionRunning === 'generate' ? t('dashboards.funnel.generating') : <><Sparkles size={12} /> {t('dashboards.funnel.generatePitchesBtn', { pending: pendingCount, cost: pendingCount * 12 })}</>}
                   </button>
                 )}
                 {approvedCount > 0 && (
                   <button onClick={sendApproved} disabled={actionRunning === 'send'} className="btn-gold text-xs">
-                    {actionRunning === 'send' ? 'Sende…' : <><Send size={12} /> {approvedCount} Approved Email versenden</>}
+                    {actionRunning === 'send' ? t('dashboards.funnel.publishing') : <><Send size={12} /> {t('dashboards.funnel.sendApprovedBtn', { approved: approvedCount })}</>}
                   </button>
                 )}
                 <div className="text-xs text-ink-400 ml-auto">
-                  pending: {pendingCount} · generiert: {generatedCount} · approved: {approvedCount} · gesendet: {sentCount}
+                  {t('dashboards.funnel.pitchCounters', { pending: pendingCount, generated: generatedCount, approved: approvedCount, sent: sentCount })}
                 </div>
               </div>
 
@@ -637,6 +649,7 @@ function CampaignCard({ campaign, expanded, onToggle, onAction, index }: {
 }
 
 function LeadPitchRow({ lead, onAction }: { lead: AkquiseLeadDetail; onAction: () => void }) {
+  const { t } = useTranslation();
   const [selectedIdx, setSelectedIdx] = useState(lead.pitch_selected_index ?? 0);
   const [editing, setEditing] = useState(false);
   const [editBody, setEditBody] = useState(lead.outreach_message || '');
@@ -653,11 +666,11 @@ function LeadPitchRow({ lead, onAction }: { lead: AkquiseLeadDetail; onAction: (
         ? { outreach_status: 'approved', outreach_message: editBody, outreach_message_subject: editSubject }
         : { outreach_status: 'approved', pitch_selected_index: selectedIdx };
       await api(`/api/factories/lead-scraper/leads/${lead.id}`, { method: 'PATCH', body: JSON.stringify(body) });
-      toast.success('Lead approved');
+      toast.success(t('dashboards.funnel.leadApproved'));
       setEditing(false);
       onAction();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Approve fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.approveFailed'));
     } finally {
       setSaving(false);
     }
@@ -667,10 +680,10 @@ function LeadPitchRow({ lead, onAction }: { lead: AkquiseLeadDetail; onAction: (
     setSaving(true);
     try {
       await api(`/api/factories/lead-scraper/leads/${lead.id}`, { method: 'PATCH', body: JSON.stringify({ outreach_status: 'failed' }) });
-      toast.success('Lead übersprungen');
+      toast.success(t('dashboards.funnel.leadSkipped'));
       onAction();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Fehler');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.error'));
     } finally {
       setSaving(false);
     }
@@ -709,7 +722,7 @@ function LeadPitchRow({ lead, onAction }: { lead: AkquiseLeadDetail; onAction: (
                     selectedIdx === i ? 'border-gold-400/50 bg-gold-400/10 text-gold-200' : 'border-white/10 text-ink-400'
                   }`}
                 >
-                  Variante {i + 1} <span className="opacity-60">({v.tone})</span>
+                  {t('dashboards.funnel.variantLabel', { n: i + 1 })} <span className="opacity-60">({v.tone})</span>
                 </button>
               ))}
             </div>
@@ -717,14 +730,14 @@ function LeadPitchRow({ lead, onAction }: { lead: AkquiseLeadDetail; onAction: (
 
           {editing ? (
             <div className="space-y-2">
-              <input value={editSubject} onChange={e => setEditSubject(e.target.value)} placeholder="Subject" className="input-premium text-xs" />
+              <input value={editSubject} onChange={e => setEditSubject(e.target.value)} placeholder={t('dashboards.funnel.subject')} className="input-premium text-xs" />
               <textarea value={editBody} onChange={e => setEditBody(e.target.value)} rows={5} className="input-premium text-xs resize-none" />
             </div>
           ) : (
             <div className="space-y-1.5">
-              <div className="text-[0.65rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">Subject</div>
+              <div className="text-[0.65rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">{t('dashboards.funnel.subject')}</div>
               <div className="text-sm text-white">{variants[selectedIdx]?.subject || lead.outreach_message_subject}</div>
-              <div className="text-[0.65rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mt-2">Body</div>
+              <div className="text-[0.65rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mt-2">{t('dashboards.funnel.body')}</div>
               <div className="text-xs text-ink-200 whitespace-pre-wrap leading-relaxed">{variants[selectedIdx]?.body || lead.outreach_message}</div>
             </div>
           )}
@@ -733,19 +746,19 @@ function LeadPitchRow({ lead, onAction }: { lead: AkquiseLeadDetail; onAction: (
             <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/5">
               {editing ? (
                 <>
-                  <button onClick={approve} disabled={saving} className="btn-gold text-xs"><Check size={11} /> Speichern + Approve</button>
-                  <button onClick={() => { setEditing(false); setEditBody(variants[selectedIdx]?.body || ''); setEditSubject(variants[selectedIdx]?.subject || ''); }} className="text-xs text-ink-400 hover:text-white px-2 py-1">Abbrechen</button>
+                  <button onClick={approve} disabled={saving} className="btn-gold text-xs"><Check size={11} /> {t('dashboards.funnel.saveApprove')}</button>
+                  <button onClick={() => { setEditing(false); setEditBody(variants[selectedIdx]?.body || ''); setEditSubject(variants[selectedIdx]?.subject || ''); }} className="text-xs text-ink-400 hover:text-white px-2 py-1">{t('dashboards.funnel.cancel')}</button>
                 </>
               ) : (
                 <>
                   <button onClick={approve} disabled={saving || lead.outreach_status === 'approved'} className="btn-gold text-xs">
-                    <Check size={11} /> {lead.outreach_status === 'approved' ? 'Approved' : 'Approve'}
+                    <Check size={11} /> {lead.outreach_status === 'approved' ? t('dashboards.funnel.approved') : t('dashboards.funnel.approve')}
                   </button>
                   <button onClick={() => { setEditing(true); setEditBody(variants[selectedIdx]?.body || ''); setEditSubject(variants[selectedIdx]?.subject || ''); }} className="text-xs text-ink-300 hover:text-gold-300 px-2 py-1 inline-flex items-center gap-1">
-                    <Edit3 size={10} /> Editieren
+                    <Edit3 size={10} /> {t('dashboards.funnel.edit')}
                   </button>
                   <button onClick={reject} disabled={saving} className="text-xs text-rose-300 hover:text-rose-200 px-2 py-1 ml-auto inline-flex items-center gap-1">
-                    <X size={10} /> Skip
+                    <X size={10} /> {t('dashboards.funnel.skip')}
                   </button>
                 </>
               )}
@@ -755,13 +768,14 @@ function LeadPitchRow({ lead, onAction }: { lead: AkquiseLeadDetail; onAction: (
       )}
 
       {!hasPitch && lead.outreach_status === 'pending' && (
-        <div className="mt-2 text-xs text-ink-400 italic">Wartet auf Pitch-Generation</div>
+        <div className="mt-2 text-xs text-ink-400 italic">{t('dashboards.funnel.waitingPitch')}</div>
       )}
     </div>
   );
 }
 
 function LeadsSection({ leads, onRefresh }: { leads: Lead[]; onRefresh: () => void }) {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState<'all' | 'A' | 'B' | 'new' | 'qualified'>('all');
   const filtered = useMemo(() => {
     if (filter === 'all') return leads;
@@ -771,16 +785,16 @@ function LeadsSection({ leads, onRefresh }: { leads: Lead[]; onRefresh: () => vo
 
   return (
     <>
-      <SectionHeader icon={Users} title="Leads" sub={`${leads.length} Leads — letzte 50, neueste zuerst`} />
+      <SectionHeader icon={Users} title={t('dashboards.funnel.tabLeads')} sub={t('dashboards.funnel.leadsCount', { count: leads.length })} />
 
       {/* Filter chips */}
       <div className="flex gap-2 flex-wrap">
         {[
-          { id: 'all' as const, label: 'Alle' },
-          { id: 'A' as const, label: 'A-Leads' },
-          { id: 'B' as const, label: 'B-Leads' },
-          { id: 'new' as const, label: 'Status: Neu' },
-          { id: 'qualified' as const, label: 'Status: Qualifiziert' }
+          { id: 'all' as const, label: t('dashboards.funnel.filterAll') },
+          { id: 'A' as const, label: t('dashboards.funnel.filterA') },
+          { id: 'B' as const, label: t('dashboards.funnel.filterB') },
+          { id: 'new' as const, label: t('dashboards.funnel.filterNew') },
+          { id: 'qualified' as const, label: t('dashboards.funnel.filterQualified') }
         ].map(f => (
           <button
             key={f.id}
@@ -799,9 +813,9 @@ function LeadsSection({ leads, onRefresh }: { leads: Lead[]; onRefresh: () => vo
       {filtered.length === 0 ? (
         <div className="card-premium p-10 text-center">
           <Users size={28} className="mx-auto text-ink-400 mb-3" />
-          <p className="text-sm text-ink-400">Keine Leads in dieser Auswahl.</p>
+          <p className="text-sm text-ink-400">{t('dashboards.funnel.noLeadsInSelection')}</p>
           <p className="text-xs text-ink-400 mt-2">
-            Sobald Apollo-Cold-Outreach + LinkedIn Sales Nav laufen, erscheinen hier neue Leads automatisch.
+            {t('dashboards.funnel.leadsApolloHint')}
           </p>
         </div>
       ) : (
@@ -816,6 +830,7 @@ function LeadsSection({ leads, onRefresh }: { leads: Lead[]; onRefresh: () => vo
 }
 
 function LeadRow({ lead, index, onRefresh }: { lead: Lead; index: number; onRefresh: () => void }) {
+  const { t } = useTranslation();
   const [status, setStatus] = useState(lead.status);
   const [saving, setSaving] = useState(false);
   // nurture_step is provided by some lead shapes — read defensively without widening the Lead type.
@@ -828,11 +843,11 @@ function LeadRow({ lead, index, onRefresh }: { lead: Lead; index: number; onRefr
     setSaving(true);
     try {
       await api(`/api/me/leads/${lead.id}`, { method: 'PATCH', body: JSON.stringify({ status: next }) });
-      toast.success(`Status → ${STATUS_LABEL[next] || next}`);
+      toast.success(t('dashboards.funnel.statusUpdateToast', { label: statusLabel(t, next) }));
       onRefresh();
     } catch (e) {
       setStatus(prev);
-      toast.error(e instanceof Error ? e.message : 'Status-Update fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.statusUpdateFailed'));
     } finally {
       setSaving(false);
     }
@@ -856,14 +871,14 @@ function LeadRow({ lead, index, onRefresh }: { lead: Lead; index: number; onRefr
               </span>
             )}
             {(nurtureStep !== undefined && nurtureStep !== null) && (
-              <span className="badge">Nurture-Step {String(nurtureStep)}</span>
+              <span className="badge">{t('dashboards.funnel.nurtureStep', { n: String(nurtureStep) })}</span>
             )}
           </div>
           <div className="text-xs text-ink-400 mt-1.5 flex items-center gap-3 flex-wrap">
             <span className="inline-flex items-center gap-1"><Mail size={11} /> {lead.email}</span>
             {lead.phone && <span className="inline-flex items-center gap-1"><Phone size={11} /> {lead.phone}</span>}
             {lead.source && (
-              <span>· Quelle: <span className="text-ink-200">{lead.source}{lead.source_detail ? `/${lead.source_detail}` : ''}</span></span>
+              <span>· {t('dashboards.funnel.source')} <span className="text-ink-200">{lead.source}{lead.source_detail ? `/${lead.source_detail}` : ''}</span></span>
             )}
             <span>· {new Date(lead.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' })}</span>
           </div>
@@ -875,13 +890,13 @@ function LeadRow({ lead, index, onRefresh }: { lead: Lead; index: number; onRefr
             disabled={saving}
             onChange={e => changeStatus(e.target.value)}
             className="input-premium text-xs py-1.5 pr-7 disabled:opacity-50"
-            aria-label="Lead-Status"
+            aria-label={t('dashboards.funnel.leadStatusAria')}
           >
             {LEAD_STATUS_OPTIONS.map(s => (
-              <option key={s} value={s}>{STATUS_LABEL[s] || s}</option>
+              <option key={s} value={s}>{statusLabel(t, s)}</option>
             ))}
             {!LEAD_STATUS_OPTIONS.includes(status as typeof LEAD_STATUS_OPTIONS[number]) && (
-              <option value={status}>{STATUS_LABEL[status] || status}</option>
+              <option value={status}>{statusLabel(t, status)}</option>
             )}
           </select>
         </div>
@@ -892,26 +907,26 @@ function LeadRow({ lead, index, onRefresh }: { lead: Lead; index: number; onRefr
 
 // ─── Spend Section ─────────────────────────────────────────────
 function SpendSection({ spend }: { spend: LeadFunnelData['spend'] }) {
+  const { t } = useTranslation();
   return (
     <>
-      <SectionHeader icon={DollarSign} title="Spend & Budget" sub="Cold-Outreach Tools + (Ads coming)" />
+      <SectionHeader icon={DollarSign} title={t('dashboards.funnel.spendTitle')} sub={t('dashboards.funnel.spendSub')} />
 
       <KpiGrid>
-        <KpiCard i={0} icon={Send} label="Apollo-Campaigns" value={String(spend.cold_outreach.apollo_campaigns)} />
-        <KpiCard i={1} icon={Activity} label="Aktiv" value={String(spend.cold_outreach.apollo_campaigns_active)} accent={spend.cold_outreach.apollo_campaigns_active > 0} />
-        <KpiCard i={2} icon={DollarSign} label="Ad-Budget (Ziel/Mo)" value={`${spend.targets.monthly_ad_budget_eur} €`} />
-        <KpiCard i={3} icon={DollarSign} label="Tools (Ziel/Mo)" value={`${spend.targets.monthly_tools_budget_eur} €`} />
+        <KpiCard i={0} icon={Send} label={t('dashboards.funnel.apolloCampaigns')} value={String(spend.cold_outreach.apollo_campaigns)} />
+        <KpiCard i={1} icon={Activity} label={t('dashboards.funnel.active')} value={String(spend.cold_outreach.apollo_campaigns_active)} accent={spend.cold_outreach.apollo_campaigns_active > 0} />
+        <KpiCard i={2} icon={DollarSign} label={t('dashboards.funnel.adBudgetTarget')} value={`${spend.targets.monthly_ad_budget_eur} €`} />
+        <KpiCard i={3} icon={DollarSign} label={t('dashboards.funnel.toolsTarget')} value={`${spend.targets.monthly_tools_budget_eur} €`} />
       </KpiGrid>
 
       <section>
-        <SectionHeader icon={Send} title="Apollo Cold-Outreach Campaigns" sub="via Lead-Scraper-Factory" />
+        <SectionHeader icon={Send} title={t('dashboards.funnel.apolloOutreach')} sub={t('dashboards.funnel.apolloOutreachSub')} />
         {spend.cold_outreach.recent_campaigns.length === 0 ? (
           <div className="card-premium p-8 text-center">
             <Send size={24} className="mx-auto text-ink-400 mb-3" />
-            <p className="text-sm text-ink-300">Noch keine Campaign gestartet.</p>
+            <p className="text-sm text-ink-300">{t('dashboards.funnel.noCampaignSpend')}</p>
             <p className="text-xs text-ink-400 mt-2 max-w-md mx-auto">
-              Setup-Anleitung: <code className="text-gold-300">SETUP-APOLLO-SALESNAV.md</code> ·
-              Erste Campaign: Apollo-CSV exportieren → Lead-Scraper-Factory uploaden.
+              {t('dashboards.funnel.apolloSetupHint1')}<code className="text-gold-300">SETUP-APOLLO-SALESNAV.md</code>{t('dashboards.funnel.apolloSetupHint2')}
             </p>
           </div>
         ) : (
@@ -935,8 +950,8 @@ function SpendSection({ spend }: { spend: LeadFunnelData['spend'] }) {
 
       <ComingSoonCard
         icon={DollarSign}
-        title="Meta Ads · LinkedIn Ads · Google Ads"
-        body="Ads-Spend-Tracking & Campaign-Setup ist Teil von Lead-Engine Phase B7+B8 (siehe Architektur-Spec). Sobald Patrick FB-Page + Meta-Business-Verifizierung abgeschlossen hat, integrieren wir Real-Time Spend-/CPL-/ROAS-Pulls."
+        title={t('dashboards.funnel.adsComingTitle')}
+        body={t('dashboards.funnel.adsComingBody')}
       />
     </>
   );
@@ -944,6 +959,7 @@ function SpendSection({ spend }: { spend: LeadFunnelData['spend'] }) {
 
 // ─── Content Section (Cockpit: Pieces + Generate + Edit + Publish) ──
 function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
+  const { t } = useTranslation();
   const [pieces, setPieces] = useState<ContentPiece[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -961,7 +977,7 @@ function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
       const list = Array.isArray(r) ? r : (r.pieces ?? []);
       setPieces(list);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Content laden fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.contentLoadFailed'));
       setPieces([]);
     } finally {
       setLoading(false);
@@ -978,13 +994,13 @@ function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
 
   return (
     <>
-      <SectionHeader icon={FileText} title="Content Pipeline" sub="Pieces erstellen, generieren, freigeben & veröffentlichen (LinkedIn + Facebook)" />
+      <SectionHeader icon={FileText} title={t('dashboards.funnel.contentTitle')} sub={t('dashboards.funnel.contentSub')} />
 
       <KpiGrid>
-        <KpiCard i={0} icon={FileText} label="Veröffentlicht (30d)" value={String(content.posts_published_30d)} />
-        <KpiCard i={1} icon={Activity} label="Geplant" value={String((counts.scheduled || 0))} />
-        <KpiCard i={2} icon={ChevronRight} label="Entwürfe" value={String((counts.draft || 0))} />
-        <KpiCard i={3} icon={Check} label="Freigegeben" value={String((counts.approved || 0))} />
+        <KpiCard i={0} icon={FileText} label={t('dashboards.funnel.published30d')} value={String(content.posts_published_30d)} />
+        <KpiCard i={1} icon={Activity} label={t('dashboards.funnel.scheduled')} value={String((counts.scheduled || 0))} />
+        <KpiCard i={2} icon={ChevronRight} label={t('dashboards.funnel.drafts')} value={String((counts.draft || 0))} />
+        <KpiCard i={3} icon={Check} label={t('dashboards.funnel.approvedKpi')} value={String((counts.approved || 0))} />
       </KpiGrid>
 
       {/* Generate-Toggle */}
@@ -994,15 +1010,14 @@ function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
             <Sparkles size={16} className="text-gold-300" />
           </div>
           <div className="flex-1">
-            <div className="font-semibold text-white text-sm">Content in deiner Voice generieren</div>
+            <div className="font-semibold text-white text-sm">{t('dashboards.funnel.generateInVoiceTitle')}</div>
             <p className="text-xs text-ink-300 mt-1 leading-relaxed">
-              Wähle Segment, Plattform und Awareness-Stufe — die KI erstellt einen Entwurf auf Basis deiner
-              Zielgruppen- & Brand-Voice-Einstellungen. Jeden Entwurf bearbeitest, gibst du frei, planst oder archivierst du.
+              {t('dashboards.funnel.generateInVoiceText')}
             </p>
           </div>
         </div>
         <button onClick={() => setShowGen(s => !s)} className="btn-gold text-sm">
-          {showGen ? <><X size={13} /> Abbrechen</> : <><Sparkles size={13} /> Content generieren</>}
+          {showGen ? <><X size={13} /> {t('dashboards.funnel.cancel')}</> : <><Sparkles size={13} /> {t('dashboards.funnel.generateContent')}</>}
         </button>
       </div>
 
@@ -1011,15 +1026,15 @@ function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
       {/* Filters */}
       <div className="flex gap-2 flex-wrap items-center">
         <FilterChips
-          label="Status"
+          label={t('dashboards.funnel.filterStatus')}
           value={statusFilter}
-          options={[['all', 'Alle'], ['draft', 'Entwurf'], ['approved', 'Freigegeben'], ['scheduled', 'Geplant'], ['published', 'Veröffentlicht'], ['archived', 'Archiviert']]}
+          options={[['all', t('dashboards.funnel.filterAll')], ['draft', t('dashboards.funnel.pieceDraft')], ['approved', t('dashboards.funnel.pieceApproved')], ['scheduled', t('dashboards.funnel.pieceScheduled')], ['published', t('dashboards.funnel.piecePublished')], ['archived', t('dashboards.funnel.pieceArchived')]]}
           onChange={setStatusFilter}
         />
         <FilterChips
-          label="Plattform"
+          label={t('dashboards.funnel.filterPlatform')}
           value={platformFilter}
-          options={[['all', 'Alle'], ['linkedin', 'LinkedIn'], ['facebook', 'Facebook']]}
+          options={[['all', t('dashboards.funnel.filterAll')], ['linkedin', 'LinkedIn'], ['facebook', 'Facebook']]}
           onChange={setPlatformFilter}
         />
       </div>
@@ -1030,8 +1045,8 @@ function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
       ) : pieces.length === 0 ? (
         <div className="card-premium p-10 text-center">
           <FileText size={28} className="mx-auto text-ink-400 mb-3" />
-          <p className="text-sm text-ink-400">Noch kein Content in dieser Auswahl.</p>
-          <p className="text-xs text-ink-400 mt-2">Klick oben „Content generieren" für deinen ersten Entwurf.</p>
+          <p className="text-sm text-ink-400">{t('dashboards.funnel.noContentInSelection')}</p>
+          <p className="text-xs text-ink-400 mt-2">{t('dashboards.funnel.noContentHint')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -1045,6 +1060,7 @@ function ContentSection({ content }: { content: LeadFunnelData['content'] }) {
 }
 
 function GeneratePieceForm({ onDone }: { onDone: () => void }) {
+  const { t } = useTranslation();
   const [segment, setSegment] = useState<string>('auswanderer');
   const [platform, setPlatform] = useState<string>('linkedin');
   const [awareness, setAwareness] = useState<string>('problem_aware');
@@ -1059,10 +1075,10 @@ function GeneratePieceForm({ onDone }: { onDone: () => void }) {
         method: 'POST',
         body: JSON.stringify({ segment, platform, awareness_stage: awareness, n }),
       });
-      toast.success(`${n} Entwurf${n > 1 ? 'e' : ''} wird generiert — erscheint gleich in der Liste`);
+      toast.success(t('dashboards.funnel.genDraftToast', { count: n }));
       onDone();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Generierung fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.generateFailed'));
     } finally {
       setRunning(false);
     }
@@ -1072,37 +1088,38 @@ function GeneratePieceForm({ onDone }: { onDone: () => void }) {
     <form onSubmit={submit} className="card-premium p-5 space-y-4 animate-slide-up">
       <div className="flex items-center gap-2 pb-2 border-b border-white/5">
         <Sparkles size={14} className="text-gold-300" />
-        <h3 className="text-xs font-semibold text-ink-100 uppercase tracking-wider">Content generieren</h3>
+        <h3 className="text-xs font-semibold text-ink-100 uppercase tracking-wider">{t('dashboards.funnel.generateContent')}</h3>
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <Field label="Segment">
+        <Field label={t('dashboards.funnel.fieldSegment')}>
           <select value={segment} onChange={e => setSegment(e.target.value)} className="input-premium">
             {SEGMENT_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </Field>
-        <Field label="Plattform">
+        <Field label={t('dashboards.funnel.fieldPlatform')}>
           <select value={platform} onChange={e => setPlatform(e.target.value)} className="input-premium">
             <option value="linkedin">LinkedIn</option>
             <option value="facebook">Facebook</option>
           </select>
         </Field>
-        <Field label="Awareness-Stufe">
+        <Field label={t('dashboards.funnel.fieldAwareness')}>
           <select value={awareness} onChange={e => setAwareness(e.target.value)} className="input-premium">
             {AWARENESS_OPTIONS.map(a => <option key={a} value={a}>{a}</option>)}
           </select>
         </Field>
-        <Field label="Anzahl">
+        <Field label={t('dashboards.funnel.fieldCount')}>
           <input type="number" min={1} max={5} value={n} onChange={e => setN(Math.max(1, Math.min(5, Number(e.target.value) || 1)))} className="input-premium" />
         </Field>
       </div>
       <button disabled={running} className="btn-gold text-sm">
-        {running ? 'Generiere…' : <><Sparkles size={13} /> Entwurf erstellen</>}
+        {running ? t('dashboards.funnel.generating') : <><Sparkles size={13} /> {t('dashboards.funnel.createDraft')}</>}
       </button>
     </form>
   );
 }
 
 function PieceCard({ piece, index, onRefresh }: { piece: ContentPiece; index: number; onRefresh: () => void }) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(piece.title || '');
   const [body, setBody] = useState(piece.body || '');
@@ -1121,7 +1138,7 @@ function PieceCard({ piece, index, onRefresh }: { piece: ContentPiece; index: nu
       setScheduleOpen(false);
       onRefresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Aktion fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.actionFailed'));
     } finally {
       setBusy(null);
     }
@@ -1131,14 +1148,15 @@ function PieceCard({ piece, index, onRefresh }: { piece: ContentPiece; index: nu
     setBusy('publish');
     try {
       await api(`/api/me/funnel/pieces/${piece.id}/publish`, { method: 'POST' });
-      toast.success('Veröffentlicht');
+      toast.success(t('dashboards.funnel.published'));
       onRefresh();
     } catch (e) {
       if (isGatedErr(e)) {
-        toast.error('Veröffentlichen noch nicht möglich — verbinde zuerst deinen ' +
-          (piece.platform ? (PLATFORM_LABEL[piece.platform] || piece.platform) : 'Social') + '-Account im Tab „Kanäle“.');
+        toast.error(t('dashboards.funnel.publishGated', {
+          platform: piece.platform ? (PLATFORM_LABEL[piece.platform] || piece.platform) : t('dashboards.funnel.publishGatedGeneric')
+        }));
       } else {
-        toast.error(e instanceof Error ? e.message : 'Veröffentlichen fehlgeschlagen');
+        toast.error(e instanceof Error ? e.message : t('dashboards.funnel.publishFailed'));
       }
     } finally {
       setBusy(null);
@@ -1151,16 +1169,16 @@ function PieceCard({ piece, index, onRefresh }: { piece: ContentPiece; index: nu
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <PlatIcon size={13} className="text-gold-300" />
-            <span className="font-medium text-white text-sm">{piece.title || '(ohne Titel)'}</span>
-            <span className={`badge ${PIECE_STATUS_BADGE[piece.status] || 'badge'}`}>{PIECE_STATUS_LABEL[piece.status] || piece.status}</span>
+            <span className="font-medium text-white text-sm">{piece.title || t('dashboards.funnel.noTitle')}</span>
+            <span className={`badge ${PIECE_STATUS_BADGE[piece.status] || 'badge'}`}>{pieceStatusLabel(t, piece.status)}</span>
             {piece.segment && <span className="badge">{piece.segment}</span>}
             {piece.awareness_stage && <span className="badge">{piece.awareness_stage}</span>}
           </div>
           <div className="text-[0.65rem] text-ink-400 mt-1 flex items-center gap-3 flex-wrap">
             {piece.platform && <span>{PLATFORM_LABEL[piece.platform] || piece.platform}</span>}
-            {piece.scheduled_at && <span>· geplant: {new Date(piece.scheduled_at).toLocaleString('de-DE')}</span>}
-            {piece.published_at && <span>· veröffentlicht: {new Date(piece.published_at).toLocaleString('de-DE')}</span>}
-            <span>· erstellt: {new Date(piece.created_at).toLocaleDateString('de-DE')}</span>
+            {piece.scheduled_at && <span>· {t('dashboards.funnel.scheduledAt', { date: new Date(piece.scheduled_at).toLocaleString('de-DE') })}</span>}
+            {piece.published_at && <span>· {t('dashboards.funnel.publishedAt', { date: new Date(piece.published_at).toLocaleString('de-DE') })}</span>}
+            <span>· {t('dashboards.funnel.createdAt', { date: new Date(piece.created_at).toLocaleDateString('de-DE') })}</span>
           </div>
         </div>
       </div>
@@ -1169,12 +1187,12 @@ function PieceCard({ piece, index, onRefresh }: { piece: ContentPiece; index: nu
       <div className="mt-3 pt-3 border-t border-white/5">
         {editing ? (
           <div className="space-y-2">
-            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Titel" className="input-premium text-xs" />
-            <textarea value={body} onChange={e => setBody(e.target.value)} rows={6} placeholder="Body" className="input-premium text-xs resize-none" />
+            <input value={title} onChange={e => setTitle(e.target.value)} placeholder={t('dashboards.funnel.title_field')} className="input-premium text-xs" />
+            <textarea value={body} onChange={e => setBody(e.target.value)} rows={6} placeholder={t('dashboards.funnel.body_field')} className="input-premium text-xs resize-none" />
           </div>
         ) : (
           piece.body ? <div className="text-xs text-ink-200 whitespace-pre-wrap leading-relaxed">{piece.body}</div>
-            : <div className="text-xs text-ink-400 italic">Kein Text — generieren oder editieren.</div>
+            : <div className="text-xs text-ink-400 italic">{t('dashboards.funnel.noText')}</div>
         )}
       </div>
 
@@ -1184,12 +1202,12 @@ function PieceCard({ piece, index, onRefresh }: { piece: ContentPiece; index: nu
           <input type="datetime-local" value={scheduleAt} onChange={e => setScheduleAt(e.target.value)} className="input-premium text-xs" />
           <button
             disabled={busy === 'schedule' || !scheduleAt}
-            onClick={() => patch({ status: 'scheduled', scheduled_at: new Date(scheduleAt).toISOString() }, 'Geplant', 'schedule')}
+            onClick={() => patch({ status: 'scheduled', scheduled_at: new Date(scheduleAt).toISOString() }, t('dashboards.funnel.planned'), 'schedule')}
             className="btn-gold text-xs"
           >
-            {busy === 'schedule' ? 'Speichere…' : 'Termin setzen'}
+            {busy === 'schedule' ? t('dashboards.funnel.saving') : t('dashboards.funnel.setSchedule')}
           </button>
-          <button onClick={() => setScheduleOpen(false)} className="text-xs text-ink-400 hover:text-white px-2 py-1">Abbrechen</button>
+          <button onClick={() => setScheduleOpen(false)} className="text-xs text-ink-400 hover:text-white px-2 py-1">{t('dashboards.funnel.cancel')}</button>
         </div>
       )}
 
@@ -1197,34 +1215,34 @@ function PieceCard({ piece, index, onRefresh }: { piece: ContentPiece; index: nu
       <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/5 flex-wrap">
         {editing ? (
           <>
-            <button disabled={busy === 'save'} onClick={() => patch({ title, body }, 'Gespeichert', 'save')} className="btn-gold text-xs">
-              <Check size={11} /> Speichern
+            <button disabled={busy === 'save'} onClick={() => patch({ title, body }, t('dashboards.funnel.saved'), 'save')} className="btn-gold text-xs">
+              <Check size={11} /> {t('dashboards.funnel.save')}
             </button>
-            <button onClick={() => { setEditing(false); setTitle(piece.title || ''); setBody(piece.body || ''); }} className="text-xs text-ink-400 hover:text-white px-2 py-1">Abbrechen</button>
+            <button onClick={() => { setEditing(false); setTitle(piece.title || ''); setBody(piece.body || ''); }} className="text-xs text-ink-400 hover:text-white px-2 py-1">{t('dashboards.funnel.cancel')}</button>
           </>
         ) : (
           <>
             <button onClick={() => setEditing(true)} className="text-xs text-ink-300 hover:text-gold-300 px-2 py-1 inline-flex items-center gap-1">
-              <Edit3 size={10} /> Editieren
+              <Edit3 size={10} /> {t('dashboards.funnel.edit')}
             </button>
             {piece.status !== 'approved' && piece.status !== 'published' && (
-              <button disabled={busy === 'approve'} onClick={() => patch({ status: 'approved' }, 'Freigegeben', 'approve')} className="text-xs text-emerald-300 hover:text-emerald-200 px-2 py-1 inline-flex items-center gap-1">
-                <Check size={10} /> Freigeben
+              <button disabled={busy === 'approve'} onClick={() => patch({ status: 'approved' }, t('dashboards.funnel.released'), 'approve')} className="text-xs text-emerald-300 hover:text-emerald-200 px-2 py-1 inline-flex items-center gap-1">
+                <Check size={10} /> {t('dashboards.funnel.release')}
               </button>
             )}
             {piece.status !== 'published' && (
               <button onClick={() => setScheduleOpen(s => !s)} className="text-xs text-ink-300 hover:text-gold-300 px-2 py-1 inline-flex items-center gap-1">
-                <Activity size={10} /> Planen
+                <Activity size={10} /> {t('dashboards.funnel.plan')}
               </button>
             )}
             {piece.status !== 'archived' && piece.status !== 'published' && (
-              <button disabled={busy === 'archive'} onClick={() => patch({ status: 'archived' }, 'Archiviert', 'archive')} className="text-xs text-rose-300 hover:text-rose-200 px-2 py-1 inline-flex items-center gap-1">
-                <X size={10} /> Archivieren
+              <button disabled={busy === 'archive'} onClick={() => patch({ status: 'archived' }, t('dashboards.funnel.archived'), 'archive')} className="text-xs text-rose-300 hover:text-rose-200 px-2 py-1 inline-flex items-center gap-1">
+                <X size={10} /> {t('dashboards.funnel.archive')}
               </button>
             )}
             {(piece.status === 'approved' || piece.status === 'scheduled') && (
               <button disabled={busy === 'publish'} onClick={publish} className="btn-gold text-xs ml-auto">
-                <Send size={11} /> {busy === 'publish' ? 'Sende…' : 'Veröffentlichen'}
+                <Send size={11} /> {busy === 'publish' ? t('dashboards.funnel.publishing') : t('dashboards.funnel.publish')}
               </button>
             )}
           </>
@@ -1236,6 +1254,7 @@ function PieceCard({ piece, index, onRefresh }: { piece: ContentPiece; index: nu
 
 // ─── Channels Section (FB + LinkedIn connect/disconnect/enable/first-post) ──
 function ChannelsSection() {
+  const { t } = useTranslation();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [pieces, setPieces] = useState<ContentPiece[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1271,7 +1290,7 @@ function ChannelsSection() {
 
   return (
     <>
-      <SectionHeader icon={Plug} title="Kanäle" sub="Verbinde Facebook & LinkedIn — danach kannst du Content direkt veröffentlichen" />
+      <SectionHeader icon={Plug} title={t('dashboards.funnel.channelsTitle')} sub={t('dashboards.funnel.channelsSub')} />
 
       {loading ? (
         <div className="card-premium p-10 flex justify-center"><Spinner size="md" /></div>
@@ -1304,6 +1323,7 @@ function ChannelCard({ platform, label, icon: Icon, channel, approvedPieces, ind
   index: number;
   onRefresh: () => void;
 }) {
+  const { t } = useTranslation();
   const [busy, setBusy] = useState<string | null>(null);
   const [notConfigured, setNotConfigured] = useState(false);
   const [firstPostId, setFirstPostId] = useState('');
@@ -1319,21 +1339,21 @@ function ChannelCard({ platform, label, icon: Icon, channel, approvedPieces, ind
       setNotConfigured(true);
     } catch (e) {
       if (isGatedErr(e)) setNotConfigured(true);
-      else toast.error(e instanceof Error ? e.message : 'Verbinden fehlgeschlagen');
+      else toast.error(e instanceof Error ? e.message : t('dashboards.funnel.connectFailed'));
     } finally {
       setBusy(null);
     }
   };
 
   const disconnect = async () => {
-    if (!confirm(`${label}-Verbindung wirklich trennen?`)) return;
+    if (!confirm(t('dashboards.funnel.disconnectConfirm', { label }))) return;
     setBusy('disconnect');
     try {
       await api(`/api/me/funnel/channels/${platform}/disconnect`, { method: 'POST' });
-      toast.success(`${label} getrennt`);
+      toast.success(t('dashboards.funnel.disconnected', { label }));
       onRefresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Trennen fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.disconnectFailed'));
     } finally {
       setBusy(null);
     }
@@ -1345,7 +1365,7 @@ function ChannelCard({ platform, label, icon: Icon, channel, approvedPieces, ind
       await api(`/api/me/funnel/channels/${platform}`, { method: 'PATCH', body: JSON.stringify({ enabled: !channel?.enabled }) });
       onRefresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Umschalten fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.toggleFailed'));
     } finally {
       setBusy(null);
     }
@@ -1356,12 +1376,12 @@ function ChannelCard({ platform, label, icon: Icon, channel, approvedPieces, ind
     setBusy('first');
     try {
       await api(`/api/me/funnel/pieces/${firstPostId}/publish`, { method: 'POST' });
-      toast.success('Veröffentlicht');
+      toast.success(t('dashboards.funnel.published'));
       setFirstPostId('');
       onRefresh();
     } catch (e) {
-      if (isGatedErr(e)) toast.error('Veröffentlichen noch nicht möglich — Schnittstelle noch nicht konfiguriert.');
-      else toast.error(e instanceof Error ? e.message : 'Veröffentlichen fehlgeschlagen');
+      if (isGatedErr(e)) toast.error(t('dashboards.funnel.publishGatedChannel'));
+      else toast.error(e instanceof Error ? e.message : t('dashboards.funnel.publishFailed'));
     } finally {
       setBusy(null);
     }
@@ -1376,17 +1396,16 @@ function ChannelCard({ platform, label, icon: Icon, channel, approvedPieces, ind
           </div>
           <div>
             <div className="font-semibold text-white text-sm">{label}</div>
-            <div className="text-xs text-ink-400">{channel?.display_name || (connected ? 'Verbunden' : 'Nicht verbunden')}</div>
+            <div className="text-xs text-ink-400">{channel?.display_name || (connected ? t('dashboards.funnel.connected') : t('dashboards.funnel.notConnected'))}</div>
           </div>
         </div>
-        <span className={`badge ${connected ? 'badge-emerald' : ''}`}>{connected ? 'verbunden' : 'getrennt'}</span>
+        <span className={`badge ${connected ? 'badge-emerald' : ''}`}>{connected ? t('dashboards.funnel.connectedBadge') : t('dashboards.funnel.disconnectedBadge')}</span>
       </div>
 
       {notConfigured && (
         <div className="mb-3 text-xs text-ink-300 bg-white/[0.03] border border-white/5 rounded-lg p-3 leading-relaxed">
           <AlertCircle size={12} className="inline mr-1 text-gold-300" />
-          Schnittstelle noch nicht konfiguriert — hier verbindest du später deinen {label}-Account.
-          Sobald die {label}-Anbindung freigeschaltet ist, läuft das Verbinden mit einem Klick.
+          {t('dashboards.funnel.notConfigured', { label })}
         </div>
       )}
 
@@ -1396,16 +1415,16 @@ function ChannelCard({ platform, label, icon: Icon, channel, approvedPieces, ind
           {connected ? (
             <>
               <button disabled={busy === 'disconnect'} onClick={disconnect} className="text-xs text-rose-300 hover:text-rose-200 px-3 py-1.5 rounded-md border border-white/10 inline-flex items-center gap-1.5">
-                <Plug size={11} /> Trennen
+                <Plug size={11} /> {t('dashboards.funnel.disconnect')}
               </button>
               <label className="text-xs text-ink-300 inline-flex items-center gap-2 cursor-pointer ml-auto">
                 <input type="checkbox" checked={!!channel?.enabled} disabled={busy === 'toggle'} onChange={toggleEnabled} className="accent-gold-400" />
-                Aktiv
+                {t('dashboards.funnel.active')}
               </label>
             </>
           ) : (
             <button disabled={busy === 'connect'} onClick={connect} className="btn-gold text-xs">
-              <Link2 size={12} /> {busy === 'connect' ? 'Verbinde…' : `${label} verbinden`}
+              <Link2 size={12} /> {busy === 'connect' ? t('dashboards.funnel.connecting') : t('dashboards.funnel.connect', { label })}
             </button>
           )}
         </div>
@@ -1413,17 +1432,17 @@ function ChannelCard({ platform, label, icon: Icon, channel, approvedPieces, ind
         {/* First post */}
         {connected && (
           <div className="pt-3 border-t border-white/5">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mb-1.5">Erster Post</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mb-1.5">{t('dashboards.funnel.firstPost')}</div>
             {approvedPieces.length === 0 ? (
-              <p className="text-xs text-ink-400 italic">Kein freigegebener {label}-Content. Erst im Content-Tab freigeben.</p>
+              <p className="text-xs text-ink-400 italic">{t('dashboards.funnel.noApprovedContent', { label })}</p>
             ) : (
               <div className="flex items-center gap-2 flex-wrap">
                 <select value={firstPostId} onChange={e => setFirstPostId(e.target.value)} className="input-premium text-xs flex-1 min-w-[160px]">
-                  <option value="">Freigegebenen Post wählen…</option>
-                  {approvedPieces.map(pc => <option key={pc.id} value={pc.id}>{pc.title || '(ohne Titel)'}</option>)}
+                  <option value="">{t('dashboards.funnel.chooseApproved')}</option>
+                  {approvedPieces.map(pc => <option key={pc.id} value={pc.id}>{pc.title || t('dashboards.funnel.noTitle')}</option>)}
                 </select>
                 <button disabled={busy === 'first' || !firstPostId} onClick={publishFirst} className="btn-gold text-xs">
-                  <Send size={11} /> Posten
+                  <Send size={11} /> {t('dashboards.funnel.post')}
                 </button>
               </div>
             )}
@@ -1436,6 +1455,7 @@ function ChannelCard({ platform, label, icon: Icon, channel, approvedPieces, ind
 
 // ─── Audience Section (ICP + Brand-Voice + Topics) ─────────────
 function AudienceSection() {
+  const { t } = useTranslation();
   const [icp, setIcp] = useState<IcpProfile[]>([]);
   const [voice, setVoice] = useState<BrandVoice | null>(null);
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -1469,13 +1489,13 @@ function AudienceSection() {
 
   return (
     <>
-      <SectionHeader icon={Target} title="Zielgruppe & Voice" sub="Research-vorbefüllt — von dir editierbar. Steuert die Content-Generierung." />
+      <SectionHeader icon={Target} title={t('dashboards.funnel.audienceTitle')} sub={t('dashboards.funnel.audienceSub')} />
 
       {/* ICP per segment */}
       <section>
-        <SectionHeader icon={Users} title="Ideale Zielgruppe (ICP)" sub="je Segment" />
+        <SectionHeader icon={Users} title={t('dashboards.funnel.icpTitle')} sub={t('dashboards.funnel.icpSub')} />
         {icp.length === 0 ? (
-          <div className="card-premium p-8 text-center text-sm text-ink-400">Keine ICP-Profile hinterlegt.</div>
+          <div className="card-premium p-8 text-center text-sm text-ink-400">{t('dashboards.funnel.noIcp')}</div>
         ) : (
           <div className="space-y-3">
             {icp.map((profile, i) => <IcpCard key={profile.segment} profile={profile} index={i} onRefresh={load} />)}
@@ -1485,13 +1505,13 @@ function AudienceSection() {
 
       {/* Brand voice */}
       <section>
-        <SectionHeader icon={Sparkles} title="Brand-Voice" sub="Tonalität & Leitplanken" />
+        <SectionHeader icon={Sparkles} title={t('dashboards.funnel.brandVoiceTitle')} sub={t('dashboards.funnel.brandVoiceSub')} />
         <BrandVoiceCard voice={voice} onRefresh={load} />
       </section>
 
       {/* Topics */}
       <section>
-        <SectionHeader icon={FileText} title="Themen" sub="Content-Ideen-Pool" />
+        <SectionHeader icon={FileText} title={t('dashboards.funnel.topicsTitle')} sub={t('dashboards.funnel.topicsSub')} />
         <TopicsEditor topics={topics} onRefresh={load} />
       </section>
     </>
@@ -1499,6 +1519,7 @@ function AudienceSection() {
 }
 
 function ListEditor({ label, items, onChange }: { label: string; items: string[]; onChange: (next: string[]) => void }) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState('');
   return (
     <div>
@@ -1511,7 +1532,7 @@ function ListEditor({ label, items, onChange }: { label: string; items: string[]
           </div>
         ))}
         <div className="flex items-center gap-2">
-          <input value={draft} onChange={e => setDraft(e.target.value)} placeholder={`${label} hinzufügen…`} className="input-premium text-xs flex-1"
+          <input value={draft} onChange={e => setDraft(e.target.value)} placeholder={t('dashboards.funnel.addPlaceholder', { label })} className="input-premium text-xs flex-1"
             onKeyDown={e => { if (e.key === 'Enter' && draft.trim()) { e.preventDefault(); onChange([...items, draft.trim()]); setDraft(''); } }} />
           <button type="button" onClick={() => { if (draft.trim()) { onChange([...items, draft.trim()]); setDraft(''); } }} className="text-gold-300 hover:text-gold-200 p-1"><Plus size={14} /></button>
         </div>
@@ -1521,6 +1542,7 @@ function ListEditor({ label, items, onChange }: { label: string; items: string[]
 }
 
 function IcpCard({ profile, index, onRefresh }: { profile: IcpProfile; index: number; onRefresh: () => void }) {
+  const { t } = useTranslation();
   const [edit, setEdit] = useState(false);
   const [pains, setPains] = useState<string[]>(profile.pains || []);
   const [desires, setDesires] = useState<string[]>(profile.desires || []);
@@ -1536,11 +1558,11 @@ function IcpCard({ profile, index, onRefresh }: { profile: IcpProfile; index: nu
         method: 'PATCH',
         body: JSON.stringify({ pains, desires, objections, awareness_default: awareness || null, language_notes: langNotes || null }),
       });
-      toast.success('Zielgruppe gespeichert');
+      toast.success(t('dashboards.funnel.audienceSaved'));
       setEdit(false);
       onRefresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Speichern fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -1550,41 +1572,41 @@ function IcpCard({ profile, index, onRefresh }: { profile: IcpProfile; index: nu
     <div className="card-premium p-5 animate-fade-up" style={stagger(index, 40, 40)}>
       <div className="flex items-center justify-between gap-3 mb-3">
         <div className="font-semibold text-white text-sm">{profile.label || profile.segment}</div>
-        {!edit && <button onClick={() => setEdit(true)} className="text-xs text-ink-300 hover:text-gold-300 inline-flex items-center gap-1"><Edit3 size={11} /> Editieren</button>}
+        {!edit && <button onClick={() => setEdit(true)} className="text-xs text-ink-300 hover:text-gold-300 inline-flex items-center gap-1"><Edit3 size={11} /> {t('dashboards.funnel.edit')}</button>}
       </div>
 
       {edit ? (
         <div className="space-y-4">
           <div className="grid sm:grid-cols-3 gap-4">
-            <ListEditor label="Pains" items={pains} onChange={setPains} />
-            <ListEditor label="Desires" items={desires} onChange={setDesires} />
-            <ListEditor label="Objections" items={objections} onChange={setObjections} />
+            <ListEditor label={t('dashboards.funnel.pains')} items={pains} onChange={setPains} />
+            <ListEditor label={t('dashboards.funnel.desires')} items={desires} onChange={setDesires} />
+            <ListEditor label={t('dashboards.funnel.objections')} items={objections} onChange={setObjections} />
           </div>
           <div className="grid sm:grid-cols-2 gap-3">
-            <Field label="Awareness-Default">
+            <Field label={t('dashboards.funnel.awarenessDefault')}>
               <select value={awareness} onChange={e => setAwareness(e.target.value)} className="input-premium">
-                <option value="">— keine —</option>
+                <option value="">{t('dashboards.funnel.awarenessNone')}</option>
                 {AWARENESS_OPTIONS.map(a => <option key={a} value={a}>{a}</option>)}
               </select>
             </Field>
-            <Field label="Sprach-Notizen">
-              <input value={langNotes} onChange={e => setLangNotes(e.target.value)} className="input-premium" placeholder="z.B. Du-Form, kein Fachjargon" />
+            <Field label={t('dashboards.funnel.langNotes')}>
+              <input value={langNotes} onChange={e => setLangNotes(e.target.value)} className="input-premium" placeholder={t('dashboards.funnel.langNotesPlaceholder')} />
             </Field>
           </div>
           <div className="flex items-center gap-2">
-            <button disabled={saving} onClick={save} className="btn-gold text-xs"><Check size={11} /> Speichern</button>
-            <button onClick={() => setEdit(false)} className="text-xs text-ink-400 hover:text-white px-2 py-1">Abbrechen</button>
+            <button disabled={saving} onClick={save} className="btn-gold text-xs"><Check size={11} /> {t('dashboards.funnel.save')}</button>
+            <button onClick={() => setEdit(false)} className="text-xs text-ink-400 hover:text-white px-2 py-1">{t('dashboards.funnel.cancel')}</button>
           </div>
         </div>
       ) : (
         <div className="grid sm:grid-cols-3 gap-4 text-xs">
-          <PreviewList label="Pains" items={profile.pains} />
-          <PreviewList label="Desires" items={profile.desires} />
-          <PreviewList label="Objections" items={profile.objections} />
+          <PreviewList label={t('dashboards.funnel.pains')} items={profile.pains} />
+          <PreviewList label={t('dashboards.funnel.desires')} items={profile.desires} />
+          <PreviewList label={t('dashboards.funnel.objections')} items={profile.objections} />
           {(profile.awareness_default || profile.language_notes) && (
             <div className="sm:col-span-3 pt-2 border-t border-white/5 text-ink-400">
-              {profile.awareness_default && <span>Awareness: <span className="text-ink-200">{profile.awareness_default}</span></span>}
-              {profile.language_notes && <span className="ml-3">Sprache: <span className="text-ink-200">{profile.language_notes}</span></span>}
+              {profile.awareness_default && <span>{t('dashboards.funnel.awarenessShort')} <span className="text-ink-200">{profile.awareness_default}</span></span>}
+              {profile.language_notes && <span className="ml-3">{t('dashboards.funnel.languageShort')} <span className="text-ink-200">{profile.language_notes}</span></span>}
             </div>
           )}
         </div>
@@ -1607,6 +1629,7 @@ function PreviewList({ label, items }: { label: string; items: string[] }) {
 }
 
 function BrandVoiceCard({ voice, onRefresh }: { voice: BrandVoice | null; onRefresh: () => void }) {
+  const { t } = useTranslation();
   const [edit, setEdit] = useState(false);
   const [tone, setTone] = useState(voice?.tone || '');
   const [dos, setDos] = useState<string[]>(voice?.dos || []);
@@ -1628,11 +1651,11 @@ function BrandVoiceCard({ voice, onRefresh }: { voice: BrandVoice | null; onRefr
         method: 'PATCH',
         body: JSON.stringify({ tone: tone || null, dos, donts, examples }),
       });
-      toast.success('Brand-Voice gespeichert');
+      toast.success(t('dashboards.funnel.brandVoiceSaved'));
       setEdit(false);
       onRefresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Speichern fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -1641,29 +1664,29 @@ function BrandVoiceCard({ voice, onRefresh }: { voice: BrandVoice | null; onRefr
   return (
     <div className="card-premium p-5">
       <div className="flex items-center justify-between gap-3 mb-3">
-        <div className="text-xs text-ink-300">Tonalität: <span className="text-white font-medium">{voice?.tone || '—'}</span></div>
-        {!edit && <button onClick={() => setEdit(true)} className="text-xs text-ink-300 hover:text-gold-300 inline-flex items-center gap-1"><Edit3 size={11} /> Editieren</button>}
+        <div className="text-xs text-ink-300">{t('dashboards.funnel.tonality')}: <span className="text-white font-medium">{voice?.tone || '—'}</span></div>
+        {!edit && <button onClick={() => setEdit(true)} className="text-xs text-ink-300 hover:text-gold-300 inline-flex items-center gap-1"><Edit3 size={11} /> {t('dashboards.funnel.edit')}</button>}
       </div>
       {edit ? (
         <div className="space-y-4">
-          <Field label="Tonalität">
-            <input value={tone} onChange={e => setTone(e.target.value)} className="input-premium" placeholder="z.B. nahbar, ehrlich, vertrauensbildend" />
+          <Field label={t('dashboards.funnel.tonality')}>
+            <input value={tone} onChange={e => setTone(e.target.value)} className="input-premium" placeholder={t('dashboards.funnel.tonalityPlaceholder')} />
           </Field>
           <div className="grid sm:grid-cols-3 gap-4">
-            <ListEditor label="Do's" items={dos} onChange={setDos} />
-            <ListEditor label="Don'ts" items={donts} onChange={setDonts} />
-            <ListEditor label="Beispiele" items={examples} onChange={setExamples} />
+            <ListEditor label={t('dashboards.funnel.dos')} items={dos} onChange={setDos} />
+            <ListEditor label={t('dashboards.funnel.donts')} items={donts} onChange={setDonts} />
+            <ListEditor label={t('dashboards.funnel.examples')} items={examples} onChange={setExamples} />
           </div>
           <div className="flex items-center gap-2">
-            <button disabled={saving} onClick={save} className="btn-gold text-xs"><Check size={11} /> Speichern</button>
-            <button onClick={() => setEdit(false)} className="text-xs text-ink-400 hover:text-white px-2 py-1">Abbrechen</button>
+            <button disabled={saving} onClick={save} className="btn-gold text-xs"><Check size={11} /> {t('dashboards.funnel.save')}</button>
+            <button onClick={() => setEdit(false)} className="text-xs text-ink-400 hover:text-white px-2 py-1">{t('dashboards.funnel.cancel')}</button>
           </div>
         </div>
       ) : (
         <div className="grid sm:grid-cols-3 gap-4 text-xs">
-          <PreviewList label="Do's" items={voice?.dos || []} />
-          <PreviewList label="Don'ts" items={voice?.donts || []} />
-          <PreviewList label="Beispiele" items={voice?.examples || []} />
+          <PreviewList label={t('dashboards.funnel.dos')} items={voice?.dos || []} />
+          <PreviewList label={t('dashboards.funnel.donts')} items={voice?.donts || []} />
+          <PreviewList label={t('dashboards.funnel.examples')} items={voice?.examples || []} />
         </div>
       )}
     </div>
@@ -1671,6 +1694,7 @@ function BrandVoiceCard({ voice, onRefresh }: { voice: BrandVoice | null; onRefr
 }
 
 function TopicsEditor({ topics, onRefresh }: { topics: Topic[]; onRefresh: () => void }) {
+  const { t } = useTranslation();
   const [showAdd, setShowAdd] = useState(false);
   const [title, setTitle] = useState('');
   const [segment, setSegment] = useState<string>('');
@@ -1682,11 +1706,11 @@ function TopicsEditor({ topics, onRefresh }: { topics: Topic[]; onRefresh: () =>
     setBusy(true);
     try {
       await api('/api/me/funnel/topics', { method: 'POST', body: JSON.stringify({ title: title.trim(), segment: segment || null }) });
-      toast.success('Thema hinzugefügt');
+      toast.success(t('dashboards.funnel.topicAdded'));
       setTitle(''); setSegment(''); setShowAdd(false);
       onRefresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Hinzufügen fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.addFailed'));
     } finally {
       setBusy(false);
     }
@@ -1695,28 +1719,28 @@ function TopicsEditor({ topics, onRefresh }: { topics: Topic[]; onRefresh: () =>
   return (
     <div className="space-y-3">
       <button onClick={() => setShowAdd(s => !s)} className="btn-gold text-xs">
-        {showAdd ? <><X size={12} /> Abbrechen</> : <><Plus size={13} /> Thema hinzufügen</>}
+        {showAdd ? <><X size={12} /> {t('dashboards.funnel.cancel')}</> : <><Plus size={13} /> {t('dashboards.funnel.addTopic')}</>}
       </button>
 
       {showAdd && (
         <form onSubmit={add} className="card-premium p-4 space-y-3 animate-slide-up">
           <div className="grid sm:grid-cols-2 gap-3">
-            <Field label="Titel *">
-              <input required value={title} onChange={e => setTitle(e.target.value)} className="input-premium" placeholder="z.B. Lebenshaltungskosten Pattaya" />
+            <Field label={t('dashboards.funnel.topicTitle')}>
+              <input required value={title} onChange={e => setTitle(e.target.value)} className="input-premium" placeholder={t('dashboards.funnel.topicTitlePlaceholder')} />
             </Field>
-            <Field label="Segment (optional)">
+            <Field label={t('dashboards.funnel.topicSegment')}>
               <select value={segment} onChange={e => setSegment(e.target.value)} className="input-premium">
-                <option value="">— alle —</option>
+                <option value="">{t('dashboards.funnel.segmentAll')}</option>
                 {SEGMENT_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </Field>
           </div>
-          <button disabled={busy || !title.trim()} className="btn-gold text-xs"><Plus size={13} /> Hinzufügen</button>
+          <button disabled={busy || !title.trim()} className="btn-gold text-xs"><Plus size={13} /> {t('dashboards.funnel.add')}</button>
         </form>
       )}
 
       {topics.length === 0 ? (
-        <div className="card-premium p-8 text-center text-sm text-ink-400">Noch keine Themen.</div>
+        <div className="card-premium p-8 text-center text-sm text-ink-400">{t('dashboards.funnel.noTopics')}</div>
       ) : (
         <div className="space-y-2">
           {topics.map((t, i) => <TopicRow key={t.id} topic={t} index={i} onRefresh={onRefresh} />)}
@@ -1727,6 +1751,7 @@ function TopicsEditor({ topics, onRefresh }: { topics: Topic[]; onRefresh: () =>
 }
 
 function TopicRow({ topic, index, onRefresh }: { topic: Topic; index: number; onRefresh: () => void }) {
+  const { t } = useTranslation();
   const [edit, setEdit] = useState(false);
   const [title, setTitle] = useState(topic.title);
   const [status, setStatus] = useState(topic.status);
@@ -1736,25 +1761,25 @@ function TopicRow({ topic, index, onRefresh }: { topic: Topic; index: number; on
     setBusy(true);
     try {
       await api(`/api/me/funnel/topics/${topic.id}`, { method: 'PATCH', body: JSON.stringify({ title, status }) });
-      toast.success('Thema gespeichert');
+      toast.success(t('dashboards.funnel.topicSaved'));
       setEdit(false);
       onRefresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Speichern fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.saveFailed'));
     } finally {
       setBusy(false);
     }
   };
 
   const remove = async () => {
-    if (!confirm('Thema löschen?')) return;
+    if (!confirm(t('dashboards.funnel.topicDeleteConfirm'))) return;
     setBusy(true);
     try {
       await api(`/api/me/funnel/topics/${topic.id}`, { method: 'DELETE' });
-      toast.success('Thema gelöscht');
+      toast.success(t('dashboards.funnel.topicDeleted'));
       onRefresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Löschen fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.deleteFailed'));
     } finally {
       setBusy(false);
     }
@@ -1766,12 +1791,12 @@ function TopicRow({ topic, index, onRefresh }: { topic: Topic; index: number; on
         <>
           <input value={title} onChange={e => setTitle(e.target.value)} className="input-premium text-xs flex-1 min-w-[140px]" />
           <select value={status} onChange={e => setStatus(e.target.value)} className="input-premium text-xs">
-            <option value="active">aktiv</option>
-            <option value="parked">geparkt</option>
-            <option value="done">erledigt</option>
+            <option value="active">{t('dashboards.funnel.statusActive')}</option>
+            <option value="parked">{t('dashboards.funnel.statusParked')}</option>
+            <option value="done">{t('dashboards.funnel.statusDone')}</option>
           </select>
           <button disabled={busy} onClick={save} className="btn-gold text-xs"><Check size={11} /></button>
-          <button onClick={() => { setEdit(false); setTitle(topic.title); setStatus(topic.status); }} className="text-xs text-ink-400 hover:text-white px-2">Abbrechen</button>
+          <button onClick={() => { setEdit(false); setTitle(topic.title); setStatus(topic.status); }} className="text-xs text-ink-400 hover:text-white px-2">{t('dashboards.funnel.cancel')}</button>
         </>
       ) : (
         <>
@@ -1819,6 +1844,7 @@ function ReferralsSection({
   projectSlug: string;
   onRefresh: () => void;
 }) {
+  const { t } = useTranslation();
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ referrer_name: '', referrer_email: '', notes: '' });
   const program = programs[0]; // first active program for this project
@@ -1832,11 +1858,11 @@ function ReferralsSection({
         `/api/referrals/me/programs/${program.id}/codes`,
         { method: 'POST', body: JSON.stringify(form) }
       );
-      toast.success(`Code ${res.code.code} für ${form.referrer_name} erstellt`);
+      toast.success(t('dashboards.funnel.codeCreated', { code: res.code.code, name: form.referrer_name }));
       setForm({ referrer_name: '', referrer_email: '', notes: '' });
       onRefresh();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'Code-Erstellung fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('dashboards.funnel.codeCreateFailed'));
     } finally {
       setCreating(false);
     }
@@ -1846,61 +1872,61 @@ function ReferralsSection({
     return (
       <div className="card-premium p-10 text-center">
         <Gift size={28} className="mx-auto text-ink-400 mb-3" />
-        <p className="text-sm text-ink-300">Kein Referral-Programm aktiv.</p>
-        <p className="text-xs text-ink-400 mt-2">Carlos kann ein neues Programm via Admin-API anlegen.</p>
+        <p className="text-sm text-ink-300">{t('dashboards.funnel.noProgram')}</p>
+        <p className="text-xs text-ink-400 mt-2">{t('dashboards.funnel.noProgramHint')}</p>
       </div>
     );
   }
 
   return (
     <>
-      <SectionHeader icon={Gift} title="Referral-Programm" sub={program.name} />
+      <SectionHeader icon={Gift} title={t('dashboards.funnel.referralProgram')} sub={program.name} />
 
       <div className="card-premium p-5">
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mb-1">Belohnung für Referrer</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mb-1">{t('dashboards.funnel.rewardReferrer')}</div>
             <p className="text-sm text-white">{program.referrer_reward_description}</p>
           </div>
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mb-1">Belohnung für neuen Kunden</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold mb-1">{t('dashboards.funnel.rewardReferee')}</div>
             <p className="text-sm text-white">{program.referee_reward_description}</p>
           </div>
         </div>
         <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-xs text-ink-400">
           <AlertCircle size={12} />
-          <span>Trigger: <code className="text-gold-300">{program.trigger_event}</code> · Status: <span className="badge badge-emerald">{program.status}</span></span>
+          <span>{t('dashboards.funnel.trigger')} <code className="text-gold-300">{program.trigger_event}</code> · {t('dashboards.funnel.status')} <span className="badge badge-emerald">{program.status}</span></span>
         </div>
       </div>
 
       <KpiGrid>
-        <KpiCard i={0} icon={Users} label="Aktive Codes" value={String(stats.codes)} accent={stats.codes > 0} />
-        <KpiCard i={1} icon={Send} label="Empfehlungen" value={String(stats.referrals_total)} />
-        <KpiCard i={2} icon={Award} label="Konvertiert" value={String(stats.referrals_converted)} highlight={stats.referrals_converted > 0} />
-        <KpiCard i={3} icon={DollarSign} label="Ausstehende Belohnung" value={`${Number(stats.rewards_pending_eur).toFixed(0)} €`} />
+        <KpiCard i={0} icon={Users} label={t('dashboards.funnel.activeCodes')} value={String(stats.codes)} accent={stats.codes > 0} />
+        <KpiCard i={1} icon={Send} label={t('dashboards.funnel.referrals')} value={String(stats.referrals_total)} />
+        <KpiCard i={2} icon={Award} label={t('dashboards.funnel.converted')} value={String(stats.referrals_converted)} highlight={stats.referrals_converted > 0} />
+        <KpiCard i={3} icon={DollarSign} label={t('dashboards.funnel.rewardsPending')} value={`${Number(stats.rewards_pending_eur).toFixed(0)} €`} />
       </KpiGrid>
 
       {/* Create new code */}
       <section>
-        <SectionHeader icon={Sparkles} title="Neuen Referral-Code ausstellen" sub="Jeder Code ist personalisiert + trackt seine Referrals" />
+        <SectionHeader icon={Sparkles} title={t('dashboards.funnel.issueNewCode')} sub={t('dashboards.funnel.issueNewCodeSub')} />
         <form onSubmit={createCode} className="card-premium p-5 space-y-3 max-w-2xl">
           <div className="grid sm:grid-cols-2 gap-3">
-            <Field label="Name des Empfehlenden *">
-              <input required value={form.referrer_name} onChange={e => setForm({ ...form, referrer_name: e.target.value })} placeholder="Hans Müller" className="input-premium" />
+            <Field label={t('dashboards.funnel.referrerName')}>
+              <input required value={form.referrer_name} onChange={e => setForm({ ...form, referrer_name: e.target.value })} placeholder={t('dashboards.funnel.referrerNamePlaceholder')} className="input-premium" />
             </Field>
-            <Field label="Email (optional)">
-              <input type="email" value={form.referrer_email} onChange={e => setForm({ ...form, referrer_email: e.target.value })} placeholder="hans@example.com" className="input-premium" />
+            <Field label={t('dashboards.funnel.emailOptional')}>
+              <input type="email" value={form.referrer_email} onChange={e => setForm({ ...form, referrer_email: e.target.value })} placeholder={t('dashboards.funnel.emailPlaceholder')} className="input-premium" />
             </Field>
           </div>
-          <Field label="Notiz (optional)">
-            <input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Bestandskunde aus Pilot · met Aug 2026" className="input-premium" />
+          <Field label={t('dashboards.funnel.noteOptional')}>
+            <input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder={t('dashboards.funnel.notePlaceholder')} className="input-premium" />
           </Field>
           <div className="flex items-center justify-between gap-3">
             <p className="text-[0.65rem] text-ink-400 flex-1">
-              Code wird automatisch generiert (Format: <code>NAME-XXXX</code>) · single-use Empfehlung mit Reward-Tracking
+              {t('dashboards.funnel.codeAutoHint1')}<code>NAME-XXXX</code>{t('dashboards.funnel.codeAutoHint2')}
             </p>
             <button disabled={creating || !form.referrer_name} className="btn-gold shrink-0 text-sm">
-              {creating ? 'Erstelle…' : <><Sparkles size={13} /> Code erstellen</>}
+              {creating ? t('dashboards.funnel.creating') : <><Sparkles size={13} /> {t('dashboards.funnel.createCode')}</>}
             </button>
           </div>
         </form>
@@ -1908,10 +1934,10 @@ function ReferralsSection({
 
       {/* List existing codes */}
       <section>
-        <SectionHeader icon={Gift} title="Bestehende Codes" sub={`${stats.codes_list?.length || 0} Codes`} />
+        <SectionHeader icon={Gift} title={t('dashboards.funnel.existingCodes')} sub={t('dashboards.funnel.codesCount', { count: stats.codes_list?.length || 0 })} />
         {(!stats.codes_list || stats.codes_list.length === 0) ? (
           <div className="card-premium p-8 text-center text-sm text-ink-400">
-            Noch keine Codes vergeben.
+            {t('dashboards.funnel.noCodes')}
           </div>
         ) : (
           <div className="space-y-2">
@@ -1920,15 +1946,15 @@ function ReferralsSection({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <code className="text-gold-200 font-mono text-sm">{c.code}</code>
-                    {!c.active && <span className="badge badge-rose">inaktiv</span>}
+                    {!c.active && <span className="badge badge-rose">{t('dashboards.funnel.inactive')}</span>}
                   </div>
                   <div className="text-xs text-ink-400 mt-1">
-                    {c.referrer_name || '—'} · Uses: {c.uses_count} · Geschlossen: {c.closed_won_count}
+                    {t('dashboards.funnel.codeUses', { name: c.referrer_name || '—', uses: c.uses_count, closed: c.closed_won_count })}
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-sm font-semibold text-gold-200">{Number(c.total_reward_earned_eur).toFixed(0)} €</div>
-                  <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">Bisher verdient</div>
+                  <div className="text-[0.6rem] uppercase tracking-[0.18em] text-ink-400 font-semibold">{t('dashboards.funnel.earnedSoFar')}</div>
                 </div>
               </div>
             ))}
@@ -1938,13 +1964,13 @@ function ReferralsSection({
 
       {/* Public landing-page link */}
       <section>
-        <SectionHeader icon={ExternalLink} title="Public Sharing" sub="Code-Inhaber teilen diesen Link" />
+        <SectionHeader icon={ExternalLink} title={t('dashboards.funnel.publicSharing')} sub={t('dashboards.funnel.publicSharingSub')} />
         <div className="card-premium p-4">
           <div className="flex items-center gap-2 text-sm">
             <code className="text-gold-300 break-all">https://patrick-roth-thailand.vercel.app/empfehlung?code=&#123;CODE&#125;</code>
           </div>
           <p className="text-xs text-ink-400 mt-2">
-            Landing-Page auf Patrick's Website (kommt mit nächstem Polish-Push). Code wird automatisch im Lead-Form vorausgefüllt.
+            {t('dashboards.funnel.landingHint')}
           </p>
         </div>
       </section>
@@ -1999,11 +2025,12 @@ function ProgressCard({
   pct: number | null;
   muted?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="card-premium p-4 h-full flex flex-col">
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-medium text-ink-200">{label}</span>
-        <span className="text-xs text-ink-400">Ziel: {targetLabel}</span>
+        <span className="text-xs text-ink-400">{t('dashboards.funnel.target', { target: targetLabel })}</span>
       </div>
       {pct !== null ? (
         <>
@@ -2019,13 +2046,14 @@ function ProgressCard({
           </div>
         </>
       ) : (
-        <p className="text-xs text-ink-400 italic mt-1">{muted || 'Coming Soon'}</p>
+        <p className="text-xs text-ink-400 italic mt-1">{muted || t('dashboards.funnel.comingSoonDefault')}</p>
       )}
     </div>
   );
 }
 
 function ComingSoonCard({ icon: Icon, title, body }: { icon: React.ElementType; title: string; body: string }) {
+  const { t } = useTranslation();
   return (
     <div className="card-premium p-5 opacity-80 border border-white/5 bg-white/[0.02]">
       <div className="flex items-start gap-3">
@@ -2035,7 +2063,7 @@ function ComingSoonCard({ icon: Icon, title, body }: { icon: React.ElementType; 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-1">
             <h3 className="text-sm font-semibold text-white">{title}</h3>
-            <span className="badge">Coming Soon</span>
+            <span className="badge">{t('dashboards.funnel.comingSoonBadge')}</span>
           </div>
           <p className="text-xs text-ink-400 leading-relaxed">{body}</p>
         </div>
