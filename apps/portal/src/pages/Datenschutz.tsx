@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import Brand from '@/components/Brand';
 
 export default function Datenschutz() {
+  const { t } = useTranslation();
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   return (
@@ -14,16 +16,16 @@ export default function Datenschutz() {
       </header>
 
       <section className="px-4 sm:px-6 py-12 sm:py-16 max-w-3xl mx-auto">
-        <h1 className="text-3xl sm:text-4xl font-light tracking-tight mb-2">Datenschutzerklärung</h1>
-        <p className="text-sm text-neutral-500 mb-2">Gilt für: <span className="text-neutral-300">app.aevum-system.de</span> (Customer-Portal)</p>
-        <p className="text-sm text-neutral-500 mb-12">Stand: 22. Mai 2026</p>
+        <h1 className="text-3xl sm:text-4xl font-light tracking-tight mb-2">{t('legal.ds.title')}</h1>
+        <p className="text-sm text-neutral-500 mb-2">{t('legal.ds.appliesTo')}<span className="text-neutral-300">{t('legal.ds.appliesToValue')}</span>{t('legal.ds.appliesToSuffix')}</p>
+        <p className="text-sm text-neutral-500 mb-12">{t('legal.ds.asOf')}</p>
 
         <article className="space-y-10 text-neutral-400 leading-relaxed break-words">
 
           <section>
-            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">1. Verantwortlicher</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">{t('legal.ds.h1')}</h2>
             <p>
-              Verantwortlich für die Datenverarbeitung im Sinne von Art 4 Nr 7 DSGVO:
+              {t('legal.ds.p1a')}
             </p>
             <p className="mt-3">
               Carlos Wrusch<br />
@@ -32,202 +34,178 @@ export default function Datenschutz() {
               Deutschland
             </p>
             <p className="mt-3">
-              E-Mail: <a href="mailto:info@aevum-system.de" className="text-amber-500 hover:underline">info@aevum-system.de</a><br />
-              Telefon: <a href="tel:+491772288372" className="text-amber-500 hover:underline">+49 177 228 83 72</a>
+              {t('legal.ds.p1email')}<a href="mailto:info@aevum-system.de" className="text-amber-500 hover:underline">info@aevum-system.de</a><br />
+              {t('legal.ds.p1phone')}<a href="tel:+491772288372" className="text-amber-500 hover:underline">+49 177 228 83 72</a>
             </p>
             <p className="mt-3 text-sm">
-              Ein Datenschutzbeauftragter ist gesetzlich nicht erforderlich (keine 20+ Beschäftigte
-              in regelmäßiger Datenverarbeitung).
+              {t('legal.ds.p1dpo')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">2. Zwecke der Verarbeitung</h2>
-            <p>Wir verarbeiten personenbezogene Daten im Customer-Portal ausschließlich, um folgende Zwecke zu erfüllen:</p>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">{t('legal.ds.h2')}</h2>
+            <p>{t('legal.ds.p2')}</p>
             <ul className="list-disc list-inside space-y-2 mt-3">
-              <li>Bereitstellung des Self-Service-Portals (Login, Account-Verwaltung, Sitzungsverwaltung)</li>
-              <li>Verwaltung von API-Schlüsseln, die du uns zur Ausführung beauftragter Workflows einreichst</li>
-              <li>Verwaltung deiner Berechtigungen und Auto-Plan-Einstellungen (Consent-Tracking)</li>
-              <li>Customer-Beziehung, Kommunikation und Support</li>
-              <li>Erfüllung gesetzlicher Aufbewahrungspflichten</li>
-              <li>Schutz vor Missbrauch, Sicherstellung der Systemsicherheit</li>
+              <li>{t('legal.ds.p2li1')}</li>
+              <li>{t('legal.ds.p2li2')}</li>
+              <li>{t('legal.ds.p2li3')}</li>
+              <li>{t('legal.ds.p2li4')}</li>
+              <li>{t('legal.ds.p2li5')}</li>
+              <li>{t('legal.ds.p2li6')}</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">3. Rechtsgrundlagen</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">{t('legal.ds.h3')}</h2>
             <ul className="list-disc list-inside space-y-2">
               <li>
-                <span className="text-neutral-200">Art 6 Abs 1 lit b DSGVO</span> – Vertragserfüllung
-                bzw. vorvertragliche Maßnahmen (Portalzugang, Auftragsdurchführung).
+                <span className="text-neutral-200">{t('legal.ds.p3li1strong')}</span>{t('legal.ds.p3li1')}
               </li>
               <li>
-                <span className="text-neutral-200">Art 6 Abs 1 lit a DSGVO</span> – Einwilligung,
-                soweit du optionale Berechtigungen (z.B. Auto-Plan) ausdrücklich aktivierst.
-                Du kannst diese jederzeit mit Wirkung für die Zukunft widerrufen.
+                <span className="text-neutral-200">{t('legal.ds.p3li2strong')}</span>{t('legal.ds.p3li2')}
               </li>
               <li>
-                <span className="text-neutral-200">Art 6 Abs 1 lit c DSGVO</span> – Erfüllung
-                gesetzlicher Pflichten (z.B. handels- und steuerrechtliche Aufbewahrung).
+                <span className="text-neutral-200">{t('legal.ds.p3li3strong')}</span>{t('legal.ds.p3li3')}
               </li>
               <li>
-                <span className="text-neutral-200">Art 6 Abs 1 lit f DSGVO</span> – berechtigtes
-                Interesse (IT-Sicherheit, Missbrauchsprävention, Logging in begrenztem Umfang).
+                <span className="text-neutral-200">{t('legal.ds.p3li4strong')}</span>{t('legal.ds.p3li4')}
               </li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">4. Kategorien verarbeiteter Daten</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">{t('legal.ds.h4')}</h2>
             <ul className="list-disc list-inside space-y-2">
-              <li>Account-Stammdaten: Name, E-Mail-Adresse, Firma</li>
-              <li>Authentifizierungs-Daten: Magic-Link-Tokens (kurzlebig), Session-Cookies</li>
-              <li>Berechtigungs-Status und Consent-Hash (SHA-256 deiner Berechtigungs-Konfiguration, Zeitstempel, IP-Adresse zur Beweissicherung)</li>
-              <li>Eingereichte API-Schlüssel (von dir freiwillig hochgeladen)</li>
-              <li>Projekt-Metadaten und zugeordnete Workflows</li>
-              <li>Technische Daten: IP-Adresse, User-Agent, Zugriffszeitpunkte (zur Missbrauchsabwehr; IPs werden nach 30 Tagen anonymisiert)</li>
+              <li>{t('legal.ds.p4li1')}</li>
+              <li>{t('legal.ds.p4li2')}</li>
+              <li>{t('legal.ds.p4li3')}</li>
+              <li>{t('legal.ds.p4li4')}</li>
+              <li>{t('legal.ds.p4li5')}</li>
+              <li>{t('legal.ds.p4li6')}</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">5. Verschlüsselung von API-Schlüsseln</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">{t('legal.ds.h5')}</h2>
             <p>
-              API-Schlüssel, die du im Portal einreichst (z.B. Anthropic, OpenAI, Stripe deines
-              Unternehmens), werden serverseitig mit <span className="text-neutral-200">AES-256-GCM</span>
-              verschlüsselt gespeichert (Encryption-at-Rest). Der Encryption-Key liegt ausschließlich
-              in der Server-Umgebungsvariable und ist nicht über das Portal abrufbar.
-              Übertragungen erfolgen ausschließlich über TLS 1.2+ (HTTPS).
+              {t('legal.ds.p5a1')}<span className="text-neutral-200">{t('legal.ds.p5strong')}</span>{t('legal.ds.p5a2')}
             </p>
             <p className="mt-3">
-              Die Schlüssel werden nur zur Ausführung der von dir beauftragten Workflows entschlüsselt
-              und niemals an Dritte weitergegeben, die nicht in Abschnitt 7 als Sub-Processor gelistet sind.
+              {t('legal.ds.p5b')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">6. Speicherdauer</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">{t('legal.ds.h6')}</h2>
             <ul className="list-disc list-inside space-y-2">
-              <li>Aktive Account-Daten: für die Dauer der Vertragsbeziehung</li>
-              <li>Nach Vertragsende: maximal <span className="text-neutral-200">365 Tage</span>, sofern keine längeren handels- oder steuerrechtlichen Aufbewahrungspflichten bestehen</li>
-              <li>Bei Löschanfrage (Art 17 DSGVO): unverzügliche Löschung (i.d.R. binnen 30 Tagen), soweit gesetzlich zulässig</li>
-              <li>API-Schlüssel: sofortige Löschung bei Entfernen durch dich oder bei Vertragsende</li>
-              <li>Authentifizierungs-Logs / IP-Adressen: 30 Tage, danach anonymisiert</li>
-              <li>Consent-Records (Berechtigungs-Hashes): Aufbewahrung als Nachweis nach Art 7 Abs 1 DSGVO bis 3 Jahre nach Widerruf</li>
+              <li>{t('legal.ds.p6li1')}</li>
+              <li>{t('legal.ds.p6li2a')}<span className="text-neutral-200">{t('legal.ds.p6li2strong')}</span>{t('legal.ds.p6li2b')}</li>
+              <li>{t('legal.ds.p6li3')}</li>
+              <li>{t('legal.ds.p6li4')}</li>
+              <li>{t('legal.ds.p6li5')}</li>
+              <li>{t('legal.ds.p6li6')}</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">7. Sub-Processors (Auftragsverarbeiter)</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">{t('legal.ds.h7')}</h2>
             <p>
-              Zur Bereitstellung des Portals setzen wir folgende Auftragsverarbeiter ein.
-              Mit allen genannten Anbietern besteht ein Vertrag zur Auftragsverarbeitung
-              gemäß Art 28 DSGVO. Für Drittlandstransfers gelten EU-Standardvertragsklauseln.
+              {t('legal.ds.p7')}
             </p>
             <div className="mt-4 overflow-x-auto">
               <table className="w-full text-sm border-collapse min-w-[28rem]">
                 <thead>
                   <tr className="border-b border-neutral-800 text-neutral-300">
-                    <th className="text-left py-2 pr-4 font-medium">Anbieter</th>
-                    <th className="text-left py-2 pr-4 font-medium">Zweck</th>
-                    <th className="text-left py-2 font-medium">Sitz</th>
+                    <th className="text-left py-2 pr-4 font-medium">{t('legal.ds.thProvider')}</th>
+                    <th className="text-left py-2 pr-4 font-medium">{t('legal.ds.thPurpose')}</th>
+                    <th className="text-left py-2 font-medium">{t('legal.ds.thLocation')}</th>
                   </tr>
                 </thead>
                 <tbody className="text-neutral-400">
                   <tr className="border-b border-neutral-900">
                     <td className="py-2 pr-4 text-neutral-200">Cloudflare, Inc.</td>
-                    <td className="py-2 pr-4">CDN, DNS, DDoS-Schutz, TLS-Termination</td>
-                    <td className="py-2">USA / EU-Edges</td>
+                    <td className="py-2 pr-4">{t('legal.ds.sp1purpose')}</td>
+                    <td className="py-2">{t('legal.ds.sp1loc')}</td>
                   </tr>
                   <tr className="border-b border-neutral-900">
                     <td className="py-2 pr-4 text-neutral-200">Vercel Inc.</td>
-                    <td className="py-2 pr-4">Hosting des Portal-Frontends</td>
-                    <td className="py-2">USA / EU-Region</td>
+                    <td className="py-2 pr-4">{t('legal.ds.sp2purpose')}</td>
+                    <td className="py-2">{t('legal.ds.sp2loc')}</td>
                   </tr>
                   <tr className="border-b border-neutral-900">
                     <td className="py-2 pr-4 text-neutral-200">Supabase Inc.</td>
-                    <td className="py-2 pr-4">Datenbank-Hosting (Accounts, Permissions, API-Keys verschlüsselt)</td>
-                    <td className="py-2">EU (Frankfurt)</td>
+                    <td className="py-2 pr-4">{t('legal.ds.sp3purpose')}</td>
+                    <td className="py-2">{t('legal.ds.sp3loc')}</td>
                   </tr>
                   <tr className="border-b border-neutral-900">
                     <td className="py-2 pr-4 text-neutral-200">Anthropic PBC</td>
-                    <td className="py-2 pr-4">LLM-Ausführung für Auto-Plan-Workflows (nur bei Consent)</td>
-                    <td className="py-2">USA</td>
+                    <td className="py-2 pr-4">{t('legal.ds.sp4purpose')}</td>
+                    <td className="py-2">{t('legal.ds.sp4loc')}</td>
                   </tr>
                   <tr>
                     <td className="py-2 pr-4 text-neutral-200">Stripe, Inc.</td>
-                    <td className="py-2 pr-4">Zahlungsabwicklung</td>
-                    <td className="py-2">USA / Irland</td>
+                    <td className="py-2 pr-4">{t('legal.ds.sp5purpose')}</td>
+                    <td className="py-2">{t('legal.ds.sp5loc')}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <p className="mt-3 text-sm">
-              Eine aktuelle Liste der Sub-Processors halten wir hier vor. Wir informieren dich rechtzeitig
-              über Änderungen, sodass du widersprechen kannst (Art 28 Abs 2 DSGVO).
+              {t('legal.ds.p7after')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">8. Cookies</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">{t('legal.ds.h8')}</h2>
             <p>
-              Wir verwenden ausschließlich technisch notwendige Cookies (Session, CSRF-Schutz)
-              auf Grundlage von Art 6 Abs 1 lit b DSGVO bzw. § 25 Abs 2 Nr 2 TDDDG.
-              Es werden keine Tracking-, Analyse- oder Marketing-Cookies eingesetzt.
-              Beim ersten Besuch fragen wir deine Zustimmung zu optionalen Cookies ab –
-              standardmäßig sind nur essentielle Cookies aktiv.
+              {t('legal.ds.p8')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">9. Deine Rechte (Art 15–21 DSGVO)</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">{t('legal.ds.h9')}</h2>
             <ul className="list-disc list-inside space-y-2">
-              <li><span className="text-neutral-200">Auskunft</span> (Art 15) – über die zu deiner Person gespeicherten Daten</li>
-              <li><span className="text-neutral-200">Berichtigung</span> (Art 16) – unrichtiger Daten</li>
-              <li><span className="text-neutral-200">Löschung</span> (Art 17) – „Recht auf Vergessenwerden", soweit keine Aufbewahrungspflicht entgegensteht</li>
-              <li><span className="text-neutral-200">Einschränkung der Verarbeitung</span> (Art 18)</li>
-              <li><span className="text-neutral-200">Datenübertragbarkeit</span> (Art 20) – Export in maschinenlesbarem Format</li>
-              <li><span className="text-neutral-200">Widerspruch</span> (Art 21) – gegen Verarbeitungen auf Grundlage berechtigter Interessen</li>
-              <li><span className="text-neutral-200">Widerruf einer Einwilligung</span> (Art 7 Abs 3) – jederzeit mit Wirkung für die Zukunft</li>
+              <li><span className="text-neutral-200">{t('legal.ds.p9li1strong')}</span>{t('legal.ds.p9li1')}</li>
+              <li><span className="text-neutral-200">{t('legal.ds.p9li2strong')}</span>{t('legal.ds.p9li2')}</li>
+              <li><span className="text-neutral-200">{t('legal.ds.p9li3strong')}</span>{t('legal.ds.p9li3')}</li>
+              <li><span className="text-neutral-200">{t('legal.ds.p9li4strong')}</span>{t('legal.ds.p9li4')}</li>
+              <li><span className="text-neutral-200">{t('legal.ds.p9li5strong')}</span>{t('legal.ds.p9li5')}</li>
+              <li><span className="text-neutral-200">{t('legal.ds.p9li6strong')}</span>{t('legal.ds.p9li6')}</li>
+              <li><span className="text-neutral-200">{t('legal.ds.p9li7strong')}</span>{t('legal.ds.p9li7')}</li>
             </ul>
             <p className="mt-3">
-              Die Rechte kannst du formlos per Mail an{' '}
-              <a href="mailto:info@aevum-system.de" className="text-amber-500 hover:underline">info@aevum-system.de</a>{' '}
-              ausüben. Account-Löschung und Datenexport sind zusätzlich direkt im Portal unter „Profile" verfügbar.
+              {t('legal.ds.p9aftera')}
+              <a href="mailto:info@aevum-system.de" className="text-amber-500 hover:underline">info@aevum-system.de</a>
+              {t('legal.ds.p9afterb')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">10. Beschwerderecht bei der Aufsichtsbehörde</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">{t('legal.ds.h10')}</h2>
             <p>
-              Du hast nach Art 77 DSGVO das Recht, dich bei einer Datenschutz-Aufsichtsbehörde
-              zu beschweren. Zuständig für den Verantwortlichen ist:
+              {t('legal.ds.p10a')}
             </p>
             <p className="mt-3">
-              <span className="text-neutral-200">Bayerisches Landesamt für Datenschutzaufsicht (BayLDA)</span><br />
-              Promenade 18, 91522 Ansbach<br />
+              <span className="text-neutral-200">{t('legal.ds.p10authority')}</span><br />
+              {t('legal.ds.p10address')}<br />
               <a href="https://www.lda.bayern.de" className="text-amber-500 hover:underline" target="_blank" rel="noopener noreferrer">www.lda.bayern.de</a>
             </p>
             <p className="mt-3">
-              Du kannst dich auch an die für deinen Wohnort zuständige Aufsichtsbehörde
-              oder an den/die Bundesbeauftragte für den Datenschutz und die Informationsfreiheit (BfDI) wenden.
+              {t('legal.ds.p10b')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">11. Automatisierte Entscheidungsfindung</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">{t('legal.ds.h11')}</h2>
             <p>
-              Eine ausschließlich automatisierte Entscheidungsfindung mit Rechtswirkung
-              im Sinne von Art 22 DSGVO findet nicht statt. Die Auto-Plan-Funktion führt
-              keine Profilbildung durch und ist nur mit deinem aktiven Consent aktiv.
+              {t('legal.ds.p11')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">12. Änderungen dieser Erklärung</h2>
+            <h2 className="text-xl sm:text-2xl font-light text-neutral-100 mb-3">{t('legal.ds.h12')}</h2>
             <p>
-              Wir passen diese Datenschutzerklärung an, wenn sich Rechtslage oder Verarbeitungen
-              ändern. Die jeweils aktuelle Fassung ist unter dieser URL abrufbar. Substantielle
-              Änderungen kommunizieren wir aktiv per E-Mail.
+              {t('legal.ds.p12')}
             </p>
           </section>
 

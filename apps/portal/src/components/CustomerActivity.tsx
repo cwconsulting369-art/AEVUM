@@ -11,6 +11,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { api, getAccessToken } from '@/lib/api';
 import Spinner from '@/components/Spinner';
 import { Activity, Coins, Hash, Mail, Download, Calendar } from 'lucide-react';
@@ -37,17 +38,17 @@ type Resp = {
 };
 
 const RANGE_OPTIONS = [
-  { value: 7, label: '7 Tage' },
-  { value: 30, label: '30 Tage' },
-  { value: 90, label: '90 Tage' },
+  { value: 7, labelKey: 'documents.range7' },
+  { value: 30, labelKey: 'documents.range30' },
+  { value: 90, labelKey: 'documents.range90' },
 ];
 
-const SERVICE_LABELS: Record<string, string> = {
-  helpbot: 'Helpbot',
-  'project-agent': 'Project-Agent',
-  factory: 'Factories',
-  audit: 'Audit',
-  other: 'Sonstige',
+const SERVICE_LABEL_KEYS: Record<string, string> = {
+  helpbot: 'documents.svcHelpbot',
+  'project-agent': 'documents.svcProjectAgent',
+  factory: 'documents.svcFactory',
+  audit: 'documents.svcAudit',
+  other: 'documents.svcOther',
 };
 
 const SERVICE_COLORS: Record<string, string> = {
@@ -79,6 +80,7 @@ function fmtDay(iso: string) {
 }
 
 export default function CustomerActivity() {
+  const { t } = useTranslation();
   const { slug = '' } = useParams();
   const [days, setDays] = useState<number>(30);
   const [data, setData] = useState<Resp | null>(null);
@@ -92,7 +94,7 @@ export default function CustomerActivity() {
         const r = await api<Resp>(`/api/me/projects/${slug}/activity?days=${days}`);
         if (!cancelled) setData(r);
       } catch (e) {
-        toast.error('Activity-Daten konnten nicht geladen werden');
+        toast.error(t('documents.activityLoadError'));
         console.error(e);
       } finally {
         if (!cancelled) setLoading(false);
@@ -125,14 +127,14 @@ export default function CustomerActivity() {
         a.click();
         URL.revokeObjectURL(a.href);
       })
-      .catch(() => toast.error('CSV-Export fehlgeschlagen'));
+      .catch(() => toast.error(t('documents.csvError')));
   };
 
   if (loading) {
     return <div className="flex justify-center py-12"><Spinner size="md" /></div>;
   }
   if (!data) {
-    return <p className="text-sm text-ink-500 py-12 text-center">Keine Daten verfügbar.</p>;
+    return <p className="text-sm text-ink-500 py-12 text-center">{t('documents.noData')}</p>;
   }
 
   const s = data.summary;
@@ -143,10 +145,10 @@ export default function CustomerActivity() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="min-w-0">
           <h2 className="text-lg font-medium text-ink-100 flex items-center gap-2 break-words">
-            <Activity size={18} className="shrink-0" /> Activity — {data.project.name}
+            <Activity size={18} className="shrink-0" /> {t('documents.activityTitle', { name: data.project.name })}
           </h2>
           <p className="text-xs text-ink-500 mt-1">
-            Letzte Aktivität: {fmtDate(s.last_activity)}
+            {t('documents.lastActivity', { date: fmtDate(s.last_activity) })}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -156,7 +158,7 @@ export default function CustomerActivity() {
             className="bg-ink-900 border border-ink-800 rounded px-2 py-1 text-sm text-ink-100"
           >
             {RANGE_OPTIONS.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
+              <option key={o.value} value={o.value}>{t(o.labelKey)}</option>
             ))}
           </select>
           <button
@@ -171,23 +173,23 @@ export default function CustomerActivity() {
 
       {/* KPI-Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard Icon={Mail} label="Nachrichten" value={s.total_messages.toString()} />
-        <KpiCard Icon={Hash} label="Tokens" value={fmtNum(s.total_tokens)} sub={`in: ${fmtNum(s.total_input_tokens)} · out: ${fmtNum(s.total_output_tokens)}`} />
-        <KpiCard Icon={Coins} label="Kosten" value={fmtEur(s.total_cost_eur)} />
-        <KpiCard Icon={Calendar} label="Tagesausgaben" value={fmtEur(data.current_period_billing.daily_spend_eur)} sub="rolling 24h" />
+        <KpiCard Icon={Mail} label={t('documents.kpiMessages')} value={s.total_messages.toString()} />
+        <KpiCard Icon={Hash} label={t('documents.kpiTokens')} value={fmtNum(s.total_tokens)} sub={t('documents.kpiTokensSub', { input: fmtNum(s.total_input_tokens), output: fmtNum(s.total_output_tokens) })} />
+        <KpiCard Icon={Coins} label={t('documents.kpiCost')} value={fmtEur(s.total_cost_eur)} />
+        <KpiCard Icon={Calendar} label={t('documents.kpiDaily')} value={fmtEur(data.current_period_billing.daily_spend_eur)} sub={t('documents.kpiDailySub')} />
       </div>
 
       {/* Breakdown by service */}
       {data.breakdown_by_service.length > 0 && (
         <div className="border border-ink-800 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-ink-100 mb-3">Kosten nach Service</h3>
+          <h3 className="text-sm font-medium text-ink-100 mb-3">{t('documents.costByService')}</h3>
           <div className="space-y-2">
             {data.breakdown_by_service.map(b => {
               const pct = totalBreakdownCost > 0 ? (b.cost_eur / totalBreakdownCost) * 100 : 0;
               return (
                 <div key={b.service} className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-ink-300">{SERVICE_LABELS[b.service] || b.service}</span>
+                    <span className="text-ink-300">{SERVICE_LABEL_KEYS[b.service] ? t(SERVICE_LABEL_KEYS[b.service]) : b.service}</span>
                     <span className="text-ink-400 tabular-nums">
                       {fmtEur(b.cost_eur)} · {b.messages} msg · {fmtNum(b.tokens)} tok
                     </span>
@@ -207,12 +209,12 @@ export default function CustomerActivity() {
 
       {/* Time-series (CSS bars) */}
       <div className="border border-ink-800 rounded-lg p-4">
-        <h3 className="text-sm font-medium text-ink-100 mb-3">Kosten-Verlauf ({days}d)</h3>
+        <h3 className="text-sm font-medium text-ink-100 mb-3">{t('documents.costHistory', { days })}</h3>
         {s.total_cost_eur === 0 ? (
-          <p className="text-xs text-ink-500 py-4 text-center">Keine Aktivität in diesem Zeitraum.</p>
+          <p className="text-xs text-ink-500 py-4 text-center">{t('documents.noActivityRange')}</p>
         ) : (
           <div className="space-y-1">
-            <div className="flex items-end gap-px h-32" role="img" aria-label="Kosten pro Tag Balkendiagramm">
+            <div className="flex items-end gap-px h-32" role="img" aria-label={t('documents.chartAria')}>
               {data.timeseries.map(p => {
                 const h = (p.cost_eur / maxBarValue) * 100;
                 return (

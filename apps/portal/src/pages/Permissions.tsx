@@ -1,33 +1,35 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import { ShieldCheck, Megaphone, Share2, EyeOff, Save, Lock } from 'lucide-react';
 
 const FLAGS = [
-  { key: 'share_logo', label: 'Logo zeigen' },
-  { key: 'share_company_name', label: 'Firmenname zeigen' },
-  { key: 'share_industry', label: 'Branche zeigen' },
-  { key: 'share_revenue_band', label: 'Umsatz-Band zeigen' },
-  { key: 'share_team_size', label: 'Team-Größe zeigen' },
-  { key: 'share_kpis', label: 'Konkrete KPIs zeigen' },
-  { key: 'share_kpi_deltas', label: 'KPI-Veränderungen zeigen (vorher → nachher)' },
-  { key: 'share_case_study', label: 'Case-Study veröffentlichen' },
-  { key: 'share_testimonial_quote', label: 'Testimonial-Zitat veröffentlichen' },
-  { key: 'share_video_testimonial', label: 'Video-Testimonial veröffentlichen' }
+  { key: 'share_logo', labelKey: 'permissions.flagLogo' },
+  { key: 'share_company_name', labelKey: 'permissions.flagCompanyName' },
+  { key: 'share_industry', labelKey: 'permissions.flagIndustry' },
+  { key: 'share_revenue_band', labelKey: 'permissions.flagRevenueBand' },
+  { key: 'share_team_size', labelKey: 'permissions.flagTeamSize' },
+  { key: 'share_kpis', labelKey: 'permissions.flagKpis' },
+  { key: 'share_kpi_deltas', labelKey: 'permissions.flagKpiDeltas' },
+  { key: 'share_case_study', labelKey: 'permissions.flagCaseStudy' },
+  { key: 'share_testimonial_quote', labelKey: 'permissions.flagTestimonialQuote' },
+  { key: 'share_video_testimonial', labelKey: 'permissions.flagVideoTestimonial' }
 ];
 const CHANNELS = [
-  { key: 'channel_website', label: 'AEVUM-Website' },
-  { key: 'channel_linkedin', label: 'LinkedIn' },
-  { key: 'channel_pitchdeck', label: 'Pitchdeck (Sales-Material)' },
-  { key: 'channel_internal_network', label: 'AEVUM-Netzwerk-Intern' }
+  { key: 'channel_website', labelKey: 'permissions.channelWebsite' },
+  { key: 'channel_linkedin', labelKey: 'permissions.channelLinkedin' },
+  { key: 'channel_pitchdeck', labelKey: 'permissions.channelPitchdeck' },
+  { key: 'channel_internal_network', labelKey: 'permissions.channelInternalNetwork' }
 ];
 const ANONYMIZE = [
-  { key: 'anonymize_revenue', label: 'Umsatzzahlen anonymisieren ("7-stelliges Business")' },
-  { key: 'anonymize_industry_detail', label: 'Branchen-Detail anonymisieren' }
+  { key: 'anonymize_revenue', labelKey: 'permissions.anonRevenue' },
+  { key: 'anonymize_industry_detail', labelKey: 'permissions.anonIndustryDetail' }
 ];
 
 export default function Permissions() {
+  const { t } = useTranslation();
   const { me, refresh } = useAuth();
   const [state, setState] = useState<Record<string, boolean>>({ ...(me?.permissions || {}) });
   const [saving, setSaving] = useState(false);
@@ -44,10 +46,10 @@ export default function Permissions() {
         for (const f of arr) patch[f.key] = !!state[f.key];
       }
       await api('/api/me/permissions', { method: 'PATCH', body: JSON.stringify(patch) });
-      toast.success('Permissions gespeichert + digital signiert');
+      toast.success(t('permissions.saved'));
       await refresh();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'Speichern fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('permissions.saveError'));
     } finally {
       setSaving(false);
     }
@@ -57,45 +59,45 @@ export default function Permissions() {
     <div>
       <header className="mb-10">
         <div className="flex items-center gap-2 text-xs text-gold-300 mb-3 uppercase tracking-wider font-semibold">
-          <ShieldCheck size={12} /> Datenkontrolle
+          <ShieldCheck size={12} /> {t('permissions.eyebrow')}
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">Permissions</h1>
-        <p className="text-ink-400 mt-2">Du kontrollierst, was AEVUM von dir teilen darf. Default: nichts public.</p>
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">{t('permissions.title')}</h1>
+        <p className="text-ink-400 mt-2">{t('permissions.subtitle')}</p>
         {me?.permissions?.consent_date && (
           <div className="mt-4 inline-flex items-center gap-2 badge badge-gold">
             <Lock size={11} />
-            Zuletzt signiert: {new Date(me.permissions.consent_date).toLocaleString('de-DE')}
+            {t('permissions.lastSigned', { date: new Date(me.permissions.consent_date).toLocaleString('de-DE') })}
           </div>
         )}
       </header>
 
       <div className="space-y-6 max-w-3xl">
-        <Section title="Was darf AEVUM zeigen" icon={Megaphone}>
-          {FLAGS.map(f => <Toggle key={f.key} flag={f.key} label={f.label} on={!!state[f.key]} onToggle={toggle} />)}
+        <Section title={t('permissions.sectionShow')} icon={Megaphone}>
+          {FLAGS.map(f => <Toggle key={f.key} flag={f.key} label={t(f.labelKey)} on={!!state[f.key]} onToggle={toggle} />)}
         </Section>
 
-        <Section title="Auf welchen Kanälen" icon={Share2}>
-          {CHANNELS.map(f => <Toggle key={f.key} flag={f.key} label={f.label} on={!!state[f.key]} onToggle={toggle} />)}
+        <Section title={t('permissions.sectionChannels')} icon={Share2}>
+          {CHANNELS.map(f => <Toggle key={f.key} flag={f.key} label={t(f.labelKey)} on={!!state[f.key]} onToggle={toggle} />)}
         </Section>
 
-        <Section title="Anonymisierung" icon={EyeOff}>
-          {ANONYMIZE.map(f => <Toggle key={f.key} flag={f.key} label={f.label} on={!!state[f.key]} onToggle={toggle} />)}
+        <Section title={t('permissions.sectionAnonymize')} icon={EyeOff}>
+          {ANONYMIZE.map(f => <Toggle key={f.key} flag={f.key} label={t(f.labelKey)} on={!!state[f.key]} onToggle={toggle} />)}
         </Section>
 
         <div className="sticky bottom-4 z-10">
           <div className="glass rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
             <div className="text-xs text-ink-300">
-              Änderungen werden mit Timestamp + Account-ID digital signiert.
+              {t('permissions.signNotice')}
             </div>
             <button disabled={saving} onClick={() => setConfirm(true)} className="btn-gold w-full sm:w-auto justify-center">
               {saving ? (
                 <>
                   <span className="w-4 h-4 border-2 border-ink-950/50 border-t-ink-950 rounded-full animate-spin" />
-                  Speichere…
+                  {t('permissions.saving')}
                 </>
               ) : (
                 <>
-                  <Save size={16} /> Speichern + Signieren
+                  <Save size={16} /> {t('permissions.saveSign')}
                 </>
               )}
             </button>
@@ -111,13 +113,13 @@ export default function Permissions() {
             <div className="w-12 h-12 rounded-full bg-gold-400/15 border border-gold-400/30 flex items-center justify-center mb-4">
               <ShieldCheck size={22} className="text-gold-300" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Signieren bestätigen</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('permissions.confirmTitle')}</h3>
             <p className="text-sm text-ink-300 leading-relaxed">
-              Dies signiert deine Permissions digital mit Timestamp + Account-ID. Du kannst sie jederzeit ändern.
+              {t('permissions.confirmBody')}
             </p>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setConfirm(false)} className="btn-ghost flex-1">Abbrechen</button>
-              <button onClick={doSave} className="btn-gold flex-1">Bestätigen</button>
+              <button onClick={() => setConfirm(false)} className="btn-ghost flex-1">{t('permissions.cancel')}</button>
+              <button onClick={doSave} className="btn-gold flex-1">{t('permissions.confirm')}</button>
             </div>
           </div>
         </div>

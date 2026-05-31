@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import {
   Plus, Pencil, Trash2, ExternalLink, Globe, Github, Wrench,
   Cloud, Folder, Link as LinkIcon, X, Check
@@ -29,13 +30,13 @@ type QuicklinkInput = {
 
 const CATEGORIES: Category[] = ['website', 'repo', 'tool', 'service', 'resource', 'other'];
 
-const CATEGORY_LABELS: Record<Category, string> = {
-  website:  'Webseiten',
-  repo:     'Repositories',
-  tool:     'Tools',
-  service:  'Services',
-  resource: 'Resources',
-  other:    'Weitere'
+const CATEGORY_LABEL_KEYS: Record<Category, string> = {
+  website:  'quicklinks.catWebsite',
+  repo:     'quicklinks.catRepo',
+  tool:     'quicklinks.catTool',
+  service:  'quicklinks.catService',
+  resource: 'quicklinks.catResource',
+  other:    'quicklinks.catOther'
 };
 
 const CATEGORY_FALLBACK_ICON: Record<Category, React.ComponentType<{ size?: number; className?: string }>> = {
@@ -57,6 +58,7 @@ function domainOf(url: string): string {
 }
 
 export default function QuicklinksSection({ projectSlug }: { projectSlug: string }) {
+  const { t } = useTranslation();
   const [links, setLinks] = useState<Quicklink[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -70,7 +72,7 @@ export default function QuicklinksSection({ projectSlug }: { projectSlug: string
       );
       setLinks(data.quicklinks);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'Laden fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('quicklinks.loadError'));
     } finally {
       setLoading(false);
     }
@@ -95,7 +97,7 @@ export default function QuicklinksSection({ projectSlug }: { projectSlug: string
       method: 'POST',
       body: JSON.stringify(input)
     });
-    toast.success(`"${input.label}" hinzugefügt`);
+    toast.success(t('quicklinks.added', { label: input.label }));
     setShowForm(false);
     load();
   };
@@ -105,7 +107,7 @@ export default function QuicklinksSection({ projectSlug }: { projectSlug: string
       method: 'PATCH',
       body: JSON.stringify(input)
     });
-    toast.success('Aktualisiert');
+    toast.success(t('quicklinks.updated'));
     setEditId(null);
     load();
   };
@@ -113,11 +115,11 @@ export default function QuicklinksSection({ projectSlug }: { projectSlug: string
   const remove = async (id: string) => {
     try {
       await api(`/api/me/projects/${projectSlug}/quicklinks/${id}`, { method: 'DELETE' });
-      toast.success('Entfernt');
+      toast.success(t('quicklinks.removed'));
       setConfirmId(null);
       load();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'Löschen fehlgeschlagen');
+      toast.error(e instanceof Error ? e.message : t('quicklinks.deleteError'));
     }
   };
 
@@ -128,16 +130,16 @@ export default function QuicklinksSection({ projectSlug }: { projectSlug: string
           <LinkIcon size={16} className="text-gold-300" />
         </div>
         <div className="min-w-0">
-          <h2 className="text-lg font-bold text-white">Quicklinks</h2>
+          <h2 className="text-lg font-bold text-white">{t('quicklinks.title')}</h2>
           <p className="text-xs text-ink-400 mt-0.5">
-            Alle wichtigen URLs deines Projekts an einem Ort
+            {t('quicklinks.subtitle')}
           </p>
         </div>
         <button
           onClick={() => { setShowForm(s => !s); setEditId(null); }}
           className="btn-gold ml-auto text-sm"
         >
-          {showForm ? <><X size={13} /> Schließen</> : <><Plus size={13} /> Hinzufügen</>}
+          {showForm ? <><X size={13} /> {t('quicklinks.close')}</> : <><Plus size={13} /> {t('quicklinks.add')}</>}
         </button>
       </div>
 
@@ -151,17 +153,17 @@ export default function QuicklinksSection({ projectSlug }: { projectSlug: string
       )}
 
       {loading ? (
-        <div className="card-premium p-10 text-center text-sm text-ink-400">Lade Quicklinks…</div>
+        <div className="card-premium p-10 text-center text-sm text-ink-400">{t('quicklinks.loading')}</div>
       ) : links.length === 0 ? (
         <div className="card-premium p-10 text-center text-sm text-ink-400">
-          Noch keine Quicklinks. Klick auf <strong className="text-gold-300">Hinzufügen</strong>, um deinen ersten Link anzulegen.
+          {t('quicklinks.emptyPrefix')}<strong className="text-gold-300">{t('quicklinks.emptyStrong')}</strong>{t('quicklinks.emptySuffix')}
         </div>
       ) : (
         <div className="space-y-7">
           {CATEGORIES.filter(c => grouped[c].length > 0).map(category => (
             <div key={category}>
               <h3 className="text-[0.65rem] font-semibold text-ink-400 uppercase tracking-wider mb-2.5">
-                {CATEGORY_LABELS[category]}{' '}
+                {t(CATEGORY_LABEL_KEYS[category])}{' '}
                 <span className="text-ink-500 font-normal normal-case">({grouped[category].length})</span>
               </h3>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -209,6 +211,7 @@ function QuicklinkCard({
   onCancelDelete: () => void;
   onConfirmDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const Icon = CATEGORY_FALLBACK_ICON[link.category];
 
   if (confirmDelete) {
@@ -218,20 +221,20 @@ function QuicklinkCard({
         style={stagger(delay, 40, 40)}
       >
         <div className="text-sm text-white">
-          „{link.label}" löschen?
+          {t('quicklinks.confirmDelete', { label: link.label })}
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={onCancelDelete}
             className="text-xs text-ink-300 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/5 transition flex-1"
           >
-            Abbrechen
+            {t('quicklinks.cancel')}
           </button>
           <button
             onClick={onConfirmDelete}
             className="text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 px-3 py-1.5 rounded-md hover:bg-rose-500/20 transition flex-1"
           >
-            Löschen
+            {t('quicklinks.delete')}
           </button>
         </div>
       </div>
@@ -265,14 +268,14 @@ function QuicklinkCard({
         <button
           onClick={onEdit}
           className="text-ink-400 hover:text-gold-300 p-1.5 rounded-md hover:bg-white/5 transition"
-          title="Bearbeiten"
+          title={t('quicklinks.edit')}
         >
           <Pencil size={13} />
         </button>
         <button
           onClick={onAskDelete}
           className="text-ink-400 hover:text-rose-300 p-1.5 rounded-md hover:bg-rose-500/10 transition"
-          title="Löschen"
+          title={t('quicklinks.delete')}
         >
           <Trash2 size={13} />
         </button>
@@ -292,6 +295,7 @@ function QuicklinkForm({
   onSubmit: (data: QuicklinkInput) => Promise<void> | void;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const [label,    setLabel]    = useState(initial?.label ?? '');
   const [url,      setUrl]      = useState(initial?.url ?? '');
   const [category, setCategory] = useState<Category>(initial?.category ?? 'website');
@@ -309,7 +313,7 @@ function QuicklinkForm({
         icon: icon.trim() || null
       });
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Speichern fehlgeschlagen');
+      toast.error(err instanceof Error ? err.message : t('quicklinks.saveError'));
     } finally {
       setBusy(false);
     }
@@ -319,45 +323,45 @@ function QuicklinkForm({
     <form onSubmit={submit} className="card-premium p-5 space-y-4">
       <div className="grid sm:grid-cols-2 gap-4">
         <label className="block">
-          <span className="block text-xs font-medium mb-1.5 text-ink-200">Label</span>
+          <span className="block text-xs font-medium mb-1.5 text-ink-200">{t('quicklinks.fieldLabel')}</span>
           <input
             required maxLength={100}
             value={label}
             onChange={e => setLabel(e.target.value)}
-            placeholder="z. B. Shopify Store"
+            placeholder={t('quicklinks.labelPlaceholder')}
             className="input-premium"
           />
         </label>
         <label className="block">
-          <span className="block text-xs font-medium mb-1.5 text-ink-200">Kategorie</span>
+          <span className="block text-xs font-medium mb-1.5 text-ink-200">{t('quicklinks.fieldCategory')}</span>
           <select
             value={category}
             onChange={e => setCategory(e.target.value as Category)}
             className="input-premium"
           >
             {CATEGORIES.map(c => (
-              <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
+              <option key={c} value={c}>{t(CATEGORY_LABEL_KEYS[c])}</option>
             ))}
           </select>
         </label>
       </div>
       <label className="block">
-        <span className="block text-xs font-medium mb-1.5 text-ink-200">URL</span>
+        <span className="block text-xs font-medium mb-1.5 text-ink-200">{t('quicklinks.fieldUrl')}</span>
         <input
           required type="url" maxLength={2000}
           value={url}
           onChange={e => setUrl(e.target.value)}
-          placeholder="https://…"
+          placeholder={t('quicklinks.urlPlaceholder')}
           className="input-premium"
         />
       </label>
       <label className="block">
-        <span className="block text-xs font-medium mb-1.5 text-ink-200">Icon (optional)</span>
+        <span className="block text-xs font-medium mb-1.5 text-ink-200">{t('quicklinks.fieldIcon')}</span>
         <input
           maxLength={50}
           value={icon ?? ''}
           onChange={e => setIcon(e.target.value)}
-          placeholder="lucide-Name, z. B. Shop, Mail, Database"
+          placeholder={t('quicklinks.iconPlaceholder')}
           className="input-premium"
         />
       </label>
@@ -366,15 +370,15 @@ function QuicklinkForm({
           type="button" onClick={onCancel}
           className="text-xs text-ink-300 hover:text-white px-3 py-2 rounded-md hover:bg-white/5 transition"
         >
-          Abbrechen
+          {t('quicklinks.cancel')}
         </button>
         <button
           disabled={busy || !label || !url}
           className="btn-gold text-sm"
         >
           {busy
-            ? <><span className="w-3.5 h-3.5 border-2 border-ink-950/50 border-t-ink-950 rounded-full animate-spin" /> Speichern…</>
-            : <><Check size={13} /> {initial ? 'Aktualisieren' : 'Hinzufügen'}</>
+            ? <><span className="w-3.5 h-3.5 border-2 border-ink-950/50 border-t-ink-950 rounded-full animate-spin" /> {t('quicklinks.saving')}</>
+            : <><Check size={13} /> {initial ? t('quicklinks.update') : t('quicklinks.add')}</>
           }
         </button>
       </div>
